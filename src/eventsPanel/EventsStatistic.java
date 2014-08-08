@@ -927,7 +927,7 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
                 try {
                     HashMap hashMap = new HashMap();
                     chart.setTitle("");
-                    ConnectDB.tempDir = new File(ConnectDB.TAMPON + File.separator + "SmartFactory Data");
+                    ConnectDB.tempDir = new File(ConnectDB.DEFAULTDIRECTORY + File.separator + "SmartFactory Data");
                     if (!ConnectDB.tempDir.exists()) {
                         ConnectDB.tempDir.mkdirs();
                     }
@@ -1146,9 +1146,9 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
         getComponentDates();
         //
         Set<String> setDescriptionValue = new TreeSet<>();
-        PreparedStatement ps = null;
+        PreparedStatement ps;
         setDescription.clear();
-        String time = null, query = "";
+        String time = null, query;
         int j = 1;
 
         treeMainTitle = machineTitle;
@@ -1247,7 +1247,7 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
 
     private Vector getDummyData(Set<String> set) {
         Vector dummyPartData = new Vector();
-        String treeValue = "";
+        String treeValue;
         for (Object object : set) {
             treeDescription = object.toString().split(",")[0];
             treeValue = object.toString().split(",")[1];
@@ -1326,12 +1326,10 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
                 title = path.getPath()[0].toString();//Root Node title
                 if (!_tree.getModel().isLeaf(path.getLastPathComponent())
                         && (!path.getLastPathComponent().toString().equals(path.getPath()[0].toString()))) {
-                    for (int i = 0; i < path.getPath().length; i++) {
+                    for (Object path1 : path.getPath()) {
                         title = "";
-                        if (path.getPath()[i].toString().equalsIgnoreCase(treeMainTitle)) {
-                            continue;
-                        } else {
-                            title += path.getPath()[i] + " ";
+                        if (!path1.toString().equalsIgnoreCase(treeMainTitle)) {                     
+                            title += path1 + " ";
                         }
                     }
                     title = title.substring(0, title.length() - 1).toLowerCase();
@@ -1564,14 +1562,12 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
         chart.setShadowVisible(ConnectDB.pref.getBoolean(StatKeyFactory.ChartFeatures.ChBShadow, true));
         chart.setSelectionEnabled(true);
         chart.setSelectionShowsOutline(false);
-        for (int i = 0; i < HL.size(); i++) {
+        for (Object HL1 : HL) {
             if (ConnectDB.pref.getBoolean(StatKeyFactory.ChartFeatures.RandomColor, true)) {
-                chart.setHighlightStyle(((ChartCategory) HL.get(i)).getHighlight(),
-                        new ChartStyle(randomColor.randomColor()).withBars());
+                chart.setHighlightStyle(((ChartCategory) HL1).getHighlight(), new ChartStyle(randomColor.randomColor()).withBars());
             } else {
-                chart.setHighlightStyle(((ChartCategory) HL.get(i)).getHighlight(),
-                        new ChartStyle(getColorFromKey(ConnectDB.pref.get(StatKeyFactory.ChartFeatures.CBColor2,
-                                                "0, 204, 0"))).withBars());
+                chart.setHighlightStyle(((ChartCategory) HL1).getHighlight(), new ChartStyle(getColorFromKey(ConnectDB.pref.get(StatKeyFactory.ChartFeatures.CBColor2,
+                        "0, 204, 0"))).withBars());
             }
         }
         chart.addMousePanner().addMouseZoomer();
@@ -1647,9 +1643,8 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
         chart.setRolloverEnabled(ConnectDB.pref.getBoolean(StatKeyFactory.ChartFeatures.ChBRollover, false));
         chart.setSelectionShowsExplodedSegments(ConnectDB.pref.getBoolean(StatKeyFactory.ChartFeatures.ChBExplodedSegment, false));
 
-        for (int i = 0; i < HL.size(); i++) {
-            chart.setHighlightStyle(((ChartCategory) HL.get(i)).getHighlight(),
-                    new ChartStyle(randomColor.randomColor()).withBars());
+        for (Object HL1 : HL) {
+            chart.setHighlightStyle(((ChartCategory) HL1).getHighlight(), new ChartStyle(randomColor.randomColor()).withBars());
         }
         btnPercentage.addItemListener(new ItemListener() {
 
@@ -1675,7 +1670,7 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
                 } else if (e.getStateChange() == ItemEvent.DESELECTED) {
 //                System.out.println("button is not selected");
                     AbstractPieSegmentRenderer renderer = (AbstractPieSegmentRenderer) chart.getPieSegmentRenderer();
-                    PieLabelRenderer labelRenderer = null;
+                    PieLabelRenderer labelRenderer;
                     if (ConnectDB.pref.getBoolean(StatKeyFactory.ChartFeatures.RBLineLabel, true)) {
                         labelRenderer = new LinePieLabelRenderer();
                     } else if (ConnectDB.pref.getBoolean(StatKeyFactory.ChartFeatures.RBSimpleLabel, false)) {
@@ -1762,8 +1757,8 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
 
     private String manyCriteria(Object[] list) {
         String values = "";
-        for (int i = 0; i < list.length; i++) {
-            values += "\'" + ConnectDB.firstLetterCapital(list[i].toString()) + "\',";
+        for (Object list1 : list) {
+            values += "\'" + ConnectDB.firstLetterCapital(list1.toString()) + "\',";
         }
         values = values.substring(0, values.length() - 1);
         return values;
@@ -1831,7 +1826,7 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
 
 //        private Integer m_IDpart;
         private String m_machName;
-        private String m_machDomain;
+        private final String m_machDomain;
 
         public Machine(String machName, String machDomain) {
 //            m_IDpart = IDMach;
@@ -1961,7 +1956,7 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
     public static JTree _tree;
     public static String machineTitle, customCodeValue = "";
     public static Set<String> setDescription = new TreeSet<>(), setDescOrValue = new TreeSet<>();
-    private Timer timer;
+    private final Timer timer;
     private EventsHierarchicalTable eht;
     JFrame _parent;
     Thread runThread;

@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="chart" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" isSummaryWithPageHeaderAndFooter="true" uuid="78017f05-8a34-497c-b9f2-bc6678d37172">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="201"/>
+	<style name="table">
+		<box>
+			<pen lineWidth="1.0" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table_TH" mode="Opaque" backcolor="#F0F8FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table_CH" mode="Opaque" backcolor="#BFE1FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table_TD" mode="Opaque" backcolor="#FFFFFF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+		<conditionalStyle>
+			<conditionExpression><![CDATA[new Boolean($V{REPORT_COUNT}.intValue()%2==0)]]></conditionExpression>
+			<style backcolor="#EFF7FF"/>
+		</conditionalStyle>
+	</style>
+	<subDataset name="Table Dataset 1" uuid="c49eab9f-4ae9-46e8-a63a-6a42d905723a"/>
+	<parameter name="photo" class="java.io.InputStream"/>
+	<parameter name="title" class="java.lang.String"/>
+	<parameter name="logo" class="java.io.InputStream"/>
+	<parameter name="tableName" class="java.lang.String"/>
+	<parameter name="SUBREPORT_DIR" class="java.io.InputStream" isForPrompting="false">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="MyTableModel" class="javax.swing.table.TableModel"/>
+	<parameter name="logo2" class="java.io.InputStream"/>
+	<parameter name="date1" class="java.lang.String"/>
+	<parameter name="date2" class="java.lang.String"/>
+	<parameter name="valueTitle" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[SELECT
+     hardware.`HwNo` AS hardware_HwNo,
+     hardware.`Machine` AS hardware_Machine
+FROM
+     `hardware` hardware]]>
+	</queryString>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="113" splitType="Stretch">
+			<image scaleImage="RealHeight" onErrorType="Icon">
+				<reportElement uuid="a2c01295-f448-4b81-9c50-9b15f5b47252" x="0" y="0" width="103" height="113"/>
+				<imageExpression><![CDATA[$P{logo}]]></imageExpression>
+			</image>
+			<line>
+				<reportElement uuid="065e83ac-7bd7-4bee-9bdb-9afe487d67a4" x="103" y="37" width="452" height="1"/>
+				<graphicElement>
+					<pen lineWidth="2.0" lineStyle="Double" lineColor="#009900"/>
+				</graphicElement>
+			</line>
+			<textField isBlankWhenNull="true">
+				<reportElement uuid="65f72691-2d83-49a8-8699-78bf30b330e3" x="116" y="73" width="370" height="23"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="13" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{title} + " Chart"]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="5a9e0e90-1b96-4059-b151-910ebeb9c69d" x="103" y="38" width="395" height="35"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="22" isBold="true"/>
+				</textElement>
+				<text><![CDATA[SmartFactory Production Report]]></text>
+			</staticText>
+			<image scaleImage="FillFrame" onErrorType="Icon">
+				<reportElement uuid="bb989e3b-ea4f-487b-b40c-78a9fd10ddd5" x="453" y="0" width="102" height="35"/>
+				<imageExpression><![CDATA[$P{logo2}]]></imageExpression>
+			</image>
+		</band>
+	</title>
+	<pageFooter>
+		<band height="40" splitType="Stretch">
+			<staticText>
+				<reportElement uuid="c55e2d05-0240-4b66-880e-5737366c2de4" mode="Opaque" x="317" y="27" width="89" height="13" forecolor="#0000FF"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Serif" size="7" isUnderline="true"/>
+				</textElement>
+				<text><![CDATA[http://www.ideax-africa.com]]></text>
+			</staticText>
+			<line>
+				<reportElement uuid="0aa493e1-10d3-41f5-b310-d2cfec470a90" x="21" y="9" width="513" height="1"/>
+				<graphicElement>
+					<pen lineWidth="0.5"/>
+				</graphicElement>
+			</line>
+			<staticText>
+				<reportElement uuid="0af14f90-3027-4fd3-9b6b-797b825e4c16" mode="Opaque" x="290" y="27" width="27" height="13"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Serif" size="7" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Web :]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="a318ef40-7c71-45a3-88fd-e2ff41126166" mode="Opaque" x="103" y="17" width="364" height="10" forecolor="#000000"/>
+				<textElement textAlignment="Center">
+					<font fontName="Serif" size="7" isBold="true"/>
+				</textElement>
+				<text><![CDATA[220, 2nd Street, Randjiespark, Midrand 1685, Johannesburg, South Africa.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="34eab309-61ae-40b7-931e-38efc1d85f61" mode="Opaque" x="202" y="27" width="84" height="13" forecolor="#0000FF"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Serif" size="7" isUnderline="true"/>
+				</textElement>
+				<text><![CDATA[munya@ideax-africa.com]]></text>
+			</staticText>
+			<line>
+				<reportElement uuid="3f08e2f1-7aed-4964-91c4-fe2332e4829f" x="0" y="4" width="555" height="1"/>
+				<graphicElement>
+					<pen lineWidth="1.5"/>
+				</graphicElement>
+			</line>
+			<staticText>
+				<reportElement uuid="a7eb5ad2-bd75-4766-99c0-d2e3f5c3cb61" mode="Opaque" x="166" y="27" width="34" height="13"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Serif" size="7" isBold="true" isUnderline="false"/>
+				</textElement>
+				<text><![CDATA[E - mail : ]]></text>
+			</staticText>
+			<textField pattern="MMMMM dd, yyyy">
+				<reportElement uuid="ef385508-2044-4ad5-9fae-ea023009decc" x="0" y="24" width="72" height="14"/>
+				<textElement verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="2d16501b-2239-4b67-9724-f44f9381fe1f" x="498" y="24" width="36" height="14"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Page "+$V{PAGE_NUMBER}+" of"]]></textFieldExpression>
+			</textField>
+			<textField evaluationTime="Report">
+				<reportElement uuid="ea762113-3969-4e1e-8ac8-2ed0624d2eb4" x="534" y="24" width="21" height="14"/>
+				<box rightPadding="0"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageFooter>
+	<summary>
+		<band height="349">
+			<image>
+				<reportElement uuid="2fee7f2e-2f33-4dcd-9df2-e1d70fc76e26" x="22" y="-1" width="512" height="278"/>
+				<imageExpression><![CDATA[$P{photo}]]></imageExpression>
+			</image>
+			<textField>
+				<reportElement uuid="1d9f3632-9433-4c30-9f45-a02752292305" x="0" y="274" width="555" height="20"/>
+				<box leftPadding="45"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="11" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[(($P{tableName} == null) ? "" : $P{tableName}.toString()) +
+" Analysis period: " + $P{date1} + " - " + $P{date2}]]></textFieldExpression>
+			</textField>
+			<subreport>
+				<reportElement uuid="ccb4f0aa-262f-46ee-8526-1714554eb8b3" x="0" y="283" width="534" height="66"/>
+				<subreportParameter name="tableSource"/>
+				<subreportParameter name="valueTitle">
+					<subreportParameterExpression><![CDATA[$P{valueTitle}]]></subreportParameterExpression>
+				</subreportParameter>
+				<dataSourceExpression><![CDATA[new net.sf.jasperreports.engine.data.JRTableModelDataSource($P{MyTableModel})]]></dataSourceExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR}]]></subreportExpression>
+			</subreport>
+		</band>
+	</summary>
+</jasperReport>
