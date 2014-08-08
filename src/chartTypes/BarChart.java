@@ -64,7 +64,7 @@ import smartfactoryV2.ConnectDB;
  */
 public class BarChart extends Chart {
 
-    public BarChart(final int IDChannel, final String query, final boolean withShifts, String machineTitle,
+    public BarChart(final int ConfigNo, final String query, final boolean withShifts, String machineTitle,
             String chanTitle, Date start, Date end) throws SQLException {
         super();
         this._machineTitle = machineTitle;
@@ -90,7 +90,7 @@ public class BarChart extends Chart {
         PreparedStatement ps = ConnectDB.con.prepareStatement(query);
         int z = 1;
         ps.setString(z++, this._chanTitle);
-        ps.setInt(z++, IDChannel);
+        ps.setInt(z++, ConfigNo);
         ps.setString(z++, ConnectDB.SDATEFORMATHOUR.format(this._startD));
         ps.setString(z++, ConnectDB.SDATEFORMATHOUR.format(this._endD));
 //        System.out.println(ps.toString());
@@ -139,7 +139,7 @@ public class BarChart extends Chart {
                                     + " AND (dl0.LogTime BETWEEN '" + fVal + "' AND '" + sVal + "') "
                                     + "ORDER BY 'Time' ASC";
                             alValues.clear();
-                            runQueryShift(x, queryShift, IDChannel);
+                            runQueryShift(x, queryShift, ConfigNo);
 //                                if (x == 0) {
 //                                    for (int i = 0; i < alValues.size(); i++) {
 //                                        System.out.println(alValues.get(i));
@@ -156,7 +156,7 @@ public class BarChart extends Chart {
                         queryShift = query.substring(0, query.indexOf("ORDER")).trim()
                                 + " AND (dl0.LogTime BETWEEN '" + fVal + "' AND '" + sVal + "') "
                                 + "ORDER BY 'Time' ASC";
-                        runQueryShift(-1, queryShift, IDChannel);
+                        runQueryShift(-1, queryShift, ConfigNo);
                     }
                     int sum = 0;
                     if (loopQueryFound) {

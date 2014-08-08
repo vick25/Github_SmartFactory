@@ -1,7 +1,7 @@
 package productionPanelChartsPanel;
 
 import chartTypes.LineChart;
-import static chartTypes.LineChart.alTime;
+import static chartTypes.LineChart.timeList;
 import com.jidesoft.chart.Chart;
 import com.jidesoft.chart.Drawable;
 import com.jidesoft.chart.event.PointSelection;
@@ -65,7 +65,7 @@ public class ProductionRate extends javax.swing.JPanel {
                                 int xPos = (int) selectedPoint.getX().position() - 1;
                                 toolTip.setText(String.format("%.0f " + unit, selectedPoint.getY().position()));
 //                                toolTip.setText(String.format("%.0f parts/hr", selectedPoint.getY().position()));
-                                toolTip.setSubText(String.format(alTime.get(xPos), selectedPoint.getX().position()));
+                                toolTip.setSubText(String.format(timeList.get(xPos), selectedPoint.getX().position()));
                                 chartPanel.repaint();
                             } catch (java.lang.IndexOutOfBoundsException ex) {
                             }

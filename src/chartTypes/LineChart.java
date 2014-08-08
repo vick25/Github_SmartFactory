@@ -23,6 +23,7 @@ import java.awt.GradientPaint;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import javax.swing.JOptionPane;
 import javax.swing.border.EmptyBorder;
@@ -35,38 +36,40 @@ import smartfactoryV2.ConnectDB;
  */
 public class LineChart extends Chart {
 
-    public LineChart(final int IDChannel, final String query, String unit) throws SQLException {
+    public LineChart(final int ConfigNo, final String query, String unit, String machineTitle, String chanTitle,
+            Date start, Date end) throws SQLException {
         super();
-        if (chart == null) {
-            chart = new Chart("Line");
-        }
-        chart.removeAll();
-        range = new CategoryRange<>();
-        ProductionPane.getComponentDates();//get the dates from the production class      
+        this._startD = start;
+        this._endD = end;
+        this._machineTitle = machineTitle;
+        this._chanTitle = chanTitle;
+
+        chart = new Chart("Line");
+        CategoryRange range = new CategoryRange<>();
         try (PreparedStatement ps = ConnectDB.con.prepareStatement(query)) {
             int i = 1;
-            ps.setString(i++, ProductionPane.cmbChannel.getSelectedItem().toString());
-            ps.setInt(i++, IDChannel);
-            ps.setString(i++, ConnectDB.SDATEFORMATHOUR.format(ProductionPane.dt_startP));
-            ps.setString(i++, ConnectDB.SDATEFORMATHOUR.format(ProductionPane.dt_endP));
+            ps.setString(i++, this._chanTitle);
+            ps.setInt(i++, ConfigNo);
+            ps.setString(i++, ConnectDB.SDATEFORMATHOUR.format(this._startD));
+            ps.setString(i++, ConnectDB.SDATEFORMATHOUR.format(this._endD));
             ConnectDB.res = ps.executeQuery();
-            alTime.clear();
+            timeList.clear();
             alValues.clear();
             while (ConnectDB.res.next()) {
                 loopQueryFound = true;
-                alTime.add(ConnectDB.res.getString(1)); //Time
+                timeList.add(ConnectDB.res.getString(1)); //Time
                 alValues.add(ConnectDB.res.getString(2)); //Values
             }
         }
         if (loopQueryFound) {
             chart.setPreferredSize(new Dimension(600, 300));
-            chart.setTitle(new AutoPositionedLabel("Production Rate for \""
-                    + ProductionPane.cmbMachineTitle.getSelectedItem().toString() + "\"", Color.BLACK,
-                    ConnectDB.TITLEFONT));
+            chart.setBorder(new EmptyBorder(5, 5, 10, 15));
+            chart.setTitle(new AutoPositionedLabel("Production Rate for \"" + this._machineTitle + "\"",
+                    Color.BLACK, ConnectDB.TITLEFONT));
             ProductionPane.chartTitle = chart.getTitle().toString();
 
-            for (String alTime1 : alTime) {
-                Category c = new ChartCategory((Object) alTime1.substring(0, 19), range);
+            for (String alTime : timeList) {
+                Category c = new ChartCategory((Object) alTime.substring(0, 19), range);
                 dateCategoryChart.add(c);
                 range.add(c);
             }
@@ -75,31 +78,31 @@ public class LineChart extends Chart {
             xAxis.setMinorTickColor(Color.RED);
             chart.setXAxis(xAxis);
             chart.getXAxis().setTicksVisible(true);
-            NumericAxis yAxis = new NumericAxis(0, (double) ConnectDB.maxNumber(alValues) + 15D);
+            NumericAxis yAxis = new NumericAxis(0, (double) ConnectDB.maxNumber(alValues) + 25D);
             yAxis.setLabel(new AutoPositionedLabel(unit, Color.BLACK));
             chart.setYAxis(yAxis);
-            chart.setAutoRanging(true);
+            chart.autoRange();
+
             ChartStyle style = new ChartStyle(new Color(0, 75, 190), true, true);
             style.setLineFill(new Color(0, 75, 190, 75));
             style.setLineWidth(3);
             style.setPointSize(5);
-            style.setPointColor(Color.BLACK);
+            style.setPointColor(Color.RED);
             style.setPointShape(PointShape.BOX);
+
             ChartStyle selectionStyle = new ChartStyle(style);
             selectionStyle.setPointSize(15);
             chart.setHighlightStyle(selectionHighlight, selectionStyle);
             chart.getYAxis().setTicksVisible(true);
-            chart.getYAxis().setVisible(true);
+//            chart.getYAxis().setVisible(true);
             chart.drawInBackground();
             chart.setLazyRenderingThreshold(10000);//for swing drawing response
-            chart.setBorder(new EmptyBorder(5, 5, 10, 15));
 //            chart.addMousePanner();
             MouseWheelZoomer zoomer = new MouseWheelZoomer(chart, true, false);
             zoomer.setZoomLocation(ZoomLocation.MOUSE_CURSOR);
             chart.addMouseWheelListener(zoomer);
             model = createModel();
             chart.addModel(model, style);
-//            chart.setPanelBackground(Color.BLACK);
             chart.setPanelBackground(new Color(153, 153, 153));
             chart.setChartBackground(new GradientPaint(0f, 0f, Color.lightGray.brighter(), 300f, 300f,
                     Color.lightGray));
@@ -113,15 +116,12 @@ public class LineChart extends Chart {
             pointRenderer.setOutlineColor(Color.WHITE);
             pointRenderer.setOutlineWidth(1);
             chart.setPointRenderer(pointRenderer);
-//            SmoothLineRenderer lineRenderer = new SmoothLineRenderer(chart);
-//            lineRenderer.setSmoothness(0.7);
-//            chart.setLineRenderer(lineRenderer);
             // Generate some custom grid lines to match the original chart
-            int i;
-            for (i = 0; i <= ConnectDB.maxNumber(alValues) + 10; i += 10) {//line marker for y axis
+            for (int i = 0; i <= ConnectDB.maxNumber(alValues) + 10; i += 10) {//line marker for y axis
                 LineMarker marker = new LineMarker(chart, Orientation.horizontal, i, gridColor);
                 chart.addDrawable(marker);
             }
+            chart.repaint();
         } else {
             chart = null;
             JOptionPane.showMessageDialog(null, "No data retrieved. Please check "
@@ -139,9 +139,10 @@ public class LineChart extends Chart {
 
     boolean loopQueryFound = false;
     public Chart chart;
+    private final Date _startD, _endD;
+    private final String _machineTitle, _chanTitle;
     private static final List<Category> dateCategoryChart = new ArrayList<>();
     public static ChartModel model;
-    public static ArrayList<String> alTime = new ArrayList<>(), alValues = new ArrayList<>();
+    public static ArrayList<String> timeList = new ArrayList<>(), alValues = new ArrayList<>();
     private static final Highlight selectionHighlight = new Highlight("selection");
-    CategoryRange range;
 }

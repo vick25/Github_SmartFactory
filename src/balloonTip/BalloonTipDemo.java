@@ -4,7 +4,6 @@ import com.jidesoft.popup.JidePopup;
 import com.jidesoft.swing.JideBoxLayout;
 import com.jidesoft.tooltip.BalloonShape;
 import com.jidesoft.tooltip.BalloonTip;
-import com.jidesoft.tooltip.ShadowStyle;
 import com.jidesoft.tooltip.shapes.RoundedRectangularBalloonShape;
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -23,18 +22,15 @@ import javax.swing.SwingConstants;
  */
 public class BalloonTipDemo extends BalloonTip {
 
-    private BalloonTip _balloonTip;
     private final BalloonShape _shape = new RoundedRectangularBalloonShape();
-    private final int _position = SwingConstants.BOTTOM;
-    private final ShadowStyle _shadowStyle = null;
+    private BalloonTip _balloonTip;
+    private final int x, y;
     String text = "";
-    int x, y;
-    JComponent c;
-    protected JPanel _optionsPanel = new JPanel();
+    JComponent _comp;
 
-    public BalloonTipDemo(JComponent c, String text) {
-        this.c = c;
-        this.c.addMouseListener(new MouseAdapter() {
+    public BalloonTipDemo(JComponent c, String toolTipText) {
+        _comp = c;
+        _comp.addMouseListener(new MouseAdapter() {
 
             @Override
             public void mousePressed(MouseEvent e) {
@@ -42,12 +38,12 @@ public class BalloonTipDemo extends BalloonTip {
             }
         });
         if (c instanceof JPanel) {
-            x = this.c.getWidth() / 2;
+            x = _comp.getWidth() / 2;
         } else {
-            x = this.c.getWidth() / 4;
+            x = _comp.getWidth() / 4;
         }
-        y = this.c.getHeight() / 2;
-        this.text = text;
+        y = _comp.getHeight() / 2;
+        text = toolTipText;
         toggleToolTip();
     }
 
@@ -60,7 +56,7 @@ public class BalloonTipDemo extends BalloonTip {
     }
 
     private void showToolTip() {
-        _balloonTip = new BalloonTip(createToolTipContent()) {
+        _balloonTip = new BalloonTip(createToolTipPanelContent()) {
             @Override
             protected void customizePopup(JidePopup popup) {
                 super.customizePopup(popup);
@@ -73,12 +69,12 @@ public class BalloonTipDemo extends BalloonTip {
             ((RoundedRectangularBalloonShape) _shape).setVertexPosition(100 / 100.0);
             ((RoundedRectangularBalloonShape) _shape).setBalloonSizeRatio(73 / 100.0);
             ((RoundedRectangularBalloonShape) _shape).setCornerSize(6);
-            ((RoundedRectangularBalloonShape) _shape).setPosition(_position);
+            ((RoundedRectangularBalloonShape) _shape).setPosition(SwingConstants.BOTTOM);
         }
-        _balloonTip.setBalloonShape(_shape);
         _balloonTip.setPreferredSize(new Dimension(600, 600));
-        _balloonTip.setShadowStyle(_shadowStyle);
-        _balloonTip.show(this.c, x, y);
+        _balloonTip.setShadowStyle(null);
+        _balloonTip.setBalloonShape(_shape);
+        _balloonTip.show(this._comp, x, y);
     }
 
     private void hideToolTip() {
@@ -89,7 +85,7 @@ public class BalloonTipDemo extends BalloonTip {
     }
 
     public Component getOptionsPanel() {
-        _optionsPanel = new JPanel();
+        JPanel _optionsPanel = new JPanel();
         _optionsPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         _optionsPanel.setLayout(new JideBoxLayout(_optionsPanel, JideBoxLayout.Y_AXIS, 6));
         if (_balloonTip != null) {
@@ -98,7 +94,7 @@ public class BalloonTipDemo extends BalloonTip {
         return _optionsPanel;
     }
 
-    private JPanel createToolTipContent() {
+    private JPanel createToolTipPanelContent() {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         JPanel fieldPanel = new JPanel(new BorderLayout());

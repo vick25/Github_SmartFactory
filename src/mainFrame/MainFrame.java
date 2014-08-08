@@ -72,7 +72,6 @@ public class MainFrame extends DefaultDockableBarDockableHolder {
     public DefaultDockableBarDockableHolder showFrame() throws SQLException {
 //        _frame = new MainFrame(idUser);
         _frame = Identification.mainFrame;
-        productionPane = new ProductionPane(_frame);
 //        connectionToServer();
         _frame.setTitle("Smartfactory Production Report Tool 1.0");
         _frame.setIconImage(new ImageIcon(_frame.getClass().getResource("/images/smart_factory_logo_icon.png")).getImage());
@@ -87,7 +86,9 @@ public class MainFrame extends DefaultDockableBarDockableHolder {
 
             @Override
             public void windowLostFocus(WindowEvent e) {
-                productionPane.viewData.setVisible(false);
+                if (productionPane != null) {
+                    productionPane.viewData.setVisible(false);
+                }
             }
         };
         _frame.addWindowListener(_windowListener);
@@ -461,6 +462,7 @@ public class MainFrame extends DefaultDockableBarDockableHolder {
 //        _documentPane.setActiveDocument("Documentation");
 //    }
 //    
+
     public static void actionSetting() {
         setting.SettingsOptionsDialog.showOptionsDialog();
     }

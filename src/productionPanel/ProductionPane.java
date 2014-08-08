@@ -797,7 +797,7 @@ public class ProductionPane extends javax.swing.JPanel {
                         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGroup(jPanel6Layout.createSequentialGroup()
                         .addComponent(panShiftTime, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                        .addContainerGap(17, Short.MAX_VALUE))))
         );
         jPanel6Layout.setVerticalGroup(
             jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -844,21 +844,22 @@ public class ProductionPane extends javax.swing.JPanel {
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(jPanel2Layout.createSequentialGroup()
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel2Layout.createSequentialGroup()
                         .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 61, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(cmbMachineTitle, javax.swing.GroupLayout.PREFERRED_SIZE, 154, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(cmbMachineTitle, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(chkActiveChannel))
-                    .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 320, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                        .addGap(0, 0, Short.MAX_VALUE)
-                        .addComponent(lblSpace, javax.swing.GroupLayout.PREFERRED_SIZE, 302, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(12, 12, 12))
+                    .addComponent(jSeparator1, javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jPanel4, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel6, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(lblSpace, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(24, Short.MAX_VALUE))
         );
+
+        jPanel2Layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {jPanel4, jPanel6});
+
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
@@ -904,7 +905,7 @@ public class ProductionPane extends javax.swing.JPanel {
         jPanel7.setLayout(jPanel7Layout);
         jPanel7Layout.setHorizontalGroup(
             jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(tbpPanDetails, javax.swing.GroupLayout.DEFAULT_SIZE, 732, Short.MAX_VALUE)
+            .addComponent(tbpPanDetails, javax.swing.GroupLayout.DEFAULT_SIZE, 728, Short.MAX_VALUE)
         );
         jPanel7Layout.setVerticalGroup(
             jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -949,7 +950,7 @@ public class ProductionPane extends javax.swing.JPanel {
         lblTotalProductionSum.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
 
         panPerShiftTotals.setBackground(new java.awt.Color(255, 255, 255));
-        panPerShiftTotals.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Shift Totals", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 13), new java.awt.Color(0, 0, 204))); // NOI18N
+        panPerShiftTotals.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Shift Totals", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 11), new java.awt.Color(0, 0, 204))); // NOI18N
 
         jLabel8.setText("Shift1:");
 
@@ -972,7 +973,7 @@ public class ProductionPane extends javax.swing.JPanel {
                     .addComponent(lblShiftSum1, javax.swing.GroupLayout.PREFERRED_SIZE, 117, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(lblShiftSum2)
                     .addComponent(lblShiftSum3, javax.swing.GroupLayout.PREFERRED_SIZE, 121, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(28, 72, Short.MAX_VALUE))
+                .addGap(28, 86, Short.MAX_VALUE))
         );
 
         panPerShiftTotalsLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {lblShiftSum1, lblShiftSum2, lblShiftSum3});
@@ -1041,7 +1042,7 @@ public class ProductionPane extends javax.swing.JPanel {
                     .addComponent(panTable, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(jPanel8Layout.createSequentialGroup()
                         .addComponent(btnCleanTable, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 184, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 198, Short.MAX_VALUE)
                         .addComponent(btnExportExcelCsv, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jSeparator7, javax.swing.GroupLayout.PREFERRED_SIZE, 2, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -1074,7 +1075,7 @@ public class ProductionPane extends javax.swing.JPanel {
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jSplitPane2)
+            .addComponent(jSplitPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 730, Short.MAX_VALUE)
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1088,7 +1089,7 @@ public class ProductionPane extends javax.swing.JPanel {
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jToolBar1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-            .addComponent(jSplitPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 1088, Short.MAX_VALUE)
+            .addComponent(jSplitPane1)
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1360,6 +1361,7 @@ public class ProductionPane extends javax.swing.JPanel {
             public void run() {
                 if (balloonTip()) {
                     try {
+                        getComponentDates();
                         String query, unit;
                         //Production rate (Rate)
                         catTabbedChange = false;
@@ -1383,7 +1385,7 @@ public class ProductionPane extends javax.swing.JPanel {
                                 if (!cmbChannel.getSelectedItem().equals("")) {
                                     lc = null;
                                     lc = new LineChart(ConnectDB.getConfigNo(channelTitle, machineTitle), query,
-                                            ConnectDB.firstLetterCapital(unit));
+                                            ConnectDB.firstLetterCapital(unit), machineTitle, channelTitle, dt_startP, dt_endP);
                                     if (lc.chart != null) {
                                         productionRate = new ProductionRate(lc.chart, unit);
                                     }
@@ -1409,7 +1411,6 @@ public class ProductionPane extends javax.swing.JPanel {
                             if (catChannel) {
                                 if (!cmbChannel.getSelectedItem().equals("")) {
                                     bc = null;
-                                    getComponentDates();
                                     if (chkPerShift.isSelected()) {
                                         //With shifts
                                         if (ConnectDB.checkTableValidity(tableTime)) {
@@ -1869,14 +1870,14 @@ public class ProductionPane extends javax.swing.JPanel {
                     && tbpPanDetails.getTitleAt(tbpPanDetails.getSelectedIndex()).equals("Production Rate")) {
                 viewDateTableName = "Production Rate";
                 tableType = "rates/hr";
-                for (int i = 0; i < LineChart.alTime.size(); i++) {
+                for (int i = 0; i < LineChart.timeList.size(); i++) {
                     if (nRow > tableValues.getModel().getRowCount()) {
                         TableModelProductionData refTableValues = (TableModelProductionData) tableValues.getModel();
                         refTableValues.addNewRow();
                     }
                     tableValues.setValueAt(nRow, i, 0);
-                    tableValues.setValueAt(LineChart.alTime.get(i).
-                            substring(0, LineChart.alTime.get(i).indexOf('.')), i, 1);
+                    tableValues.setValueAt(LineChart.timeList.get(i).
+                            substring(0, LineChart.timeList.get(i).indexOf('.')), i, 1);
                     tableValues.setValueAt(Math.round(Float.valueOf(LineChart.alValues.get(i))), i, 2);
                     nRow++;
                 }
