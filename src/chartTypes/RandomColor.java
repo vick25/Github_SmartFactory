@@ -16,8 +16,7 @@ public class RandomColor {
     }
 
     /**
-     * randomColor returns a pseudorandom Color
-     *
+     * randomColor returns a pseudorandom Color     
      * @return a pseudorandom Color
      */
     public Color randomColor() {
@@ -26,7 +25,6 @@ public class RandomColor {
 
     /**
      * randomGray returns a pseudorandom gray Color
-     *
      * @return a pseudorandom Color
      */
     public Color randomGray() {

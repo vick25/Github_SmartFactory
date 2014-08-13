@@ -9,6 +9,28 @@ import smartfactoryV2.SplashScreen;
  */
 public class RestoreDatabase extends Thread {
 
+
+//    public boolean restoreDB(String dbUserName, String dbPassword, String source) {
+//        String[] executeCmd = new String[]{"mysql", "--user=" + dbUserName, "--password=" + dbPassword, "-e", 
+//            "source " + source};
+//        Process runtimeProcess;
+//        try {
+//            runtimeProcess = Runtime.getRuntime().exec(executeCmd);
+//            int processComplete = runtimeProcess.waitFor();
+//            if (processComplete == 0) {
+//                System.out.println("Backup restored successfully");
+//                return true;
+//            } else {
+//                System.out.println("Could not restore the backup");
+//            }
+//        } catch (IOException | InterruptedException ex) {
+//            ex.printStackTrace();
+//        }
+//        return false;
+//    }
+    private final String dbUserName, dbPassword;
+    private final Object source;
+
     public RestoreDatabase(String dbUserName, String dbPassword, Object source) {
         this.dbUserName = dbUserName;
         this.dbPassword = dbPassword;
@@ -35,28 +57,7 @@ public class RestoreDatabase extends Thread {
 //                System.out.println("Could not restore the backup!");
             }
         } catch (IOException | InterruptedException ex) {
-            ex.printStackTrace();
+//            ex.printStackTrace();
         }
     }
-
-//    public boolean restoreDB(String dbUserName, String dbPassword, String source) {
-//        String[] executeCmd = new String[]{"mysql", "--user=" + dbUserName, "--password=" + dbPassword, "-e", 
-//            "source " + source};
-//        Process runtimeProcess;
-//        try {
-//            runtimeProcess = Runtime.getRuntime().exec(executeCmd);
-//            int processComplete = runtimeProcess.waitFor();
-//            if (processComplete == 0) {
-//                System.out.println("Backup restored successfully");
-//                return true;
-//            } else {
-//                System.out.println("Could not restore the backup");
-//            }
-//        } catch (IOException | InterruptedException ex) {
-//            ex.printStackTrace();
-//        }
-//        return false;
-//    }
-    private final String dbUserName, dbPassword;
-    private final Object source;
 }

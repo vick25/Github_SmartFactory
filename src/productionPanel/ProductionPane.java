@@ -40,8 +40,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.StringTokenizer;
-import java.util.prefs.BackingStoreException;
-import java.util.prefs.Preferences;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
@@ -70,6 +68,7 @@ import productionPanelChartsPanel.MachineRun;
 import productionPanelChartsPanel.ProductionRate;
 import productionPanelChartsPanel.TotalProduction;
 import reportSettings.ReportOptions;
+import setting.SettingKeyFactory;
 import smartfactoryV2.ConnectDB;
 import tableModel.TableModelProductionData;
 import tableModel.TableModelShiftTime;
@@ -85,10 +84,10 @@ public class ProductionPane extends javax.swing.JPanel {
         //        sclient = new Socket(ConnectDB.serverIP, ConnectDB.PORTMAINSERVER);
         ConnectDB.getConnectionInstance();
         initComponents();
-        this._parent = parent;
+        _parent = parent;
         autoFill();
-        panProductionRate.setVisible(false);
         fillProductionModuleOptions();
+        panProductionRate.setVisible(false);
         panShiftTime.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder(
                 new PartialGradientLineBorder(new Color[]{new Color(0, 0, 128),
                     UIDefaultsLookup.getColor("control")}, 2, PartialSide.NORTH),
@@ -98,13 +97,13 @@ public class ProductionPane extends javax.swing.JPanel {
         setTableTime(3);//tables for the hour shifts
         setTableValues();//table for the chartPanel datas
         AutoCompleteDecorator.decorate(cmbMachineTitle);
-        this.addMouseListener(new MouseAdapter() {
-
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                requestFocus();
-            }
-        });
+//        addMouseListener(new MouseAdapter() {
+//
+//            @Override
+//            public void mouseClicked(MouseEvent e) {
+//                requestFocus();
+//            }
+//        });
         t = new Timer(150, new ActionListener() {
 
             @Override
@@ -195,9 +194,10 @@ public class ProductionPane extends javax.swing.JPanel {
         });
         jPanel2.requestFocus();
         lblActive.setHorizontalAlignment(SwingConstants.RIGHT);
-        setPropertiesTimeSaved(pref.get("prod", getPropertiesToSave()));
+        setPropertiesTimeSaved(ConnectDB.pref.get(SettingKeyFactory.DefaultProperties.PRODPANESET, getPropertiesToSave()));
         System.out.println(jSplitPane2.getPreferredSize());
-        jSplitPane2.setDividerLocation(520);
+        System.out.println(jPanel8.getPreferredSize());
+//        jSplitPane2.setDividerLocation(jPanel8.getPreferredSize().height);
         //        TAMPON = new byte[BUFFER];
 //        Thread th = new Thread() {
 //
@@ -1959,7 +1959,7 @@ public class ProductionPane extends javax.swing.JPanel {
                                 alTotalProd.get(0).add(bc.chart);
                             }
                             break;
-                        case "Production Rate"://Production rate    
+                        case "Production Rate"://Production rate
                             if (lc.chart != null) {
                                 alProdRate.get(0).add(lc.chart);
                             }
@@ -2069,7 +2069,7 @@ public class ProductionPane extends javax.swing.JPanel {
             }
             propertiesToSave = getPropertiesToSave();
         }
-        pref.put("prod", propertiesToSave);
+        ConnectDB.pref.put(SettingKeyFactory.DefaultProperties.PRODPANESET, propertiesToSave);
     }
 
     private static String getPropertiesToSave() {
@@ -2125,12 +2125,8 @@ public class ProductionPane extends javax.swing.JPanel {
             saved = true;
         } catch (ArrayIndexOutOfBoundsException e) {
             error = true;
-            try {
-                saved = true;
-                pref.clear();
-//                return;
-            } catch (BackingStoreException ex) {
-            }
+            saved = true;
+            ConnectDB.pref.remove(SettingKeyFactory.DefaultProperties.PRODPANESET);
         } finally {
             saved = true;
             if (error) {
@@ -2316,7 +2312,6 @@ public class ProductionPane extends javax.swing.JPanel {
 //            serverConnectionLabel = "Connected @ " + ConnectDB.pref.get("IPServerAddress", serverIP);
     public static DefaultChartModel modelPoints = new DefaultChartModel();
     static StringTokenizer stTabOption = null;
-    private static final Preferences pref = Preferences.userNodeForPackage(ProductionPane.class);
     public static int IDChannel;
     public static boolean catOptions,//check if all the machineTitle title are loaded
             saved = true;

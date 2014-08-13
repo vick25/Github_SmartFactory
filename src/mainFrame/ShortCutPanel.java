@@ -1,6 +1,7 @@
 package mainFrame;
 
 import com.jidesoft.document.DocumentComponent;
+import com.jidesoft.document.DocumentPane;
 import com.jidesoft.swing.JideSwingUtilities;
 import dashboard.DashBoard;
 import eventsPanel.EventsStatistic;
@@ -14,8 +15,6 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import static login.Identification.quickViewFrame;
-import static mainFrame.MainFrame._documentPane;
-import static mainFrame.MainFrame._frame;
 import productionPanel.ProductionPane;
 import productionQuickView.ProductionQuickView;
 import smartfactoryV2.ConnectDB;
@@ -25,6 +24,7 @@ public class ShortCutPanel extends JPanel {
 
     public ShortCutPanel(JFrame parent) {
         _parent = parent;
+        _documentPane = MainFrame.getDocumentPane();
         initComponents();
     }
 
@@ -238,7 +238,7 @@ public class ShortCutPanel extends JPanel {
     private void btnProductionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnProductionActionPerformed
         if (!_documentPane.isDocumentOpened("Production")) {
             try {
-                MainFrame.productionPane = new ProductionPane(_frame);
+                MainFrame.productionPane = new ProductionPane(_parent);
                 final DocumentComponent document = new DocumentComponent(MainFrame.productionPane, "Production",
                         "Production", new ImageIcon(this.getClass().getResource("/images/icons/kchart12.png")));
                 _documentPane.openDocument(document);
@@ -254,7 +254,7 @@ public class ShortCutPanel extends JPanel {
     private void btnEventsStattisticActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEventsStattisticActionPerformed
         if (!_documentPane.isDocumentOpened("Events")) {
             try {
-                final DocumentComponent document = new DocumentComponent(new EventsStatistic(_frame), "Events",
+                final DocumentComponent document = new DocumentComponent(new EventsStatistic(_parent), "Events",
                         "Events", new ImageIcon(this.getClass().getResource("/images/icons/kchart12.png")));
                 _documentPane.openDocument(document);
                 MainFrame.confirmCloseTab(document);
@@ -272,8 +272,8 @@ public class ShortCutPanel extends JPanel {
                 quickViewFrame = new JFrame("Production Quick View");
                 quickViewFrame.setSize(915, 570);
                 quickViewFrame.setContentPane(new ProductionQuickView(quickViewFrame));
-                quickViewFrame.setLocationRelativeTo(_frame);
-                quickViewFrame.setIconImage(new ImageIcon(_frame.getClass().getResource("/images/smart_factory_logo_icon.png")).getImage());
+                quickViewFrame.setLocationRelativeTo(_parent);
+                quickViewFrame.setIconImage(new ImageIcon(_parent.getClass().getResource("/images/smart_factory_logo_icon.png")).getImage());
                 quickViewFrame.setVisible(true);
             } catch (SQLException ex) {
                 ConnectDB.catchSQLException(ex);
@@ -359,9 +359,10 @@ public class ShortCutPanel extends JPanel {
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel5;
     // End of variables declaration//GEN-END:variables
-    private String machineTitle = "";
     private Date date;
+    private String machineTitle = "";
+    private DocumentPane _documentPane;
     private static JFrame _parent;
-    public static JFrame _dashBoardFrame;
     public static DashBoard _dashBoard;
+    public static JFrame _dashBoardFrame;
 }

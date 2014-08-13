@@ -62,6 +62,10 @@ import userguide.About;
 
 public class MainFrame extends DefaultDockableBarDockableHolder {
 
+    public static DocumentPane getDocumentPane() {
+        return _documentPane;
+    }
+
     public MainFrame(int idUser) throws HeadlessException {
         ConnectDB.getConnectionInstance();
         MainFrame.idUser = idUser;
@@ -70,9 +74,7 @@ public class MainFrame extends DefaultDockableBarDockableHolder {
     }
 
     public DefaultDockableBarDockableHolder showFrame() throws SQLException {
-//        _frame = new MainFrame(idUser);
-        _frame = Identification.mainFrame;
-//        connectionToServer();
+        _frame = Identification._mainFrame;
         _frame.setTitle("Smartfactory Production Report Tool 1.0");
         _frame.setIconImage(new ImageIcon(_frame.getClass().getResource("/images/smart_factory_logo_icon.png")).getImage());
         // add a window listener to do clear up when windows closing.
@@ -117,7 +119,6 @@ public class MainFrame extends DefaultDockableBarDockableHolder {
         _frame.getDockableBarManager().addDockableBar(MainFrameCommandBarFactory.createStandardCommandToolBar());
 //        _frame.getDockableBarManager().addDockableBar(MainFrameCommandBarFactory.createOptionsCommandBar());
 //        _frame.getDockableBarManager().addDockableBar(MainFrameCommandBarFactory.createToolsCommandBar());
-
         // add status bar
         _statusBar = createStatusBar();
         _frame.getContentPane().add(_statusBar, BorderLayout.AFTER_LAST_LINE);
@@ -132,7 +133,8 @@ public class MainFrame extends DefaultDockableBarDockableHolder {
         _frame.getDockingManager().setPopupMenuCustomizer(new com.jidesoft.docking.PopupMenuCustomizer() {
 
             @Override
-            public void customizePopupMenu(JPopupMenu menu, final DockingManager dockingManager, final DockableFrame dockableFrame, boolean onTab) {
+            public void customizePopupMenu(JPopupMenu menu, final DockingManager dockingManager, 
+                    final DockableFrame dockableFrame, boolean onTab) {
                 menu.addSeparator();
                 menu.add(new AbstractAction("Move to Document Area") {
 
@@ -150,82 +152,19 @@ public class MainFrame extends DefaultDockableBarDockableHolder {
                 });
             }
         });
-
         // load layout information from previous session
         _frame.getLayoutPersistence().loadLayoutData();
         if (Lm.DEMO) {
             Lm.z();
         }
-//        timer = new Timer(300, new ActionListener() {
-//
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//                if (_documentPane.isDocumentOpened("Training")
-//                        && !Training.propertiesToSave.equals(Training.propertiesToSavePrevious)) {
-//                    MainFrameCommandBarFactory.save.setEnabled(true);
-//                } else {
-//                    MainFrameCommandBarFactory.save.setEnabled(false);
-//                }
-//                MainFrameCommandBarFactory.MISave.setEnabled(MainFrameCommandBarFactory.save.isEnabled());
-//                MainFrameCommandBarFactory.MISaveAs.setEnabled(MainFrameCommandBarFactory.MISave.isEnabled());
-//
-//                if (_documentPane.isDocumentOpened("Training")
-//                        && Training.indexCurrentAction > 1) {
-//                    MainFrameCommandBarFactory.undo.setEnabled(false);
-//                } else {
-//                    MainFrameCommandBarFactory.undo.setEnabled(false);
-//                }
-//                if (_documentPane.isDocumentOpened("Training")
-//                        && Training.indexCurrentAction < Training.vectorAction.size() - 1) {
-//                    MainFrameCommandBarFactory.redo.setEnabled(false);
-//                } else {
-//                    MainFrameCommandBarFactory.redo.setEnabled(false);
-//                }
-//                MainFrameCommandBarFactory.MIRedo.setEnabled(MainFrameCommandBarFactory.redo.isEnabled());
-//                MainFrameCommandBarFactory.MIUndo.setEnabled(MainFrameCommandBarFactory.undo.isEnabled());
-//            }
-//        });
-//        timer.start();
         _frame.toFront();
 //        JideSwingUtilities.globalCenterWindow(_frame);
         return _frame;
     }
-
-//    private void connectionToServer() {
-//        try {
-//            final Socket sClient = new Socket(DBConnection.IPServer, DBConnection.PORTMAINSERVER);
-//            Thread th = new Thread() {
-//
-//                @Override
-//                public void run() {
-//                    try {
-//                        DataInputStream in = new DataInputStream(sClient.getInputStream());
-//                        DataOutputStream out = new DataOutputStream(sClient.getOutputStream());
-//                        byte[] buffer = new byte[512];
-//                        int nbbit;
-//                        while ((nbbit = in.read(buffer)) != -1) {
-//                            Thread.sleep(5000);
-//                            out.write("test connection".getBytes());
-//                        }
-//                    } catch (IOException | InterruptedException e) {
-//                        JXErrorPane.showDialog(_frame, new ErrorInfo("Fatal error", "The server's connection isn't "
-//                                + "available anymore ...\n" + e.getMessage(), null, null, e, Level.SEVERE, null));
-//                        System.exit(0);
-//                        System.err.println("Connection's not available");
-////                        ex.printStackTrace();
-//                    }
-//                }
-//            };
-//            th.start();
-//        } catch (IOException e) {
-//            JXErrorPane.showDialog(_frame, new ErrorInfo("Fatal error", "Unable to connect to the "
-//                    + "FTP server ...\n" + e.getMessage(), null, null, e, Level.SEVERE, null));
-//            System.exit(0);
-//        }
-//    }
+    
     private static void clearUp(String close) {
         if ("logout".equals(close)) {
-            Identification.mainFrame = _frame;
+            Identification._mainFrame = _frame;
             _frame.setVisible(false);
             return;
         }
@@ -344,7 +283,6 @@ public class MainFrame extends DefaultDockableBarDockableHolder {
                             DocumentComponent documentComponent = pane.getDocument(dragComponentName);
                             if (documentComponent != null) {
                                 pane.closeDocument(dragComponentName);
-
                                 // check if the document is really closed. There are cases a document is not closable or veto closing happens which can keep the document open after closeDocument call.
                                 if (!pane.isDocumentOpened(dragComponentName)) {
                                     final DockableFrame frame = new DockableFrame(documentComponent.getName(), documentComponent.getIcon());
@@ -474,7 +412,7 @@ public class MainFrame extends DefaultDockableBarDockableHolder {
             Identification.quickViewFrame.dispose();
             Identification.quickViewFrame = null;
         }
-        _frame = Identification.mainFrame = new MainFrame(1);
+        _frame = Identification._mainFrame = new MainFrame(1);
         _frame.showFrame();
 
 //        if (!_documentPane.isDocumentOpened("Training")) {
@@ -578,7 +516,7 @@ public class MainFrame extends DefaultDockableBarDockableHolder {
         clearUp("logout");
         Identification.okID = false;
         Identification.saveFrame = true;
-        Identification iDialog = new Identification(Identification.mainFrame, false);
+        Identification iDialog = new Identification(_frame, false);
         iDialog.setVisible(true);
     }
 
@@ -605,7 +543,6 @@ public class MainFrame extends DefaultDockableBarDockableHolder {
             _frame.getDockingManager().updateComponentTreeUI();
             SwingUtilities.updateComponentTreeUI(_frame);
         } catch (NullPointerException e) {
-//            System.out.println("err");
             LookAndFeelFactory.installDefaultLookAndFeelAndExtension();
         }
     }
@@ -618,18 +555,18 @@ public class MainFrame extends DefaultDockableBarDockableHolder {
 //        Training.setPropertiesSaved(Training.vectorAction.elementAt(++Training.indexCurrentAction));
 //    }
 //    
-    public static void actionExportData() {
-//        new ExportImportData(_frame, true).setVisible(true);
-    }
-
+//    public static void actionExportData() {
+////        new ExportImportData(_frame, true).setVisible(true);
+//    }
+//
     public static void actionCreateUser() {
         new CreateUser(_frame, true).setVisible(true);
     }
-
-    public static void actionChangePassword() {
-//        new ChangePassword(_frame, true).setVisible(true);
-    }
-
+//
+//    public static void actionChangePassword() {
+////        new ChangePassword(_frame, true).setVisible(true);
+//    }
+//
     public static void actionHelp() {
         try {
             InputStream inputStream = null;
@@ -684,7 +621,6 @@ public class MainFrame extends DefaultDockableBarDockableHolder {
         } catch (IOException | HeadlessException ex) {
             ex.printStackTrace();
         }
-//        new help.Help().setVisible(true);
     }
 
     public static void actionAbout() {
@@ -762,7 +698,6 @@ public class MainFrame extends DefaultDockableBarDockableHolder {
 
     static String dirIcon = "";
     public static int idUser = 1;
-//    static Timer timer;
     private static WindowAdapter _windowListener;
     private static final String PROFILE_NAME = "SMF_Main_Frame";
     private static byte[] _fullScreenLayout;
@@ -777,5 +712,5 @@ public class MainFrame extends DefaultDockableBarDockableHolder {
     public static StatusBar _statusBar;
     public static ProductionPane productionPane;
     public static ProgressStatusBarItem progress;
-    public static DocumentPane _documentPane;
+    private static DocumentPane _documentPane;
 }

@@ -851,7 +851,7 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
 
     private void btnCloseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCloseActionPerformed
         viewData.dispose();
-        MainFrame._documentPane.closeDocument("Statistic");
+        MainFrame.getDocumentPane().closeDocument("Statistic");
     }//GEN-LAST:event_btnCloseActionPerformed
 
     private void btnLineChartActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLineChartActionPerformed

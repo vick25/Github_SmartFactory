@@ -1,4 +1,4 @@
-package shiftReport;
+package collapsibleDashboard;
 /*
  * @(#)RolloverTitlePane.java 7/25/2007
  *

@@ -24,7 +24,7 @@ import mainFrame.ShortCutPanel;
 import productionPanel.ProdStatKeyFactory;
 import productionPanel.SetTableTime;
 import setting.SettingKeyFactory;
-import shiftReport.CollapsiblePaneGadget;
+import collapsibleDashboard.CollapsiblePaneGadget;
 import smartfactoryV2.ConnectDB;
 import tableModel.TableModelShiftTime;
 

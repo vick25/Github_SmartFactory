@@ -11,8 +11,6 @@ import java.awt.event.WindowEvent;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.prefs.BackingStoreException;
-import java.util.prefs.Preferences;
 import javax.swing.ImageIcon;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
@@ -21,16 +19,17 @@ import javax.swing.Timer;
 import javax.swing.table.AbstractTableModel;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
+import setting.SettingKeyFactory;
 import smartfactoryV2.ConnectDB;
 
 public class AddModule extends javax.swing.JDialog {
 
     public AddModule(java.awt.Frame parent, boolean modal) throws SQLException {
         super(parent, modal);
-        this.Parent = parent;
+        ConnectDB.getConnectionInstance();
+        _parent = parent;
         table = new JXTable(new TableModelAddModule("Mode"));
         refModel = (TableModelAddModule) table.getModel();
-//        table.getTableHeader().setDefaultRenderer(new ConnectDB.HeaderRenderer(table));
         table.getTableHeader().setFont(new Font("Tahoma", Font.BOLD, 10));
         table.getTableHeader().setBackground(Color.BLUE);
         table.getTableHeader().setReorderingAllowed(false);
@@ -41,11 +40,10 @@ public class AddModule extends javax.swing.JDialog {
         table.setSelectionMode(0);
         table.setShowGrid(true);
         initComponents();
-        setPropertiesSaved(pref.get("mode", getPropertiesToSave()));
+        setPropertiesSaved(ConnectDB.pref.get(SettingKeyFactory.DefaultProperties.MODULES, getPropertiesToSave()));
         fillModules();
         Scrll.setViewportView(table);
-
-        this.addWindowListener(new WindowAdapter() {
+        addWindowListener(new WindowAdapter() {
 
             @Override
             public void windowClosing(WindowEvent e) {
@@ -108,8 +106,8 @@ public class AddModule extends javax.swing.JDialog {
             }
 
         });
-        this.setIconImage(new ImageIcon(getClass().getResource("/images/icons/fyre(2).png")).getImage());
-        this.setLocationRelativeTo(Parent);
+        setIconImage(new ImageIcon(getClass().getResource("/images/icons/fyre(2).png")).getImage());
+        setLocationRelativeTo(_parent);
     }
 
     @SuppressWarnings("unchecked")
@@ -295,11 +293,7 @@ public class AddModule extends javax.swing.JDialog {
     private void btnCleanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCleanActionPerformed
         EDIT = true;
         cleantable();
-        try {
-            pref.clear();
-        } catch (BackingStoreException ex) {
-            ex.printStackTrace();
-        }
+        ConnectDB.pref.remove(SettingKeyFactory.DefaultProperties.MODULES);
         EDIT = false;
     }//GEN-LAST:event_btnCleanActionPerformed
 
@@ -321,7 +315,7 @@ public class AddModule extends javax.swing.JDialog {
             }
             propertiesToSave = getPropertiesToSave();
         }
-        pref.put("mode", propertiesToSave);
+        ConnectDB.pref.put(SettingKeyFactory.DefaultProperties.MODULES, propertiesToSave);
     }
 
     private String getPropertiesToSave() {
@@ -358,14 +352,10 @@ public class AddModule extends javax.swing.JDialog {
             saved = true;
             EDIT = false;
         } catch (Exception e) {
-            try {
-                pref.clear();
-                JOptionPane.showMessageDialog(Parent, "Error encountered! Aborting. Please restart "
-                        + "the application.", "Exit", JOptionPane.ERROR_MESSAGE);
-                System.exit(0);
-            } catch (BackingStoreException ex) {
-                ex.printStackTrace();
-            }
+            ConnectDB.pref.remove(SettingKeyFactory.DefaultProperties.MODULES);
+            JOptionPane.showMessageDialog(_parent, "Error encountered! Aborting. Please restart "
+                    + "the application.", "Exit", JOptionPane.ERROR_MESSAGE);
+            System.exit(0);
         }
     }
 
@@ -466,21 +456,20 @@ public class AddModule extends javax.swing.JDialog {
 
     public class TableModelAddModule extends AbstractTableModel {
 
-        String titre;
-        private final String[] columnNames;
-        private final ArrayList[] Data;
+        private final String _titre;
+        private final String[] columnNames = new String[2];
+        private final ArrayList[] data;
 
         public TableModelAddModule(String titre) {
-            this.titre = titre;
-            columnNames = new String[2];
+            _titre = titre;
             columnNames[0] = "Name";
-            columnNames[1] = titre;
-            Data = new ArrayList[columnNames.length];
+            columnNames[1] = _titre;
+            data = new ArrayList[columnNames.length];
             for (int i = 0; i < columnNames.length; i++) {
-                Data[i] = new ArrayList();
+                data[i] = new ArrayList();
             }
             for (int i = 0; i < columnNames.length; i++) {
-                Data[i].add("");
+                data[i].add("");
             }
         }
 
@@ -491,7 +480,7 @@ public class AddModule extends javax.swing.JDialog {
 
         @Override
         public int getRowCount() {
-            return Data[0].size();
+            return data[0].size();
         }
 
         @Override
@@ -501,7 +490,7 @@ public class AddModule extends javax.swing.JDialog {
 
         @Override
         public Object getValueAt(int row, int col) {
-            return Data[col].get(row);
+            return data[col].get(row);
         }
 
         @Override
@@ -524,39 +513,39 @@ public class AddModule extends javax.swing.JDialog {
 
         @Override
         public void setValueAt(Object value, int row, int col) {
-            Data[col].set(row, value);
+            data[col].set(row, value);
             fireTableCellUpdated(row, col);
         }
 
         public void addNewRow() {
             for (int i = 0; i < columnNames.length; i++) {
-                Data[i].add("");
+                data[i].add("");
             }
-            this.fireTableRowsInserted(0, Data[0].size() - 1);
+            this.fireTableRowsInserted(0, data[0].size() - 1);
         }
 
         public void removeNewRow() {
             for (int i = 0; i < columnNames.length; i++) {
-                Data[i].remove(Data[i].size() - 1);
+                data[i].remove(data[i].size() - 1);
             }
-            this.fireTableRowsDeleted(0, Data[0].size() - 1);
+            this.fireTableRowsDeleted(0, data[0].size() - 1);
         }
 
         public void removeNewRow(int index) {
             for (int i = 0; i < columnNames.length; i++) {
-                Data[i].remove(index);
+                data[i].remove(index);
             }
-            this.fireTableRowsDeleted(0, Data[0].size() - 1);
+            this.fireTableRowsDeleted(0, data[0].size() - 1);
         }
     }
 
-    public static void main(String[] args) {
-        try {
-            new AddModule(null, true).setVisible(true);
-        } catch (SQLException ex) {
-            ConnectDB.catchSQLException(ex);
-        }
-    }
+//    public static void main(String[] args) {
+//        try {
+//            new AddModule(null, true).setVisible(true);
+//        } catch (SQLException ex) {
+//            ConnectDB.catchSQLException(ex);
+//        }
+//    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JScrollPane Scrll;
@@ -570,14 +559,13 @@ public class AddModule extends javax.swing.JDialog {
     private org.jdesktop.swingx.JXTitledSeparator jXTitledSeparator1;
     private javax.swing.JTextField txtName;
     // End of variables declaration//GEN-END:variables
-    Timer time;
-    JXTable table;
-    JMenuItem menu;
-    JPopupMenu popupMenu;
-    java.awt.Frame Parent;
-    TableModelAddModule refModel;
+    private Timer time;
+    private JXTable table;
+    private JMenuItem menu;
+    private JPopupMenu popupMenu;
+    private final java.awt.Frame _parent;
+    private TableModelAddModule refModel;
     public String propertiesToSave = "";
     private int nRow = 1;
     private static boolean EDIT = false, saved = true, clearTextName = false, catModules;
-    private final Preferences pref = Preferences.userNodeForPackage(AddModule.class);
 }

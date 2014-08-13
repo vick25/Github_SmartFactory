@@ -162,7 +162,7 @@ public class ProdStatSetting extends MultiplePageDialog {
         ConnectDB.pref.putBoolean(ProdStatKeyFactory.ProdFeatures.RADPERMIN, ProdFeature.radPerMin.isSelected());
         ConnectDB.pref.putBoolean(ProdStatKeyFactory.ProdFeatures.RADPERHOUR, ProdFeature.radPerHour.isSelected());
 
-        if (MainFrame._documentPane.isDocumentOpened("Production")) {
+        if (MainFrame.getDocumentPane().isDocumentOpened("Production")) {
             ProductionPane.setSettings();
         }
 //        ConnectDB.pref.putBoolean(StatKeyFactory.ProdFeatures.RBLineLabel, ChartFeature.RBLineLabel.isSelected());

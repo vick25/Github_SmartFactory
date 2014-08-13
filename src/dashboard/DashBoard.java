@@ -20,7 +20,7 @@ import javax.swing.SwingConstants;
 import mainFrame.ShortCutPanel;
 import resources.Constants;
 import resources.ReadPropertiesFile;
-import shiftReport.CollapsiblePaneDashboard;
+import collapsibleDashboard.CollapsiblePaneDashboard;
 import smartfactoryV2.ConnectDB;
 
 /**

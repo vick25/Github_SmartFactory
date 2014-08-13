@@ -62,5 +62,7 @@ public class SettingKeyFactory {
         public static final String SHOWPRODUCTIONQVIEW = "SMF.SettingKeyFactory.AllClass.SHOWPRODUCTIONQVIEW";
         public static final String TIMESHIFT = "SMF.SettingKeyFactory.AllClass.TIMESHIFT";
         public static final String DEFAULTDIRECTORY = "SMF.SettingKeyFactory.DefaultProperties.DEFAULTDIRECTORY";
+        public static final String PRODPANESET = "SMF.SettingKeyFactory.DefaultProperties.PRODPANESET";
+        public static final String MODULES = "SMF.SettingKeyFactory.DefaultProperties.MODULES";
     }
 }

@@ -235,7 +235,7 @@ public class ProdFeature extends javax.swing.JPanel {
             ConnectDB.pref.putBoolean(ProdStatKeyFactory.ProdFeatures.RADPERHOUR, radPerHour.isSelected());
 
             parent.dispose();
-            if (MainFrame._documentPane.isDocumentOpened("Production")) {
+            if (MainFrame.getDocumentPane().isDocumentOpened("Production")) {
                 ProductionPane.setSettings();
             }
         }

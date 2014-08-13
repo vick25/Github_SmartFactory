@@ -48,7 +48,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import mainFrame.MainFrame;
 import mainFrame.ShortCutPanel;
 import org.xml.sax.SAXException;
-import productionQuickView.Target;
+import target.Target;
 import resources.Constants;
 import resources.ReadPropertiesFile;
 import setting.SettingKeyFactory;

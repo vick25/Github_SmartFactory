@@ -1,4 +1,4 @@
-package shiftReport;
+package collapsibleDashboard;
 /*
  * @(#)ResizableGadgetComponent.java 6/23/2009
  *

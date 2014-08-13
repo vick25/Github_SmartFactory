@@ -58,7 +58,7 @@ public class ConnectDB {
             Class.forName("com.mysql.jdbc.Driver").newInstance();
             serverIP = pref.get(SettingKeyFactory.Connection.SERVERIPADDRESS, serverIP);
             /* Get the previous theme(lookAndFeel) used */
-            System.out.println(serverIP + " " + ++count);
+//            System.out.println(serverIP + " " + ++count);
             lookAndFeel = pref.getInt(SettingKeyFactory.Theme.LOOKANDFEEL, lookAndFeel);
             LookAndFeelFactory.installDefaultLookAndFeelAndExtension();
             LookAndFeelFactory.installJideExtension(lookAndFeel);//Set the theme
@@ -97,7 +97,7 @@ public class ConnectDB {
                 if (SplashScreen.identification != null) {
                     SplashScreen.identification.setVisible(false);
                 } else {
-                    Identification.identification.setVisible(false);
+                    Identification.dialog.setVisible(false);
                 }
                 JXErrorPane.showDialog(null, new ErrorInfo("Fatal Error", "Database connection "
                         + "is impossible: Please verify that MySQL server is started,"
@@ -111,20 +111,20 @@ public class ConnectDB {
         }
     }
 
-    public static String correctApostrophe(String texte) {
-        texte = correctBarre(texte);
-        if (texte.contains("\'")) {
-            texte = texte.replace("\'", "\\'");
+    public static String correctApostrophe(String text) {
+        String _text = correctBarre(text);
+        if (text.contains("\'")) {
+            _text = text.replace("\'", "\\'");
         }
-        return texte;
+        return _text;
     }
 
-    public static String correctToBarreDate(String texte) {
-        texte = correctBarre(texte);
-        if (texte.contains("-")) {
-            texte = texte.replace("-", "/");
+    public static String correctToBarreDate(String text) {
+        String _text = correctBarre(text);
+        if (text.contains("-")) {
+            _text = text.replace("-", "/");
         }
-        return texte;
+        return _text;
     }
 
     public static String correctBarre(String texte) {
@@ -256,11 +256,11 @@ public class ConnectDB {
     }
 
     public static int getIDMachine(String machine) {
+        int IDMachine = -1;
         try (PreparedStatement ps = ConnectDB.con.prepareStatement("SELECT HwNo, Machine FROM hardware "
                 + "WHERE Machine =?")) {
             ps.setString(1, ConnectDB.firstLetterCapital(machine));
             ConnectDB.res = ps.executeQuery();
-            IDMachine = -1;
             while (ConnectDB.res.next()) {
                 if (ConnectDB.res.getString(2).equalsIgnoreCase(machine)) {
                     IDMachine = ConnectDB.res.getInt(1);
@@ -272,6 +272,7 @@ public class ConnectDB {
     }
 
     public static int getConfigNo(String channelID, String machine) {
+        int IDChannel = -1;
         try (PreparedStatement ps = ConnectDB.con.prepareStatement("SELECT ConfigNo\n"
                 + "FROM `configuration` c, `hardware` h\n"
                 + "WHERE c.HwNo = h.HwNo\n"
@@ -280,7 +281,6 @@ public class ConnectDB {
             ps.setInt(1, getIDMachine(machine));
             ps.setString(2, channelID);
             ConnectDB.res = ps.executeQuery();
-            IDChannel = -1;
             while (ConnectDB.res.next()) {
                 IDChannel = ConnectDB.res.getInt(1);
             }
@@ -416,7 +416,7 @@ public class ConnectDB {
     private static final String DBNAME = "smartfactory";
     private static final String DBUSERNAME = "root";
     private static final String DBPASSWORD = "wnnr123";
-    private static int IDMachine, IDChannel, count = 0;
+//    private static int count = 0;
     public static final int PORTDDOC = 6300;
     public static final int PORTMAINSERVER = 4763;
     public static int lookAndFeel = LookAndFeelFactory.OFFICE2003_STYLE;

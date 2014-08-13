@@ -9,8 +9,8 @@ import javax.swing.table.AbstractTableModel;
  */
 public class TableModelTarget extends AbstractTableModel {
 
-    String[] columnNames = {"No", "Machine(s)", "<html><font color=red>Production Rate</font>",
-        "<html><font color=blue>Total Production</font>"};
+    String[] columnNames = {"No", "Machine(s)", "Start Time", "End Time", "<html><font color=red>Target Production Rate</font>",
+        "<html><font color=blue>Target Daily Production</font>"};
     ArrayList[] Data;
 
     public TableModelTarget() {
@@ -40,9 +40,11 @@ public class TableModelTarget extends AbstractTableModel {
         switch (columnIndex) {
             case 0:
             case 1:
-                return String.class;
             case 2:
             case 3:
+                return String.class;
+            case 4:
+            case 5:
                 return Double.class;
         }
         return super.getColumnClass(columnIndex);
@@ -61,11 +63,7 @@ public class TableModelTarget extends AbstractTableModel {
 
     @Override
     public boolean isCellEditable(int row, int col) {
-        if (col == 0 || col == 1) {
-            return (false);
-        } else {
-            return true;
-        }
+        return col > 3;
     }
 
     public void addNewRow() {

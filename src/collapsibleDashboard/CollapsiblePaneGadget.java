@@ -1,4 +1,4 @@
-package shiftReport;
+package collapsibleDashboard;
 /*
  * @(#)Target.java 7/20/2007
  *

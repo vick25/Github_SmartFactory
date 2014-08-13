@@ -1,4 +1,4 @@
-package shiftReport;
+package collapsibleDashboard;
 
 import com.jidesoft.converter.ObjectConverterManager;
 import com.jidesoft.dashboard.AbstractGadget;

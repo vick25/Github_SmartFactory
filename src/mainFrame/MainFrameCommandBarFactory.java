@@ -342,7 +342,7 @@ public class MainFrameCommandBarFactory extends CommandBarFactory {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                MainFrame.actionExportData();
+//                MainFrame.actionExportData();
             }
         });
         menu.add(MISearchEdit);
@@ -363,7 +363,7 @@ public class MainFrameCommandBarFactory extends CommandBarFactory {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                MainFrame.actionChangePassword();
+//                MainFrame.actionChangePassword();
             }
         });
         MITemplate.setEnabled(false);

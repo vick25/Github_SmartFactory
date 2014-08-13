@@ -22,26 +22,26 @@ import java.sql.Statement;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 import javax.swing.ImageIcon;
-import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.Timer;
 import mainFrame.MainFrame;
 import productionQuickView.ProductionQuickView;
-import productionQuickView.Target;
 import setting.SettingKeyFactory;
 import smartfactoryV2.ConnectDB;
+import smartfactoryV2.Queries;
+import target.Target;
 import user.ChangePassword;
 import user.CreateUser;
 import user.PasswordForgot;
 
 public class Identification extends javax.swing.JDialog {
 
-    public Identification(java.awt.Frame parent, boolean modal) {
+    public Identification(JFrame parent, boolean modal) {
         super(null, java.awt.Dialog.ModalityType.TOOLKIT_MODAL);
         LookAndFeelFactory.installDefaultLookAndFeelAndExtension();
-        this.parent = (JDialog) this;
+        _showMainFrame = parent;
         initComponents();
         initValues();
         this.addWindowListener(new WindowAdapter() {
@@ -85,9 +85,9 @@ public class Identification extends javax.swing.JDialog {
         time.setRepeats(true);
         time.setInitialDelay(0);
         time.start();
-        this.getRootPane().setDefaultButton(btnConnexion);
-        this.setIconImage(new ImageIcon(getClass().getResource("/images/icons/contact-new.png")).getImage());
-        this.setLocationRelativeTo(null);
+        getRootPane().setDefaultButton(btnConnexion);
+        setIconImage(new ImageIcon(getClass().getResource("/images/icons/contact-new.png")).getImage());
+        setLocationRelativeTo(null);
     }
 
     @SuppressWarnings("unchecked")
@@ -336,7 +336,7 @@ public class Identification extends javax.swing.JDialog {
     }// </editor-fold>//GEN-END:initComponents
 
     private void hlIPServerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_hlIPServerActionPerformed
-        new ServerIP(this.parent, true).setVisible(true);
+        new ServerIP(this, true).setVisible(true);
         if (!ServerIP._IPValue.equalsIgnoreCase("") && !ServerIP._IPValue.equalsIgnoreCase("0.0.0.0")) {
             hlIPServer.setText(ServerIP._IPValue);
         }
@@ -377,6 +377,7 @@ public class Identification extends javax.swing.JDialog {
     }//GEN-LAST:event_btnEffacerActionPerformed
 
     private void btnConnexionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnConnexionActionPerformed
+        dialog = this;
         ConnectDB.getConnectionInstance();
         try {
             //Add the userlist table
@@ -411,28 +412,28 @@ public class Identification extends javax.swing.JDialog {
                                     }
                                 }
                                 this.dispose();
-                                createTargetTableInDatabase();//Creating the Target table in the database
+                                createTablesInDatabase();//Creating the Target table in the database
 //                                ConnectDB.saveIP(ConnectDB.serverIP);
                                 if ("root".equals(login)) {
-                                    new CreateUser(mainFrame, true).setVisible(true);
-                                    new Identification(mainFrame, true).setVisible(true);
+                                    new CreateUser(_mainFrame, true).setVisible(true);
+                                    new Identification(_mainFrame, true).setVisible(true);
                                 } else {
                                     if (saveFrame) {
-                                        mainFrame.setVisible(true);
+                                        _showMainFrame.setVisible(true);
                                         if (quickViewFrame != null) {
                                             quickViewFrame.setVisible(true);
                                         }
-                                        mainFrame.repaint();
+                                        _showMainFrame.revalidate();
                                     } else {
-                                        mainFrame = new MainFrame(IDUser);
-                                        mainFrame.showFrame();
+                                        _mainFrame = new MainFrame(IDUser);
+                                        _mainFrame.showFrame();
                                         if (ConnectDB.pref.getBoolean(SettingKeyFactory.DefaultProperties.SHOWPRODUCTIONQVIEW, false)) {
                                             quickViewFrame = new JFrame("Production Quick View");
                                             quickViewFrame.setSize(915, 570);
                                             productionQuickView = new ProductionQuickView(quickViewFrame);
                                             quickViewFrame.setContentPane(productionQuickView);
                                             quickViewFrame.setIconImage(new ImageIcon(getClass().getResource("/images/smart_factory_logo_icon.png")).getImage());
-                                            quickViewFrame.setLocationRelativeTo(mainFrame);
+                                            quickViewFrame.setLocationRelativeTo(_mainFrame);
                                             quickViewFrame.setVisible(true);
                                             quickViewFrame.addWindowListener(new WindowAdapter() {
 
@@ -476,8 +477,7 @@ public class Identification extends javax.swing.JDialog {
         btnConnexionActionPerformed(evt);
     }//GEN-LAST:event_hlCreateUserActionPerformed
 
-    private void initValues() {        
-        identification = this;
+    private void initValues() {
         hlIPServer.setText(ConnectDB.pref.get(SettingKeyFactory.Connection.SERVERIPADDRESS, hlIPServer.getText()));
         txtLogin.setText(pref.get("login", txtLogin.getText()));
         txtPassword.setText(pref.get("password", String.copyValueOf(txtPassword.getPassword())));
@@ -512,28 +512,24 @@ public class Identification extends javax.swing.JDialog {
                 + " `privilege` varchar(20) NOT NULL,\n"
                 + " `status` varchar(20) NOT NULL,\n"
                 + " PRIMARY KEY (`IDuser`)) \n"
-                + " ENGINE=InnoDB  DEFAULT CHARSET=latin1;\n"
+                + " ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1;\n"
                 + "INSERT INTO `userlist` \n(`IDuser`, `firstname`,`lastname`,`othername`,`email`,"
                 + "`login`,`password`,`question`,`answer`,`privilege`,`status`) VALUES\n"
                 + "(1,'root','root','mf','smartfactory','root','" + ConnectDB.crypter("root123") + "','ideax',"
                 + "'" + ConnectDB.crypter("smartfactory") + "','Admin','mainUser');";
-        try (Statement stat = ConnectDB.con.createStatement()) {
-            stat.executeUpdate(query);
+        try (Statement stmt = ConnectDB.con.createStatement()) {
+            stmt.executeUpdate(query);
         } catch (SQLException ex) {
         }
     }
 
-    private void createTargetTableInDatabase() throws SQLException {
-        String query = "USE smartfactory;\n"
-                + "CREATE TABLE IF NOT EXISTS `target` (\n"
-                + " `TargetNo` smallint(5) NOT NULL AUTO_INCREMENT,\n"
-                + " `Machine` varchar(50) NOT NULL, \n"
-                + " `ConfigNo` smallint(6) NOT NULL, \n"
-                + " `TargetValue` double NOT NULL, \n"
-                + " PRIMARY KEY (`TargetNo`)) \n"
-                + " ENGINE=InnoDB  DEFAULT CHARSET=latin1;";
-        try (Statement stat = ConnectDB.con.createStatement()) {
-            stat.executeUpdate(query);
+    private void createTablesInDatabase() throws SQLException {
+        try (Statement stmt = ConnectDB.con.createStatement()) {
+            String[] queries = {Queries.CREATE_TABLE_BREAKS, Queries.CREATE_TABLE_TARGET,
+                Queries.CREATE_TABLE_STARTENDTIME, Queries.CREATE_TABLE_TIMEBREAKS};
+            for (String query : queries) {
+                stmt.executeUpdate(query);
+            }
         }
     }
 
@@ -569,13 +565,14 @@ public class Identification extends javax.swing.JDialog {
     public static boolean okID = false;
     public static int IDUser = -1;
     public static boolean saveFrame = false;
-    public static MainFrame mainFrame;
-    public static JFrame quickViewFrame;
-    public static Identification identification;
+    public static MainFrame _mainFrame;
+    public static JFrame quickViewFrame, _showMainFrame;
     public static String status = "", userName = "";
     public static ProductionQuickView productionQuickView;
-    private final JDialog parent;
+    public static Identification dialog;
+//    private final JDialog parent;
     private ResultSet resultSet;
     private String login, password;
-    private final Preferences pref = Preferences.userNodeForPackage(Identification.class);
+    private final Preferences pref = Preferences.userNodeForPackage(Identification.class
+    );
 }
