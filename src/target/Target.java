@@ -464,15 +464,9 @@ public class Target extends javax.swing.JDialog {
                             configNo = ConnectDB.res.getInt(1);
                         }
                     }
-                    query = "SELECT TargetValue, StartTime, EndTime FROM target, startendtime\n"
-                            + "WHERE ConfigNo =?\n"
-                            + "AND HwNo =?\n"
-                            + "AND Machine =?";
+                    query = "SELECT TargetValue FROM target WHERE ConfigNo =?";
                     try (PreparedStatement ps = ConnectDB.con.prepareStatement(query)) {
                         ps.setInt(1, configNo);
-                        ps.setInt(2, ConnectDB.getMachineID(machineName));
-                        ps.setString(3, machineName);
-                        System.out.println(ps.toString());
                         ConnectDB.res = ps.executeQuery();
                         while (ConnectDB.res.next()) {
                             if (_type.equalsIgnoreCase("rate")) {
@@ -481,6 +475,11 @@ public class Target extends javax.swing.JDialog {
                                 tableTarget.setValueAt(ConnectDB.res.getDouble(1), i, 5);
                             }
                         }
+                    }
+                    query = "SELECT StartTime, EndTime FROM startendtime\n"
+                            + "WHERE HwNo =?";
+                    try (PreparedStatement ps = ConnectDB.con.prepareStatement(query)) {
+                        ps.setInt(1, ConnectDB.getMachineID(machineName));
                     }
                 }
             }
