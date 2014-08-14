@@ -318,7 +318,7 @@ public class EventsHierarchicalTable extends JFrame {
             try {
                 ps = ConnectDB.con.prepareStatement(eventQuery);
                 int z = 1;
-                ps.setInt(z++, ConnectDB.getIDMachine(EventsStatistic.machineTitle));
+                ps.setInt(z++, ConnectDB.getMachineID(EventsStatistic.machineTitle));
                 ps.setString(z++, EventsStatistic.minLogTime);
                 ps.setString(z++, EventsStatistic.maxLogTime);
                 ps.setString(z++, rowNameDesc);

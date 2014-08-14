@@ -1013,7 +1013,7 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
                         + "FROM eventlog e, customlist c \n"
                         + "WHERE e.Customcode = c.Code AND e.HwNo =? \n"
                         + "ORDER BY Description ASC")) {
-                    ps.setInt(1, ConnectDB.getIDMachine(machineTitle));
+                    ps.setInt(1, ConnectDB.getMachineID(machineTitle));
                     ConnectDB.res = ps.executeQuery();
                     find = false;
                     while (ConnectDB.res.next()) {
@@ -1076,7 +1076,7 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
                         + "AND e.Value <> '(null)' \n"
                         + "ORDER BY VALUE ASC")) {
                     int i = 1;
-                    ps.setInt(i++, ConnectDB.getIDMachine(machineTitle));
+                    ps.setInt(i++, ConnectDB.getMachineID(machineTitle));
                     ConnectDB.res = ps.executeQuery();
                     while (ConnectDB.res.next()) {
                         dataValue.add(ConnectDB.res.getString(1));
@@ -1169,7 +1169,7 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
             ps = ConnectDB.con.prepareStatement(query);
             ps.setInt(j++, (int) spProductionRate.getValue());
             ps.setInt(j++, getIDChannel());
-            ps.setInt(j++, ConnectDB.getIDMachine(machineTitle));
+            ps.setInt(j++, ConnectDB.getMachineID(machineTitle));
             ps.setString(j++, ConnectDB.SDATEFORMATHOUR.format(dt_startE));
             ps.setString(j++, ConnectDB.SDATEFORMATHOUR.format(dt_stopE));
             ConnectDB.res = ps.executeQuery();
@@ -1201,7 +1201,7 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
                     + "ORDER BY c.Description ASC, e.Value ASC";
             ps = ConnectDB.con.prepareStatement(query);
             j = 1;
-            ps.setInt(j++, ConnectDB.getIDMachine(machineTitle));
+            ps.setInt(j++, ConnectDB.getMachineID(machineTitle));
             ps.setString(j++, minLogTime);
             ps.setString(j++, maxLogTime);
             ConnectDB.res = ps.executeQuery();
@@ -1350,7 +1350,7 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
                 if (!EventsDataPanel.groupData) {
                     return query = "SELECT e.`EventTime`, e.`Value`, e.`UntilTime`\n"
                             + "FROM eventlog e, customlist c\n"
-                            + "WHERE e.HwNo = '" + ConnectDB.getIDMachine(machineTitle) + "' AND e.CustomCode = c.Code \n"
+                            + "WHERE e.HwNo = '" + ConnectDB.getMachineID(machineTitle) + "' AND e.CustomCode = c.Code \n"
                             + "AND e.Value <> '(null)'\n"
                             + "AND (e.EventTime BETWEEN '" + minLogTime + "' AND '" + maxLogTime + "')\n"
                             + "AND c.`Description` IN (" + manyCriteria(setDescription.toArray()) + ")\n"
@@ -1360,7 +1360,7 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
                             + "(SELECT MAX(e.UntilTime) FROM eventlog e \n"
                             + "WHERE e.Value = main.Value AND e.UntilTime > main.UntilTime) AS NextTime "
                             + "FROM eventlog main, customlist c\n"
-                            + "WHERE main.HwNo = '" + ConnectDB.getIDMachine(machineTitle) + "'\n"
+                            + "WHERE main.HwNo = '" + ConnectDB.getMachineID(machineTitle) + "'\n"
                             + "AND main.CustomCode = c.Code \n"
                             + "AND main.Value <> '(null)'\n"
                             + "AND (main.EventTime BETWEEN '" + minLogTime + "' AND '" + maxLogTime + "')\n"
@@ -1371,7 +1371,7 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
             } else {//case for time events
                 return query = "SELECT e.`EventTime`, e.`UntilTime`, c.`Description`\n"
                         + "FROM eventlog e, customlist c\n"
-                        + "WHERE e.HwNo = '" + ConnectDB.getIDMachine(machineTitle) + "' AND e.CustomCode = c.Code \n"
+                        + "WHERE e.HwNo = '" + ConnectDB.getMachineID(machineTitle) + "' AND e.CustomCode = c.Code \n"
                         + "AND e.Value <> '(null)'\n"
                         + "AND (e.EventTime BETWEEN '" + minLogTime + "' AND '" + maxLogTime + "')\n"
                         + "AND c.`Description` IN (" + manyCriteria(setDescription.toArray()) + ")\n"
@@ -1384,7 +1384,7 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
                 if (!EventsDataPanel.groupData) {
                     return query = "SELECT e.`EventTime`, e.`Value`, e.`UntilTime`\n"
                             + "FROM eventlog e, customlist c\n"
-                            + "WHERE e.HwNo = '" + ConnectDB.getIDMachine(machineTitle) + "' AND e.CustomCode = c.Code \n"
+                            + "WHERE e.HwNo = '" + ConnectDB.getMachineID(machineTitle) + "' AND e.CustomCode = c.Code \n"
                             + "AND e.Value <> '(null)'\n"
                             + "AND (e.EventTime BETWEEN '" + minLogTime + "' AND '" + maxLogTime + "')\n"
                             + "AND c.`Description` = '" + ConnectDB.firstLetterCapital(leafTitle.toLowerCase()) + "'\n"
@@ -1394,7 +1394,7 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
                             + "(SELECT MAX(e.UntilTime) FROM eventlog e \n"
                             + "WHERE e.Value = main.Value AND e.UntilTime > main.UntilTime) AS NextTime "
                             + "FROM eventlog main, customlist c\n"
-                            + "WHERE main.HwNo = '" + ConnectDB.getIDMachine(machineTitle) + "'\n"
+                            + "WHERE main.HwNo = '" + ConnectDB.getMachineID(machineTitle) + "'\n"
                             + "AND main.CustomCode = c.Code \n"
                             + "AND main.Value <> '(null)'\n"
                             + "AND (main.EventTime BETWEEN '" + minLogTime + "' AND '" + maxLogTime + "')\n"
@@ -1405,7 +1405,7 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
             } else {//case for time events
                 return query = "SELECT e.`EventTime`, e.`UntilTime`, e.`Value`\n"
                         + "FROM eventlog e, customlist c\n"
-                        + "WHERE e.HwNo = '" + ConnectDB.getIDMachine(machineTitle) + "' AND e.CustomCode = c.Code \n"
+                        + "WHERE e.HwNo = '" + ConnectDB.getMachineID(machineTitle) + "' AND e.CustomCode = c.Code \n"
                         + "AND e.Value <> '(null)'\n"
                         + "AND (e.EventTime BETWEEN '" + minLogTime + "' AND '" + maxLogTime + "')\n"
                         + "AND c.`Description` = '" + ConnectDB.firstLetterCapital(leafTitle.toLowerCase()) + "'\n"
@@ -1812,7 +1812,7 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
                 + "and h.HwNo =?")) {
             int i = 1;
             ps.setInt(i++, 1);
-            ps.setInt(i++, ConnectDB.getIDMachine(machineTitle));
+            ps.setInt(i++, ConnectDB.getMachineID(machineTitle));
             ConnectDB.res = ps.executeQuery();
             IDChannel = -1;
             while (ConnectDB.res.next()) {

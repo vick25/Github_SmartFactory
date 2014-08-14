@@ -316,7 +316,7 @@ public class TargetOptions extends javax.swing.JPanel {
                 + "FROM breaks, timebreaks\n"
                 + "WHERE breaks.BreaksNo = timebreaks.BreaksNo\n"
                 + "AND HwNo=? ORDER BY TimeBreaksNo ASC")) {
-            ps.setInt(1, ConnectDB.getIDMachine(machine));
+            ps.setInt(1, ConnectDB.getMachineID(machine));
             ConnectDB.res = ps.executeQuery();
             while (ConnectDB.res.next()) {
                 if (nbLine > sortableTable.getModel().getRowCount()) {

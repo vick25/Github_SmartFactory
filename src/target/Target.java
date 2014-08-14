@@ -278,17 +278,17 @@ public class Target extends javax.swing.JDialog {
         try {
             if (checkEmptyTable()) {
                 SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
-                int IDMachine = ConnectDB.getIDMachine(_machine);
+                int machineID = ConnectDB.getMachineID(_machine);
                 try (PreparedStatement ps = ConnectDB.con.prepareStatement("DELETE FROM timebreaks\n"
                         + "WHERE HwNo =?")) {
-                    ps.setInt(1, IDMachine);
+                    ps.setInt(1, machineID);
                     ps.executeUpdate();
                 }
                 for (int i = 0; i < _tableTargetOption.getRowCount(); i++) {
                     try (PreparedStatement ps = ConnectDB.con.prepareStatement("INSERT INTO timebreaks\n"
                             + "VALUE (?,?,?,?,?)")) {
                         ps.setObject(1, null);
-                        ps.setInt(2, IDMachine);
+                        ps.setInt(2, machineID);
                         ps.setInt(3, getBreaksNameNo(_tableTargetOption.getValueAt(i, 3).toString()));
                         ps.setTime(4, new java.sql.Time(sdf.parse(sdf.format(_tableTargetOption.getValueAt(i, 1))).getTime()));
                         ps.setTime(5, new java.sql.Time(sdf.parse(sdf.format(_tableTargetOption.getValueAt(i, 2))).getTime()));
@@ -298,14 +298,39 @@ public class Target extends javax.swing.JDialog {
                             tableTarget.removeRowSelectionInterval(0, tableTarget.getRowCount() - 1);
                             tableTarget.repaint();
                         }
-                    } catch (ParseException ex) {
-                        Logger.getLogger(Target.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+                String startTime = sdf.format(targetOptions.getDsStartTime().getModel().getValue()),
+                        endTime = sdf.format(targetOptions.getDsEndTime().getModel().getValue());
+                if (checkMachineStartEndTimeExist(machineID)) {
+                    try (PreparedStatement ps = ConnectDB.con.prepareStatement("UPDATE startendtime\n"
+                            + "SET StartTime =?,\n"
+                            + "EndTime =?\n"
+                            + "WHERE HwNo =?")) {
+                        ps.setTime(1, new java.sql.Time(sdf.parse(startTime).getTime()));
+                        ps.setTime(2, new java.sql.Time(sdf.parse(endTime).getTime()));
+                        int res = ps.executeUpdate();
+                        if (res == 1) {
+                            System.out.println("successful");
+                        }
+                    }
+                } else {
+                    try (PreparedStatement ps = ConnectDB.con.prepareStatement("INSERT INTO startendtime\n"
+                            + "VALUES (?,?,?,?)")) {
+                        ps.setObject(1, null);
+                        ps.setInt(2, machineID);
+                        ps.setTime(3, new java.sql.Time(sdf.parse(startTime).getTime()));
+                        ps.setTime(4, new java.sql.Time(sdf.parse(endTime).getTime()));
+                        int res = ps.executeUpdate();
+                        if (res == 1) {
+                            System.out.println("successful");
+                        }
                     }
                 }
                 for (int i = 0; i < tableTarget.getRowCount(); i++) {
                     if (_machine.equals(tableTarget.getValueAt(i, 1))) {
-                        tableTarget.setValueAt(sdf.format(targetOptions.getDsStartTime().getModel().getValue()), i, 2);
-                        tableTarget.setValueAt(sdf.format(targetOptions.getDsEndTime().getModel().getValue()), i, 3);
+                        tableTarget.setValueAt(startTime, i, 2);
+                        tableTarget.setValueAt(endTime, i, 3);
                     }
                 }
             }
@@ -313,6 +338,8 @@ public class Target extends javax.swing.JDialog {
             return;
         } catch (SQLException ex) {
             ConnectDB.catchSQLException(ex);
+        } catch (ParseException ex) {
+            Logger.getLogger(Target.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_btnLoadSettingActionPerformed
 
@@ -421,14 +448,14 @@ public class Target extends javax.swing.JDialog {
         if (tableTarget.getRowCount() > 0) {
             tableRow = tableTarget.getModel().getRowCount();
             for (int i = 0; i < tableRow; i++) {
-                String machine = tableTarget.getValueAt(i, 1).toString();
+                String machineName = tableTarget.getValueAt(i, 1).toString();
                 for (ProductionType type : ProductionType.values()) {
                     String _type = type.toString();
                     String query = "SELECT DISTINCT c.ConfigNo\n"
                             + "FROM configuration c, hardware h\n"
                             + "WHERE h.HwNo = c.HwNo\n"
                             + "AND c.AvMinMax = '" + _type + "'\n"
-                            + "AND h.Machine = '" + machine + "'"
+                            + "AND h.Machine = '" + machineName + "'"
                             + "AND c.Active = 1 ORDER BY h.HwNo ASC";
                     int configNo = -1;
                     try (PreparedStatement ps = ConnectDB.con.prepareStatement(query)) {
@@ -437,10 +464,15 @@ public class Target extends javax.swing.JDialog {
                             configNo = ConnectDB.res.getInt(1);
                         }
                     }
-                    query = "SELECT targetValue FROM target\n"
-                            + "WHERE ConfigNo =?";
+                    query = "SELECT TargetValue, StartTime, EndTime FROM target, startendtime\n"
+                            + "WHERE ConfigNo =?\n"
+                            + "AND HwNo =?\n"
+                            + "AND Machine =?";
                     try (PreparedStatement ps = ConnectDB.con.prepareStatement(query)) {
                         ps.setInt(1, configNo);
+                        ps.setInt(2, ConnectDB.getMachineID(machineName));
+                        ps.setString(3, machineName);
+                        System.out.println(ps.toString());
                         ConnectDB.res = ps.executeQuery();
                         while (ConnectDB.res.next()) {
                             if (_type.equalsIgnoreCase("rate")) {
@@ -453,6 +485,18 @@ public class Target extends javax.swing.JDialog {
                 }
             }
         }
+    }
+
+    private boolean checkMachineStartEndTimeExist(int machineID) throws SQLException {
+        try (PreparedStatement ps = ConnectDB.con.prepareStatement("SELECT HwNo FROM startendtime")) {
+            ConnectDB.res = ps.executeQuery();
+            while (ConnectDB.res.next()) {
+                if (machineID == ConnectDB.res.getInt(1)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     private boolean checkTargetExist(String machine, int configNo) throws SQLException {

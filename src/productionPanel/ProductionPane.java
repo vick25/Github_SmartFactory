@@ -1265,13 +1265,13 @@ public class ProductionPane extends javax.swing.JPanel {
                     query = "SELECT DISTINCT c.ChannelID\n"
                             + "FROM configuration c, hardware h\n"
                             + "WHERE h.HwNo = c.HwNo\n"
-                            + "AND h.HwNo = '" + ConnectDB.getIDMachine(machineTitle) + "'\n"
+                            + "AND h.HwNo = '" + ConnectDB.getMachineID(machineTitle) + "'\n"
                             + "AND c.Active = 1";
                 } else {
                     query = "SELECT DISTINCT c.ChannelID\n"
                             + "FROM configuration c, hardware h\n"
                             + "WHERE h.HwNo = c.HwNo\n"
-                            + "AND h.HwNo = '" + ConnectDB.getIDMachine(machineTitle) + "'";
+                            + "AND h.HwNo = '" + ConnectDB.getMachineID(machineTitle) + "'";
                 }
                 if (!cmbOptions.getSelectedItem().equals("") && cmbOptions.getSelectedIndex() > 0) {
                     String module = getModuleOption(cmbOptions.getSelectedItem().toString());
@@ -1527,13 +1527,13 @@ public class ProductionPane extends javax.swing.JPanel {
                                 + "FROM configuration c, hardware h "
                                 + "WHERE h.HwNo = c.HwNo "
                                 + "AND c.AvMinMax = '" + module + "'\n"
-                                + "AND h.HwNo = '" + ConnectDB.getIDMachine(machineTitle) + "' AND c.Active = 1";
+                                + "AND h.HwNo = '" + ConnectDB.getMachineID(machineTitle) + "' AND c.Active = 1";
                     } else {
                         query = "SELECT DISTINCT c.ChannelID "
                                 + "FROM configuration c, hardware h "
                                 + "WHERE h.HwNo = c.HwNo "
                                 + "AND c.AvMinMax = '" + module + "'\n"
-                                + "AND h.HwNo = '" + ConnectDB.getIDMachine(machineTitle) + "'";
+                                + "AND h.HwNo = '" + ConnectDB.getMachineID(machineTitle) + "'";
                     }
                     try (Statement stmt = ConnectDB.con.createStatement()) {
                         ConnectDB.res = stmt.executeQuery(query);
