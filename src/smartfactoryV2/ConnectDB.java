@@ -255,7 +255,7 @@ public class ConnectDB {
         }
     }
 
-    public static int getIDMachine(String machine) {
+    public static int getMachineID(String machine) {
         int IDMachine = -1;
         try (PreparedStatement ps = ConnectDB.con.prepareStatement("SELECT HwNo, Machine FROM hardware "
                 + "WHERE Machine =?")) {
@@ -278,7 +278,7 @@ public class ConnectDB {
                 + "WHERE c.HwNo = h.HwNo\n"
                 + "AND h.HwNo =?\n"
                 + "AND ChannelID =? ORDER BY ACTIVE")) {
-            ps.setInt(1, getIDMachine(machine));
+            ps.setInt(1, getMachineID(machine));
             ps.setString(2, channelID);
             ConnectDB.res = ps.executeQuery();
             while (ConnectDB.res.next()) {
