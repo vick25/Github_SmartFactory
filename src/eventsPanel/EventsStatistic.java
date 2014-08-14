@@ -843,6 +843,10 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
     panChart.removeAll();
     panChart.repaint();
     _field.setText(null);
+    TreePath[] paths = _tree.getSelectionPaths();
+    for (TreePath path : paths) {
+        System.out.println("You've selected: " + path.getLastPathComponent());
+    }
     _tree.setSelectionRow(-1);
     lblTimeSum.setText("");
     btnPieChartActionPerformed(evt);
@@ -1014,6 +1018,8 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
                         + "WHERE e.Customcode = c.Code AND e.HwNo =? \n"
                         + "ORDER BY Description ASC")) {
                     ps.setInt(1, ConnectDB.getMachineID(machineTitle));
+                    System.out.println(machineTitle);
+                    System.out.println(ps.toString());
                     ConnectDB.res = ps.executeQuery();
                     find = false;
                     while (ConnectDB.res.next()) {
@@ -1266,6 +1272,9 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
             renderer.setLeafIcon(new ImageIcon(getClass().getResource("/images/icons/new12.gif")));
             renderer.setClosedIcon(new ImageIcon(getClass().getResource("/images/icons/background(6).png")));
             renderer.setOpenIcon(new ImageIcon(getClass().getResource("/images/icons/background2.png")));
+            renderer.setTextSelectionColor(Color.white);
+            renderer.setBackgroundSelectionColor(Color.blue);
+            renderer.setBorderSelectionColor(Color.black);
             _field.setTree(_tree);
             TreeSearchable searchable = SearchableUtils.installSearchable(_tree);
             searchable.setFromStart(false);
@@ -1328,7 +1337,7 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
                         && (!path.getLastPathComponent().toString().equals(path.getPath()[0].toString()))) {
                     for (Object path1 : path.getPath()) {
                         title = "";
-                        if (!path1.toString().equalsIgnoreCase(treeMainTitle)) {                     
+                        if (!path1.toString().equalsIgnoreCase(treeMainTitle)) {
                             title += path1 + " ";
                         }
                     }
@@ -1431,7 +1440,7 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
                 Statement stat = ConnectDB.con.createStatement();
                 ConnectDB.res = stat.executeQuery(query);
                 int i = 0;
-                double sum = 0d;
+                double sum;
                 max = 0;
                 setDescOrValue.clear();
                 timeFormat = "fictitious value";
@@ -1459,7 +1468,6 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
                         ex.printStackTrace();
                     }
                 }
-                query = "";//clear the query string
                 Set<String> setData = null;//define the set depending on the tree path selected
                 if (chartTitle().equalsIgnoreCase(treeMainTitle)) {
                     setData = setDescription; //set for only the description
@@ -1509,7 +1517,7 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
     }
 
     private static Axis chartTitleAxis() {
-        Axis yAxis = null;
+        Axis yAxis;
         switch (timeFormat) {
             case "hour":
                 yAxis = chartTitleAxis(10, "Hr", "Hours");
@@ -1828,7 +1836,7 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
         private String m_machName;
         private final String m_machDomain;
 
-        public Machine(String machName, String machDomain) {
+        Machine(String machName, String machDomain) {
 //            m_IDpart = IDMach;
             m_machName = machName;
             m_machDomain = machDomain;

@@ -63,6 +63,7 @@ public class TargetOptions extends javax.swing.JPanel {
 
     public void setDsEndTime(DateSpinner dsEndTime) {
         this.dsEndTime = dsEndTime;
+        this.dsEndTime.repaint();
     }
 
     public DateSpinner getDsStartTime() {
@@ -71,6 +72,7 @@ public class TargetOptions extends javax.swing.JPanel {
 
     public void setDsStartTime(DateSpinner dsStartTime) {
         this.dsStartTime = dsStartTime;
+        this.dsStartTime.repaint();
     }
 
     public TargetOptions(String machine) throws SQLException, ParseException {

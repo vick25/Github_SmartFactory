@@ -6,6 +6,7 @@ import com.jidesoft.grid.RowStripeTableStyleProvider;
 import com.jidesoft.grid.SortableTable;
 import com.jidesoft.grid.TableUtils;
 import com.jidesoft.plaf.LookAndFeelFactory;
+import com.jidesoft.spinner.DateSpinner;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -94,6 +95,7 @@ public class Target extends javax.swing.JDialog {
                             targetOptions = new TargetOptions(_machine);
                             scrlTargetOptions.setViewportView(targetOptions);
                             _tableTargetOption = targetOptions.getSortableTable();
+                            setTargetOptionsProductionTime();
                         } catch (SQLException ex) {
                             ConnectDB.catchSQLException(ex);
                         } catch (ParseException ex) {
@@ -277,7 +279,6 @@ public class Target extends javax.swing.JDialog {
     private void btnLoadSettingActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLoadSettingActionPerformed
         try {
             if (checkEmptyTable()) {
-                SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
                 int machineID = ConnectDB.getMachineID(_machine);
                 try (PreparedStatement ps = ConnectDB.con.prepareStatement("DELETE FROM timebreaks\n"
                         + "WHERE HwNo =?")) {
@@ -480,9 +481,22 @@ public class Target extends javax.swing.JDialog {
                             + "WHERE HwNo =?";
                     try (PreparedStatement ps = ConnectDB.con.prepareStatement(query)) {
                         ps.setInt(1, ConnectDB.getMachineID(machineName));
+                        ConnectDB.res = ps.executeQuery();
+                        while (ConnectDB.res.next()) {
+                            tableTarget.setValueAt(ConnectDB.res.getString(1).substring(0, 5), i, 2);
+                            tableTarget.setValueAt(ConnectDB.res.getString(2).substring(0, 5), i, 3);
+                        }
                     }
                 }
             }
+        }
+    }
+
+    private void setTargetOptionsProductionTime() throws ParseException {
+        if (tableTarget.getValueAt(tableTarget.getSelectedRow(), 2).toString().isEmpty()) {
+            targetOptions.setDsStartTime(new DateSpinner("HH:mm", ConnectDB.CALENDAR.getTime()));
+        } else {
+            targetOptions.setDsStartTime(new DateSpinner("HH:mm", sdf.parse(tableTarget.getValueAt(tableTarget.getSelectedRow(), 2).toString())));
         }
     }
 
@@ -623,4 +637,5 @@ public class Target extends javax.swing.JDialog {
     public static boolean anyChange, targetFound = true;
     private TargetOptions targetOptions;
     private String _machine;
+    private SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
 }
