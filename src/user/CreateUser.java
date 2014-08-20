@@ -28,21 +28,21 @@ public class CreateUser extends javax.swing.JDialog {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (txtPersonalQuestion.isEnabled()) {
-                    if (!txtFirstName.getText().equals("") && !txtSurname.getText().equals("")
-                            && !txtEmail.getText().equals("")
-                            && !txtLoginID.getText().equals("") && !String.copyValueOf(txtPassword.getPassword()).equals("")
-                            && !String.copyValueOf(txtRetypePassword.getPassword()).equals("") && !txtPersonalQuestion.getText().equals("")
-                            && !txtAnswer.getText().equals("") && !cmbSecretQuestion.getSelectedItem().equals(" ")) {
+                    if (!txtFirstName.getText().isEmpty() && !txtSurname.getText().isEmpty()
+                            && !txtEmail.getText().isEmpty()
+                            && !txtLoginID.getText().isEmpty() && !String.copyValueOf(txtPassword.getPassword()).isEmpty()
+                            && !String.copyValueOf(txtRetypePassword.getPassword()).isEmpty() && !txtPersonalQuestion.getText().isEmpty()
+                            && !txtAnswer.getText().isEmpty() && !cmbSecretQuestion.getSelectedItem().equals(" ")) {
                         btnCreateUser.setEnabled(true);
                     } else {
                         btnCreateUser.setEnabled(false);
                     }
                 } else {
-                    if (!txtFirstName.getText().equals("") && !txtSurname.getText().equals("")
-                            && !txtEmail.getText().equals("")
-                            && !txtLoginID.getText().equals("") && !String.copyValueOf(txtPassword.getPassword()).equals("")
-                            && !String.copyValueOf(txtRetypePassword.getPassword()).equals("")
-                            && !txtAnswer.getText().equals("") && !cmbSecretQuestion.getSelectedItem().equals(" ")) {
+                    if (!txtFirstName.getText().isEmpty() && !txtSurname.getText().isEmpty()
+                            && !txtEmail.getText().isEmpty()
+                            && !txtLoginID.getText().isEmpty() && !String.copyValueOf(txtPassword.getPassword()).isEmpty()
+                            && !String.copyValueOf(txtRetypePassword.getPassword()).isEmpty()
+                            && !txtAnswer.getText().isEmpty() && !cmbSecretQuestion.getSelectedItem().equals(" ")) {
                         btnCreateUser.setEnabled(true);
                     } else {
                         btnCreateUser.setEnabled(false);
@@ -391,7 +391,7 @@ public class CreateUser extends javax.swing.JDialog {
                             JOptionPane.showMessageDialog(this, "The password can not be less than 6 characters ..."
                                     + "", "Warning", JOptionPane.WARNING_MESSAGE);
                         } else {
-                            String typeUser = "", statusUser = "newUser";
+                            String typeUser, statusUser = "newUser";
                             if (radUser.isSelected()) {
                                 typeUser = "User";
                             } else {

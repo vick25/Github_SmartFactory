@@ -6,7 +6,6 @@ import com.jidesoft.chart.Chart;
 import com.jidesoft.chart.Drawable;
 import com.jidesoft.chart.event.PointSelection;
 import com.jidesoft.chart.model.Chartable;
-import com.jidesoft.chart.model.Highlight;
 import com.jidesoft.chart.model.Highlightable;
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;
@@ -23,6 +22,7 @@ import java.awt.event.MouseMotionListener;
 import java.awt.geom.Point2D;
 import javax.swing.Timer;
 import javax.swing.UIManager;
+import smartfactoryV2.ConnectDB;
 
 /**
  *
@@ -45,7 +45,7 @@ public class ProductionRate extends javax.swing.JPanel {
             @Override
             public void mouseMoved(MouseEvent e) {
                 Point p = e.getPoint();
-                PointSelection ps = chartPanel.nearestPoint(p, LineChart.model);
+                PointSelection ps = chartPanel.nearestPoint(p, LineChart.getChartModel());
                 double distance = ps.getDistance();
                 if (distance < 50) {
                     if (selectedPoint != ps.getSelected()) {
@@ -56,7 +56,7 @@ public class ProductionRate extends javax.swing.JPanel {
                         selectedPoint = ps.getSelected();
                         if (selectedPoint instanceof Highlightable) {
                             Highlightable h = (Highlightable) selectedPoint;
-                            h.setHighlight(selectionHighlight);
+                            h.setHighlight(ConnectDB.SELECTION_HIGHLIGHT);
                             if (toolTip == null) {
                                 toolTip = new CustomToolTip();
                                 chartPanel.addDrawable(toolTip);
@@ -172,7 +172,7 @@ public class ProductionRate extends javax.swing.JPanel {
         return location;
     }
 
-    class CustomToolTip implements Drawable {
+    private class CustomToolTip implements Drawable {
 
         private final Color background = Color.BLACK;
         private final Color foreground = Color.WHITE;
@@ -182,9 +182,6 @@ public class ProductionRate extends javax.swing.JPanel {
         private Point2D location;
         private boolean visible;
         private String text, subText;
-
-        public CustomToolTip() {
-        }
 
         public Point2D getLocation() {
             return location;
@@ -247,13 +244,12 @@ public class ProductionRate extends javax.swing.JPanel {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     // End of variables declaration//GEN-END:variables
-    Chart chartPanel;
+    private Chart chartPanel;
     private Timer toolTipTimer;
     private CustomToolTip toolTip;
     private Point2D toolTipLocation;
     private static Chartable selectedPoint;
-    private static final Highlight selectionHighlight = new Highlight("selection");
-    static final int TOOL_TIP_WIDTH = 100,
+    private static final int TOOL_TIP_WIDTH = 100,
             TOOL_TIP_HEIGHT = 50,
             TOOLTIPXOFFSET = 20,
             TOOLTIPYOFFSET = -25;

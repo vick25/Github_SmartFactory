@@ -12,7 +12,6 @@ import com.jidesoft.chart.axis.NumericAxis;
 import com.jidesoft.chart.event.MouseWheelZoomer;
 import com.jidesoft.chart.event.PointDescriptor;
 import com.jidesoft.chart.event.ZoomLocation;
-import com.jidesoft.chart.model.ChartCategory;
 import com.jidesoft.chart.model.ChartModel;
 import com.jidesoft.chart.model.Chartable;
 import com.jidesoft.chart.model.Highlight;
@@ -23,6 +22,7 @@ import com.jidesoft.chart.render.RaisedBarRenderer;
 import com.jidesoft.chart.style.ChartStyle;
 import com.jidesoft.chart.style.LabelStyle;
 import com.jidesoft.chart.util.ColorFactory;
+import com.jidesoft.range.Category;
 import com.jidesoft.range.Positionable;
 import eventsPanel.StatKeyFactory;
 import java.awt.BorderLayout;
@@ -36,14 +36,18 @@ import javax.swing.border.EmptyBorder;
 import smartfactoryV2.ConnectDB;
 import smartfactoryV2.Queries;
 
-/**
- *
- * @author Victor Kadiata
- */
 public class Charts extends Chart {
 
-    public Charts(String machineTitle, int configNo, Date startDate) throws SQLException {
-        this._machineTitle = machineTitle;
+    public Chart getChartTotal() {
+        return chartTotal;
+    }
+
+    public Chart getChartRate() {
+        return chartRate;
+    }
+
+    public Charts(String machineName, int configNo, Date startDate) throws SQLException {
+        this._machineName = machineName;
         this._startDate = startDate;
         this._configNo = configNo;
         if (DashBoard.isShowTotalProd()) {
@@ -66,7 +70,7 @@ public class Charts extends Chart {
         chartTotal.removeDrawables();
 
         modelTotalProd = new BarChartModel(this._configNo, Queries.TOTAL_PRODUCTION, _withShifts,
-                this._machineTitle, this._startDate, Calendar.getInstance().getTime(), null).getModelPoints();
+                this._machineName, this._startDate, Calendar.getInstance().getTime(), null).getModelPoints();
         xAxis = new CategoryAxis<>(BarChartModel.range);
         BarChartModel.subtractValues.clear();
         ChartStyle styleTotalProd;
@@ -74,17 +78,17 @@ public class Charts extends Chart {
         chartTotal.getXAxis().setTicksVisible(true);
 
         int maxNumber = ConnectDB.maxNumber(BarChartModel.findMaxValue);
-        double target = ConnectDB.getMachineTarget(_machineTitle, "Cumulative");
+        double target = ConnectDB.getMachineTarget(_machineName, "Cumulative");
 //////        System.out.println(maxNumber);
 //////        System.out.println(maxNumber * (Math.random()) + 2000);
-        if ((double) maxNumber < target) {
+        if (maxNumber < target) {
             maxNumber = (int) target;
         }
-        NumericAxis yAxis = new NumericAxis(0, (double) (maxNumber + (Math.random()) + 1000));
+        NumericAxis yAxis = new NumericAxis(0, maxNumber + (Math.random()) + 1000);
         yAxis.setLabel(new AutoPositionedLabel("Total Parts", Color.BLACK));
         chartTotal.setLayout(new BorderLayout());
         chartTotal.setBorder(new EmptyBorder(5, 5, 10, 15));
-        chartTotal.setShadowVisible(true);
+//        chartTotal.setShadowV isible(true);
         chartTotal.getYAxis().setTicksVisible(true);
         chartTotal.getYAxis().setVisible(true);
         chartTotal.setYAxis(yAxis);
@@ -115,6 +119,7 @@ public class Charts extends Chart {
                 chartTotal.addModel(modelTotalProd, styleTotalProd);//Total Production Model
 
             }
+            /* Set the target line */
             if (target > 0d) {
                 LineMarker marker = new LineMarker(chartTotal, Orientation.horizontal, target, Color.RED);
                 marker.setLabel("Target");
@@ -123,6 +128,7 @@ public class Charts extends Chart {
             } else {
                 System.out.println(target);
             }
+            //
             LabelStyle labelStyle = new LabelStyle();
             labelStyle.setColor(Color.RED);
             renderer.setLabelStyle(labelStyle);
@@ -164,7 +170,7 @@ public class Charts extends Chart {
 //                        int xPos = (int) chartable.getX().position() - 1;
                         StringBuilder builder = new StringBuilder("<html><table>");
                         builder.append(String.format("<tr><td><b>Date</b></td><td>%s</td></tr>",
-                                ((ChartCategory) chartable.getX()).getValue().toString()));
+                                ((Category) chartable.getX()).getValue().toString()));
                         builder.append(String.format("<tr><td><b>Value</b></td><td>%.0f part(s)</td></tr>",
                                 chartable.getY().position()));
                         builder.append("</table></html>");
@@ -197,7 +203,7 @@ public class Charts extends Chart {
             pointRenderer.setOutlineColor(Color.WHITE);
             pointRenderer.setOutlineWidth(1);
             chartRate.setPointRenderer(pointRenderer);
-            /*/Generate some custom grid lines to match the original chart*/          
+            /*/Generate some custom grid lines to match the original chart*/
             for (int i = 0; i <= LineChartModel.getMaxNum() + 10; i += 10) {//line marker for y axis
                 LineMarker marker = new LineMarker(chartRate, Orientation.horizontal, i, gridColor);
                 chartRate.addDrawable(marker);
@@ -227,10 +233,10 @@ public class Charts extends Chart {
     ChartModel modelRateProd;
     private final int _configNo;
     private final Date _startDate;
-    private String _machineTitle;
+    private String _machineName;
     private final boolean _withShifts = false;
     private static CategoryAxis xAxis;
     private static final Color BLUEFILL = new Color(0, 75, 190, 75);
     private static final Highlight SELECTIONHIGHLIGHT = new Highlight("selection");
-    public Chart chartTotal = new Chart("Bar"), chartRate = new Chart("Line");
+    private final Chart chartTotal = new Chart("Bar"), chartRate = new Chart("Line");
 }

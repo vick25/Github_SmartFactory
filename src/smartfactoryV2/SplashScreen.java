@@ -1,16 +1,14 @@
 package smartfactoryV2;
 
+import com.jidesoft.plaf.LookAndFeelFactory;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
-import javax.swing.JFrame;
 import javax.swing.Timer;
-import javax.swing.ToolTipManager;
 import login.Identification;
 import org.jdesktop.swingx.painter.ImagePainter;
-import resources.WritePropertiesFile;
 
 /**
  *
@@ -18,38 +16,27 @@ import resources.WritePropertiesFile;
  */
 public class SplashScreen extends javax.swing.JFrame {
 
+    public static Identification getIdentification() {
+        return identification;
+    }
+
     public SplashScreen() {
-        this.parent = (JFrame) this;
-        final String workingDir = System.getProperty("user.dir");
+//        final String workingDir = System.getProperty("user.dir");
         initComponents();
-        ToolTipManager.sharedInstance().setDismissDelay(20000);
-        ToolTipManager.sharedInstance().setInitialDelay(100);
-        this.setIconImage(new ImageIcon(getClass().getResource("/images/iDeaX.jpg")).getImage());
         time = new Timer(150, new ActionListener() {
 
             @Override
             public void actionPerformed(ActionEvent e) {
                 prbSplashScreen.setValue(motion);
                 if (motion == 15) {
-                    try {
-                        lblSplash.setText("Starting ...");
-                        Thread.sleep(400);
-                    } catch (InterruptedException ex) {
-                        ex.printStackTrace();
-                    }
+                    lblSplash.setText("Starting ...");
                 } else if (motion == 50) {
-                    try {
-                        lblSplash.setText("Charging of smarfactory modules ...");
-                        Thread.sleep(900);
-                    } catch (InterruptedException ex) {
-                        ex.printStackTrace();
-                    }
+                    lblSplash.setText("Loading smarfactory modules ...");
                 } else if (motion == 75) {
                     try {
                         lblSplash.setText("Initialization ...");
-                        Thread.sleep(5000);
-                        lblSplash.setText("Executing queries ...");
                         Thread.sleep(2000);
+                        lblSplash.setText("Executing queries ...");
                     } catch (InterruptedException ex) {
                         ex.printStackTrace();
                     }
@@ -62,23 +49,24 @@ public class SplashScreen extends javax.swing.JFrame {
 //                    lblSplash.setText("Launching application ...");
                 }
                 if (motion == 110) {
-                    dispose();
+                    motion = 0;
                     time.stop();
-//                    createUserTableInDatabase();//create the user table in the database
-                    identification = new Identification(null, true);
+                    dispose();
+                    LookAndFeelFactory.installDefaultLookAndFeelAndExtension();
+                    identification = new Identification(null, false);
                     identification.setVisible(true);
                 }
                 motion++;
             }
         });
-        setLocationRelativeTo(null);
         time.start();
+        this.setIconImage(new ImageIcon(getClass().getResource("/images/iDeaX.jpg")).getImage());
         try {
-            jXPanel1.setBackgroundPainter(new ImagePainter(
-                    ImageIO.read(getClass().getResource(("/images/Smart_Factory Logo300x134_2.jpg")))));
+            panelImage.setBackgroundPainter(new ImagePainter(
+                    ImageIO.read(getClass().getResource("/images/Smart_Factory Logo300x134_2.jpg"))));
         } catch (IOException ex) {
-            ex.printStackTrace();
         }
+        this.setLocationRelativeTo(null);
     }
 
     /**
@@ -89,7 +77,7 @@ public class SplashScreen extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jXPanel1 = new org.jdesktop.swingx.JXPanel();
+        panelImage = new org.jdesktop.swingx.JXPanel();
         lblSplash = new javax.swing.JLabel();
         prbSplashScreen = new javax.swing.JProgressBar();
         btnExit = new com.jidesoft.swing.JideButton();
@@ -99,7 +87,7 @@ public class SplashScreen extends javax.swing.JFrame {
         setUndecorated(true);
         setResizable(false);
 
-        jXPanel1.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 102), 1, true));
+        panelImage.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 102), 1, true));
 
         lblSplash.setFont(new java.awt.Font("Viner Hand ITC", 0, 11)); // NOI18N
         lblSplash.setForeground(new java.awt.Color(0, 0, 102));
@@ -118,22 +106,22 @@ public class SplashScreen extends javax.swing.JFrame {
             }
         });
 
-        javax.swing.GroupLayout jXPanel1Layout = new javax.swing.GroupLayout(jXPanel1);
-        jXPanel1.setLayout(jXPanel1Layout);
-        jXPanel1Layout.setHorizontalGroup(
-            jXPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jXPanel1Layout.createSequentialGroup()
+        javax.swing.GroupLayout panelImageLayout = new javax.swing.GroupLayout(panelImage);
+        panelImage.setLayout(panelImageLayout);
+        panelImageLayout.setHorizontalGroup(
+            panelImageLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelImageLayout.createSequentialGroup()
                 .addGap(0, 0, Short.MAX_VALUE)
                 .addComponent(btnExit, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-            .addGroup(jXPanel1Layout.createSequentialGroup()
-                .addGroup(jXPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+            .addGroup(panelImageLayout.createSequentialGroup()
+                .addGroup(panelImageLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(lblSplash, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(prbSplashScreen, javax.swing.GroupLayout.PREFERRED_SIZE, 300, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(0, 0, Short.MAX_VALUE))
         );
-        jXPanel1Layout.setVerticalGroup(
-            jXPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jXPanel1Layout.createSequentialGroup()
+        panelImageLayout.setVerticalGroup(
+            panelImageLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelImageLayout.createSequentialGroup()
                 .addComponent(btnExit, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 62, Short.MAX_VALUE)
                 .addComponent(lblSplash, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -147,11 +135,11 @@ public class SplashScreen extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jXPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addComponent(panelImage, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jXPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addComponent(panelImage, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
         );
 
         pack();
@@ -168,24 +156,13 @@ public class SplashScreen extends javax.swing.JFrame {
         System.exit(0);
     }//GEN-LAST:event_btnExitActionPerformed
 
-    public static void main(String args[]) {
-        java.awt.EventQueue.invokeLater(new Runnable() {
-
-            @Override
-            public void run() {
-                new SplashScreen().setVisible(true);
-            }
-        });
-    }
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private com.jidesoft.swing.JideButton btnExit;
-    private org.jdesktop.swingx.JXPanel jXPanel1;
     public static javax.swing.JLabel lblSplash;
+    private org.jdesktop.swingx.JXPanel panelImage;
     private javax.swing.JProgressBar prbSplashScreen;
     // End of variables declaration//GEN-END:variables
-    int motion = 1;
-    Timer time;
-    JFrame parent;
-    public static Identification identification;
+    private int motion = 1;
+    private Timer time = null;
+    private static Identification identification;
 }

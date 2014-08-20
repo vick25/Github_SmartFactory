@@ -1,5 +1,6 @@
 package smartfactoryV2;
 
+import com.jidesoft.chart.model.Highlight;
 import com.jidesoft.grid.CsvTableUtils;
 import com.jidesoft.grid.SortableTable;
 import com.jidesoft.hssf.HssfTableUtils;
@@ -26,7 +27,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.prefs.Preferences;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -34,10 +34,8 @@ import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
-import javax.swing.ToolTipManager;
 import javax.swing.UIManager;
 import javax.swing.filechooser.FileSystemView;
-import login.Identification;
 import org.jdesktop.swingx.JXErrorPane;
 import org.jdesktop.swingx.error.ErrorInfo;
 import setting.SettingKeyFactory;
@@ -48,38 +46,35 @@ import setting.SettingKeyFactory;
  */
 public class ConnectDB {
 
-    private static final String KEYCODE = "crypter";
-    private static final String DBNAME = "smartfactory";
-    private static final String DBUSERNAME = "root";
-    private static final String DBPASSWORD = "wnnr123";
-//    private static int count = 0;
-    public static final int PORTDDOC = 6300;
-    public static final int PORTMAINSERVER = 4763;
-    public static int lookAndFeel = LookAndFeelFactory.OFFICE2003_STYLE;
-    public static Connection con = null;
-    public static ResultSet res = null;
-    public static final Preferences pref = Preferences.userNodeForPackage(ConnectDB.class);
-    public static File tempDir;
-    public static String serverIP = "127.0.0.1";
-    public static final String DEFAULTDIRECTORY = new File(new JFileChooser().getCurrentDirectory().getAbsolutePath()).getParent();
-    public static final String WORKINGDIR = System.getProperty("user.dir");
-    public static FileSystemView fsv = FileSystemView.getFileSystemView();
-    public static SimpleDateFormat dateFormat = new SimpleDateFormat(pref.get(SettingKeyFactory.General.DATEFORMAT,
-            "MMMM dd, yyyy"), new DateFormatSymbols());
-    public static final Locale LOCALE = Locale.US;
-    public static final Calendar CALENDAR = Calendar.getInstance();
-    public static final DecimalFormat DECIMALFORMAT = new DecimalFormat();
-    public static final Font TITLEFONT = UIManager.getFont("Label.font").deriveFont(Font.BOLD, 13f);
-    public static final String SMARTSERVERPATH = File.listRoots()[0].getAbsolutePath() + "CSIR"
-            + File.separator + "SmartFactory" + File.separator + "SmartServer.ini";
-//    public static final SimpleDateFormat SDATEFORMAT = new SimpleDateFormat("yyyy-MM-dd", new DateFormatSymbols());
-    public static final SimpleDateFormat SDATEFORMATHOUR = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+    public ConnectDB() {
+        try {
+            Locale.setDefault(ConnectDB.LOCALE);
+            JComponent.setDefaultLocale(ConnectDB.LOCALE);
+//            ToolTipManager.sharedInstance().setDismissDelay(60000);
+//            ToolTipManager.sharedInstance().setInitialDelay(100);
+            DECIMALFORMAT.setMaximumFractionDigits(3);
+
+            Class.forName("com.mysql.jdbc.Driver");
+            /* Get the previous theme(lookAndFeel) used */
+            LookAndFeelFactory.installDefaultLookAndFeelAndExtension();
+            LookAndFeelFactory.installJideExtension(pref.getInt(SettingKeyFactory.Theme.LOOKANDFEEL,
+                    LookAndFeelFactory.OFFICE2003_STYLE));//Set the theme
+            /* Server Connection */            
+            serverIP = pref.get(SettingKeyFactory.Connection.SERVERIPADDRESS, serverIP);
+            System.out.println(serverIP + " " + ++count);
+            con = DriverManager.getConnection("jdbc:mysql://" + serverIP + ":3306/" + DBNAME
+                    + "?dontTrackOpenResources=true&allowMultiQueries=true", DBUSERNAME, DBPASSWORD);
+            con.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
+        } catch (ClassNotFoundException ex) {
+            ex.printStackTrace();
+        } catch (SQLException ex) {
+            catchSQLException(ex);
+        }
+    }
 
     /**
-     * Method to create an instance of the ConnectDB class when the Connection
-     * object is null
-     *
-     * @return con
+     *Method to create an instance of the ConnectDB class when the Connection object is null
+     *@return con
      */
     public static Connection getConnectionInstance() {
         if (con == null) {
@@ -88,22 +83,30 @@ public class ConnectDB {
         return con;
     }
 
+    public static File getMainDir() {
+        return mainDir;
+    }
+
+    public static void setMainDir(File mainDir) {
+        ConnectDB.mainDir = mainDir;
+    }
+
     public static void catchSQLException(SQLException ex) {
         if (ex instanceof CommunicationsException
                 || ex instanceof MySQLNonTransientConnectionException) {
             try {
-                Identification.okID = false;
+                SplashScreen.getIdentification().okID = false;
                 con = null;
-                if (SplashScreen.identification != null) {
-                    SplashScreen.identification.setVisible(false);
+                if (SplashScreen.getIdentification() != null) {
+                    SplashScreen.getIdentification().setVisible(false);
                 } else {
-                    Identification.dialog.setVisible(false);
+                    SplashScreen.getIdentification().setVisible(false);
                 }
                 JXErrorPane.showDialog(null, new ErrorInfo("Fatal Error", "Database connection "
                         + "is impossible: Please verify that MySQL server is started,"
                         + " and retry connecting ..." + ex.getMessage(),
                         ex.getMessage(), "Error", ex, Level.SEVERE, null));
-                SplashScreen.identification.setVisible(true);
+                SplashScreen.getIdentification().setVisible(true);
             } catch (Exception e) {
             }
         } else {
@@ -128,8 +131,8 @@ public class ConnectDB {
     }
 
     public static String correctBarre(String text) {
-        String _text = null;
-        if (_text.contains("\\")) {
+        String _text = text;
+        if (text.contains("\\")) {
             _text = text.replace("\\", "\\\\");
         }
         return _text;
@@ -150,7 +153,7 @@ public class ConnectDB {
     }
 
     public static String firstLetterCapital(String s) {
-       String _text = correctApostrophe(s);
+        String _text = correctApostrophe(s);
         if (_text.isEmpty()) {
             return _text;
         } else {
@@ -167,22 +170,20 @@ public class ConnectDB {
         }
     }
 
-    public static String crypter(String s) {
+    public static String crypter(String text) {
         int code = (KEYCODE.hashCode() % 5 == 0 ? (KEYCODE.length() % 2 == 1 ? -1 : 1) * 3
                 : (KEYCODE.length() % 2 == 1 ? -1 : 1) * KEYCODE.hashCode() % 5);
-        char[] chars;
-        chars = s.toCharArray();
+        char[] chars = text.toCharArray();
         for (int i = 0; i < chars.length; i++) {
             chars[i] = (char) (chars[i] - code);
         }
         return new String(chars);
     }
 
-    public static String decrypter(String s) {
+    public static String decrypter(String text) {
         int code = (KEYCODE.hashCode() % 5 == 0 ? (KEYCODE.length() % 2 == 1 ? -1 : 1) * 3
                 : (KEYCODE.length() % 2 == 1 ? -1 : 1) * KEYCODE.hashCode() % 5);
-        char[] chars;
-        chars = s.toCharArray();
+        char[] chars = text.toCharArray();
         for (int i = 0; i < chars.length; i++) {
             chars[i] = (char) (chars[i] + code);
         }
@@ -244,7 +245,8 @@ public class ConnectDB {
             }
             int maxNum = numbers[0];
             for (int i = 1; i < numbers.length;) {
-                int j = numbers[i];
+                int j;
+                j = numbers[i];
                 if (j > maxNum) {
                     maxNum = j;
                 }
@@ -256,37 +258,34 @@ public class ConnectDB {
         }
     }
 
-    public static int getMachineID(String machine) {
-        int IDMachine = -1;
+    public static int getIDMachine(String machine) throws SQLException {
+        int machineID = -1;
         try (PreparedStatement ps = ConnectDB.con.prepareStatement("SELECT HwNo, Machine FROM hardware "
                 + "WHERE Machine =?")) {
             ps.setString(1, ConnectDB.firstLetterCapital(machine));
             ConnectDB.res = ps.executeQuery();
             while (ConnectDB.res.next()) {
                 if (ConnectDB.res.getString(2).equalsIgnoreCase(machine)) {
-                    IDMachine = ConnectDB.res.getInt(1);
+                    machineID = ConnectDB.res.getInt(1);
                 }
             }
-        } catch (Exception ex) {
         }
-        return IDMachine;
+        return machineID;
     }
 
-    public static int getConfigNo(String channelID, String machine) {
+    public static int getConfigNo(String channelID, String machine) throws SQLException {
         int IDChannel = -1;
         try (PreparedStatement ps = ConnectDB.con.prepareStatement("SELECT ConfigNo\n"
                 + "FROM `configuration` c, `hardware` h\n"
                 + "WHERE c.HwNo = h.HwNo\n"
                 + "AND h.HwNo =?\n"
                 + "AND ChannelID =? ORDER BY ACTIVE")) {
-            ps.setInt(1, getMachineID(machine));
+            ps.setInt(1, getIDMachine(machine));
             ps.setString(2, channelID);
             ConnectDB.res = ps.executeQuery();
             while (ConnectDB.res.next()) {
                 IDChannel = ConnectDB.res.getInt(1);
             }
-        } catch (SQLException ex) {
-            ex.printStackTrace();
         }
         return IDChannel;
     }
@@ -296,10 +295,12 @@ public class ConnectDB {
         int configNo = -1;
         String query = "SELECT DISTINCT c.ConfigNo FROM configuration c, hardware h\n"
                 + "WHERE h.HwNo = c.HwNo\n"
-                + "AND c.AvMinMax = '" + configType + "'\n"
-                + "AND h.Machine = '" + machineName + "'\n"
+                + "AND c.AvMinMax =?\n"
+                + "AND h.Machine =?\n"
                 + "AND c.Active = 1 ORDER BY h.HwNo ASC";
         try (PreparedStatement ps = ConnectDB.con.prepareStatement(query)) {
+            ps.setString(1, configType);
+            ps.setString(2, machineName);
             ConnectDB.res = ps.executeQuery();
             while (ConnectDB.res.next()) {
                 configNo = ConnectDB.res.getInt(1);
@@ -319,7 +320,7 @@ public class ConnectDB {
     }
 
     public static double[] getTimeDifference(Date d1, Date d2) {
-        //        System.out.println(d1 + "   " + d2);
+//        System.out.println(d1 + "   " + d2);
         double[] result = new double[4];
         CALENDAR.setTimeZone(TimeZone.getTimeZone("UTC"));
         CALENDAR.setTime(d1);
@@ -357,7 +358,7 @@ public class ConnectDB {
     }
 
     public static void printDiffs(long[] diffs) {
-        //        System.out.printf("Days:         %3d\n", diffs[0]);
+//        System.out.printf("Days:         %3d\n", diffs[0]);
         System.out.printf("Hours:        %3d\n", diffs[1]);
         System.out.printf("Minutes:      %3d\n", diffs[2]);
         System.out.printf("Seconds:      %3d\n", diffs[3]);
@@ -413,30 +414,32 @@ public class ConnectDB {
         }
     }
 
-    public ConnectDB() {
-        Locale.setDefault(ConnectDB.LOCALE);
-        JComponent.setDefaultLocale(ConnectDB.LOCALE);
-        ToolTipManager.sharedInstance().setDismissDelay(20000);
-        ToolTipManager.sharedInstance().setInitialDelay(100);
-        DECIMALFORMAT.setMaximumFractionDigits(3);
-        try {
-            Class.forName("com.mysql.jdbc.Driver").newInstance();
-            serverIP = pref.get(SettingKeyFactory.Connection.SERVERIPADDRESS, serverIP);
-            /* Get the previous theme(lookAndFeel) used */
-//            System.out.println(serverIP + " " + ++count);
-            lookAndFeel = pref.getInt(SettingKeyFactory.Theme.LOOKANDFEEL, lookAndFeel);
-            LookAndFeelFactory.installDefaultLookAndFeelAndExtension();
-            LookAndFeelFactory.installJideExtension(lookAndFeel);//Set the theme
-            /* Server Connection */
-            con = DriverManager.getConnection("jdbc:mysql://" + serverIP + ":3306/" + DBNAME
-                    + "?dontTrackOpenResources=true&allowMultiQueries=true", DBUSERNAME, DBPASSWORD);
-            con.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
-        } catch (ClassNotFoundException ex) {
-            ex.printStackTrace();
-        } catch (SQLException ex) {
-            catchSQLException(ex);
-        } catch (InstantiationException | IllegalAccessException ex) {
-            Logger.getLogger(ConnectDB.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
+    private static final String KEYCODE = "crypter";
+    private static final String DBNAME = "smartfactory";
+    private static final String DBUSERNAME = "root";
+    private static final String DBPASSWORD = "wnnr123";
+    public static String serverIP = "127.0.0.1";
+    private static int count = 0;
+    public static final int PORTDDOC = 6300;
+    public static final int PORTMAINSERVER = 4763;
+    public static Connection con = null;
+    public static ResultSet res = null;
+    public static final Preferences pref = Preferences.userNodeForPackage(ConnectDB.class);
+    private static File mainDir = null;
+    
+    public static final Highlight SELECTION_HIGHLIGHT = new Highlight("selection");
+    public static final String DEFAULTDIRECTORY = new File(new JFileChooser().getCurrentDirectory().getAbsolutePath()).getParent();
+    public static final String WORKINGDIR = System.getProperty("user.dir");
+    public static final FileSystemView fsv = FileSystemView.getFileSystemView();
+    public static SimpleDateFormat dateFormat = new SimpleDateFormat(pref.get(SettingKeyFactory.General.DATEFORMAT,
+            "MMMM dd, yyyy"), new DateFormatSymbols());
+    public static final Locale LOCALE = Locale.US;
+    public static final Calendar CALENDAR = Calendar.getInstance();
+    public static final DecimalFormat DECIMALFORMAT = new DecimalFormat();
+    public static final float OUTLINEWIDTH = 3f;
+    public static final Font TITLEFONT = UIManager.getFont("Label.font").deriveFont(Font.BOLD, 13f);
+    public static final String SMARTSERVERPATH = File.listRoots()[0].getAbsolutePath() + "CSIR"
+            + File.separator + "SmartFactory" + File.separator + "SmartServer.ini";
+//    public static final SimpleDateFormat SDATEFORMAT = new SimpleDateFormat("yyyy-MM-dd", new DateFormatSymbols());
+    public static final SimpleDateFormat SDATEFORMATHOUR = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 }

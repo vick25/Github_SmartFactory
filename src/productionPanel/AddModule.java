@@ -24,6 +24,10 @@ import smartfactoryV2.ConnectDB;
 
 public class AddModule extends javax.swing.JDialog {
 
+    public String getSavedProperties() {
+        return savedProperties;
+    }
+
     public AddModule(java.awt.Frame parent, boolean modal) throws SQLException {
         super(parent, modal);
         ConnectDB.getConnectionInstance();
@@ -56,7 +60,7 @@ public class AddModule extends javax.swing.JDialog {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (cmbMode.getSelectedItem().toString().equals("")) {
+                if (cmbMode.getSelectedItem().toString().isEmpty()) {
                     txtName.setText("");
                 } else {
                     for (int i = 0; i < table.getRowCount(); i++) {
@@ -85,11 +89,11 @@ public class AddModule extends javax.swing.JDialog {
                             }
                             txtName.setEditable(true);
                             clearTextName = false;
-                            continue;
+//                            continue;
                         }
                     }
                 }
-                if (!txtName.getText().equals("") && !txtName.getText().equals("This mode already exists")
+                if (!txtName.getText().isEmpty() && !txtName.getText().equals("This mode already exists")
                         && cmbMode.getSelectedIndex() > 0) {
                     btnAdd.setEnabled(true);
                 } else {
@@ -106,8 +110,8 @@ public class AddModule extends javax.swing.JDialog {
             }
 
         });
-        setIconImage(new ImageIcon(getClass().getResource("/images/icons/fyre(2).png")).getImage());
-        setLocationRelativeTo(_parent);
+        this.setIconImage(new ImageIcon(getClass().getResource("/images/icons/fyre(2).png")).getImage());
+        this.setLocationRelativeTo(_parent);
     }
 
     @SuppressWarnings("unchecked")
@@ -253,10 +257,11 @@ public class AddModule extends javax.swing.JDialog {
     private void btnAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddActionPerformed
         String textValue = txtName.getText();
         if (uniqueness(textValue)) {
+            int nRow;
             for (int i = 0; i < table.getRowCount(); i++) {
                 EDIT = true;
-                if (!table.getValueAt(i, 0).toString().equals("")
-                        && !table.getValueAt(i, 1).toString().equals("")) {
+                if (!table.getValueAt(i, 0).toString().isEmpty()
+                        && !table.getValueAt(i, 1).toString().isEmpty()) {
                     nRow = table.getRowCount() + 1;
                     if (nRow > table.getRowCount()) {
                         refModel.addNewRow();
@@ -313,9 +318,9 @@ public class AddModule extends javax.swing.JDialog {
             if (table.isEditing()) {
                 table.getCellEditor().stopCellEditing();
             }
-            propertiesToSave = getPropertiesToSave();
+            savedProperties = getPropertiesToSave();
         }
-        ConnectDB.pref.put(SettingKeyFactory.DefaultProperties.MODULES, propertiesToSave);
+        ConnectDB.pref.put(SettingKeyFactory.DefaultProperties.MODULES, savedProperties);
     }
 
     private String getPropertiesToSave() {
@@ -331,7 +336,7 @@ public class AddModule extends javax.swing.JDialog {
 
     private void setPropertiesSaved(String values) {
         try {
-            propertiesToSave = values;
+            savedProperties = values;
             saved = false;
             EDIT = true;
             cleantable();
@@ -375,8 +380,8 @@ public class AddModule extends javax.swing.JDialog {
 
     private void fillProductionModule() {
         try {
-            ProductionPane.catOptions = false;
-            String[] rowValues = propertiesToSave.split("\r\n");
+            ProductionPane.setCatOptions(false);
+            String[] rowValues = savedProperties.split("\r\n");
             ProductionPane.cmbOptions.removeAllItems();
             ProductionPane.cmbOptions.addItem(" ");
             for (String string : rowValues) {
@@ -384,9 +389,8 @@ public class AddModule extends javax.swing.JDialog {
                     ProductionPane.cmbOptions.addItem(string.split("\t")[0]);
                 }
             }
-            ProductionPane.catOptions = true;
+            ProductionPane.setCatOptions(true);
         } catch (Exception e) {
-            e.printStackTrace();
             this.dispose();
         }
     }
@@ -431,7 +435,7 @@ public class AddModule extends javax.swing.JDialog {
 
     private void createPopMenuTable() {
         popupMenu = new JPopupMenu();
-        menu = new JMenuItem("Delete");
+        JMenuItem menu = new JMenuItem("Delete");
         menu.setIcon(new ImageIcon(getClass().getResource("/images/icons/deletered.png")));
         popupMenu.add(menu);
         menu.addActionListener(new ActionListener() {
@@ -454,13 +458,13 @@ public class AddModule extends javax.swing.JDialog {
         });
     }
 
-    public class TableModelAddModule extends AbstractTableModel {
+    private class TableModelAddModule extends AbstractTableModel {
 
         private final String _titre;
         private final String[] columnNames = new String[2];
         private final ArrayList[] data;
 
-        public TableModelAddModule(String titre) {
+        TableModelAddModule(String titre) {
             _titre = titre;
             columnNames[0] = "Name";
             columnNames[1] = _titre;
@@ -500,7 +504,7 @@ public class AddModule extends javax.swing.JDialog {
 
         @Override
         public boolean isCellEditable(int row, int col) {
-            if (AddModule.EDIT) {
+            if (EDIT) {
                 return (true);
             } else {
                 if (col == 0) {
@@ -539,14 +543,6 @@ public class AddModule extends javax.swing.JDialog {
         }
     }
 
-//    public static void main(String[] args) {
-//        try {
-//            new AddModule(null, true).setVisible(true);
-//        } catch (SQLException ex) {
-//            ConnectDB.catchSQLException(ex);
-//        }
-//    }
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JScrollPane Scrll;
     private javax.swing.JButton btnAdd;
@@ -559,13 +555,11 @@ public class AddModule extends javax.swing.JDialog {
     private org.jdesktop.swingx.JXTitledSeparator jXTitledSeparator1;
     private javax.swing.JTextField txtName;
     // End of variables declaration//GEN-END:variables
-    private Timer time;
+    private final Timer time;
     private JXTable table;
-    private JMenuItem menu;
     private JPopupMenu popupMenu;
     private final java.awt.Frame _parent;
-    private TableModelAddModule refModel;
-    public String propertiesToSave = "";
-    private int nRow = 1;
-    private static boolean EDIT = false, saved = true, clearTextName = false, catModules;
+    private final TableModelAddModule refModel;
+    private String savedProperties = null;
+    private boolean EDIT = false, saved = true, clearTextName = false, catModules;
 }

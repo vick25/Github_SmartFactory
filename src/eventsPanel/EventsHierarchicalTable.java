@@ -67,13 +67,12 @@ public class EventsHierarchicalTable extends JFrame {
 
     // create property table
     private HierarchicalTable createTable() {
-        _eventsTableModel = new EventsTableModel();
+        DefaultTableModel _eventsTableModel = new EventsTableModel();
         final HierarchicalTable table = new HierarchicalTable();
         table.setAutoRefreshOnRowUpdate(false);
         table.setModel(_eventsTableModel);
         table.setBackground(BG4);
         table.setName("Events Table");
-//        table.getTableHeader().setDefaultRenderer(new ConnectDB.HeaderRenderer(table));
         table.getColumnModel().getColumn(0).setPreferredWidth(100);
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         table.setComponentFactory(new HierarchicalTableComponentFactory() {
@@ -291,12 +290,12 @@ public class EventsHierarchicalTable extends JFrame {
     }
 
     private static String[][] getListOfDescription() {
-        int i = EventsStatistic.setDescription.size(), y = 0;
+        int i = EventsStatistic.getDescriptionSet().size(), y = 0;
         String[][] tabDescription = new String[i][2];
-        for (String sDesc : EventsStatistic.setDescription) {
+        for (String descriptionSet : EventsStatistic.getDescriptionSet()) {
             if (y < i) {
-                tabDescription[y][0] = ConnectDB.firstLetterCapital(sDesc);
-                tabDescription[y][1] = ConnectDB.firstLetterCapital(sDesc) + " collection of value in details of events";
+                tabDescription[y][0] = ConnectDB.firstLetterCapital(descriptionSet);
+                tabDescription[y][1] = ConnectDB.firstLetterCapital(descriptionSet) + " collection of value in details of events";
             }
             y++;
         }
@@ -306,7 +305,7 @@ public class EventsHierarchicalTable extends JFrame {
     private static String[][] getDetails(String rowNameDesc) throws SQLException {
         String[][] tab = null;
         int row = 0;
-        if (!rowNameDesc.equals("")) {
+        if (!rowNameDesc.isEmpty()) {
             String eventQuery = "SELECT e.`EventNo`, e.`EventTime`, e.`UntilTime`, e.`Value`, c.`Description`\n"
                     + "FROM eventlog e, customlist c\n"
                     + "WHERE e.HwNo =?  AND e.CustomCode = c.Code \n"
@@ -318,9 +317,9 @@ public class EventsHierarchicalTable extends JFrame {
             try {
                 ps = ConnectDB.con.prepareStatement(eventQuery);
                 int z = 1;
-                ps.setInt(z++, ConnectDB.getMachineID(EventsStatistic.machineTitle));
-                ps.setString(z++, EventsStatistic.minLogTime);
-                ps.setString(z++, EventsStatistic.maxLogTime);
+                ps.setInt(z++, EventsStatistic.getMachineID());
+                ps.setString(z++, EventsStatistic.getMinLogTime());
+                ps.setString(z++, EventsStatistic.getMaxLogTime());
                 ps.setString(z++, rowNameDesc);
                 ConnectDB.res = ps.executeQuery();
                 ConnectDB.res.last();
@@ -351,7 +350,7 @@ public class EventsHierarchicalTable extends JFrame {
 
     static class EventsTableModel extends DefaultTableModel implements HierarchicalTableModel {
 
-        public EventsTableModel() {
+        EventsTableModel() {
             super(getListOfDescription(), DESCRIPTION_COLUMNS);
         }
 
@@ -386,7 +385,7 @@ public class EventsHierarchicalTable extends JFrame {
             String name = getValueAt(row, 0).toString(); //description name
             try {
                 model = new DefaultTableModel(getDetails(name), DETAIL_COLUMNS) {
-                    
+
                     @Override
                     public boolean isCellEditable(int row, int column) {
                         return false;
@@ -401,21 +400,21 @@ public class EventsHierarchicalTable extends JFrame {
 
     static class FitScrollPane extends JScrollPane implements ComponentListener {
 
-        public FitScrollPane() {
+        FitScrollPane() {
             initScrollPane();
         }
 
-        public FitScrollPane(Component view) {
+        FitScrollPane(Component view) {
             super(view);
             initScrollPane();
         }
 
-        public FitScrollPane(Component view, int vsbPolicy, int hsbPolicy) {
+        FitScrollPane(Component view, int vsbPolicy, int hsbPolicy) {
             super(view, vsbPolicy, hsbPolicy);
             initScrollPane();
         }
 
-        public FitScrollPane(int vsbPolicy, int hsbPolicy) {
+        FitScrollPane(int vsbPolicy, int hsbPolicy) {
             super(vsbPolicy, hsbPolicy);
             initScrollPane();
         }
@@ -489,28 +488,15 @@ public class EventsHierarchicalTable extends JFrame {
         }
     }
 
-//    public static void main(String[] args) {
-//        SwingUtilities.invokeLater(new Runnable() {
-//
-//            @Override
-//            public void run() {
-//                LookAndFeelFactory.installDefaultLookAndFeelAndExtension();
-//                new EventsHierarchicalTable().setVisible(true);
-//            }
-//        });
-//    }
-
-    static String[] DESCRIPTION_COLUMNS = new String[]{"Description Name", "Information"};
-    static String[] DETAIL_COLUMNS = new String[]{"EventNo", "EventTime", "UntilTime",
-        "Value", "Hours", "Minutes", "Seconds"};
-    protected static final Color BG1 = new Color(232, 237, 230);
+    private static String[] DESCRIPTION_COLUMNS = new String[]{"Description Name", "Information"};
+    private static String[] DETAIL_COLUMNS = new String[]{"EventNo", "EventTime", "UntilTime", "Value", "Hours", 
+        "Minutes", "Seconds"};
+//    protected static final Color BG1 = new Color(232, 237, 230);
     protected static final Color BG2 = new Color(243, 234, 217);
     protected static final Color BG3 = new Color(214, 231, 247);
     protected static final Color BG4 = new Color(255, 255, 255);
 
-    private HierarchicalTable _table;
-    private DefaultTableModel _eventsTableModel;
+    private HierarchicalTable _table = null;
     private int _destroyedCount = 0;
-
     private ListSelectionModelGroup _group = new ListSelectionModelGroup();
 }

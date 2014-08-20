@@ -36,6 +36,7 @@ import com.jidesoft.plaf.LookAndFeelFactory;
 import com.jidesoft.range.Category;
 import com.jidesoft.range.CategoryRange;
 import com.jidesoft.range.NumericRange;
+import com.jidesoft.range.Positionable;
 import com.jidesoft.swing.SearchableUtils;
 import com.jidesoft.swing.TreeSearchable;
 import com.jidesoft.tree.TreeUtils;
@@ -64,6 +65,7 @@ import java.sql.Statement;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -93,20 +95,47 @@ import net.sf.jasperreports.engine.JasperPrint;
 import org.jdesktop.swingx.autocomplete.AutoCompleteDecorator;
 import reportSettings.ReportOptions;
 import smartfactoryV2.ConnectDB;
-import viewData.ViewData;
 
 public class EventsStatistic extends javax.swing.JPanel {
 
+    public static int getMachineID() {
+        return machineID;
+    }
+
+    public static ChartStyle getStylePieChart() {
+        return stylePieChart;
+    }
+
+    public static Chart getChart() {
+        return chart;
+    }
+
+    public static String getMinLogTime() {
+        return minLogTime;
+    }
+
+    public static String getMaxLogTime() {
+        return maxLogTime;
+    }
+
+    public static JTree getTree() {
+        return _tree;
+    }
+
+    public static Set<String> getDescriptionSet() {
+        return Collections.unmodifiableSet(descriptionSet);
+    }
+
     public EventsStatistic(JFrame parent) throws SQLException {
         initComponents();
+        this._parent = parent;//MainFrame
         ConnectDB.getConnectionInstance();
-        this._parent = parent;
         loadComboBox();//load the combobox with data from the database
         AutoCompleteDecorator.decorate(cmbMachineTitle);
         AutoCompleteDecorator.decorate(cmbProductionType);
         jPanel5.setFocusable(true);
         jPanel5.requestFocus();
-        timer = new Timer(100, new ActionListener() {
+        Timer timer = new Timer(100, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 enableResetButton();
@@ -854,7 +883,6 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
 }//GEN-LAST:event_btnResetActionPerformed
 
     private void btnCloseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCloseActionPerformed
-        viewData.dispose();
         MainFrame.getDocumentPane().closeDocument("Statistic");
     }//GEN-LAST:event_btnCloseActionPerformed
 
@@ -931,11 +959,11 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
                 try {
                     HashMap hashMap = new HashMap();
                     chart.setTitle("");
-                    ConnectDB.tempDir = new File(ConnectDB.DEFAULTDIRECTORY + File.separator + "SmartFactory Data");
-                    if (!ConnectDB.tempDir.exists()) {
-                        ConnectDB.tempDir.mkdirs();
+                    ConnectDB.setMainDir(new File(ConnectDB.DEFAULTDIRECTORY + File.separator + "SmartFactory Data"));
+                    if (!ConnectDB.getMainDir().exists()) {
+                        ConnectDB.getMainDir().mkdirs();
                     }
-                    String dirIcon = ConnectDB.tempDir.getAbsolutePath() + File.separator + "chart.png";
+                    String dirIcon = ConnectDB.getMainDir().getAbsolutePath() + File.separator + "chart.png";
                     ChartUtils.writePngToFile(panChart, new File(dirIcon));
                     hashMap.put("logo", reportOptions.getPhoto());
                     hashMap.put("logo2", getClass().getResourceAsStream("/jasper/smartfactory.png"));
@@ -953,7 +981,7 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
             }
         };
         reportOptions.setVisible(true);
-        if (ReportOptions.closeWindow) {
+        if (reportOptions.isWindowClosed()) {
             threadPrint.start();
         }
     }//GEN-LAST:event_btnPrintChartActionPerformed
@@ -1003,11 +1031,16 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
             catDescription = false;
             if (cmbMachineTitle.getSelectedIndex() < 0) {
                 new BalloonTipDemo(cmbMachineTitle, "Please select a machine in the dropdown "
-                        + "list component.");
+                        + "list component.").toggleToolTip();
                 return;
             }
             if (!cmbMachineTitle.getSelectedItem().equals("") && cmbMachineTitle.getSelectedIndex() > 0) {
                 machineTitle = cmbMachineTitle.getSelectedItem().toString();
+                try {
+                    machineID = ConnectDB.getIDMachine(machineTitle);
+                } catch (SQLException ex) {
+                    ConnectDB.catchSQLException(ex);
+                }
                 panChart.removeAll();
                 panChart.repaint();
                 jScrollPane2.setViewportView(null);//clearing the scrollpanel of the jtree
@@ -1017,9 +1050,7 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
                         + "FROM eventlog e, customlist c \n"
                         + "WHERE e.Customcode = c.Code AND e.HwNo =? \n"
                         + "ORDER BY Description ASC")) {
-                    ps.setInt(1, ConnectDB.getMachineID(machineTitle));
-                    System.out.println(machineTitle);
-                    System.out.println(ps.toString());
+                    ps.setInt(1, machineID);
                     ConnectDB.res = ps.executeQuery();
                     find = false;
                     while (ConnectDB.res.next()) {
@@ -1082,7 +1113,7 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
                         + "AND e.Value <> '(null)' \n"
                         + "ORDER BY VALUE ASC")) {
                     int i = 1;
-                    ps.setInt(i++, ConnectDB.getMachineID(machineTitle));
+                    ps.setInt(i++, machineID);
                     ConnectDB.res = ps.executeQuery();
                     while (ConnectDB.res.next()) {
                         dataValue.add(ConnectDB.res.getString(1));
@@ -1153,11 +1184,11 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
         //
         Set<String> setDescriptionValue = new TreeSet<>();
         PreparedStatement ps;
-        setDescription.clear();
+        descriptionSet.clear();
         String time = null, query;
+        boolean loopQueryFound = false;
         int j = 1;
 
-        treeMainTitle = machineTitle;
         if (btnDataEvent.isSelected()) {
             time = "";
         } else {
@@ -1175,7 +1206,7 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
             ps = ConnectDB.con.prepareStatement(query);
             ps.setInt(j++, (int) spProductionRate.getValue());
             ps.setInt(j++, getIDChannel());
-            ps.setInt(j++, ConnectDB.getMachineID(machineTitle));
+            ps.setInt(j++, machineID);
             ps.setString(j++, ConnectDB.SDATEFORMATHOUR.format(dt_startE));
             ps.setString(j++, ConnectDB.SDATEFORMATHOUR.format(dt_stopE));
             ConnectDB.res = ps.executeQuery();
@@ -1207,23 +1238,22 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
                     + "ORDER BY c.Description ASC, e.Value ASC";
             ps = ConnectDB.con.prepareStatement(query);
             j = 1;
-            ps.setInt(j++, ConnectDB.getMachineID(machineTitle));
+            ps.setInt(j++, machineID);
             ps.setString(j++, minLogTime);
             ps.setString(j++, maxLogTime);
             ConnectDB.res = ps.executeQuery();
             while (ConnectDB.res.next()) {
                 loopQueryFound = true;
-                setDescription.add(ConnectDB.res.getString(4).toLowerCase());//get only the description
+                descriptionSet.add(ConnectDB.res.getString(4).toLowerCase());//get only the description
                 setDescriptionValue.add(ConnectDB.res.getString(4).toLowerCase() + ","
                         + ConnectDB.res.getString(3).toLowerCase());//get the description and Value
             }
             ps.close();
             if (loopQueryFound) {//boolean value for description and value
-                m_rootNode = new DefaultMutableTreeNode(treeMainTitle);
-                m_descNode = new DefaultMutableTreeNode(treeDescription);
+                DefaultMutableTreeNode m_rootNode = new DefaultMutableTreeNode(machineTitle);
                 Vector data = getDummyData(setDescriptionValue);//method to create the tree of description and value
-                for (String sDesc : setDescription) {
-                    m_descNode = new DefaultMutableTreeNode(ConnectDB.firstLetterCapital(sDesc));
+                for (String sDesc : descriptionSet) {
+                    DefaultMutableTreeNode m_descNode = new DefaultMutableTreeNode(ConnectDB.firstLetterCapital(sDesc));
                     for (Enumeration enumData = data.elements(); enumData.hasMoreElements();) {
                         Machine machData = (Machine) (enumData.nextElement());//machData == Value
                         if (machData.getMachDomain().equals(sDesc)) {//check for a value description
@@ -1255,7 +1285,7 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
         Vector dummyPartData = new Vector();
         String treeValue;
         for (Object object : set) {
-            treeDescription = object.toString().split(",")[0];
+            String treeDescription = object.toString().split(",")[0];
             treeValue = object.toString().split(",")[1];
             dummyPartData.addElement(new Machine(treeValue, treeDescription));
         }
@@ -1322,23 +1352,23 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
 //                    panChart.repaint();
                 }
             }
-        } catch (Exception ex) {
-            ex.printStackTrace();
+        } catch (SQLException ex) {
+            ConnectDB.catchSQLException(ex);
         }
     }
 
     private static String chartTitle() {
         String title = "";
-        TreePath path = _tree.getSelectionPath();
-        if (path != null) {
-            if (!_tree.getModel().isLeaf(path.getLastPathComponent())) {
-                title = path.getPath()[0].toString();//Root Node title
-                if (!_tree.getModel().isLeaf(path.getLastPathComponent())
-                        && (!path.getLastPathComponent().toString().equals(path.getPath()[0].toString()))) {
-                    for (Object path1 : path.getPath()) {
+        TreePath treePath = _tree.getSelectionPath();
+        if (treePath != null) {
+            if (!_tree.getModel().isLeaf(treePath.getLastPathComponent())) {
+                title = treePath.getPath()[0].toString();//Root Node title
+                if (!_tree.getModel().isLeaf(treePath.getLastPathComponent())
+                        && (!treePath.getLastPathComponent().toString().equals(treePath.getPath()[0].toString()))) {
+                    for (Object path : treePath.getPath()) {
                         title = "";
-                        if (!path1.toString().equalsIgnoreCase(treeMainTitle)) {
-                            title += path1 + " ";
+                        if (!path.toString().equalsIgnoreCase(machineTitle)) {
+                            title += path + " ";
                         }
                     }
                     title = title.substring(0, title.length() - 1).toLowerCase();
@@ -1352,48 +1382,48 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
 
     private String clickTreeSQLQuery(String leafTitle) {
         String query = "";
-        if (leafTitle.equalsIgnoreCase(treeMainTitle)) {//Main node
+        if (leafTitle.equalsIgnoreCase(machineTitle)) {//Main node
             //query to retrieve only the description for the entire machine
             if (btnDataEvent.isSelected()) {//case for data events
-                customCodeValue = treeMainTitle;
-                if (!EventsDataPanel.groupData) {
+                customCodeValue = machineTitle;
+                if (!EventsDataPanel.isDataGrouped()) {
                     return query = "SELECT e.`EventTime`, e.`Value`, e.`UntilTime`\n"
                             + "FROM eventlog e, customlist c\n"
-                            + "WHERE e.HwNo = '" + ConnectDB.getMachineID(machineTitle) + "' AND e.CustomCode = c.Code \n"
+                            + "WHERE e.HwNo = '" + machineID + "' AND e.CustomCode = c.Code \n"
                             + "AND e.Value <> '(null)'\n"
                             + "AND (e.EventTime BETWEEN '" + minLogTime + "' AND '" + maxLogTime + "')\n"
-                            + "AND c.`Description` IN (" + manyCriteria(setDescription.toArray()) + ")\n"
+                            + "AND c.`Description` IN (" + manyCriteria(descriptionSet.toArray()) + ")\n"
                             + "ORDER BY e.CustomCode ASC, e.`EventTime` ASC, e.`Value` ASC";
                 } else {
                     return query = "SELECT main.`EventTime`, main.`Value`,\n"
                             + "(SELECT MAX(e.UntilTime) FROM eventlog e \n"
                             + "WHERE e.Value = main.Value AND e.UntilTime > main.UntilTime) AS NextTime "
                             + "FROM eventlog main, customlist c\n"
-                            + "WHERE main.HwNo = '" + ConnectDB.getMachineID(machineTitle) + "'\n"
+                            + "WHERE main.HwNo = '" + machineID + "'\n"
                             + "AND main.CustomCode = c.Code \n"
                             + "AND main.Value <> '(null)'\n"
                             + "AND (main.EventTime BETWEEN '" + minLogTime + "' AND '" + maxLogTime + "')\n"
-                            + "AND c.`Description` IN (" + manyCriteria(setDescription.toArray()) + ")\n"
+                            + "AND c.`Description` IN (" + manyCriteria(descriptionSet.toArray()) + ")\n"
                             + "GROUP BY main.Value\n"
                             + "ORDER BY c.Description ASC, main.Value ASC, main.`EventTime` ASC";
                 }
             } else {//case for time events
                 return query = "SELECT e.`EventTime`, e.`UntilTime`, c.`Description`\n"
                         + "FROM eventlog e, customlist c\n"
-                        + "WHERE e.HwNo = '" + ConnectDB.getMachineID(machineTitle) + "' AND e.CustomCode = c.Code \n"
+                        + "WHERE e.HwNo = '" + machineID + "' AND e.CustomCode = c.Code \n"
                         + "AND e.Value <> '(null)'\n"
                         + "AND (e.EventTime BETWEEN '" + minLogTime + "' AND '" + maxLogTime + "')\n"
-                        + "AND c.`Description` IN (" + manyCriteria(setDescription.toArray()) + ")\n"
+                        + "AND c.`Description` IN (" + manyCriteria(descriptionSet.toArray()) + ")\n"
                         + "ORDER BY c.Description ASC, e.`EventTime` ASC";
             }
-        } else if (setDescription.contains(leafTitle.toLowerCase())) {//Node
-            //query to retrieve the specific values bound to a description of a machine  
+        } else if (descriptionSet.contains(leafTitle.toLowerCase())) {//Node
+            //query to retrieve the specific values bound to a description of a machine
             if (btnDataEvent.isSelected()) {//case for data events
                 customCodeValue = ConnectDB.firstLetterCapital(leafTitle.toLowerCase());
-                if (!EventsDataPanel.groupData) {
+                if (!EventsDataPanel.isDataGrouped()) {
                     return query = "SELECT e.`EventTime`, e.`Value`, e.`UntilTime`\n"
                             + "FROM eventlog e, customlist c\n"
-                            + "WHERE e.HwNo = '" + ConnectDB.getMachineID(machineTitle) + "' AND e.CustomCode = c.Code \n"
+                            + "WHERE e.HwNo = '" + machineID + "' AND e.CustomCode = c.Code \n"
                             + "AND e.Value <> '(null)'\n"
                             + "AND (e.EventTime BETWEEN '" + minLogTime + "' AND '" + maxLogTime + "')\n"
                             + "AND c.`Description` = '" + ConnectDB.firstLetterCapital(leafTitle.toLowerCase()) + "'\n"
@@ -1403,7 +1433,7 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
                             + "(SELECT MAX(e.UntilTime) FROM eventlog e \n"
                             + "WHERE e.Value = main.Value AND e.UntilTime > main.UntilTime) AS NextTime "
                             + "FROM eventlog main, customlist c\n"
-                            + "WHERE main.HwNo = '" + ConnectDB.getMachineID(machineTitle) + "'\n"
+                            + "WHERE main.HwNo = '" + machineID + "'\n"
                             + "AND main.CustomCode = c.Code \n"
                             + "AND main.Value <> '(null)'\n"
                             + "AND (main.EventTime BETWEEN '" + minLogTime + "' AND '" + maxLogTime + "')\n"
@@ -1414,7 +1444,7 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
             } else {//case for time events
                 return query = "SELECT e.`EventTime`, e.`UntilTime`, e.`Value`\n"
                         + "FROM eventlog e, customlist c\n"
-                        + "WHERE e.HwNo = '" + ConnectDB.getMachineID(machineTitle) + "' AND e.CustomCode = c.Code \n"
+                        + "WHERE e.HwNo = '" + machineID + "' AND e.CustomCode = c.Code \n"
                         + "AND e.Value <> '(null)'\n"
                         + "AND (e.EventTime BETWEEN '" + minLogTime + "' AND '" + maxLogTime + "')\n"
                         + "AND c.`Description` = '" + ConnectDB.firstLetterCapital(leafTitle.toLowerCase()) + "'\n"
@@ -1433,7 +1463,7 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
         if (!query.isEmpty()) {
             if (btnDataEvent.isSelected()) {
                 panChart.removeAll();
-                panChart.add(new EventsDataPanel(customCodeValue, query, treeMainTitle));
+                panChart.add(new EventsDataPanel(customCodeValue, query, machineTitle));
                 panChart.revalidate();
             } else {
                 ArrayList<String> allDatas = new ArrayList<>();//listarray to get only the date from the database
@@ -1469,9 +1499,9 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
                     }
                 }
                 Set<String> setData = null;//define the set depending on the tree path selected
-                if (chartTitle().equalsIgnoreCase(treeMainTitle)) {
-                    setData = setDescription; //set for only the description
-                } else if (setDescription.contains(chartTitle())) {
+                if (chartTitle().equalsIgnoreCase(machineTitle)) {
+                    setData = descriptionSet; //set for only the description
+                } else if (descriptionSet.contains(chartTitle())) {
                     setData = setDescOrValue; //set for only the value
                 }
                 totalSum = 0d;
@@ -1487,8 +1517,8 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
                         }
                     }
                     HL.add(new ChartCategory((Object) ConnectDB.firstLetterCapital(setLine), new Highlight("hl" + i)));
-                    colorsCategoryRange.add((ChartCategory) HL.get(i));
-                    model.addPoint(new ChartPoint((ChartCategory) HL.get(i), sum));
+                    colorsCategoryRange.add((Category<ChartCategory>) HL.get(i));
+                    model.addPoint(new ChartPoint((Positionable) HL.get(i), sum));
                     i++;
                     if (max < sum) {
                         max = (int) sum;
@@ -1510,7 +1540,7 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
         } else {
             if (btnDataEvent.isSelected()) {//Events of data
                 panChart.removeAll();
-                panChart.add(new EventsDataPanel(customCodeValue, query, treeMainTitle));
+                panChart.add(new EventsDataPanel(customCodeValue, query, machineTitle));
                 panChart.revalidate();
             }
         }
@@ -1536,7 +1566,7 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
     }
 
     private static Axis chartTitleAxis(int num, String smallName, String bigName) {
-        Axis yAxis = null;
+        Axis yAxis;
         yAxis = new Axis(new NumericRange(0, max + num));
         yAxis.setLabel(new AutoPositionedLabel(smallName + "(s)", Color.BLACK));
         chartTitle = chartTitle().toUpperCase() + " (" + bigName + ")";
@@ -1574,8 +1604,8 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
             if (ConnectDB.pref.getBoolean(StatKeyFactory.ChartFeatures.RandomColor, true)) {
                 chart.setHighlightStyle(((ChartCategory) HL1).getHighlight(), new ChartStyle(randomColor.randomColor()).withBars());
             } else {
-                chart.setHighlightStyle(((ChartCategory) HL1).getHighlight(), new ChartStyle(getColorFromKey(ConnectDB.pref.get(StatKeyFactory.ChartFeatures.CBColor2,
-                        "0, 204, 0"))).withBars());
+                chart.setHighlightStyle(((ChartCategory) HL1).getHighlight(), new ChartStyle(
+                        ConnectDB.getColorFromKey(ConnectDB.pref.get(StatKeyFactory.ChartFeatures.CBColor2, "0, 204, 0"))).withBars());
             }
         }
         chart.addMousePanner().addMouseZoomer();
@@ -1583,18 +1613,18 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
             CylinderBarRenderer barR = new CylinderBarRenderer();
             barR.setAlwaysShowOutlines(ConnectDB.pref.getBoolean(StatKeyFactory.ChartFeatures.CHKOUTLINE, false));
             barR.setZeroHeightBarsVisible(true);
-            barR.setOutlineWidth(OUTLINEWIDTH);
+            barR.setOutlineWidth(ConnectDB.OUTLINEWIDTH);
             chart.setBarRenderer(barR);
             chart.getXAxis().setAxisRenderer(new Axis3DRenderer());
         } else if (ConnectDB.pref.getBoolean(StatKeyFactory.ChartFeatures.RBRaised, false)) {
             RaisedBarRenderer barRenderer = new RaisedBarRenderer();
-            barRenderer.setOutlineWidth(OUTLINEWIDTH);
+            barRenderer.setOutlineWidth(ConnectDB.OUTLINEWIDTH);
             barRenderer.setAlwaysShowOutlines(ConnectDB.pref.getBoolean(StatKeyFactory.ChartFeatures.CHKOUTLINE, false));
             chart.setBarRenderer(barRenderer);
             chart.getXAxis().setAxisRenderer(new NoAxisRenderer());
         } else {
             DefaultBarRenderer barRenderer = new DefaultBarRenderer();
-            barRenderer.setOutlineWidth(OUTLINEWIDTH);
+            barRenderer.setOutlineWidth(ConnectDB.OUTLINEWIDTH);
             barRenderer.setAlwaysShowOutlines(ConnectDB.pref.getBoolean(StatKeyFactory.ChartFeatures.CHKOUTLINE, false));
             chart.setBarRenderer(barRenderer);
             chart.getXAxis().setAxisRenderer(new NoAxisRenderer());
@@ -1623,23 +1653,23 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
         chart = new Chart(model);
         chart.setBarGap(10);
         chartTitleAxis();//create only the title
-        chart.setBackground(Color.white);
+        chart.setBackground(Color.WHITE);
         chart.setBorder(new EmptyBorder(5, 5, 10, 15));
         if (ConnectDB.pref.getBoolean(StatKeyFactory.ChartFeatures.RB3D, false)) {
             chart.setPieSegmentRenderer(new Pie3DRenderer());
             Pie3DRenderer pSeg = (Pie3DRenderer) chart.getPieSegmentRenderer();
             pSeg.setAlwaysShowOutlines(ConnectDB.pref.getBoolean(StatKeyFactory.ChartFeatures.CHKOUTLINE, false));
-            pSeg.setOutlineWidth(OUTLINEWIDTH);
+            pSeg.setOutlineWidth(ConnectDB.OUTLINEWIDTH);
         } else if (ConnectDB.pref.getBoolean(StatKeyFactory.ChartFeatures.RBRaised, false)) {
             chart.setPieSegmentRenderer(new RaisedPieSegmentRenderer());
             RaisedPieSegmentRenderer pSeg = (RaisedPieSegmentRenderer) chart.getPieSegmentRenderer();
             pSeg.setAlwaysShowOutlines(ConnectDB.pref.getBoolean(StatKeyFactory.ChartFeatures.CHKOUTLINE, false));
-            pSeg.setOutlineWidth(OUTLINEWIDTH);
+            pSeg.setOutlineWidth(ConnectDB.OUTLINEWIDTH);
         } else {
             chart.setPieSegmentRenderer(new DefaultPieSegmentRenderer());
             DefaultPieSegmentRenderer pSeg = (DefaultPieSegmentRenderer) chart.getPieSegmentRenderer();
             pSeg.setAlwaysShowOutlines(ConnectDB.pref.getBoolean(StatKeyFactory.ChartFeatures.CHKOUTLINE, false));
-            pSeg.setOutlineWidth(OUTLINEWIDTH);
+            pSeg.setOutlineWidth(ConnectDB.OUTLINEWIDTH);
             LinePieLabelRenderer segmentLabeler = new LinePieLabelRenderer();
             segmentLabeler.setLabelFont(new Font("Cooper Black", Font.PLAIN, 12));
             pSeg.setPieLabelRenderer(segmentLabeler);
@@ -1659,7 +1689,6 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
             @Override
             public void itemStateChanged(ItemEvent e) {
                 if (e.getStateChange() == ItemEvent.SELECTED) {
-//                System.out.println("button is selected");
                     new Thread() {
 
                         @Override
@@ -1676,7 +1705,6 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
                         }
                     }.start();
                 } else if (e.getStateChange() == ItemEvent.DESELECTED) {
-//                System.out.println("button is not selected");
                     AbstractPieSegmentRenderer renderer = (AbstractPieSegmentRenderer) chart.getPieSegmentRenderer();
                     PieLabelRenderer labelRenderer;
                     if (ConnectDB.pref.getBoolean(StatKeyFactory.ChartFeatures.RBLineLabel, true)) {
@@ -1706,7 +1734,7 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
         chart = new Chart();
         Axis xAxis = new CategoryAxis(colorsCategoryRange);
         Axis yAxis = chartTitleAxis();
-        ChartStyle style = new ChartStyle(getColorFromKey(ConnectDB.pref.get(StatKeyFactory.ChartFeatures.CBColor, "255, 0, 0")), true, true);
+        ChartStyle style = new ChartStyle(ConnectDB.getColorFromKey(ConnectDB.pref.get(StatKeyFactory.ChartFeatures.CBColor, "255, 0, 0")), true, true);
         style.setLineWidth(ConnectDB.pref.getInt(StatKeyFactory.ChartFeatures.SPLineWidth, 2));
         chart.setBackground(Color.white);
         chart.setBorder(new EmptyBorder(5, 5, 10, 15));
@@ -1774,7 +1802,7 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
 
     private void enableResetButton() {
         if (cmbMachineTitle.getSelectedIndex() > 0 || cmbValue.getSelectedObjects().length != 0
-                //                CBCategory.getSelectedObjects().length != 0 
+                //                CBCategory.getSelectedObjects().length != 0
                 || cmbDescription.getSelectedObjects().length != 0
                 //                || CBLocation.getSelectedObjects().length != 0
                 //                || CBMonth.getSelectedObjects().length != 0 || CBYear.getSelectedObjects().length != 0
@@ -1808,21 +1836,16 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
         catMachine = true;
     }
 
-    private static Color getColorFromKey(String value) {
-        String tab[] = value.split(", ");
-        return new Color(Integer.parseInt(tab[0]), Integer.parseInt(tab[1]), Integer.parseInt(tab[2]));
-    }
-
     private int getIDChannel() throws SQLException {
+        int IDChannel = -1;
         try (PreparedStatement ps = ConnectDB.con.prepareStatement("SELECT ConfigNo FROM `configuration` c,\n"
                 + "hardware h\n"
-                + "WHERE Active =? and h.HwNo = c.HwNo and AvMinMax = 'rate'\n"
-                + "and h.HwNo =?")) {
+                + "WHERE h.HwNo = c.HwNo AND AvMinMax = 'rate' AND Active =?\n"
+                + "AND h.HwNo =?")) {
             int i = 1;
             ps.setInt(i++, 1);
-            ps.setInt(i++, ConnectDB.getMachineID(machineTitle));
+            ps.setInt(i++, machineID);
             ConnectDB.res = ps.executeQuery();
-            IDChannel = -1;
             while (ConnectDB.res.next()) {
                 IDChannel = ConnectDB.res.getInt(1);
             }
@@ -1832,19 +1855,14 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
 
     private class Machine {
 
-//        private Integer m_IDpart;
         private String m_machName;
         private final String m_machDomain;
 
         Machine(String machName, String machDomain) {
-//            m_IDpart = IDMach;
             m_machName = machName;
             m_machDomain = machDomain;
         }
 
-//        public Integer getIDMach() {
-//            return m_IDpart;
-//        }
         public String getMachDomain() {
             return m_machDomain;
         }
@@ -1943,33 +1961,27 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
     private javax.swing.JRadioButton radSecond;
     private javax.swing.JSpinner spProductionRate;
     // End of variables declaration//GEN-END:variables
+    private static int machineID = -1;
     private static double totalSum = 0d;
-    private static Date dt_startE, dt_stopE;
-    private boolean loopQueryFound = false, skipFirstMessage = true;//variables for the dates;  
-    private static boolean catMachine, catDescription;//check if all the machineTitle title are loaded
-    static int max = 0;
-    static ArrayList HL = new ArrayList();
-    static ChartStyle stylePieChart;
-    static RandomColor randomColor = new RandomColor();
-    static Chart chart;
-    static String minLogTime = null, maxLogTime = null;//also used in the EventsHierarchicalTable
-    static DefaultChartModel model = new DefaultChartModel();
-    static CategoryRange<ChartCategory> colorsCategoryRange = new CategoryRange<>();
-    public static int IDChannel;
-    private static final float OUTLINEWIDTH = 3f;
-    private static String treeMainTitle = "",
-            treeDescription = "",
-            timeFormat = null, reportTitle = "", chartTitle = "";
+    private Date dt_startE, dt_stopE;
+    private boolean skipFirstMessage = true,//variables for the dates;
+            catMachine, catDescription;//check if all the machineTitle title are loaded
+    private static int max = 0;
+    private static ChartStyle stylePieChart = null;
+    private static final ArrayList HL = new ArrayList();
+    private static final RandomColor randomColor = new RandomColor();
+    private static final DefaultChartModel model = new DefaultChartModel();
+    private static Chart chart;
+    private static String minLogTime = null, maxLogTime = null;//also used in the EventsHierarchicalTable
+    private static CategoryRange<ChartCategory> colorsCategoryRange = new CategoryRange<>();
+    private static String timeFormat = null, reportTitle = "", chartTitle = "";
     private static MouseDragPanner panner;
-    public static JTree _tree;
-    public static String machineTitle, customCodeValue = "";
-    public static Set<String> setDescription = new TreeSet<>(), setDescOrValue = new TreeSet<>();
-    private final Timer timer;
-    private EventsHierarchicalTable eht;
-    JFrame _parent;
-    Thread runThread;
-    ReportOptions reportOptions;
+    private static JTree _tree;
+    private static String machineTitle = null, customCodeValue = "";
+    private static final Set<String> descriptionSet = new TreeSet<>(), setDescOrValue = new TreeSet<>();
+    private EventsHierarchicalTable eht = null;
+    private final JFrame _parent;
+    private Thread runThread;
+    private ReportOptions reportOptions = null;
     private final String EMPTYEVENTS = "***NO EVENT RETRIEVED***";
-    ViewData viewData = new ViewData(_parent, false, null);
-    DefaultMutableTreeNode m_rootNode, m_descNode, m_valueNode;
 }

@@ -1,5 +1,6 @@
 package dashboard;
 
+import collapsibleDashboard.CollapsiblePaneGadget;
 import com.jidesoft.grid.RowStripeTableStyleProvider;
 import com.jidesoft.grid.SortableTable;
 import com.jidesoft.plaf.LookAndFeelFactory;
@@ -20,11 +21,10 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.ListSelectionModel;
 import javax.swing.border.TitledBorder;
-import mainFrame.ShortCutPanel;
+import mainFrame.MainMenuPanel;
 import productionPanel.ProdStatKeyFactory;
 import productionPanel.SetTableTime;
 import setting.SettingKeyFactory;
-import collapsibleDashboard.CollapsiblePaneGadget;
 import smartfactoryV2.ConnectDB;
 import tableModel.TableModelShiftTime;
 
@@ -312,8 +312,8 @@ public class GadgetSettings extends javax.swing.JPanel {
         if (evt.getClickCount() == 2) {
             final Point pos = this.btnShiftTable.getLocationOnScreen();
             new SetTableTime(null, true, pos).setVisible(true);
-            if (SetTableTime.closeWindow) {
-                String[] ses = SetTableTime.timeString.split(";");
+            if (SetTableTime.isWindowClosed()) {
+                String[] ses = SetTableTime.getTimeString().split(";");
                 tableTime.setValueAt(ses[0], 0, 1);
                 tableTime.setValueAt(ses[1], 0, 2);
                 tableTime.setValueAt(ses[2], 1, 1);
@@ -322,12 +322,12 @@ public class GadgetSettings extends javax.swing.JPanel {
                 tableTime.setValueAt(ses[5], 2, 2);
             }
         } else {
-            tableTime.setValueAt(SetTableTime.times[0], 0, 1);
-            tableTime.setValueAt(SetTableTime.times[1], 0, 2);
-            tableTime.setValueAt(SetTableTime.times[2], 1, 1);
-            tableTime.setValueAt(SetTableTime.times[3], 1, 2);
-            tableTime.setValueAt(SetTableTime.times[4], 2, 1);
-            tableTime.setValueAt(SetTableTime.times[5], 2, 2);
+            tableTime.setValueAt(SetTableTime.getTimes()[0], 0, 1);
+            tableTime.setValueAt(SetTableTime.getTimes()[1], 0, 2);
+            tableTime.setValueAt(SetTableTime.getTimes()[2], 1, 1);
+            tableTime.setValueAt(SetTableTime.getTimes()[3], 1, 2);
+            tableTime.setValueAt(SetTableTime.getTimes()[4], 2, 1);
+            tableTime.setValueAt(SetTableTime.getTimes()[5], 2, 2);
         }
         saveChanges();
     }//GEN-LAST:event_btnShiftTableMouseClicked
@@ -392,7 +392,7 @@ public class GadgetSettings extends javax.swing.JPanel {
                 Thread.sleep(500);
             } catch (InterruptedException ex) {
             }
-            DashBoard._colDashBoard.setGadgetComponentPane(this._configNo, this._keyMachine, this._gadget);
+            DashBoard.getColDashBoard().setGadgetComponentPane(this._configNo, this._keyMachine, this._gadget);
 //            DashBoard.bslTime.setText("Regenerating " + this._keyMachine + " in a while.");
         } catch (SQLException ex) {
             ConnectDB.catchSQLException(ex);
@@ -477,7 +477,7 @@ public class GadgetSettings extends javax.swing.JPanel {
     }
 
     public static void showSettingsDialog(int[] configNo, String keyMachine, Component gadget) {
-        dialog = new JDialog(ShortCutPanel._dashBoardFrame, keyMachine + " Gadget Settings");
+        dialog = new JDialog(MainMenuPanel._dashBoardFrame, keyMachine + " Gadget Settings");
         dialog.setLayout(new BorderLayout());
         dialog.getContentPane().add(new GadgetSettings(configNo, keyMachine, gadget));
         dialog.setPreferredSize(new Dimension(370, 340));

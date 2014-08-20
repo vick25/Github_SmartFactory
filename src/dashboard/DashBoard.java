@@ -1,5 +1,6 @@
 package dashboard;
 
+import collapsibleDashboard.CollapsiblePaneDashboard;
 import com.jidesoft.plaf.LookAndFeelFactory;
 import com.jidesoft.swing.JideButton;
 import java.awt.Color;
@@ -17,10 +18,9 @@ import java.util.Date;
 import java.util.Timer;
 import javax.swing.JFrame;
 import javax.swing.SwingConstants;
-import mainFrame.ShortCutPanel;
+import mainFrame.MainMenuPanel;
 import resources.Constants;
 import resources.ReadPropertiesFile;
-import collapsibleDashboard.CollapsiblePaneDashboard;
 import smartfactoryV2.ConnectDB;
 
 /**
@@ -49,6 +49,10 @@ public class DashBoard extends javax.swing.JPanel {
         DashBoard._showRateProd = _showRateProd;
     }
 
+    public static CollapsiblePaneDashboard getColDashBoard() {
+        return _colDashBoard;
+    }
+
     public DashBoard(JFrame parent, Date dt) throws Exception {
         ConnectDB.getConnectionInstance();
         LookAndFeelFactory.installDefaultLookAndFeelAndExtension();
@@ -67,7 +71,7 @@ public class DashBoard extends javax.swing.JPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (dashBoardSettings == null) {
-                    dashBoardSettings = new DashBoardSettings(ShortCutPanel._dashBoardFrame, true,
+                    dashBoardSettings = new DashBoardSettings(MainMenuPanel._dashBoardFrame, true,
                             _colDashBoard._vertical, _colDashBoard._tabbedPane);
                     dashBoardSettings.setVisible(true);
                 } else {
@@ -80,18 +84,17 @@ public class DashBoard extends javax.swing.JPanel {
         dtSpinner.setFormat(ConnectDB.SDATEFORMATHOUR);
         if (dt == null) {
             Calendar working = ((Calendar) ConnectDB.CALENDAR.clone());
-            int hour = ((Calendar) ConnectDB.CALENDAR).get(Calendar.HOUR_OF_DAY),
-                    minute = ((Calendar) ConnectDB.CALENDAR).get(Calendar.MINUTE),
-                    second = ((Calendar) ConnectDB.CALENDAR).get(Calendar.SECOND);
-            working.add(Calendar.HOUR_OF_DAY, -(00 + hour));
+            int hour = ConnectDB.CALENDAR.get(Calendar.HOUR_OF_DAY),
+                    minute = ConnectDB.CALENDAR.get(Calendar.MINUTE),
+                    second = ConnectDB.CALENDAR.get(Calendar.SECOND);
+            working.add(Calendar.HOUR_OF_DAY, -hour);
             working.add(Calendar.MINUTE, -minute);
             working.add(Calendar.SECOND, -second);
             dtSpinner.setDate(working.getTime());
-            dtSpinner.getEditor().getEditorComponent().setFocusable(false);
         } else {
             dtSpinner.setDate(dt);
-            dtSpinner.getEditor().getEditorComponent().setFocusable(false);
         }
+        dtSpinner.getEditor().getEditorComponent().setFocusable(false);
 
         bslTime.setHorizontalAlignment(SwingConstants.LEADING);
         bslTime.setForeground(Color.GRAY);
@@ -179,10 +182,10 @@ public class DashBoard extends javax.swing.JPanel {
         date = true;
     }//GEN-LAST:event_dtSpinnerItemStateChanged
 
-    public final void callScheduler() throws Exception {
+    private void callScheduler() throws Exception {
         ReadPropertiesFile.readConfig();//read the property file to get the time and delay for the schedule
         _colDashBoard = new CollapsiblePaneDashboard(getMachineDummy(), dtSpinner.getDate());
-        timer = new Timer();
+        Timer timer = new Timer();
         timer.scheduleAtFixedRate(_colDashBoard, getTimePrecision(Constants.delay),
                 getTimePrecision(Constants.timetoquery));
         bslTime.setText("Scheduler of " + Constants.timetoquery + " is running to refresh the chart(s) if any "
@@ -254,6 +257,5 @@ public class DashBoard extends javax.swing.JPanel {
     private boolean date = false;
     private static boolean _showTotalProd = true, _showRateProd = false;
     public static JFrame _dashBoardFrame;
-    public static CollapsiblePaneDashboard _colDashBoard;
-    public static Timer timer = null;
+    private static CollapsiblePaneDashboard _colDashBoard;
 }

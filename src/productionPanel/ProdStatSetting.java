@@ -6,7 +6,6 @@ import com.jidesoft.dialog.ButtonNames;
 import com.jidesoft.dialog.ButtonPanel;
 import com.jidesoft.dialog.MultiplePageDialog;
 import com.jidesoft.dialog.PageList;
-import com.jidesoft.plaf.LookAndFeelFactory;
 import com.jidesoft.plaf.UIDefaultsLookup;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -15,9 +14,9 @@ import java.awt.HeadlessException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.AbstractAction;
+import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
-import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.border.BevelBorder;
@@ -65,10 +64,10 @@ public class ProdStatSetting extends MultiplePageDialog {
                 dispose();
             }
         };
-        ((JButton) buttonPanel.getButtonByName(ButtonNames.OK)).setFocusable(false);
-        ((JButton) buttonPanel.getButtonByName(ButtonNames.CANCEL)).setFocusable(false);
-        ((JButton) buttonPanel.getButtonByName(ButtonNames.OK)).setAction(okAction);
-        ((JButton) buttonPanel.getButtonByName(ButtonNames.CANCEL)).setAction(cancelAction);
+        buttonPanel.getButtonByName(ButtonNames.OK).setFocusable(false);
+        buttonPanel.getButtonByName(ButtonNames.CANCEL).setFocusable(false);
+        ((AbstractButton) buttonPanel.getButtonByName(ButtonNames.OK)).setAction(okAction);
+        ((AbstractButton) buttonPanel.getButtonByName(ButtonNames.CANCEL)).setAction(cancelAction);
         setDefaultCancelAction(cancelAction);
         setDefaultAction(okAction);
         this.getApplyButton().setFocusable(false);
@@ -89,7 +88,7 @@ public class ProdStatSetting extends MultiplePageDialog {
     }
 
     public static void showOptionsDialog() {
-        ProdStatSetting dialog = new ProdStatSetting(MainFrame._frame, "Settings");
+        ProdStatSetting dialog = new ProdStatSetting(MainFrame.getFrame(), "Settings");
         dialog.setIconImage(SettingIconsFactory.getImageIcon(SettingIconsFactory.Options.DIALOGICON).getImage());
         dialog.setStyle(MultiplePageDialog.ICON_STYLE);
         PageList model = new PageList();
@@ -100,18 +99,18 @@ public class ProdStatSetting extends MultiplePageDialog {
         model.append(panel1);
         dialog.setPageList(model);
         dialog.pack();
-        dialog.setLocationRelativeTo(MainFrame._frame);
+        dialog.setLocationRelativeTo(MainFrame.getFrame());
 //        JideSwingUtilities.globalCenterWindow(dialog);
         dialog.setVisible(true);
     }
 
     private static class OptionPage extends AbstractDialogPage {
 
-        public OptionPage(String name) {
+        OptionPage(String name) {
             super(name);
         }
 
-        public OptionPage(String name, Icon icon) {
+        OptionPage(String name, Icon icon) {
             super(name, icon);
         }
 
@@ -133,7 +132,9 @@ public class ProdStatSetting extends MultiplePageDialog {
 
     private static class OptionPageGeneral extends OptionPage {
 
-        public OptionPageGeneral(String name, Icon icon) {
+        ProdFeature productionFeaturePan;
+
+        OptionPageGeneral(String name, Icon icon) {
             super(name, icon);
             productionFeaturePan = new ProdFeature(this, parent);
         }
@@ -145,10 +146,10 @@ public class ProdStatSetting extends MultiplePageDialog {
         }
     }
 
-    public static void main(String[] argv) {
-        LookAndFeelFactory.installDefaultLookAndFeel();
-        showOptionsDialog();
-    }
+//    public static void main(String[] argv) {
+//        LookAndFeelFactory.installDefaultLookAndFeel();
+//        showOptionsDialog();
+//    }
 
     private void applyChartFeature() {
         ConnectDB.pref.putInt(ProdStatKeyFactory.ProdFeatures.SPFLAGTIMEFRAME,
@@ -188,6 +189,6 @@ public class ProdStatSetting extends MultiplePageDialog {
 //            EventsStatistic.createLineChart();
 //        }
     }
-    static ProdFeature productionFeaturePan;
-    static JDialog parent;
+//    private static ProdFeature productionFeaturePan;
+    private static JDialog parent;
 }

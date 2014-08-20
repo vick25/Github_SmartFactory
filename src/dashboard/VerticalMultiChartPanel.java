@@ -10,6 +10,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.Paint;
+import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 
 /**
@@ -30,6 +31,7 @@ public class VerticalMultiChartPanel extends JPanel {
         chartPanel.setLayout(gridBagLayout);
         legend.setColumns(4);
 
+        legendPanel.setBorder(BorderFactory.createLineBorder(Color.RED));
         legendPanel.add(legend);
         this.add(chartPanel, BorderLayout.CENTER);
         if (DashBoard.isShowTotalProd()) {

@@ -14,7 +14,6 @@ import com.jidesoft.chart.model.ChartModel;
 import com.jidesoft.chart.model.ChartPoint;
 import com.jidesoft.chart.model.Chartable;
 import com.jidesoft.chart.model.DefaultChartModel;
-import com.jidesoft.chart.model.Highlight;
 import com.jidesoft.chart.render.Axis3DRenderer;
 import com.jidesoft.chart.render.CylinderBarRenderer;
 import com.jidesoft.chart.render.DefaultPointRenderer;
@@ -64,6 +63,30 @@ import smartfactoryV2.ConnectDB;
  */
 public class BarChart extends Chart {
 
+    public static Flag getFlagDialog() {
+        return flagDialog;
+    }
+
+    public static void setFlagDialog(Flag flagDialog) {
+        BarChart.flagDialog = flagDialog;
+    }
+
+    public static ArrayList<Integer> getMaxValue() {
+        return maxValue;
+    }
+
+    public static boolean isInShifts() {
+        return _inShifts;
+    }
+
+    public DefaultChartModel getModelPoints() {
+        return modelPoints;
+    }
+
+    public Chart getChart() {
+        return chart;
+    }
+
     public BarChart(final int ConfigNo, final String query, final boolean withShifts, String machineTitle,
             String chanTitle, Date start, Date end) throws SQLException {
         super();
@@ -71,13 +94,13 @@ public class BarChart extends Chart {
         this._startD = start;
         this._endD = end;
         this._chanTitle = chanTitle;
-        BarChart.withShifts = withShifts;
+        BarChart._inShifts = withShifts;
         if (chart == null) {
             chart = new Chart("Total");
         }
         chart.removeAll();
         range = new CategoryRange<>();
-        findMaxValue.clear();
+        maxValue.clear();
         alDateHour.clear();
         alValues.clear();
         flagLogTime.clear();
@@ -97,7 +120,7 @@ public class BarChart extends Chart {
         ConnectDB.res = ps.executeQuery();
         loopQueryFound = false;
         //End SQL query        
-        if (BarChart.withShifts) {//Case with shifts
+        if (BarChart._inShifts) {//Case with shifts
             ArrayList<String> dateData = new ArrayList<>();//get only the date from the database
             while (ConnectDB.res.next()) {
                 String s = ConnectDB.res.getString(1);
@@ -188,7 +211,7 @@ public class BarChart extends Chart {
                         }
                         int w = k;//copy the index of each date as k to w
                         sumHourValues[j][w] = String.valueOf(sum);
-                        findMaxValue.add(sum);
+                        maxValue.add(sum);
                     }
                 }//end of each shift in the tableTime
             }//end of each date
@@ -206,7 +229,7 @@ public class BarChart extends Chart {
                 }
                 chart.setTitle(new AutoPositionedLabel("\"" + this._machineTitle + "\" Total Production Per Shift",
                         Color.BLACK, ConnectDB.TITLEFONT));
-                ProductionPane.chartTitle = chart.getTitle().toString();
+                ProductionPane.setChartTitle(chart.getTitle().toString()); 
                 chart.setBarsGrouped(true);
                 chart.setBarGroupGapProportion(0.6);//changed from 0.5 for the size of the bar
                 CylinderBarRenderer barR = new CylinderBarRenderer();
@@ -231,12 +254,12 @@ public class BarChart extends Chart {
                     String modelName = row.remove(0);//get each line of data
                     modelShift = new DefaultChartModel(modelName);
                     int column = 1;
-                    for (String value : row) {
-                        if (value == null) {
-                            value = "0";
+                    for (String rowValue : row) {
+                        if (rowValue == null) {
+                            rowValue = "0";
                         }
-                        Double v = Double.parseDouble(value);
-                        modelShift.addPoint(range.getCategory(column), v);
+                        Double value = Double.parseDouble(rowValue);
+                        modelShift.addPoint(range.getCategory(column), value);
                         column++;
                     }
                     ChartStyle styleS = new ChartStyle(colorFactory.create()).withBars();
@@ -276,12 +299,12 @@ public class BarChart extends Chart {
                         sum += Integer.parseInt(val[1]);
                     }
                 }
-                findMaxValue.add(sum);
-                modelShift.addPoint(dateCategoryChart.get(j), (double) sum);
+                maxValue.add(sum);
+                modelShift.addPoint(dateCategoryChart.get(j), sum);
             }
             chart.setTitle(new AutoPositionedLabel("\"" + this._machineTitle + "\" Hourly Total Production",
                     Color.BLACK, ConnectDB.TITLEFONT));
-            ProductionPane.chartTitle = chart.getTitle().toString();
+            ProductionPane.setChartTitle(chart.getTitle().toString());
             chart.addModel(modelShift);
             chart.setPanelBackground(new Color(153, 153, 153));
             modelPoints = modelShift;//save the modelshift          
@@ -295,12 +318,12 @@ public class BarChart extends Chart {
             chart.setXAxis(xAxis);
 //            xAxis.setTickLabelRotation(Math.PI / 4);
             chart.getXAxis().setTicksVisible(true);
-            NumericAxis yAxis = new NumericAxis(0, (double) ConnectDB.maxNumber(findMaxValue) + 21D);
+            NumericAxis yAxis = new NumericAxis(0, ConnectDB.maxNumber(maxValue) + 21D);
             chart.setLayout(new BorderLayout());
             chart.setBorder(new EmptyBorder(5, 5, 10, 15));
-            chart.setShadowVisible(true);
+//            chart.setShadowVisible(true);
 
-            if (BarChart.withShifts) {
+            if (BarChart._inShifts) {
                 yAxis.setLabel(new AutoPositionedLabel("Total Parts", Color.BLACK));
                 chart.setGridColor(new Color(150, 150, 150));
                 chart.setChartBackground(new GradientPaint(0f, 0f, Color.lightGray.brighter(), 300f, 300f, Color.lightGray));
@@ -328,7 +351,7 @@ public class BarChart extends Chart {
                     style.setPointShape(PointShape.BOX);
                     ChartStyle selectionStyle = new ChartStyle(style);
                     selectionStyle.setPointSize(15);
-                    chart.setHighlightStyle(selectionHighlight, selectionStyle);
+                    chart.setHighlightStyle(ConnectDB.SELECTION_HIGHLIGHT, selectionStyle);
                 } else {//bars
                     chart.setBarResizePolicy(BarResizePolicy.RESIZE_OFF);
                     chart.setBarGap(8);
@@ -357,7 +380,7 @@ public class BarChart extends Chart {
                         if (chartable == null) {
                             chart.setToolTipText(null);
                         } else {
-                            if (BarChart.withShifts) {
+                            if (BarChart._inShifts) {
                                 try {
                                     Point screenLocation = MouseInfo.getPointerInfo().getLocation();
                                     Point p1 = new Point(screenLocation);
@@ -486,7 +509,7 @@ public class BarChart extends Chart {
                         double[] diffs = ConnectDB.getTimeDifference(
                                 ConnectDB.SDATEFORMATHOUR.parse(ConnectDB.correctToBarreDate(flagLogTime.get(i))),
                                 ConnectDB.SDATEFORMATHOUR.parse(ConnectDB.correctToBarreDate(flagLogTime.get(i + 1))));
-                        if (diffs[2] > (double) flagTime) {
+                        if (diffs[2] > flagTime) {
                             //create a timer to make text blink periodically
                             makeItBlink = new Timer(blinkInterval, new ActionListener() {
 
@@ -539,19 +562,19 @@ public class BarChart extends Chart {
     }
 
     private void populateListeFlag() {
-        if (flag != null) {
-            flag.dispose();
+        if (flagDialog != null) {
+            flagDialog.dispose();
             showFlagUI = false;
         }
-        flag = new Flag(MainFrame._frame, false, messageFlag);
-        flag.setVisible(true);
+        flagDialog = new Flag(MainFrame.getFrame(), false, messageFlag);
+        flagDialog.setVisible(true);
     }
 
     private class SpecialPoint extends ChartPoint {
 
         private final String specialString;
 
-        public SpecialPoint(Positionable x, double y, String specialString) {
+        SpecialPoint(Positionable x, double y, String specialString) {
             super(x, y);
             this.specialString = specialString;
         }
@@ -568,15 +591,14 @@ public class BarChart extends Chart {
     private static CategoryRange range;
     private final String _machineTitle, _chanTitle;
     private final Date _startD, _endD;
-    private static final Highlight selectionHighlight = new Highlight("selection");
-    public static boolean withShifts;
-    public static DefaultChartModel modelPoints;
+    private static boolean _inShifts;
+    private DefaultChartModel modelPoints;
     public static String[][] sumHourValues;
     public static List<String> eachDateH;
     public static ArrayList<String> subtractValues = new ArrayList<>(), flagLogTime = new ArrayList<>(),
             messageFlag = new ArrayList<>();
-    public static ArrayList<Integer> findMaxValue = new ArrayList<>();
-    public static Flag flag;
-    public Chart chart;
+    private static final ArrayList<Integer> maxValue = new ArrayList<>();
+    private static Flag flagDialog;
+    private Chart chart;
     public Timer makeItBlink;
 }

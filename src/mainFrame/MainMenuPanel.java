@@ -14,15 +14,17 @@ import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
+import login.Identification;
 import static login.Identification.quickViewFrame;
 import productionPanel.ProductionPane;
 import productionQuickView.ProductionQuickView;
 import smartfactoryV2.ConnectDB;
+import smartfactoryV2.SplashScreen;
 import viewData.ViewHistory;
 
-public class ShortCutPanel extends JPanel {
+public class MainMenuPanel extends JPanel {
 
-    public ShortCutPanel(JFrame parent) {
+    public MainMenuPanel(MainFrame parent) {
         _parent = parent;
         _documentPane = MainFrame.getDocumentPane();
         initComponents();
@@ -57,7 +59,6 @@ public class ShortCutPanel extends JPanel {
         btnProduction.setButtonStyle(com.jidesoft.swing.JideButton.HYPERLINK_STYLE);
         btnProduction.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/icons/first_year_production(24).png"))); // NOI18N
         btnProduction.setText("Production");
-        btnProduction.setFont(new java.awt.Font("Tahoma", 0, 13)); // NOI18N
         btnProduction.setHorizontalAlignment(SwingConstants.LEADING);
         btnProduction.setRequestFocusEnabled(true);
         btnProduction.addActionListener(new java.awt.event.ActionListener() {
@@ -69,7 +70,6 @@ public class ShortCutPanel extends JPanel {
         btnEventsStattistic.setButtonStyle(com.jidesoft.swing.JideButton.HYPERLINK_STYLE);
         btnEventsStattistic.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/icons/event_time.png"))); // NOI18N
         btnEventsStattistic.setText("Events (HMI)");
-        btnEventsStattistic.setFont(new java.awt.Font("Tahoma", 0, 13)); // NOI18N
         btnEventsStattistic.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnEventsStattisticActionPerformed(evt);
@@ -79,7 +79,6 @@ public class ShortCutPanel extends JPanel {
         btnProductionQuickView.setButtonStyle(com.jidesoft.swing.JideButton.HYPERLINK_STYLE);
         btnProductionQuickView.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/icons/stock_data_queries.png"))); // NOI18N
         btnProductionQuickView.setText("Production Quick View");
-        btnProductionQuickView.setFont(new java.awt.Font("Tahoma", 0, 13)); // NOI18N
         btnProductionQuickView.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnProductionQuickViewActionPerformed(evt);
@@ -89,7 +88,6 @@ public class ShortCutPanel extends JPanel {
         btnDashBoard.setButtonStyle(com.jidesoft.swing.JideButton.HYPERLINK_STYLE);
         btnDashBoard.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/icons/dashboard16x16.png"))); // NOI18N
         btnDashBoard.setText("DashBoard");
-        btnDashBoard.setFont(new java.awt.Font("Tahoma", 0, 13)); // NOI18N
         btnDashBoard.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnDashBoardActionPerformed(evt);
@@ -143,7 +141,6 @@ public class ShortCutPanel extends JPanel {
         btnViewHistory.setButtonStyle(com.jidesoft.swing.JideButton.HYPERLINK_STYLE);
         btnViewHistory.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/icons/time16x16_2.png"))); // NOI18N
         btnViewHistory.setText("View History");
-        btnViewHistory.setFont(new java.awt.Font("Tahoma", 0, 13)); // NOI18N
         btnViewHistory.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnViewHistoryActionPerformed(evt);
@@ -153,7 +150,6 @@ public class ShortCutPanel extends JPanel {
         btnLogOut.setButtonStyle(com.jidesoft.swing.JideButton.HYPERLINK_STYLE);
         btnLogOut.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/icons/logout16x16.png"))); // NOI18N
         btnLogOut.setText("Log Out");
-        btnLogOut.setFont(new java.awt.Font("Tahoma", 0, 13)); // NOI18N
         btnLogOut.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnLogOutActionPerformed(evt);
@@ -163,7 +159,6 @@ public class ShortCutPanel extends JPanel {
         btnCreateUser.setButtonStyle(com.jidesoft.swing.JideButton.HYPERLINK_STYLE);
         btnCreateUser.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/icons/add_user16x16_1.png"))); // NOI18N
         btnCreateUser.setText("Create User");
-        btnCreateUser.setFont(new java.awt.Font("Tahoma", 0, 13)); // NOI18N
         btnCreateUser.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnCreateUserActionPerformed(evt);
@@ -238,8 +233,8 @@ public class ShortCutPanel extends JPanel {
     private void btnProductionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnProductionActionPerformed
         if (!_documentPane.isDocumentOpened("Production")) {
             try {
-                MainFrame.productionPane = new ProductionPane(_parent);
-                final DocumentComponent document = new DocumentComponent(MainFrame.productionPane, "Production",
+                this.productionPane = new ProductionPane(_parent);
+                final DocumentComponent document = new DocumentComponent(this.productionPane, "Production",
                         "Production", new ImageIcon(this.getClass().getResource("/images/icons/kchart12.png")));
                 _documentPane.openDocument(document);
                 MainFrame.confirmCloseTab(document);
@@ -292,12 +287,11 @@ public class ShortCutPanel extends JPanel {
 
     private void btnViewHistoryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnViewHistoryActionPerformed
         if (_documentPane.isDocumentOpened("Production")) {
-            machineTitle = ProductionPane.machineTitle;
             date = ProductionPane.cmbPFrom.getDate();
         }
         if (!_documentPane.isDocumentOpened("History")) {
             try {
-                final DocumentComponent document = new DocumentComponent(new ViewHistory(machineTitle, date), "History",
+                final DocumentComponent document = new DocumentComponent(new ViewHistory(ProductionPane.getMachineTitle(), date), "History",
                         "History", new ImageIcon(this.getClass().getResource("/images/icons/kchart12.png")));
                 _documentPane.openDocument(document);
                 MainFrame.confirmCloseTab(document);
@@ -310,7 +304,9 @@ public class ShortCutPanel extends JPanel {
     }//GEN-LAST:event_btnViewHistoryActionPerformed
 
     private void btnLogOutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLogOutActionPerformed
-        MainFrame.actionLogOut();
+        MainFrame.actionLogOut();        
+        Identification.setFrameSaved(true);
+        SplashScreen.getIdentification().setVisible(true);
     }//GEN-LAST:event_btnLogOutActionPerformed
 
     private void btnCreateUserActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCreateUserActionPerformed
@@ -318,30 +314,31 @@ public class ShortCutPanel extends JPanel {
     }//GEN-LAST:event_btnCreateUserActionPerformed
 
     private void btnDashBoardActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDashBoardActionPerformed
-        MainFrame.dashBoardDate = null;
+//        MainFrame.dashBoardDate = null;
         showDashBoard();
     }//GEN-LAST:event_btnDashBoardActionPerformed
 
     public static void showDashBoard() {
         try {
-            _parent.setVisible(false);
+            MainFrame.actionLogOut();
             _dashBoardFrame = new JFrame("Smartfactory Machines DashBoard");
             _dashBoardFrame.setSize(1125, 700);
             _dashBoardFrame.setIconImage(_parent.getIconImage());
-            _dashBoard = new DashBoard(_parent, MainFrame.dashBoardDate);
+            _dashBoard = new DashBoard(_parent, MainFrame.getDashBoardDate());
             _dashBoardFrame.getContentPane().add(_dashBoard);
             _dashBoardFrame.addWindowListener(new WindowAdapter() {
 
                 @Override
                 public void windowClosing(WindowEvent e) {
-                    ShortCutPanel._parent.setVisible(true);
+                    Identification.getShowMainFrame().setVisible(true);
+                    Identification.getShowMainFrame().revalidate();
                 }
             });
             _dashBoardFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
             _dashBoardFrame.setLocationRelativeTo(null);
             _dashBoardFrame.setVisible(true);
         } catch (Exception ex) {
-            ex.printStackTrace();
+//            ex.printStackTrace();
         }
     }
 
@@ -360,9 +357,9 @@ public class ShortCutPanel extends JPanel {
     private javax.swing.JPanel jPanel5;
     // End of variables declaration//GEN-END:variables
     private Date date;
-    private String machineTitle = "";
-    private DocumentPane _documentPane;
-    private static JFrame _parent;
+    private final DocumentPane _documentPane;
+    private static MainFrame _parent;
     public static DashBoard _dashBoard;
     public static JFrame _dashBoardFrame;
+    private ProductionPane productionPane = null;
 }

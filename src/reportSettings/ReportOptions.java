@@ -4,6 +4,8 @@ import java.awt.Color;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
@@ -12,7 +14,6 @@ import javax.swing.ImageIcon;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.Timer;
-import javax.swing.UIManager;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.filechooser.FileSystemView;
 import javax.swing.text.SimpleAttributeSet;
@@ -23,6 +24,10 @@ import javax.swing.text.StyleConstants;
  * @author Victor Kadiata
  */
 public class ReportOptions extends javax.swing.JDialog {
+
+    public boolean isWindowClosed() {
+        return WindowClosed;
+    }
 
     public Image getPhoto() {
         return photo;
@@ -99,9 +104,9 @@ public class ReportOptions extends javax.swing.JDialog {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if ((chkPrintChart.isSelected() || chkPrintTable.isSelected())
-                        && !txtCompanyTitle.getText().equals("")
+                        && !txtCompanyTitle.getText().isEmpty()
                         && !txtCompanyTitle.getText().equalsIgnoreCase("---   Company Trademark Identification   ---")
-                        && !txtReportTitle.getText().equals("")
+                        && !txtReportTitle.getText().isEmpty()
                         && !txtReportTitle.getText().equalsIgnoreCase("---   Main title of the report   ---")) {
                     btnPrintReport.setEnabled(true);
                 } else {
@@ -114,7 +119,21 @@ public class ReportOptions extends javax.swing.JDialog {
 
             @Override
             public void windowClosing(WindowEvent e) {
-                closeWindow = false;
+                WindowClosed = false;
+            }
+        });
+        txtAddress.addKeyListener(new KeyAdapter() {
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_TAB) {
+                    if (e.getModifiers() > 0) {
+                        txtAddress.transferFocusBackward();
+                    } else {
+                        txtAddress.transferFocus();
+                    }
+                    e.consume();
+                }
             }
         });
         if (this.companyTitle != null) {
@@ -395,25 +414,25 @@ public class ReportOptions extends javax.swing.JDialog {
         prefs.put("company", getCompanyTitle());
         setReportTitle(txtReportTitle.getText());
         if (!txtEmail.getText().equalsIgnoreCase("---   Company contact email   ---")
-                && !txtEmail.getText().equals("")) {
+                && !txtEmail.getText().isEmpty()) {
             setEmail(txtEmail.getText());
             prefs.put("email", getEmail());
         } else {
             setEmail("");
         }
         if (!txtWebSite.getText().equalsIgnoreCase("---   Company website   ---")
-                && !txtWebSite.getText().equals("")) {
+                && !txtWebSite.getText().isEmpty()) {
             setWebsite(txtWebSite.getText());
             prefs.put("website", getWebsite());
         } else {
             setWebsite("");
         }
         if (!txtAddress.getText().equalsIgnoreCase("---   Company physical address   ---")
-                && !txtAddress.getText().equals("")) {
+                && !txtAddress.getText().isEmpty()) {
             setAddress(txtAddress.getText().trim());
             prefs.put("address", getAddress());
         }
-        closeWindow = true;
+        WindowClosed = true;
         this.dispose();
     }//GEN-LAST:event_btnPrintReportActionPerformed
 
@@ -459,7 +478,7 @@ public class ReportOptions extends javax.swing.JDialog {
     }//GEN-LAST:event_txtAddressFocusGained
 
     private void txtAddressFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_txtAddressFocusLost
-        if (txtAddress.getText().equals("")) {
+        if (txtAddress.getText().isEmpty()) {
             txtAddress.setText("---   Company physical address   ---");
             txtAddress.setForeground(new java.awt.Color(153, 153, 153));
             txtAddress.setFont(new java.awt.Font("Tahoma", 2, 10));
@@ -495,7 +514,7 @@ public class ReportOptions extends javax.swing.JDialog {
     }
 
     private void cursorOut(JTextField txtField, String text) {
-        if (txtField.getText().equals("")) {
+        if (txtField.getText().isEmpty()) {
             txtField.setText(text);
             txtField.setForeground(new java.awt.Color(153, 153, 153));
             txtField.setFont(new java.awt.Font("Tahoma", 2, 10));
@@ -556,8 +575,8 @@ public class ReportOptions extends javax.swing.JDialog {
     // End of variables declaration//GEN-END:variables
     private boolean addTable, addChart;
     private String companyTitle, reportTitle, email, website, address;
-    public static boolean closeWindow;
-    Image photo;
-    SimpleAttributeSet attribs;
+    private boolean WindowClosed;
+    private Image photo;
+    private final SimpleAttributeSet attribs;
     Preferences prefs = Preferences.userNodeForPackage(ReportOptions.class);
 }

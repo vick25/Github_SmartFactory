@@ -25,12 +25,12 @@ public class GadgetFactory {
         _configNo = configNo;
         _startDate = startDate;
         if (DashBoard.isShowTotalProd()) {
-            chartTotalProd = new Charts(_machineTitle, _configNo[0], _startDate).chartTotal;
+            chartTotalProd = new Charts(_machineTitle, _configNo[0], _startDate).getChartTotal();
         } else {
             chartTotalProd = new Chart();
         }
         if (DashBoard.isShowRateProd()) {
-            chartRateProd = new Charts(_configNo[1], _startDate).chartRate;
+            chartRateProd = new Charts(_configNo[1], _startDate).getChartRate();
         } else {
             chartRateProd = new Chart();
         }

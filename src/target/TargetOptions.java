@@ -61,19 +61,19 @@ public class TargetOptions extends javax.swing.JPanel {
         return dsEndTime;
     }
 
-    public void setDsEndTime(DateSpinner dsEndTime) {
-        this.dsEndTime = dsEndTime;
-        this.dsEndTime.repaint();
-    }
+//    public void setDsEndTime(DateSpinner dsEndTime) {
+//        this.dsEndTime = dsEndTime;
+//        this.dsEndTime.repaint();
+//    }
 
     public DateSpinner getDsStartTime() {
-        return dsStartTime;
+        return dsStartTime; 
     }
 
-    public void setDsStartTime(DateSpinner dsStartTime) {
-        this.dsStartTime = dsStartTime;
-        this.dsStartTime.repaint();
-    }
+//    public void setDsStartTime(DateSpinner dsStartTime) {
+//        this.dsStartTime = dsStartTime;
+//        this.dsStartTime.repaint();
+//    }
 
     public TargetOptions(String machine) throws SQLException, ParseException {
         _machine = machine;
@@ -85,6 +85,7 @@ public class TargetOptions extends javax.swing.JPanel {
                 BorderFactory.createEmptyBorder(6, 4, 4, 4)));
         setTable();
         loadMachineBreakTime(_machine);
+//        getDsStartTime().setValue(new SimpleDateFormat("HH:mm").parse("20:30"));
     }
 
     @SuppressWarnings("unchecked")
@@ -318,7 +319,7 @@ public class TargetOptions extends javax.swing.JPanel {
                 + "FROM breaks, timebreaks\n"
                 + "WHERE breaks.BreaksNo = timebreaks.BreaksNo\n"
                 + "AND HwNo=? ORDER BY TimeBreaksNo ASC")) {
-            ps.setInt(1, ConnectDB.getMachineID(machine));
+            ps.setInt(1, ConnectDB.getIDMachine(machine));
             ConnectDB.res = ps.executeQuery();
             while (ConnectDB.res.next()) {
                 if (nbLine > sortableTable.getModel().getRowCount()) {

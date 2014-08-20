@@ -44,7 +44,7 @@ public class ViewData extends javax.swing.JDialog {
 //                }
 //            });
 //            timer.start();
-            Scrll.getViewport().setBackground(Color.white);
+            Scrll.getViewport().setBackground(Color.WHITE);
             Scrll.setViewportView(this.table);
         }
         btnExcel.setVisible(false);
@@ -166,7 +166,7 @@ public class ViewData extends javax.swing.JDialog {
             WritableSheet sheet;
             Label label;
             wbb = Workbook.createWorkbook(file);
-            String feuille = value;
+            String feuille = "Sheet1";
             sheet = wbb.createSheet(feuille, 0);
             for (int gh = 0; gh < table.getColumnCount(); gh++) {
                 int p = gh;
@@ -202,5 +202,4 @@ public class ViewData extends javax.swing.JDialog {
     private javax.swing.JPanel jPanel1;
     // End of variables declaration//GEN-END:variables
     private SortableTable table;
-    public static String value = "";
 }

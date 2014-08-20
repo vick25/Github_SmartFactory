@@ -18,10 +18,10 @@ public class ChangePasswordNewUser extends javax.swing.JDialog {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (!txtLoginID.getText().equals("")
-                        && !String.copyValueOf(txtOldPassword.getPassword()).equals("")
-                        && !String.copyValueOf(txtNewPassword.getPassword()).equals("")
-                        && !String.copyValueOf(txtRetypePassword.getPassword()).equals("")) {
+                if (!txtLoginID.getText().isEmpty()
+                        && !String.copyValueOf(txtOldPassword.getPassword()).isEmpty()
+                        && !String.copyValueOf(txtNewPassword.getPassword()).isEmpty()
+                        && !String.copyValueOf(txtRetypePassword.getPassword()).isEmpty()) {
                     btnValidate.setEnabled(true);
                 } else {
                     btnValidate.setEnabled(false);
@@ -208,7 +208,7 @@ public class ChangePasswordNewUser extends javax.swing.JDialog {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnCancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelActionPerformed
-        quitterSansChangement();
+        quitWithoutChange();
         this.dispose();
 }//GEN-LAST:event_btnCancelActionPerformed
 
@@ -225,24 +225,20 @@ public class ChangePasswordNewUser extends javax.swing.JDialog {
                                     + "", "Warning", JOptionPane.WARNING_MESSAGE);
                         } else {
                             String statusUser = "OldUser";
-                            try {
-                                PreparedStatement ps = ConnectDB.con.prepareStatement("UPDATE userlist "
-                                        + "SET password =? WHERE IDuser =?");
+                            try (PreparedStatement ps = ConnectDB.con.prepareStatement("UPDATE userlist "
+                                    + "SET password =? WHERE IDuser =?")) {
                                 ps.setString(1, ConnectDB.crypter(String.copyValueOf(txtNewPassword.getPassword())));
                                 ps.setInt(2, Integer.parseInt(idUser));
-                                int res1 = ps.executeUpdate();
-                                if (res1 == 1) {
-                                    ps = ConnectDB.con.prepareStatement("UPDATE userlist SET status =? WHERE IDuser =?");
-                                    ps.setString(1, statusUser);
-                                    ps.setInt(2, Integer.parseInt(idUser));
-                                    int result = ps.executeUpdate();
-                                    if (res1 == 1) {
+                                if (ps.executeUpdate() == 1) {
+                                    try (PreparedStatement ps1 = ConnectDB.con.prepareStatement("UPDATE userlist SET status =? WHERE IDuser =?")) {
+                                        ps1.setString(1, statusUser);
+                                        ps1.setInt(2, Integer.parseInt(idUser));
+                                        ps1.executeUpdate();
                                         JOptionPane.showMessageDialog(this, "The password was successfully updated"
                                                 + "", "Confirmation", JOptionPane.INFORMATION_MESSAGE);
                                         this.dispose();
                                     }
                                 }
-                                ps.close();
                             } catch (SQLException ex) {
                                 ConnectDB.catchSQLException(ex);
                             }
@@ -256,10 +252,10 @@ public class ChangePasswordNewUser extends javax.swing.JDialog {
 }//GEN-LAST:event_btnValidateActionPerformed
 
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
-        quitterSansChangement();
+        quitWithoutChange();
     }//GEN-LAST:event_formWindowClosing
 
-    private void quitterSansChangement() {
+    private void quitWithoutChange() {
         JOptionPane.showMessageDialog(this, "<html> <FONT size = 4> A new user is "
                 + "forced to change the \"Password\" received from the system administrator. <br>"
                 + "Security and privacy of information in this system is taken considerably. <br>"

@@ -9,7 +9,8 @@ import javax.swing.table.AbstractTableModel;
  */
 public class TableModelTarget extends AbstractTableModel {
 
-    String[] columnNames = {"No", "Machine(s)", "Start Time", "End Time", "<html><font color=red>Target Production Rate</font>",
+    String[] columnNames = {"No", "Machine(s)", "Production Start Time", "Production End Time", 
+        "<html><font color=red>Target Production Rate</font>",
         "<html><font color=blue>Target Daily Production</font>"};
     ArrayList[] Data;
 

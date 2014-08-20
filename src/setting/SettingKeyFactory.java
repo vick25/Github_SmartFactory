@@ -64,5 +64,6 @@ public class SettingKeyFactory {
         public static final String DEFAULTDIRECTORY = "SMF.SettingKeyFactory.DefaultProperties.DEFAULTDIRECTORY";
         public static final String PRODPANESET = "SMF.SettingKeyFactory.DefaultProperties.PRODPANESET";
         public static final String MODULES = "SMF.SettingKeyFactory.DefaultProperties.MODULES";
+        public static final String TARGETTIMEUNIT = "SMF.SettingKeyFactory.DefaultProperties.TARGETTIMEUNIT";
     }
 }

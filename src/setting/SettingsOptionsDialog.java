@@ -18,16 +18,15 @@ import java.awt.event.ActionListener;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import javax.swing.AbstractAction;
+import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
-import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.border.BevelBorder;
 import mainFrame.MainFrame;
 import setting.panel.ConnectionPanel;
 import setting.panel.FontColorPanel;
 import setting.panel.GeneralPanel;
-import setting.panel.LanguagePanel;
 import setting.panel.PrivacyPanel;
 import setting.panel.ThemePanel;
 import smartfactoryV2.ConnectDB;
@@ -75,10 +74,10 @@ public class SettingsOptionsDialog extends MultiplePageDialog {
                 dispose();
             }
         };
-        ((JButton) buttonPanel.getButtonByName(ButtonNames.OK)).setFocusable(false);
-        ((JButton) buttonPanel.getButtonByName(ButtonNames.CANCEL)).setFocusable(false);
-        ((JButton) buttonPanel.getButtonByName(ButtonNames.OK)).setAction(okAction);
-        ((JButton) buttonPanel.getButtonByName(ButtonNames.CANCEL)).setAction(cancelAction);
+        buttonPanel.getButtonByName(ButtonNames.OK).setFocusable(false);
+        buttonPanel.getButtonByName(ButtonNames.CANCEL).setFocusable(false);
+        ((AbstractButton) buttonPanel.getButtonByName(ButtonNames.OK)).setAction(okAction);
+        ((AbstractButton) buttonPanel.getButtonByName(ButtonNames.CANCEL)).setAction(cancelAction);
         setDefaultCancelAction(cancelAction);
         setDefaultAction(okAction);
         this.getApplyButton().setFocusable(false);
@@ -115,7 +114,7 @@ public class SettingsOptionsDialog extends MultiplePageDialog {
     }
 
     public static void showOptionsDialog() {
-        SettingsOptionsDialog dialog = new SettingsOptionsDialog(MainFrame._frame, "Settings");
+        SettingsOptionsDialog dialog = new SettingsOptionsDialog(MainFrame.getFrame(), "Settings");
         dialog.setIconImage(SettingIconsFactory.getImageIcon(SettingIconsFactory.Options.DIALOGICON).getImage());
         dialog.setStyle(MultiplePageDialog.ICON_STYLE);
         PageList model = new PageList();
@@ -139,18 +138,17 @@ public class SettingsOptionsDialog extends MultiplePageDialog {
 
         dialog.setPageList(model);
         dialog.pack();
-//        JideSwingUtilities.globalCenterWindow(dialog);
-        dialog.setLocationRelativeTo(MainFrame._frame);
+        dialog.setLocationRelativeTo(MainFrame.getFrame());
         dialog.setVisible(true);
     }
 
     private static class OptionPage extends AbstractDialogPage {
 
-        public OptionPage(String name) {
+        OptionPage(String name) {
             super(name);
         }
 
-        public OptionPage(String name, Icon icon) {
+        OptionPage(String name, Icon icon) {
             super(name, icon);
         }
 
@@ -172,7 +170,7 @@ public class SettingsOptionsDialog extends MultiplePageDialog {
 
     private static class OptionPageGeneral extends OptionPage {
 
-        public OptionPageGeneral(String name, Icon icon) {
+        OptionPageGeneral(String name, Icon icon) {
             super(name, icon);
             general = new GeneralPanel(this);
         }
@@ -186,7 +184,7 @@ public class SettingsOptionsDialog extends MultiplePageDialog {
 
     private static class OptionPagePrivacy extends OptionPage {
 
-        public OptionPagePrivacy(String name, Icon icon) {
+        OptionPagePrivacy(String name, Icon icon) {
             super(name, icon);
             privacy = new PrivacyPanel(this);
         }
@@ -200,7 +198,7 @@ public class SettingsOptionsDialog extends MultiplePageDialog {
 
     private static class OptionPageTheme extends OptionPage {
 
-        public OptionPageTheme(String name, Icon icon) {
+        OptionPageTheme(String name, Icon icon) {
             super(name, icon);
             theme = new ThemePanel(this);
         }
@@ -214,7 +212,7 @@ public class SettingsOptionsDialog extends MultiplePageDialog {
 
     private static class OptionPageFontColor extends OptionPage {
 
-        public OptionPageFontColor(String name, Icon icon) {
+        OptionPageFontColor(String name, Icon icon) {
             super(name, icon);
             fontColor = new FontColorPanel(this);
         }
@@ -228,7 +226,7 @@ public class SettingsOptionsDialog extends MultiplePageDialog {
 
     private static class OptionPageConnection extends OptionPage {
 
-        public OptionPageConnection(String name, Icon icon) {
+        OptionPageConnection(String name, Icon icon) {
             super(name, icon);
             connection = new ConnectionPanel(this);
         }
@@ -300,11 +298,11 @@ public class SettingsOptionsDialog extends MultiplePageDialog {
         } else {
             ConnectDB.pref.putBoolean(SettingKeyFactory.Privacy.SAVEUSERNAMETRUE, PrivacyPanel.radRememberUserName.isSelected());
             if (PrivacyPanel.radRememberUserName.isSelected()) {
-                ConnectDB.pref.put(SettingKeyFactory.Privacy.SAVEUSERNAME, getUserLogin(MainFrame.idUser));
+                ConnectDB.pref.put(SettingKeyFactory.Privacy.SAVEUSERNAME, getUserLogin(MainFrame.getUserID()));
                 ConnectDB.pref.put(SettingKeyFactory.Privacy.SAVEUSERNAMEPASSWORD, "");
             } else {
-                ConnectDB.pref.put(SettingKeyFactory.Privacy.SAVEUSERNAME, getUserLogin(MainFrame.idUser));
-                ConnectDB.pref.put(SettingKeyFactory.Privacy.SAVEUSERNAMEPASSWORD, getPassword(MainFrame.idUser));
+                ConnectDB.pref.put(SettingKeyFactory.Privacy.SAVEUSERNAME, getUserLogin(MainFrame.getUserID()));
+                ConnectDB.pref.put(SettingKeyFactory.Privacy.SAVEUSERNAMEPASSWORD, getPassword(MainFrame.getUserID()));
             }
         }
     }
@@ -359,16 +357,16 @@ public class SettingsOptionsDialog extends MultiplePageDialog {
     private void setColorFromKey(Color color, String key) {
         ConnectDB.pref.put(key, color.getRed() + ", " + color.getGreen() + ", " + color.getBlue());
     }
+//
+//    public static void main(String[] argv) {
+//        LookAndFeelFactory.installDefaultLookAndFeel();
+//        showOptionsDialog();
+//    }
 
-    public static void main(String[] argv) {
-        LookAndFeelFactory.installDefaultLookAndFeel();
-        showOptionsDialog();
-    }
-
-    static ThemePanel theme;
-    static PrivacyPanel privacy;
-    static LanguagePanel language;
-    static GeneralPanel general;
-    static FontColorPanel fontColor;
-    static ConnectionPanel connection;
+    private static ThemePanel theme;
+    private static PrivacyPanel privacy;
+//    private static LanguagePanel language;
+    private static GeneralPanel general;
+    private static FontColorPanel fontColor;
+    private static ConnectionPanel connection;
 }

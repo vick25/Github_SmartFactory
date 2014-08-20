@@ -42,6 +42,7 @@ import java.sql.SQLException;
 import java.text.DateFormatSymbols;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
@@ -50,33 +51,47 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
+import javax.swing.ToolTipManager;
 import login.Identification;
-import productionPanel.ProductionPane;
 import setting.SettingKeyFactory;
 import smartfactoryV2.ConnectDB;
-import static smartfactoryV2.ConnectDB.lookAndFeel;
-import static smartfactoryV2.ConnectDB.pref;
-import static smartfactoryV2.ConnectDB.tempDir;
+import smartfactoryV2.SplashScreen;
 import user.CreateUser;
 import userguide.About;
 
 public class MainFrame extends DefaultDockableBarDockableHolder {
 
+    public static MainFrame getFrame() {
+        return _frame;
+    }
+
     public static DocumentPane getDocumentPane() {
         return _documentPane;
     }
 
-    public MainFrame(int idUser) throws HeadlessException {
+    public static int getUserID() {
+        return _UserID;
+    }
+
+    public static Date getDashBoardDate() {
+        return dashBoardDate;
+    }
+
+    public static void setDashBoardDate(Date dashBoardDate) {
+        MainFrame.dashBoardDate = dashBoardDate;
+    }
+
+    public MainFrame(int UserID) throws HeadlessException {
         ConnectDB.getConnectionInstance();
-        MainFrame.idUser = idUser;
-        lookAndFeel = pref.getInt(SettingKeyFactory.Theme.LOOKANDFEEL, lookAndFeel);
-        LookAndFeelFactory.installJideExtension(lookAndFeel);//Set the theme
+        MainFrame._UserID = UserID;
     }
 
     public DefaultDockableBarDockableHolder showFrame() throws SQLException {
-        _frame = Identification._mainFrame;
-        _frame.setTitle("Smartfactory Production Report Tool 1.0");
+        _frame = Identification.getMainFrame();
+        _frame.setTitle("Smartfactory Production Report Tool 2.0");
         _frame.setIconImage(new ImageIcon(_frame.getClass().getResource("/images/smart_factory_logo_icon.png")).getImage());
+        // add toolbar
+        MainFrameCommandBarFactory.setParent(_frame);
         // add a window listener to do clear up when windows closing.
         _windowListener = new WindowAdapter() {
 
@@ -85,14 +100,21 @@ public class MainFrame extends DefaultDockableBarDockableHolder {
                 super.windowClosing(e);
                 actionExit();
             }
+        };
+        _frame.addMouseMotionListener(new MouseAdapter() {
+            final int defaultDismissTimeout = ToolTipManager.sharedInstance().getDismissDelay();
+            final int dismissDelayMinutes = (int) TimeUnit.MINUTES.toMillis(1);// 1 minutes
 
             @Override
-            public void windowLostFocus(WindowEvent e) {
-                if (productionPane != null) {
-                    productionPane.viewData.setVisible(false);
-                }
+            public void mouseEntered(MouseEvent me) {
+                ToolTipManager.sharedInstance().setDismissDelay(dismissDelayMinutes);
             }
-        };
+
+            @Override
+            public void mouseExited(MouseEvent me) {
+                ToolTipManager.sharedInstance().setDismissDelay(defaultDismissTimeout);
+            }
+        });
         _frame.addWindowListener(_windowListener);
         // set the profile key
         _frame.getLayoutPersistence().setProfileKey(PROFILE_NAME);
@@ -113,8 +135,6 @@ public class MainFrame extends DefaultDockableBarDockableHolder {
         //hide two toolbar
 //        _frame.getDockableBarManager().hideDockableBar("Tools");
 //        _frame.getDockableBarManager().hideDockableBar("Options");
-        // add toolbar
-        cbf = new MainFrameCommandBarFactory(_frame);
         _frame.getDockableBarManager().addDockableBar(MainFrameCommandBarFactory.createMenuCommandBar());
         _frame.getDockableBarManager().addDockableBar(MainFrameCommandBarFactory.createStandardCommandToolBar());
 //        _frame.getDockableBarManager().addDockableBar(MainFrameCommandBarFactory.createOptionsCommandBar());
@@ -122,18 +142,20 @@ public class MainFrame extends DefaultDockableBarDockableHolder {
         // add status bar
         _statusBar = createStatusBar();
         _frame.getContentPane().add(_statusBar, BorderLayout.AFTER_LAST_LINE);
+
         _frame.getDockingManager().getWorkspace().setAdjustOpacityOnFly(true);
-        _frame.getDockingManager().setUndoLimit(10);
+//        _frame.getDockingManager().setUndoLimit(10);
         _frame.getDockingManager().beginLoadLayoutData();
         // add all dockable frames
 //        _frame.getDockingManager().addFrame(MainFrameCommandBarFactory.createFrameMenuTree());
         _frame.getDockingManager().addFrame(MainFrameCommandBarFactory.createFrameMenuMain());
+
         _frame.getDockingManager().setShowGripper(true);
         _frame.getDockingManager().setOutlineMode(DockingManager.TRANSPARENT_OUTLINE_MODE);
         _frame.getDockingManager().setPopupMenuCustomizer(new com.jidesoft.docking.PopupMenuCustomizer() {
 
             @Override
-            public void customizePopupMenu(JPopupMenu menu, final DockingManager dockingManager, 
+            public void customizePopupMenu(JPopupMenu menu, final DockingManager dockingManager,
                     final DockableFrame dockableFrame, boolean onTab) {
                 menu.addSeparator();
                 menu.add(new AbstractAction("Move to Document Area") {
@@ -161,18 +183,18 @@ public class MainFrame extends DefaultDockableBarDockableHolder {
 //        JideSwingUtilities.globalCenterWindow(_frame);
         return _frame;
     }
-    
+
     private static void clearUp(String close) {
+        if (_frame.getLayoutPersistence() != null) {
+            _frame.getLayoutPersistence().saveLayoutData();
+        }
         if ("logout".equals(close)) {
-            Identification._mainFrame = _frame;
+            Identification.setMainFrame(_frame);
             _frame.setVisible(false);
             return;
         }
         _frame.removeWindowListener(_windowListener);
         _windowListener = null;
-        if (_frame.getLayoutPersistence() != null) {
-            _frame.getLayoutPersistence().saveLayoutData();
-        }
         if (_documentPane != null) {
             _documentPane.dispose();
             _documentPane = null;
@@ -186,7 +208,7 @@ public class MainFrame extends DefaultDockableBarDockableHolder {
         _frame = null;
     }
 
-    public static StatusBar createStatusBar() {
+    private StatusBar createStatusBar() {
         StatusBar statusBar = new StatusBar();
         lblStatus = new LabelStatusBarItem("Status");
         lblStatus.setFont(new Font("Tahoma", 0, 11));
@@ -197,9 +219,10 @@ public class MainFrame extends DefaultDockableBarDockableHolder {
         progress = new ProgressStatusBarItem();
         statusBar.add(progress, JideBoxLayout.VARY);
 
-        labelServer = new LabelStatusBarItem("Line");
+        final LabelStatusBarItem labelServer = new LabelStatusBarItem("Line");
         labelServer.setFont(new Font("Tahoma", 0, 11));
-        labelServer.setText(serverConnectionLabel);
+        labelServer.setText("<html><font color=black><strong>Connected @ "
+                + ConnectDB.pref.get("IPServerAddress", ConnectDB.serverIP) + "</strong></font>");
         labelServer.setAlignment(JLabel.CENTER);
         statusBar.add(labelServer, JideBoxLayout.FLEXIBLE);
 
@@ -210,7 +233,7 @@ public class MainFrame extends DefaultDockableBarDockableHolder {
 
         timeStatusBar = new TimeStatusBarItem();
         timeStatusBar.setTextFormat(new SimpleDateFormat(ConnectDB.pref.get(SettingKeyFactory.General.DATEFORMAT,
-                "MMMM dd, yyyy") + "  HH:mm:ss aa"));
+                "MMMM dd, yyyy") + " HH:mm:ss aa"));
         statusBar.add(timeStatusBar, JideBoxLayout.FLEXIBLE);
 
         final MemoryStatusBarItem gc = new MemoryStatusBarItem();
@@ -242,11 +265,12 @@ public class MainFrame extends DefaultDockableBarDockableHolder {
             protected IDocumentGroup createDocumentGroup() {
                 IDocumentGroup group = super.createDocumentGroup();
                 if (group instanceof JideTabbedPane) {
-                    ((JideTabbedPane) group).addMouseListener(new MouseAdapter() {
+                    ((Component) group).addMouseListener(new MouseAdapter() {
 
                         @Override
                         public void mouseClicked(MouseEvent e) {
                             if (SwingUtilities.isLeftMouseButton(e) && e.getClickCount() == 2) {
+                                byte[] _fullScreenLayout = null;
                                 if (!_autohideAll) {
                                     _fullScreenLayout = _frame.getDockingManager().getLayoutRawData();
                                     _frame.getDockingManager().autohideAll();
@@ -360,46 +384,6 @@ public class MainFrame extends DefaultDockableBarDockableHolder {
             }
         });
     }
-//
-//    public static void actionSearchEdit() {
-//        if (!_documentPane.isDocumentOpened("Search and Edit")) {
-//            final DocumentComponent document = new DocumentComponent(new SearchEdit(_frame), "Search and Edit", "Search and Edit"
-//                    + "", new ImageIcon(_frame.getClass().getResource("/images/search16x16.png")));
-//            _documentPane.openDocument(document);
-//            CONFIRMCLOSETAB(document);
-//        }
-//        _documentPane.setActiveDocument("Search and Edit");
-//    }
-//    public static void actionStatistic() {
-//        if (!_documentPane.isDocumentOpened("Statistic")) {
-//            final DocumentComponent document = new DocumentComponent(new Statistic(_frame), "Statistic", "Statistic"
-//                    + "", new ImageIcon(_frame.getClass().getResource("/images/kchart12.png")));
-//            _documentPane.openDocument(document);
-//            CONFIRMCLOSETAB(document);
-//        }
-//        _documentPane.setActiveDocument("Statistic");
-//    }
-//
-//    public static void actionTemplate() {
-//        if (!_documentPane.isDocumentOpened("Template")) {
-//            final DocumentComponent document = new DocumentComponent(new Template(), "Template", "Template"
-//                    + "", new ImageIcon(_frame.getClass().getResource("/images/bookmark-add12.png")));
-//            _documentPane.openDocument(document);
-//            CONFIRMCLOSETAB(document);
-//        }
-//        _documentPane.setActiveDocument("Template");
-//    }
-//
-//    public static void actionDoc() {
-//        if (!_documentPane.isDocumentOpened("Documentation")) {
-//            final DocumentComponent document = new DocumentComponent(new Docs(_frame), "Documentation", "Documentation"
-//                    + "", new ImageIcon(_frame.getClass().getResource("/images/bookcase16x16.png")));
-//            _documentPane.openDocument(document);
-//            CONFIRMCLOSETAB(document);
-//        }
-//        _documentPane.setActiveDocument("Documentation");
-//    }
-//    
 
     public static void actionSetting() {
         setting.SettingsOptionsDialog.showOptionsDialog();
@@ -412,16 +396,9 @@ public class MainFrame extends DefaultDockableBarDockableHolder {
             Identification.quickViewFrame.dispose();
             Identification.quickViewFrame = null;
         }
-        _frame = Identification._mainFrame = new MainFrame(1);
+        Identification.setMainFrame(new MainFrame(SplashScreen.getIdentification().getUserID()));
+        _frame = Identification.getMainFrame();
         _frame.showFrame();
-
-//        if (!_documentPane.isDocumentOpened("Training")) {
-//            final DocumentComponent document = new DocumentComponent(new Training(_frame), "Training", "Training"
-//                    + "", new ImageIcon(_frame.getClass().getResource("/images/document_new12.png")));
-//            _documentPane.openDocument(document);
-//            CONFIRMCLOSETAB(document);
-//        }
-//        _documentPane.setActiveDocument("Training");
     }
 
     public static void actionOpenWorkingFolder() {
@@ -447,77 +424,14 @@ public class MainFrame extends DefaultDockableBarDockableHolder {
 //            }
 //        }
     }
-//
-//    public static void actionSaveProperties() {
-//        if (Training.pathFile.equals("")) {
-//            JFileChooser fc = new JFileChooser();
-//            fc.setFileFilter(new FileNameExtensionFilter("OSFAC TMT File(.tmt)", "tmt"));
-////            fc.setSelectedFile(new File(nameFileToTitle + ".tmt"));
-//            int result = fc.showSaveDialog(_frame);
-//            if (result == JFileChooser.APPROVE_OPTION) {
-//                String choose = fc.getSelectedFile().getAbsolutePath();
-//                if (fc.getSelectedFile().exists()) {
-//                    if (JOptionPane.showConfirmDialog(_frame, "The file " + fc.getSelectedFile().getName() + " already exists, "
-//                            + "would you like to overwrite it?", "Confirmation", 0) == 0) {
-//                        if (!choose.endsWith(".tmt")) {
-//                            choose = choose + ".tmt";
-//                        }
-//                        Training.pathFile = choose;
-//                        saveProperties(Training.pathFile, Training.propertiesToSave);
-//                    } else {
-//                        actionSaveProperties();
-//                    }
-//                } else {
-//                    if (!choose.endsWith(".tmt")) {
-//                        choose = choose + ".tmt";
-//                    }
-//                    Training.pathFile = choose;
-//                    saveProperties(Training.pathFile, Training.propertiesToSave);
-//                }
-//            }
-//        } else {
-//            saveProperties(Training.pathFile, Training.propertiesToSave);
-//        }
-//    }
-//
-//    public static void actionSaveAsProperties() {
-//        JFileChooser fc = new JFileChooser();
-//        fc.setFileFilter(new FileNameExtensionFilter("File(.tmt)", "tmt"));
-//        int result = fc.showSaveDialog(_frame);
-//        if (result == JFileChooser.APPROVE_OPTION) {
-//            String choose = fc.getSelectedFile().getAbsolutePath();
-//            if (fc.getSelectedFile().exists()) {
-//                if (JOptionPane.showConfirmDialog(_frame, "The file " + fc.getSelectedFile().getName() + " already exists, "
-//                        + "would you like to overwrite it?", "Confirmation", 0) == 0) {
-//                    if (!choose.endsWith(".tmt")) {
-//                        choose = choose + ".tmt";
-//                    }
-//                    Training.pathFile = choose;
-//                    Training.propertiesToSavePrevious = Training.propertiesToSave;
-//                    saveProperties(Training.pathFile, Training.propertiesToSavePrevious);
-//                } else {
-//                    actionSaveAsProperties();
-//                }
-//            } else {
-//                if (!choose.endsWith(".tmt")) {
-//                    choose = choose + ".tmt";
-//                }
-//                Training.pathFile = choose;
-//                Training.propertiesToSavePrevious = Training.propertiesToSave;
-//                saveProperties(Training.pathFile, Training.propertiesToSavePrevious);
-//            }
-//        }
-//    }
 
     public static void actionLogOut() {
         if (Identification.quickViewFrame != null) {
             Identification.quickViewFrame.setVisible(false);
         }
         clearUp("logout");
-        Identification.okID = false;
-        Identification.saveFrame = true;
-        Identification iDialog = new Identification(_frame, false);
-        iDialog.setVisible(true);
+        SplashScreen.getIdentification().okID = false;
+        Identification.setShowMainFrame(_frame);
     }
 
     public static void actionExit() {
@@ -547,18 +461,6 @@ public class MainFrame extends DefaultDockableBarDockableHolder {
         }
     }
 
-//    public static void actionUndo() {
-//        Training.setPropertiesSaved(Training.vectorAction.elementAt(--Training.indexCurrentAction));
-//    }
-//
-//    public static void actionRedo() {
-//        Training.setPropertiesSaved(Training.vectorAction.elementAt(++Training.indexCurrentAction));
-//    }
-//    
-//    public static void actionExportData() {
-////        new ExportImportData(_frame, true).setVisible(true);
-//    }
-//
     public static void actionCreateUser() {
         new CreateUser(_frame, true).setVisible(true);
     }
@@ -567,23 +469,25 @@ public class MainFrame extends DefaultDockableBarDockableHolder {
 ////        new ChangePassword(_frame, true).setVisible(true);
 //    }
 //
+
     public static void actionHelp() {
         try {
+            String dirIcon = null;
             InputStream inputStream = null;
             OutputStream outputStream = null;
             try {
-                tempDir = new File(ConnectDB.DEFAULTDIRECTORY + File.separator + "SmartFactory Data");
-                if (!tempDir.exists()) {
-                    tempDir.mkdirs();
+                ConnectDB.setMainDir(new File(ConnectDB.DEFAULTDIRECTORY + File.separator + "SmartFactory Data"));
+                if (!ConnectDB.getMainDir().exists()) {
+                    ConnectDB.getMainDir().mkdirs();
                 }
-                dirIcon = tempDir.getAbsolutePath() + File.separator + "SmartFactory_Report_User_Guide.pdf";
+                dirIcon = ConnectDB.getMainDir().getAbsolutePath() + File.separator + "SmartFactory_Report_User_Guide.pdf";
                 if (!new File(dirIcon).exists()) {
                     inputStream = MainFrame.class.getResourceAsStream("/userguide/SmartFactory_Report_User_Guide.pdf");
                     outputStream = new FileOutputStream(new File(dirIcon));
-                    int read;
+                    int readFile;
                     byte[] bytes = new byte[4096];
-                    while ((read = inputStream.read(bytes)) != -1) {
-                        outputStream.write(bytes, 0, read);
+                    while ((readFile = inputStream.read(bytes)) != -1) {
+                        outputStream.write(bytes, 0, readFile);
                     }
                 }
             } catch (IOException e) {
@@ -610,8 +514,7 @@ public class MainFrame extends DefaultDockableBarDockableHolder {
                 if (Desktop.isDesktopSupported()) {
                     Desktop.getDesktop().open(fileToOpen);
                 } else {
-                    JOptionPane.showMessageDialog(_frame, "Can not open this file. "
-                            + "Please export it to your machine.",
+                    JOptionPane.showMessageDialog(_frame, "Can not open this file. Please export it to your machine.",
                             "File", JOptionPane.ERROR_MESSAGE);
                 }
             } else {
@@ -627,90 +530,34 @@ public class MainFrame extends DefaultDockableBarDockableHolder {
         new About(_frame, true).setVisible(true);
     }
 
-    public static void actionCheckUpdate() {
-    }
-
-//    private static void saveProperties(String dest, String values) {
-//        FileWriter monFichier = null;
-//        BufferedWriter TAMPON = null;
-//        try {
-//            monFichier = new FileWriter(dest);
-//            TAMPON = new BufferedWriter(monFichier);
-//            TAMPON.write(values);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        } finally {
-//            try {
-//                TAMPON.flush();
-//                TAMPON.close();
-//                monFichier.close();
-//                Training.propertiesToSave = values;
-//                Training.propertiesToSavePrevious = Training.propertiesToSave;
-//                progress.setProgress(100);
-//            } catch (IOException ex) {
-//                ex.printStackTrace();
-//            }
-//        }
+//    public static void actionCheckUpdate() {
 //    }
-//    private static void openFileProperties(String choose) {
-//        DataInputStream monFichier = null;
-//        String textFile = "";
-//        try {
-//            monFichier = new DataInputStream(new FileInputStream(choose));
-//            int nbbit;
-//            byte tbyte[] = new byte[1024 * 8];
-//            while (((nbbit = monFichier.read(tbyte)) != -1)) {
-//                textFile = new String(tbyte, 0, nbbit);
-//            }
-//            Training.setPropertiesSaved(textFile);
+//    public static void main(String[] args) {
+//        SwingUtilities.invokeLater(new Runnable() {
 //
-//            Training.pathFile = choose;
-//            Training.propertiesToSave = textFile;
-//            Training.propertiesToSavePrevious = Training.propertiesToSave;
-//        } catch (IOException exception) {
-//            exception.printStackTrace();
-//        } finally {
-//            try {
-//                monFichier.close();
-//            } catch (IOException exception1) {
-//                exception1.printStackTrace();
+//            @Override
+//            public void run() {
+//                try {
+////                    System.out.println(System.getProperty("user.home") + File.separator + "error.log");
+//                    LookAndFeelFactory.installDefaultLookAndFeelAndExtension();
+//                    new MainFrame(1).showFrame();
+//                } catch (HeadlessException ex) {
+//                    ex.printStackTrace();
+//                } catch (SQLException ex) {
+//                    ConnectDB.catchSQLException(ex);
+//                }
 //            }
-//        }
+//        });
 //    }
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(new Runnable() {
-
-            @Override
-            public void run() {
-                try {
-//                    System.out.println(System.getProperty("user.home") + File.separator + "error.log");
-                    com.jidesoft.utils.Lm.verifyLicense("OSFAC", "OSFAC-DMT", "vx1xhNgC4CtD2SQc.kC5mp99mO0Bs1d2");
-                    LookAndFeelFactory.installDefaultLookAndFeelAndExtension();
-                    new MainFrame(1).showFrame();
-                } catch (HeadlessException ex) {
-                    ex.printStackTrace();
-                } catch (SQLException ex) {
-                    ConnectDB.catchSQLException(ex);
-                }
-            }
-        });
-    }
-
-    static String dirIcon = "";
-    public static int idUser = 1;
+    private static int _UserID = 1;
     private static WindowAdapter _windowListener;
     private static final String PROFILE_NAME = "SMF_Main_Frame";
-    private static byte[] _fullScreenLayout;
     private static boolean _autohideAll = false;
-    static MainFrameCommandBarFactory cbf;
-    static TimeStatusBarItem timeStatusBar;
-    static String serverConnectionLabel = "<html><font color=black><strong>Connected @ "
-            + ConnectDB.pref.get("IPServerAddress", ConnectDB.serverIP) + "</strong></font>";
-    public static MainFrame _frame;
-    public static Date dashBoardDate;
-    public static LabelStatusBarItem labelServer, lblStatus;
-    public static StatusBar _statusBar;
-    public static ProductionPane productionPane;
-    public static ProgressStatusBarItem progress;
+    private static TimeStatusBarItem timeStatusBar;
+    private static MainFrame _frame;
+    private static Date dashBoardDate = null;
+    private static LabelStatusBarItem lblStatus;
+    private static StatusBar _statusBar;
+    private ProgressStatusBarItem progress;
     private static DocumentPane _documentPane;
 }

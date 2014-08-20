@@ -34,6 +34,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -46,13 +47,13 @@ import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.xml.parsers.ParserConfigurationException;
 import mainFrame.MainFrame;
-import mainFrame.ShortCutPanel;
+import mainFrame.MainMenuPanel;
 import org.xml.sax.SAXException;
-import target.Target;
 import resources.Constants;
 import resources.ReadPropertiesFile;
 import setting.SettingKeyFactory;
 import smartfactoryV2.ConnectDB;
+import target.Target;
 
 /**
  *
@@ -228,7 +229,7 @@ public class DashBoardSettings extends javax.swing.JDialog {
 //                    chooser.setCurrentDirectory(new File(_lastDirectory));
                     chooser.setFileFilter(new FileNameExtensionFilter("XML files", "xml"));
                     chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-                    int result = chooser.showDialog(((JButton) e.getSource()).getTopLevelAncestor(), "Save");
+                    int result = chooser.showDialog(((JComponent) e.getSource()).getTopLevelAncestor(), "Save");
                     if (result == JFileChooser.APPROVE_OPTION) {
                         _lastDirectory = chooser.getCurrentDirectory().getAbsolutePath();
                         DashboardPersistenceUtils.save(_tabbedPane, chooser.getSelectedFile().getAbsolutePath() + ".xml");
@@ -257,7 +258,7 @@ public class DashBoardSettings extends javax.swing.JDialog {
 //                    chooser.setCurrentDirectory(new File(_lastDirectory));
                     chooser.setFileFilter(new FileNameExtensionFilter("XML files", "xml"));
                     chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-                    int result = chooser.showDialog(((JButton) e.getSource()).getTopLevelAncestor(), "Open");
+                    int result = chooser.showDialog(((JComponent) e.getSource()).getTopLevelAncestor(), "Open");
                     if (result == JFileChooser.APPROVE_OPTION) {
                         _lastDirectory = chooser.getCurrentDirectory().getAbsolutePath();
                         DashboardPersistenceUtils.load(_tabbedPane, chooser.getSelectedFile().getAbsolutePath());
@@ -284,7 +285,7 @@ public class DashBoardSettings extends javax.swing.JDialog {
                     DashBoard.bslTime.setText("Scheduler of " + Constants.timetoquery + " is running "
                             + "to refresh the chart(s) if any is shown...");
                     timeUpdated = true;
-                    MainFrame.dashBoardDate = DashBoard.dtSpinner.getDate();
+                    MainFrame.setDashBoardDate(DashBoard.dtSpinner.getDate());
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }
@@ -404,10 +405,10 @@ public class DashBoardSettings extends javax.swing.JDialog {
                     Thread.sleep(2000);
                 } catch (InterruptedException ex) {
                 }
-                ShortCutPanel.showDashBoard();
+                MainMenuPanel.showDashBoard();
                 timeUpdated = false;
-                DashboardPersistenceUtils.load(DashBoard._colDashBoard._tabbedPane, temp.getAbsolutePath());
-                DashBoard._colDashBoard._tabbedPane.revalidate();
+                DashboardPersistenceUtils.load(DashBoard.getColDashBoard()._tabbedPane, temp.getAbsolutePath());
+                DashBoard.getColDashBoard()._tabbedPane.revalidate();
                 temp.deleteOnExit();
             } catch (ParserConfigurationException | IOException | SAXException ex) {
                 Logger.getLogger(DashBoardSettings.class.getName()).log(Level.SEVERE, null, ex);

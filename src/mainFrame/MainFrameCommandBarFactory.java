@@ -26,6 +26,7 @@ import javax.swing.AbstractAction;
 import javax.swing.AbstractButton;
 import javax.swing.ButtonGroup;
 import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JMenu;
@@ -36,12 +37,14 @@ import javax.swing.JRadioButtonMenuItem;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import login.Identification;
 import org.w3c.dom.Document;
 import smartfactoryV2.ConnectDB;
+import smartfactoryV2.SplashScreen;
 
 public class MainFrameCommandBarFactory extends CommandBarFactory {
 
-    public MainFrameCommandBarFactory(MainFrame parent) {
+    public static void setParent(MainFrame parent) {
         MainFrameCommandBarFactory.parent = parent;
     }
 
@@ -199,6 +202,8 @@ public class MainFrameCommandBarFactory extends CommandBarFactory {
             @Override
             public void actionPerformed(ActionEvent e) {
                 MainFrame.actionLogOut();
+                Identification.setFrameSaved(true);
+                SplashScreen.getIdentification().setVisible(true);
             }
         });
         fileMenu.add(MILogout);
@@ -215,160 +220,35 @@ public class MainFrameCommandBarFactory extends CommandBarFactory {
         fileMenu.add(MIExit);
         return fileMenu;
     }
-
-//    private static JideMenu createEditMenu() {
-//        JideMenu editMenu = new JideMenu("Edit");
-//        MIUndo = new JMenuItem();
-//        MIRedo = new JMenuItem();
-//        JMenuItem MICut = new JMenuItem();
-//        JMenuItem MICopy = new JMenuItem();
-//        JMenuItem MIPaste = new JMenuItem();
-//        Separator jSeparator4 = new Separator();
-//        MIUndo.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Z, java.awt.event.InputEvent.CTRL_MASK));
-//        MIUndo.setIcon(MainFrameIconsFactory.getImageIcon(MainFrameIconsFactory.Standard.UNDO)); // NOI18N
-//        MIUndo.setText("Undo");
-//        MIUndo.addActionListener(new ActionListener() {
-//
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//                MainFrame.actionUndo();
-//            }
-//        });
-//        MIUndo.setEnabled(false);
-//        editMenu.add(MIUndo);
-//        MIRedo.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Y, java.awt.event.InputEvent.CTRL_MASK));
-//        MIRedo.setIcon(MainFrameIconsFactory.getImageIcon(MainFrameIconsFactory.Standard.REDO)); // NOI18N
-//        MIRedo.setText("Redo");
-//        MIRedo.addActionListener(new ActionListener() {
-//
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//                MainFrame.actionRedo();
-//            }
-//        });
-//        MIRedo.setEnabled(false);
-//        editMenu.add(MIRedo);
-//        editMenu.add(jSeparator4);
-//        MICut.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_X, java.awt.event.InputEvent.CTRL_MASK));
-//        MICut.setIcon(MainFrameIconsFactory.getImageIcon(MainFrameIconsFactory.Standard.CUT)); // NOI18N
-//        MICut.setText("Cut");
-//        MICut.setEnabled(false);
-//        editMenu.add(MICut);
-//        MICopy.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_C, java.awt.event.InputEvent.CTRL_MASK));
-//        MICopy.setIcon(MainFrameIconsFactory.getImageIcon(MainFrameIconsFactory.Standard.COPY)); // NOI18N
-//        MICopy.setText("Copy");
-//        MICopy.setEnabled(false);
-//        editMenu.add(MICopy);
-//        MIPaste.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_V, java.awt.event.InputEvent.CTRL_MASK));
-//        MIPaste.setIcon(MainFrameIconsFactory.getImageIcon(MainFrameIconsFactory.Standard.PASTE)); // NOI18N
-//        MIPaste.setText("Paste");
-//        MIPaste.setEnabled(false);
-//        editMenu.add(MIPaste);
-//        return editMenu;
-//    }
-//    
-//    private static JideMenu createOptionMenu() {
-//        JideMenu menu = new JideMenu("Options");
-//        JMenuItem MISerachEdit = new JMenuItem();
-//        JMenuItem MIDoc = new JMenuItem();
-//        JMenuItem MITemplate = new JMenuItem();
-//        JMenuItem MIStatistic = new JMenuItem();
-//        JMenuItem MISettings = new JMenuItem();
-//        Separator jSeparator4 = new Separator();
-//        MISerachEdit.setIcon(MainFrameIconsFactory.getImageIcon(MainFrameIconsFactory.Standard.SEARCHEDIT)); // NOI18N
-//        MISerachEdit.setText("Search and Edit");
-//        MISerachEdit.addActionListener(new ActionListener() {
-//
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//                MainFrame.actionSearchEdit();
-//            }
-//        });
-//        menu.add(MISerachEdit);
-//        MIDoc.setIcon(MainFrameIconsFactory.getImageIcon(MainFrameIconsFactory.Standard.DOC)); // NOI18N
-//        MIDoc.setText("Documentation");
-//        MIDoc.addActionListener(new ActionListener() {
-//
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//                MainFrame.actionDoc();
-//            }
-//        });
-//        menu.add(MIDoc);
-//        MITemplate.setIcon(MainFrameIconsFactory.getImageIcon(MainFrameIconsFactory.Standard.TEMPLATE)); // NOI18N
-//        MITemplate.setText("Templates");
-//        MITemplate.addActionListener(new ActionListener() {
-//
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//                MainFrame.actionTemplate();
-//            }
-//        });
-//        menu.add(MITemplate);
-//        MIStatistic.setIcon(MainFrameIconsFactory.getImageIcon(MainFrameIconsFactory.Standard.STAT)); // NOI18N
-//        MIStatistic.setText("Statistics");
-//        MIStatistic.addActionListener(new ActionListener() {
-//
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//                MainFrame.actionStatistic();
-//            }
-//        });
-//        menu.add(MIStatistic);
-//        menu.add(jSeparator4);
-//        MISettings.setIcon(MainFrameIconsFactory.getImageIcon(MainFrameIconsFactory.Standard.SETTING)); // NOI18N
-//        MISettings.setText("Settings...");
-//        MISettings.addActionListener(new ActionListener() {
-//
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-////                MainFrame.actionSetting();
-//            }
-//        });
-//        menu.add(MISettings);
-//        return menu;
-//    }
-//    
+   
     private static JideMenu createToolsMenu() {
         JideMenu menu = new JideMenu("Tools");
-        JMenuItem MISearchEdit = new JMenuItem();
-        JMenuItem MIDoc = new JMenuItem();
-        JMenuItem MITemplate = new JMenuItem();
+        JMenuItem MICreateUser = new JMenuItem();
+        JMenuItem MIChangePassword = new JMenuItem();
         JMenuItem MISettings = new JMenuItem();
-        Separator jSeparator4 = new Separator();
-        MISearchEdit.setIcon(MainFrameIconsFactory.getImageIcon(MainFrameIconsFactory.Standard.EXPORTDATA)); // NOI18N
-        MISearchEdit.setText("Import/Export Data...");
-        MISearchEdit.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-//                MainFrame.actionExportData();
-            }
-        });
-        menu.add(MISearchEdit);
-        menu.add(jSeparator4);
-        MIDoc.setIcon(MainFrameIconsFactory.getImageIcon(MainFrameIconsFactory.Standard.USER)); // NOI18N
-        MIDoc.setText("Create User...");
-        MIDoc.addActionListener(new ActionListener() {
+        Separator separator = new Separator();
+        MICreateUser.setIcon(MainFrameIconsFactory.getImageIcon(MainFrameIconsFactory.Standard.USER)); // NOI18N
+        MICreateUser.setText("Create User...");
+        MICreateUser.addActionListener(new ActionListener() {
 
             @Override
             public void actionPerformed(ActionEvent e) {
                 MainFrame.actionCreateUser();
             }
         });
-        menu.add(MIDoc);
-        MITemplate.setIcon(MainFrameIconsFactory.getImageIcon(MainFrameIconsFactory.Standard.CHANGEPASSWORD)); // NOI18N
-        MITemplate.setText("Change Password...");
-        MITemplate.addActionListener(new ActionListener() {
+        menu.add(MICreateUser);
+        MIChangePassword.setIcon(MainFrameIconsFactory.getImageIcon(MainFrameIconsFactory.Standard.CHANGEPASSWORD)); // NOI18N
+        MIChangePassword.setText("Change Password...");
+        MIChangePassword.addActionListener(new ActionListener() {
 
             @Override
             public void actionPerformed(ActionEvent e) {
 //                MainFrame.actionChangePassword();
             }
         });
-        MITemplate.setEnabled(false);
-        menu.add(MITemplate);
-        menu.add(jSeparator4);
+        MIChangePassword.setEnabled(false);
+        menu.add(MIChangePassword);
+        menu.add(separator);
         MISettings.setIcon(MainFrameIconsFactory.getImageIcon(MainFrameIconsFactory.Standard.SETTING)); // NOI18N
         MISettings.setText("Settings...");
         MISettings.addActionListener(new ActionListener() {
@@ -417,7 +297,7 @@ public class MainFrameCommandBarFactory extends CommandBarFactory {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                MainFrame.actionCheckUpdate();
+//                MainFrame.actionCheckUpdate();
             }
         });
         MICheck.setEnabled(false);
@@ -515,14 +395,15 @@ public class MainFrameCommandBarFactory extends CommandBarFactory {
                             }
                         };
                         chooser.setCurrentDirectory(new File(_lastDirectory));
-                        int result = chooser.showDialog(((JMenuItem) e.getSource()).getTopLevelAncestor(), "Save");
+                        int result = chooser.showDialog(((JComponent) e.getSource()).getTopLevelAncestor(), "Save");
                         if (result == JFileChooser.APPROVE_OPTION) {
                             _lastDirectory = chooser.getCurrentDirectory().getAbsolutePath();
                             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
                             DocumentBuilder builder = factory.newDocumentBuilder();
                             Document document = builder.newDocument();
                             parent.getLayoutPersistence().saveLayoutTo(document);
-                            PersistenceUtils.saveXMLDocumentToFile(document, chooser.getSelectedFile().getAbsolutePath(), PersistenceUtils.getDefaultXmlEncoding());
+                            PersistenceUtils.saveXMLDocumentToFile(document, chooser.getSelectedFile().getAbsolutePath(),
+                                    PersistenceUtils.getDefaultXmlEncoding());
                         }
                     } catch (IOException | HeadlessException | ParserConfigurationException e1) {
                         e1.printStackTrace();
@@ -548,7 +429,7 @@ public class MainFrameCommandBarFactory extends CommandBarFactory {
                         }
                     };
                     chooser.setCurrentDirectory(new File(_lastDirectory));
-                    int result = chooser.showDialog(((JMenuItem) e.getSource()).getTopLevelAncestor(), "Open");
+                    int result = chooser.showDialog(((JComponent) e.getSource()).getTopLevelAncestor(), "Open");
                     if (result == JFileChooser.APPROVE_OPTION) {
                         _lastDirectory = chooser.getCurrentDirectory().getAbsolutePath();
                         parent.getLayoutPersistence().loadLayoutDataFromFile(chooser.getSelectedFile().getAbsolutePath());
@@ -557,7 +438,6 @@ public class MainFrameCommandBarFactory extends CommandBarFactory {
             }
         });
         menu.add(item);
-
         menu.addSeparator();
 
         item = new JMenuItem("Toggle Auto Hide All");
@@ -579,7 +459,6 @@ public class MainFrameCommandBarFactory extends CommandBarFactory {
             }
         });
         menu.add(item);
-
         return menu;
     }
 
@@ -594,7 +473,7 @@ public class MainFrameCommandBarFactory extends CommandBarFactory {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (e.getSource() instanceof JCheckBoxMenuItem) {
-                    parent.getDockingManager().setFloatable(((JCheckBoxMenuItem) e.getSource()).isSelected());
+                    parent.getDockingManager().setFloatable(((AbstractButton) e.getSource()).isSelected());
                 }
             }
         });
@@ -608,7 +487,7 @@ public class MainFrameCommandBarFactory extends CommandBarFactory {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (e.getSource() instanceof JCheckBoxMenuItem) {
-                    parent.getDockingManager().setAutohidable(((JCheckBoxMenuItem) e.getSource()).isSelected());
+                    parent.getDockingManager().setAutohidable(((AbstractButton) e.getSource()).isSelected());
                 }
             }
         });
@@ -623,7 +502,7 @@ public class MainFrameCommandBarFactory extends CommandBarFactory {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (e.getSource() instanceof JCheckBoxMenuItem) {
-                    parent.getDockingManager().setHidable(((JCheckBoxMenuItem) e.getSource()).isSelected());
+                    parent.getDockingManager().setHidable(((AbstractButton) e.getSource()).isSelected());
                 }
             }
         });
@@ -637,7 +516,7 @@ public class MainFrameCommandBarFactory extends CommandBarFactory {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (e.getSource() instanceof JCheckBoxMenuItem) {
-                    parent.getDockingManager().setRearrangable(((JCheckBoxMenuItem) e.getSource()).isSelected());
+                    parent.getDockingManager().setRearrangable(((AbstractButton) e.getSource()).isSelected());
                 }
             }
         });
@@ -651,7 +530,7 @@ public class MainFrameCommandBarFactory extends CommandBarFactory {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (e.getSource() instanceof JCheckBoxMenuItem) {
-                    parent.getDockingManager().setResizable(((JCheckBoxMenuItem) e.getSource()).isSelected());
+                    parent.getDockingManager().setResizable(((AbstractButton) e.getSource()).isSelected());
                 }
             }
         });
@@ -668,7 +547,7 @@ public class MainFrameCommandBarFactory extends CommandBarFactory {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                boolean selected = ((JCheckBoxMenuItem) e.getSource()).isSelected();
+                boolean selected = ((AbstractButton) e.getSource()).isSelected();
                 toggleButton(selected, DockableFrame.BUTTON_CLOSE);
             }
         });
@@ -681,7 +560,7 @@ public class MainFrameCommandBarFactory extends CommandBarFactory {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                boolean selected = ((JCheckBoxMenuItem) e.getSource()).isSelected();
+                boolean selected = ((AbstractButton) e.getSource()).isSelected();
                 toggleButton(selected, DockableFrame.BUTTON_AUTOHIDE);
             }
         });
@@ -694,7 +573,7 @@ public class MainFrameCommandBarFactory extends CommandBarFactory {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                boolean selected = ((JCheckBoxMenuItem) e.getSource()).isSelected();
+                boolean selected = ((AbstractButton) e.getSource()).isSelected();
                 toggleButton(selected, DockableFrame.BUTTON_FLOATING);
             }
         });
@@ -707,7 +586,7 @@ public class MainFrameCommandBarFactory extends CommandBarFactory {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                boolean selected = ((JCheckBoxMenuItem) e.getSource()).isSelected();
+                boolean selected = ((AbstractButton) e.getSource()).isSelected();
                 toggleButton(selected, DockableFrame.BUTTON_MAXIMIZE);
             }
         });
@@ -725,7 +604,7 @@ public class MainFrameCommandBarFactory extends CommandBarFactory {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (e.getSource() instanceof JCheckBoxMenuItem) {
-                    parent.getDockingManager().setContinuousLayout(((JCheckBoxMenuItem) e.getSource()).isSelected());
+                    parent.getDockingManager().setContinuousLayout(((AbstractButton) e.getSource()).isSelected());
                     if (parent.getDockingManager().isContinuousLayout()) {
                         Lm.showPopupMessageBox("<HTML>"
                                 + "<B><FONT FACE='Tahoma' SIZE='4' COLOR='#0000FF'>Continuous Layout</FONT></B><FONT FACE='Tahoma'>"
@@ -751,7 +630,7 @@ public class MainFrameCommandBarFactory extends CommandBarFactory {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (e.getSource() instanceof JCheckBoxMenuItem) {
-                    parent.getDockingManager().setEasyTabDock(((JCheckBoxMenuItem) e.getSource()).isSelected());
+                    parent.getDockingManager().setEasyTabDock(((AbstractButton) e.getSource()).isSelected());
                     if (parent.getDockingManager().isEasyTabDock()) {
                         Lm.showPopupMessageBox("<HTML>"
                                 + "<B><FONT COLOR='BLUE' FACE='Tahoma' SIZE='4'>Easy Tab Docking </FONT></B>"
@@ -776,7 +655,7 @@ public class MainFrameCommandBarFactory extends CommandBarFactory {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (e.getSource() instanceof JCheckBoxMenuItem) {
-                    parent.getDockingManager().setNestedFloatingAllowed(((JCheckBoxMenuItem) e.getSource()).isSelected());
+                    parent.getDockingManager().setNestedFloatingAllowed(((AbstractButton) e.getSource()).isSelected());
                     if (parent.getDockingManager().isNestedFloatingAllowed()) {
                         Lm.showPopupMessageBox("<HTML>"
                                 + "<FONT FACE='Tahoma' SIZE='4'><B><FONT COLOR='#0000FF'>Nested Floating Windows<BR></FONT></B><BR></FONT>"
@@ -800,7 +679,7 @@ public class MainFrameCommandBarFactory extends CommandBarFactory {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (e.getSource() instanceof JCheckBoxMenuItem) {
-                    parent.getDockingManager().setShowGripper(((JCheckBoxMenuItem) e.getSource()).isSelected());
+                    parent.getDockingManager().setShowGripper(((AbstractButton) e.getSource()).isSelected());
                     if (parent.getDockingManager().isShowGripper()) {
                         Lm.showPopupMessageBox("<HTML>"
                                 + "<FONT FACE='Tahoma' SIZE='4'><FONT COLOR='#0000FF'><B>Show Gripper</B><BR></FONT><BR></FONT>"
@@ -825,7 +704,7 @@ public class MainFrameCommandBarFactory extends CommandBarFactory {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (e.getSource() instanceof JCheckBoxMenuItem) {
-                    parent.getDockingManager().setShowTitleBar(((JCheckBoxMenuItem) e.getSource()).isSelected());
+                    parent.getDockingManager().setShowTitleBar(((AbstractButton) e.getSource()).isSelected());
                     if (parent.getDockingManager().isShowTitleBar()) {
                         Lm.showPopupMessageBox("<HTML>"
                                 + "<FONT FACE='Tahoma' SIZE='4'><FONT COLOR='#0000FF'><B>Show TitleBar</B><BR></FONT><BR></FONT>"
@@ -846,7 +725,7 @@ public class MainFrameCommandBarFactory extends CommandBarFactory {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (e.getSource() instanceof JCheckBoxMenuItem) {
-                    parent.getDockingManager().setSidebarRollover(((JCheckBoxMenuItem) e.getSource()).isSelected());
+                    parent.getDockingManager().setSidebarRollover(((AbstractButton) e.getSource()).isSelected());
                     if (parent.getDockingManager().isSidebarRollover()) {
                         Lm.showPopupMessageBox("<HTML>"
                                 + "<FONT FACE='Tahoma' SIZE='4'><FONT COLOR='#0000FF'><B>SideBar Rollover</B><BR></FONT><BR></FONT>"
@@ -959,7 +838,7 @@ public class MainFrameCommandBarFactory extends CommandBarFactory {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (e.getSource() instanceof JCheckBoxMenuItem) {
-                    parent.getDockingManager().setShowTitleOnOutline(((JCheckBoxMenuItem) e.getSource()).isSelected());
+                    parent.getDockingManager().setShowTitleOnOutline(((AbstractButton) e.getSource()).isSelected());
                 }
             }
         });
@@ -1163,12 +1042,11 @@ public class MainFrameCommandBarFactory extends CommandBarFactory {
 //    }
 //    
     public static DockableFrame createFrameMenuMain() {
-        DockableFrame frame = new DockableFrame("Main Menu"
-                + "", MainFrameIconsFactory.getImageIcon(MainFrameIconsFactory.ShortCut.SHORTCUT));
+        DockableFrame frame = new DockableFrame("Main Menu", MainFrameIconsFactory.getImageIcon(MainFrameIconsFactory.ShortCut.SHORTCUT));
         frame.getContext().setInitMode(DockContext.STATE_FRAMEDOCKED);
         frame.getContext().setInitSide(DockContext.DOCK_SIDE_WEST);
         frame.getContext().setInitIndex(1);
-        frame.getContentPane().add(new ShortCutPanel(parent));
+        frame.getContentPane().add(new MainMenuPanel(parent));
         frame.setPreferredSize(new Dimension(200, 200));
         return frame;
     }
@@ -1183,15 +1061,15 @@ public class MainFrameCommandBarFactory extends CommandBarFactory {
 //        frame.setPreferredSize(new Dimension(200, 200));
 //        return frame;
 //    }
-    public static String _lastDirectory = ".";
+    private static String _lastDirectory = ".";
     private static byte[] _fullScreenLayout;
     private static boolean _autohideAll = false;
-    static MainFrame parent;
-    public static JMenuItem MIUndo;
-    public static JMenuItem MIRedo;
-    public static AbstractButton undo;
-    public static AbstractButton redo;
-    public static AbstractButton save;
+    private static MainFrame parent;
+//    private static JMenuItem MIUndo;
+//    private static JMenuItem MIRedo;
+    private static AbstractButton undo;
+    private static AbstractButton redo;
+    private static AbstractButton save;
 //    public static JMenuItem MISave;
 //    public static JMenuItem MISaveAs;
 }

@@ -6,7 +6,6 @@ import com.jidesoft.grid.RowStripeTableStyleProvider;
 import com.jidesoft.grid.SortableTable;
 import com.jidesoft.grid.TableUtils;
 import com.jidesoft.plaf.LookAndFeelFactory;
-import com.jidesoft.spinner.DateSpinner;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -116,6 +115,19 @@ public class Target extends javax.swing.JDialog {
 //                }
             }
         });
+        if (null != ConnectDB.pref.get(SettingKeyFactory.DefaultProperties.TARGETTIMEUNIT, targetUnit)) {
+            switch (ConnectDB.pref.get(SettingKeyFactory.DefaultProperties.TARGETTIMEUNIT, targetUnit)) {
+                case "second":
+                    radSecond.setSelected(true);
+                    break;
+                case "minute":
+                    radMinute.setSelected(true);
+                    break;
+                default:
+                    radHour.setSelected(true);
+                    break;
+            }
+        }
         setLocationRelativeTo(parent);
     }
 
@@ -137,7 +149,7 @@ public class Target extends javax.swing.JDialog {
         jSeparator1 = new javax.swing.JSeparator();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        setTitle("Load Machines & Target (min)");
+        setTitle("Machines Target Value (min)");
 
         jPanel1.setBackground(new java.awt.Color(255, 255, 255));
 
@@ -152,7 +164,7 @@ public class Target extends javax.swing.JDialog {
             }
         });
 
-        jLabel1.setText("<html><font color=red>Enter at least one target per machine</font>");
+        jLabel1.setText("<html><font color=red>Enter at least one target value per machine and choose a target unit.</font>");
 
         jPanel5.setBackground(new java.awt.Color(255, 255, 255));
         jPanel5.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Target Units", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 12), new java.awt.Color(0, 0, 204))); // NOI18N
@@ -169,7 +181,6 @@ public class Target extends javax.swing.JDialog {
 
         radMinute.setBackground(new java.awt.Color(255, 255, 255));
         buttonGroup1.add(radMinute);
-        radMinute.setSelected(true);
         radMinute.setText("per minute");
         radMinute.setFocusable(false);
         radMinute.addActionListener(new java.awt.event.ActionListener() {
@@ -180,6 +191,7 @@ public class Target extends javax.swing.JDialog {
 
         radHour.setBackground(new java.awt.Color(255, 255, 255));
         buttonGroup1.add(radHour);
+        radHour.setSelected(true);
         radHour.setText("per hour");
         radHour.setFocusable(false);
         radHour.addActionListener(new java.awt.event.ActionListener() {
@@ -199,7 +211,7 @@ public class Target extends javax.swing.JDialog {
                 .addComponent(radMinute)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(radHour)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(420, Short.MAX_VALUE))
         );
         jPanel5Layout.setVerticalGroup(
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -236,10 +248,9 @@ public class Target extends javax.swing.JDialog {
                     .addComponent(scrlTargetOptions)
                     .addComponent(jSeparator1))
                 .addContainerGap())
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(470, 470, 470)
-                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                .addGap(0, 0, Short.MAX_VALUE)
+                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -279,7 +290,7 @@ public class Target extends javax.swing.JDialog {
     private void btnLoadSettingActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLoadSettingActionPerformed
         try {
             if (checkEmptyTable()) {
-                int machineID = ConnectDB.getMachineID(_machine);
+                int machineID = ConnectDB.getIDMachine(_machine);
                 try (PreparedStatement ps = ConnectDB.con.prepareStatement("DELETE FROM timebreaks\n"
                         + "WHERE HwNo =?")) {
                     ps.setInt(1, machineID);
@@ -310,6 +321,7 @@ public class Target extends javax.swing.JDialog {
                             + "WHERE HwNo =?")) {
                         ps.setTime(1, new java.sql.Time(sdf.parse(startTime).getTime()));
                         ps.setTime(2, new java.sql.Time(sdf.parse(endTime).getTime()));
+                        ps.setInt(3, machineID);
                         int res = ps.executeUpdate();
                         if (res == 1) {
                             System.out.println("successful");
@@ -413,15 +425,24 @@ public class Target extends javax.swing.JDialog {
     }//GEN-LAST:event_btnCloseActionPerformed
 
     private void radSecondActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_radSecondActionPerformed
-        this.setTitle("Load Machines & Target (secondes)");
+        this.setTitle("Machines Target Value (second)");
+        targetUnit = "second";
+        ConnectDB.pref.put(SettingKeyFactory.DefaultProperties.TARGETTIMEUNIT, targetUnit);
+//        changeTableTargetValue("second");
     }//GEN-LAST:event_radSecondActionPerformed
 
     private void radMinuteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_radMinuteActionPerformed
-        this.setTitle("Load Machines & Target (minutes)");
+        this.setTitle("Machines Target Value (minute)");
+        targetUnit = "minute";
+        ConnectDB.pref.put(SettingKeyFactory.DefaultProperties.TARGETTIMEUNIT, targetUnit);
+//        changeTableTargetValue("minute");
     }//GEN-LAST:event_radMinuteActionPerformed
 
     private void radHourActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_radHourActionPerformed
-        this.setTitle("Load Machines & Target (hours)");
+        this.setTitle("Machines Target Value (hour)");
+        targetUnit = "hour";
+        ConnectDB.pref.put(SettingKeyFactory.DefaultProperties.TARGETTIMEUNIT, targetUnit);
+//        changeTableTargetValue("hour");
     }//GEN-LAST:event_radHourActionPerformed
 
     private void loadTargetTable() throws SQLException {
@@ -480,7 +501,7 @@ public class Target extends javax.swing.JDialog {
                     query = "SELECT StartTime, EndTime FROM startendtime\n"
                             + "WHERE HwNo =?";
                     try (PreparedStatement ps = ConnectDB.con.prepareStatement(query)) {
-                        ps.setInt(1, ConnectDB.getMachineID(machineName));
+                        ps.setInt(1, ConnectDB.getIDMachine(machineName));
                         ConnectDB.res = ps.executeQuery();
                         while (ConnectDB.res.next()) {
                             tableTarget.setValueAt(ConnectDB.res.getString(1).substring(0, 5), i, 2);
@@ -492,11 +513,28 @@ public class Target extends javax.swing.JDialog {
         }
     }
 
+    private void fillArrayTarget() {
+        int targetRow = tableTarget.getRowCount();
+        cumulTargetValues = new double[targetRow];
+        rateTargetValues = new double[targetRow];
+        for (int i = 0; i < targetRow; i++) {
+            cumulTargetValues[i] = (double) tableTarget.getValueAt(i, 5);
+            rateTargetValues[i] = (double) tableTarget.getValueAt(i, 4);
+        }
+    }
+
     private void setTargetOptionsProductionTime() throws ParseException {
-        if (tableTarget.getValueAt(tableTarget.getSelectedRow(), 2).toString().isEmpty()) {
-            targetOptions.setDsStartTime(new DateSpinner("HH:mm", ConnectDB.CALENDAR.getTime()));
+        String startTime = tableTarget.getValueAt(tableTarget.getSelectedRow(), 2).toString();
+        String endTime = tableTarget.getValueAt(tableTarget.getSelectedRow(), 3).toString();
+        if (startTime.isEmpty()) {
+            targetOptions.getDsStartTime().setValue(sdf.parse(sdf.format(ConnectDB.CALENDAR.getTime())));
         } else {
-            targetOptions.setDsStartTime(new DateSpinner("HH:mm", sdf.parse(tableTarget.getValueAt(tableTarget.getSelectedRow(), 2).toString())));
+            targetOptions.getDsStartTime().setValue(sdf.parse(startTime));
+        }
+        if (endTime.isEmpty()) {
+            targetOptions.getDsEndTime().setValue(sdf.parse(sdf.format(ConnectDB.CALENDAR.getTime())));
+        } else {
+            targetOptions.getDsEndTime().setValue(sdf.parse(endTime));
         }
     }
 
@@ -525,6 +563,46 @@ public class Target extends javax.swing.JDialog {
             }
         }
         return false;
+    }
+
+    private void changeTableTargetValue(String timeOptions) {
+        fillArrayTarget();
+        for (int i = 0; i < tableTarget.getRowCount(); i++) {
+            int j = 4;
+            while (j <= 5) {
+                double value = (double) tableTarget.getValueAt(i, j);
+                switch (timeOptions) {
+                    case "second":
+                        if ("minute".equals(targetUnit)) {
+                            tableTarget.setValueAt(value * 60, i, j);
+                        } else if ("hour".equals(targetUnit)) {
+                            tableTarget.setValueAt(value * 3600, i, j);
+                        } else {
+                            tableTarget.setValueAt(value / 3600, i, j);
+                        }
+                        break;
+                    case "minute":
+                        if ("second".equals(targetUnit)) {
+                            tableTarget.setValueAt(value * 60, i, j);
+                        } else if ("hour".equals(targetUnit)) {
+                            tableTarget.setValueAt(value * 3600, i, j);
+                        } else {
+                            tableTarget.setValueAt(value / 60, i, j);
+                        }
+                        break;
+                    case "hour":
+                        if ("minute".equals(targetUnit)) {
+                            tableTarget.setValueAt(value * 60, i, j);
+                        } else if ("second".equals(targetUnit)) {
+                            tableTarget.setValueAt(value * 3600, i, j);
+                        } else {
+                            tableTarget.setValueAt(value * 60, i, j);
+                        }
+                        break;
+                }
+                j++;
+            }
+        }
     }
 
     private void clearTable(SortableTable st) {
@@ -584,8 +662,8 @@ public class Target extends javax.swing.JDialog {
 
     private void setTableColumn() {
         TableColumn col = tableTarget.getColumnModel().getColumn(0);
-        col.setMinWidth(35);
-        col.setMaxWidth(35);
+        col.setMinWidth(30);
+        col.setMaxWidth(30);
         col.setResizable(false);
     }
 
@@ -631,11 +709,13 @@ public class Target extends javax.swing.JDialog {
     private javax.swing.JRadioButton radSecond;
     private javax.swing.JScrollPane scrlTargetOptions;
     // End of variables declaration//GEN-END:variables
+    private int tableRow = 0, targetNo = -1, nbLine = 1, n = 0;
     private SortableTable tableTarget, _tableTargetOption;
     private TableModelTarget refModel;
-    private int tableRow = 0, targetNo = -1, nbLine = 1, n = 0;
-    public static boolean anyChange, targetFound = true;
     private TargetOptions targetOptions;
     private String _machine;
-    private SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
+    private String targetUnit = "hour";
+    private double[] cumulTargetValues, rateTargetValues;
+    private final SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
+    public static boolean anyChange, targetFound = true;
 }

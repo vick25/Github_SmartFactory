@@ -19,10 +19,10 @@ public class ChangePassword extends javax.swing.JDialog {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (!txtLoginID.getText().equals("")
-                        && !String.copyValueOf(txtOldPassword.getPassword()).equals("")
-                        && !String.copyValueOf(txtNewPassword.getPassword()).equals("")
-                        && !String.copyValueOf(txtRetypePassword.getPassword()).equals("")) {
+                if (!txtLoginID.getText().isEmpty()
+                        && !String.copyValueOf(txtOldPassword.getPassword()).isEmpty()
+                        && !String.copyValueOf(txtNewPassword.getPassword()).isEmpty()
+                        && !String.copyValueOf(txtRetypePassword.getPassword()).isEmpty()) {
                     btnValidate.setEnabled(true);
                 } else {
                     btnValidate.setEnabled(false);
@@ -221,7 +221,7 @@ private void btnValidateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
                         try (PreparedStatement ps = ConnectDB.con.prepareStatement("UPDATE userlist SET password =?"
                                 + " WHERE IDuser =?")) {
                             ps.setString(1, ConnectDB.crypter(String.copyValueOf(txtNewPassword.getPassword())));
-                            ps.setInt(2, Integer.parseInt(idUser));
+                            ps.setInt(2, Integer.parseInt(userID));
                             int res1 = ps.executeUpdate();
                             if (res1 == 1) {
                                 JOptionPane.showMessageDialog(this, "The password was successfully updated ",
@@ -253,7 +253,7 @@ private void btnValidateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
                             + "Warning", JOptionPane.WARNING_MESSAGE);
                     unique = false;
                 } else {
-                    idUser = ConnectDB.res.getString("IDuser");
+                    userID = ConnectDB.res.getString("IDuser");
                 }
             }
         }
@@ -261,22 +261,22 @@ private void btnValidateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
     }
 
     private boolean checkLoginValidity() throws SQLException {
-        boolean trouve = false;
+        boolean find = false;
         try (PreparedStatement ps = ConnectDB.con.prepareStatement("SELECT login FROM userlist")) {
             ConnectDB.res = ps.executeQuery();
             while (ConnectDB.res.next()) {
                 if (ConnectDB.res.getString("login").equalsIgnoreCase(txtLoginID.getText())) {
-                    trouve = true;
+                    find = true;
                     break;
                 }
             }
         }
-        if (!trouve) {
+        if (!find) {
             JOptionPane.showMessageDialog(this, "The user \"" + txtLoginID.getText() + ""
                     + "\" doesn't exist in the database", ""
                     + "Warning", JOptionPane.WARNING_MESSAGE);
         }
-        return trouve;
+        return find;
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -294,5 +294,5 @@ private void btnValidateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
     private javax.swing.JPasswordField txtOldPassword;
     private javax.swing.JPasswordField txtRetypePassword;
     // End of variables declaration//GEN-END:variables
-    String idUser = "";
+    private String userID = "";
 }

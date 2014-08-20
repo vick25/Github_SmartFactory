@@ -14,6 +14,18 @@ import javax.swing.Timer;
  */
 public class SetTableTime extends javax.swing.JDialog {
 
+    public static boolean isWindowClosed() {
+        return windowClosed;
+    }
+
+    public static String getTimeString() {
+        return timeString;
+    }
+
+    public static String[] getTimes() {
+        return times;
+    }
+
     public SetTableTime(java.awt.Frame parent, boolean modal, Point point) {
         super(parent, modal);
         initComponents();
@@ -21,8 +33,8 @@ public class SetTableTime extends javax.swing.JDialog {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (!txt1.getText().equals("") && !txt2.getText().equals("") && !txt3.getText().equals("")
-                        && !txt4.getText().equals("") && !txt5.getText().equals("") && !txt6.getText().equals("")) {
+                if (!txt1.getText().isEmpty() && !txt2.getText().isEmpty() && !txt3.getText().isEmpty()
+                        && !txt4.getText().isEmpty() && !txt5.getText().isEmpty() && !txt6.getText().isEmpty()) {
                     btnValid.setEnabled(true);
                 } else {
                     btnValid.setEnabled(false);
@@ -34,7 +46,7 @@ public class SetTableTime extends javax.swing.JDialog {
 
             @Override
             public void windowClosing(WindowEvent e) {
-                closeWindow = false;
+                windowClosed = false;
             }
         });
 //        timeString = text1 + ";" + text2 + ";" + text3 + ";" + text4 + ";" + text5 + ";" + text6;
@@ -180,7 +192,7 @@ public class SetTableTime extends javax.swing.JDialog {
         }
 //        prefs.put("shiftTimes", timeString.substring(0, timeString.length() - 1));
 //        System.out.println(timeString.substring(0, timeString.length() - 1));
-        closeWindow = true;
+        windowClosed = true;
         this.dispose();
     }//GEN-LAST:event_btnValidActionPerformed
 
@@ -211,7 +223,7 @@ public class SetTableTime extends javax.swing.JDialog {
     private javax.swing.JTextField txt5;
     private javax.swing.JTextField txt6;
     // End of variables declaration//GEN-END:variables
-    public static boolean closeWindow;
-    public static String timeString = "";
-    public static String[] times = {"06:00", "14:00", "14:00", "22:00", "22:00", "06:00"};
+    private static boolean windowClosed;
+    private static String timeString = "";
+    private static final String[] times = {"06:00", "14:00", "14:00", "22:00", "22:00", "06:00"};
 }

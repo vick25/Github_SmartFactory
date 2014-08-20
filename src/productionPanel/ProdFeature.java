@@ -16,8 +16,8 @@ import smartfactoryV2.ConnectDB;
 public class ProdFeature extends javax.swing.JPanel {
 
     public ProdFeature(AbstractDialogPage page, JDialog parent) {
-        this.page = page;
-        this.parent = parent;
+        this._page = page;
+        this._parent = parent;
         initComponents();
         CollapsiblePaneProperties(collapsiblePane1);
         CollapsiblePaneProperties(collapsiblePane2);
@@ -213,12 +213,11 @@ public class ProdFeature extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void spFlagTimeStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_spFlagTimeStateChanged
-        page.fireButtonEvent(ButtonEvent.ENABLE_BUTTON, ButtonNames.APPLY);
+        _page.fireButtonEvent(ButtonEvent.ENABLE_BUTTON, ButtonNames.APPLY);
     }//GEN-LAST:event_spFlagTimeStateChanged
 
     private void btnRestoreActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRestoreActionPerformed
-        if (JOptionPane.showConfirmDialog(this, "Would you like to restore default features?",
-                "Settings", 0) == 0) {
+        if (JOptionPane.showConfirmDialog(this, "Would you like to restore default features?", "Settings", 0) == 0) {
             spFlagTime.setValue(10);
             radShiftOn.setSelected(false);
             radShiftOFF.setSelected(true);
@@ -234,7 +233,7 @@ public class ProdFeature extends javax.swing.JPanel {
             ConnectDB.pref.putBoolean(ProdStatKeyFactory.ProdFeatures.RADPERMIN, radPerMin.isSelected());
             ConnectDB.pref.putBoolean(ProdStatKeyFactory.ProdFeatures.RADPERHOUR, radPerHour.isSelected());
 
-            parent.dispose();
+            _parent.dispose();
             if (MainFrame.getDocumentPane().isDocumentOpened("Production")) {
                 ProductionPane.setSettings();
             }
@@ -242,7 +241,7 @@ public class ProdFeature extends javax.swing.JPanel {
     }//GEN-LAST:event_btnRestoreActionPerformed
 
     private void radShiftOnItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_radShiftOnItemStateChanged
-        page.fireButtonEvent(ButtonEvent.ENABLE_BUTTON, ButtonNames.APPLY);
+        _page.fireButtonEvent(ButtonEvent.ENABLE_BUTTON, ButtonNames.APPLY);
     }//GEN-LAST:event_radShiftOnItemStateChanged
 
     private void radShiftOFFItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_radShiftOFFItemStateChanged
@@ -291,6 +290,6 @@ public class ProdFeature extends javax.swing.JPanel {
     public static javax.swing.JRadioButton radShiftOn;
     public static javax.swing.JSpinner spFlagTime;
     // End of variables declaration//GEN-END:variables
-    AbstractDialogPage page;
-    JDialog parent;
+    private final AbstractDialogPage _page;
+    private final JDialog _parent;
 }

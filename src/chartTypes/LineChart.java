@@ -12,7 +12,6 @@ import com.jidesoft.chart.event.ZoomLocation;
 import com.jidesoft.chart.model.ChartCategory;
 import com.jidesoft.chart.model.ChartModel;
 import com.jidesoft.chart.model.DefaultChartModel;
-import com.jidesoft.chart.model.Highlight;
 import com.jidesoft.chart.render.DefaultPointRenderer;
 import com.jidesoft.chart.style.ChartStyle;
 import com.jidesoft.range.Category;
@@ -36,6 +35,14 @@ import smartfactoryV2.ConnectDB;
  */
 public class LineChart extends Chart {
 
+    public Chart getChart() {
+        return chart;
+    }
+
+    public static ChartModel getChartModel() {
+        return chartModel;
+    }
+
     public LineChart(final int ConfigNo, final String query, String unit, String machineTitle, String chanTitle,
             Date start, Date end) throws SQLException {
         super();
@@ -44,6 +51,7 @@ public class LineChart extends Chart {
         this._machineTitle = machineTitle;
         this._chanTitle = chanTitle;
 
+        boolean loopQueryFound = false;
         chart = new Chart("Line");
         CategoryRange range = new CategoryRange<>();
         try (PreparedStatement ps = ConnectDB.con.prepareStatement(query)) {
@@ -66,7 +74,7 @@ public class LineChart extends Chart {
             chart.setBorder(new EmptyBorder(5, 5, 10, 15));
             chart.setTitle(new AutoPositionedLabel("Production Rate for \"" + this._machineTitle + "\"",
                     Color.BLACK, ConnectDB.TITLEFONT));
-            ProductionPane.chartTitle = chart.getTitle().toString();
+            ProductionPane.setChartTitle(chart.getTitle().toString());
 
             for (String alTime : timeList) {
                 Category c = new ChartCategory((Object) alTime.substring(0, 19), range);
@@ -78,7 +86,7 @@ public class LineChart extends Chart {
             xAxis.setMinorTickColor(Color.RED);
             chart.setXAxis(xAxis);
             chart.getXAxis().setTicksVisible(true);
-            NumericAxis yAxis = new NumericAxis(0, (double) ConnectDB.maxNumber(alValues) + 25D);
+            NumericAxis yAxis = new NumericAxis(0, ConnectDB.maxNumber(alValues) + 25D);
             yAxis.setLabel(new AutoPositionedLabel(unit, Color.BLACK));
             chart.setYAxis(yAxis);
             chart.autoRange();
@@ -92,7 +100,7 @@ public class LineChart extends Chart {
 
             ChartStyle selectionStyle = new ChartStyle(style);
             selectionStyle.setPointSize(15);
-            chart.setHighlightStyle(selectionHighlight, selectionStyle);
+            chart.setHighlightStyle(ConnectDB.SELECTION_HIGHLIGHT, selectionStyle);
             chart.getYAxis().setTicksVisible(true);
 //            chart.getYAxis().setVisible(true);
             chart.drawInBackground();
@@ -101,8 +109,7 @@ public class LineChart extends Chart {
             MouseWheelZoomer zoomer = new MouseWheelZoomer(chart, true, false);
             zoomer.setZoomLocation(ZoomLocation.MOUSE_CURSOR);
             chart.addMouseWheelListener(zoomer);
-            model = createModel();
-            chart.addModel(model, style);
+            chart.addModel(createModel(), style);
             chart.setPanelBackground(new Color(153, 153, 153));
             chart.setChartBackground(new GradientPaint(0f, 0f, Color.lightGray.brighter(), 300f, 300f,
                     Color.lightGray));
@@ -129,20 +136,19 @@ public class LineChart extends Chart {
         }
     }
 
-    private static ChartModel createModel() {
+    private ChartModel createModel() {
         DefaultChartModel modelChart = new DefaultChartModel();
         for (int i = 0; i < alValues.size(); i++) {
             modelChart.addPoint(dateCategoryChart.get(i), Double.valueOf(alValues.get(i)));
         }
-        return modelChart;
+        chartModel = modelChart;
+        return chartModel;
     }
 
-    boolean loopQueryFound = false;
-    public Chart chart;
+    private static ChartModel chartModel;
+    private Chart chart;
     private final Date _startD, _endD;
     private final String _machineTitle, _chanTitle;
     private static final List<Category> dateCategoryChart = new ArrayList<>();
-    public static ChartModel model;
     public static ArrayList<String> timeList = new ArrayList<>(), alValues = new ArrayList<>();
-    private static final Highlight selectionHighlight = new Highlight("selection");
 }

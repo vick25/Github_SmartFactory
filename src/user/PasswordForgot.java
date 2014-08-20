@@ -16,7 +16,7 @@ public class PasswordForgot extends javax.swing.JFrame {
 
     public PasswordForgot(javax.swing.JDialog parent) {
         ConnectDB.getConnectionInstance();
-        _parent = parent;
+        this._parent = parent;
         parent.setVisible(false);
         initComponents();
         Timer time = new Timer(150, new ActionListener() {
@@ -24,9 +24,9 @@ public class PasswordForgot extends javax.swing.JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    if (!txtLoginID.getText().equals("")) {
+                    if (!txtLoginID.getText().isEmpty()) {
                         if (checkLoginValidity()) {
-                            if (!txtAnswer.getText().equals("")) {
+                            if (!txtAnswer.getText().isEmpty()) {
                                 btnValidate.setEnabled(true);
                             } else {
                                 btnValidate.setEnabled(false);
@@ -43,8 +43,8 @@ public class PasswordForgot extends javax.swing.JFrame {
         });
         time.start();
         txtLoginID.requestFocus();
-        setIconImage(new ImageIcon(getClass().getResource("/images/icons/gpgsm(9).png")).getImage());
-        setLocationRelativeTo(null);
+        this.setIconImage(new ImageIcon(getClass().getResource("/images/icons/gpgsm(9).png")).getImage());
+        this.setLocationRelativeTo(null);
     }
 
     @SuppressWarnings("unchecked")
@@ -206,13 +206,11 @@ public class PasswordForgot extends javax.swing.JFrame {
 
     private void btnValidateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnValidateActionPerformed
         boolean answer = false;
-        String pwd = null;
+        String pwd = "";
         try (PreparedStatement ps = ConnectDB.con.prepareStatement("SELECT password, answer\n"
                 + "FROM userlist WHERE login =?")) {
             ps.setString(1, txtLoginID.getText());
             ConnectDB.res = ps.executeQuery();
-            answer = false;
-            pwd = "";
             while (ConnectDB.res.next()) {
                 if (ConnectDB.decrypter(ConnectDB.res.getString("answer")).equalsIgnoreCase(txtAnswer.getText())) {
                     answer = true;
@@ -262,7 +260,7 @@ public class PasswordForgot extends javax.swing.JFrame {
             txtQuestion.setText("");
             lblMessage.setForeground(Color.BLACK);
             lblMessage.setText("<html>The user <FONT color=#FF0000>"
-                    + "" + txtLoginID.getText() + "</FONT> does not exist in the database ...</html>");
+                    + txtLoginID.getText() + "</FONT> does not exist in the database ...</html>");
         }
         return find;
     }

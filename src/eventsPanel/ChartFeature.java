@@ -558,10 +558,10 @@ public class ChartFeature extends javax.swing.JPanel {
 
     private void SLAngleStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_SLAngleStateChanged
         if (!EventsStatistic.btnPieChart.isEnabled()
-                && EventsStatistic.stylePieChart != null && EventsStatistic.chart != null) {
+                && EventsStatistic.getStylePieChart() != null && EventsStatistic.getChart() != null) {
             int value = SLAngle.getValue();
-            EventsStatistic.stylePieChart.setPieOffsetAngle(value);
-            EventsStatistic.chart.repaint();
+            EventsStatistic.getStylePieChart().setPieOffsetAngle(value);
+            EventsStatistic.getChart().repaint();
         }
         page.fireButtonEvent(ButtonEvent.ENABLE_BUTTON, ButtonNames.APPLY);       
     }//GEN-LAST:event_SLAngleStateChanged

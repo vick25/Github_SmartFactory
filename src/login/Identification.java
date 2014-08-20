@@ -1,6 +1,5 @@
 package login;
 
-import com.jidesoft.plaf.LookAndFeelFactory;
 import com.jidesoft.popup.JidePopup;
 import com.jidesoft.swing.OverlayableIconsFactory;
 import com.jidesoft.swing.OverlayableUtils;
@@ -38,9 +37,36 @@ import user.PasswordForgot;
 
 public class Identification extends javax.swing.JDialog {
 
+    public static boolean isFrameSaved() {
+        return frameSaved;
+    }
+
+    public static void setFrameSaved(boolean frameSaved) {
+        Identification.frameSaved = frameSaved;
+    }
+
+    public static MainFrame getMainFrame() {
+        return _mainFrame;
+    }
+
+    public static void setMainFrame(MainFrame _mainFrame) {
+        Identification._mainFrame = _mainFrame;
+    }
+
+    public static JFrame getShowMainFrame() {
+        return _showMainFrame;
+    }
+
+    public static void setShowMainFrame(JFrame _showMainFrame) {
+        Identification._showMainFrame = _showMainFrame;
+    }
+
+    public int getUserID() {
+        return userID;
+    }
+
     public Identification(JFrame parent, boolean modal) {
         super(null, java.awt.Dialog.ModalityType.TOOLKIT_MODAL);
-        LookAndFeelFactory.installDefaultLookAndFeelAndExtension();
         _showMainFrame = parent;
         initComponents();
         initValues();
@@ -55,18 +81,18 @@ public class Identification extends javax.swing.JDialog {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (!txtLogin.getText().equals("") && !String.copyValueOf(txtPassword.getPassword()).equals("")
+                if (!txtLogin.getText().isEmpty() && !String.copyValueOf(txtPassword.getPassword()).isEmpty()
                         && String.copyValueOf(txtPassword.getPassword()).length() >= 6) {
                     btnConnexion.setEnabled(true);
                 } else {
                     btnConnexion.setEnabled(false);
                 }
-                if (!txtLogin.getText().equals("") || !String.copyValueOf(txtPassword.getPassword()).equals("")) {
+                if (!txtLogin.getText().isEmpty() || !String.copyValueOf(txtPassword.getPassword()).isEmpty()) {
                     btnEffacer.setEnabled(true);
                 } else {
                     btnEffacer.setEnabled(false);
                 }
-                if (txtLogin.getText().equals("root")) {
+                if ("root".equals(txtLogin.getText())) {
                     hlChangePasswrd.setEnabled(false);
                     hlForgotPassword.setEnabled(false);
                     chkSaveLoginDetails.setSelected(false);
@@ -81,13 +107,13 @@ public class Identification extends javax.swing.JDialog {
                 }
             }
         });
-        time.setCoalesce(true);
-        time.setRepeats(true);
-        time.setInitialDelay(0);
+//        time.setCoalesce(true);
+//        time.setRepeats(true);
+//        time.setInitialDelay(0);
         time.start();
-        getRootPane().setDefaultButton(btnConnexion);
-        setIconImage(new ImageIcon(getClass().getResource("/images/icons/contact-new.png")).getImage());
-        setLocationRelativeTo(null);
+        this.getRootPane().setDefaultButton(btnConnexion);
+        this.setIconImage(new ImageIcon(getClass().getResource("/images/icons/contact-new.png")).getImage());
+        this.setLocationRelativeTo(null);
     }
 
     @SuppressWarnings("unchecked")
@@ -112,7 +138,6 @@ public class Identification extends javax.swing.JDialog {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Login & Server Connection");
-        setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         setIconImage(null);
         setResizable(false);
 
@@ -284,7 +309,7 @@ public class Identification extends javax.swing.JDialog {
                                 .addComponent(txtLogin, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 238, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                             .addComponent(lblOverlaybleInfo, javax.swing.GroupLayout.PREFERRED_SIZE, 19, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addContainerGap(12, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         pantoutLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {btnConnexion, btnEffacer, btnQuitter});
@@ -337,7 +362,7 @@ public class Identification extends javax.swing.JDialog {
 
     private void hlIPServerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_hlIPServerActionPerformed
         new ServerIP(this, true).setVisible(true);
-        if (!ServerIP._IPValue.equalsIgnoreCase("") && !ServerIP._IPValue.equalsIgnoreCase("0.0.0.0")) {
+        if (!ServerIP._IPValue.isEmpty() && !ServerIP._IPValue.equalsIgnoreCase("0.0.0.0")) {
             hlIPServer.setText(ServerIP._IPValue);
         }
     }//GEN-LAST:event_hlIPServerActionPerformed
@@ -355,13 +380,11 @@ public class Identification extends javax.swing.JDialog {
     }//GEN-LAST:event_txtLoginFocusGained
 
     private void btnQuitterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnQuitterActionPerformed
-        if (saveFrame) {
+        if (isFrameSaved()) {
             if (JOptionPane.showConfirmDialog(this, "A session is opened. All work will be lost.\n"
                     + "Do you really want to close ?", "Exit",
                     JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE) == 0) {
                 System.exit(0);
-            } else {
-                return;
             }
         } else {
             System.exit(0);
@@ -377,15 +400,15 @@ public class Identification extends javax.swing.JDialog {
     }//GEN-LAST:event_btnEffacerActionPerformed
 
     private void btnConnexionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnConnexionActionPerformed
-        dialog = this;
+//        dialog = this;
         ConnectDB.getConnectionInstance();
         try {
             //Add the userlist table
             createUserTableInDatabase();
             //         
             boolean userFound = false;
-            login = txtLogin.getText();
-            password = String.copyValueOf(txtPassword.getPassword());
+            String login = txtLogin.getText();
+            String password = String.copyValueOf(txtPassword.getPassword());
             try (PreparedStatement ps = ConnectDB.con.prepareStatement("SELECT * FROM userlist")) {
                 resultSet = ps.executeQuery();
                 ResultSetMetaData rsmd = resultSet.getMetaData();
@@ -397,13 +420,12 @@ public class Identification extends javax.swing.JDialog {
                             userFound = true;
                             if (!okID) {
                                 ConnectDB.serverIP = hlIPServer.getText();
-                                status = resultSet.getString("status");
-                                IDUser = resultSet.getInt("IDuser");
-                                userName = login;
+                                String status = resultSet.getString("status");
+                                userID = resultSet.getInt("IDuser");
                                 if (chkSaveLoginDetails.isSelected()) {
                                     this.saveLoginCredentials();//save the login credentials
                                 } else {
-                                    if (!status.equals("")) {
+                                    if (!status.isEmpty()) {
                                         try {
                                             pref.clear();
                                         } catch (BackingStoreException ex) {
@@ -418,14 +440,14 @@ public class Identification extends javax.swing.JDialog {
                                     new CreateUser(_mainFrame, true).setVisible(true);
                                     new Identification(_mainFrame, true).setVisible(true);
                                 } else {
-                                    if (saveFrame) {
+                                    if (frameSaved) {
                                         _showMainFrame.setVisible(true);
                                         if (quickViewFrame != null) {
                                             quickViewFrame.setVisible(true);
                                         }
                                         _showMainFrame.revalidate();
                                     } else {
-                                        _mainFrame = new MainFrame(IDUser);
+                                        _mainFrame = new MainFrame(userID);
                                         _mainFrame.showFrame();
                                         if (ConnectDB.pref.getBoolean(SettingKeyFactory.DefaultProperties.SHOWPRODUCTIONQVIEW, false)) {
                                             quickViewFrame = new JFrame("Production Quick View");
@@ -483,7 +505,7 @@ public class Identification extends javax.swing.JDialog {
         txtPassword.setText(pref.get("password", String.copyValueOf(txtPassword.getPassword())));
         chkSaveLoginDetails.setSelected(ConnectDB.pref.getBoolean(SettingKeyFactory.Privacy.SAVELOGININFO,
                 chkSaveLoginDetails.isSelected()));
-        if (txtLogin.getText().equals("")) {
+        if (txtLogin.getText().isEmpty()) {
             txtLogin.requestFocus();
         } else {
             txtPassword.requestFocus();
@@ -532,19 +554,19 @@ public class Identification extends javax.swing.JDialog {
             }
         }
     }
-
-    public static void main(String args[]) {
-        java.awt.EventQueue.invokeLater(new Runnable() {
-
-            @Override
-            public void run() {
-//                System.out.println(System.getProperty("jdbc.drivers"));
-                com.jidesoft.utils.Lm.verifyLicense("OSFAC", "OSFAC-DMT", "vx1xhNgC4CtD2SQc.kC5mp99mO0Bs1d2");
-                Identification dialog = new Identification(new javax.swing.JFrame(), true);
-                dialog.setVisible(true);
-            }
-        });
-    }
+//
+//    public static void main(String args[]) {
+//        java.awt.EventQueue.invokeLater(new Runnable() {
+//
+//            @Override
+//            public void run() {
+////                System.out.println(System.getProperty("jdbc.drivers"));
+//                com.jidesoft.utils.Lm.verifyLicense("OSFAC", "OSFAC-DMT", "vx1xhNgC4CtD2SQc.kC5mp99mO0Bs1d2");
+//                Identification dialog = new Identification(new javax.swing.JFrame(), true);
+//                dialog.setVisible(true);
+//            }
+//        });
+//    }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnConnexion;
     private javax.swing.JButton btnEffacer;
@@ -562,17 +584,15 @@ public class Identification extends javax.swing.JDialog {
     public static javax.swing.JTextField txtLogin;
     public static javax.swing.JPasswordField txtPassword;
     // End of variables declaration//GEN-END:variables
-    public static boolean okID = false;
-    public static int IDUser = -1;
-    public static boolean saveFrame = false;
-    public static MainFrame _mainFrame;
-    public static JFrame quickViewFrame, _showMainFrame;
-    public static String status = "", userName = "";
-    public static ProductionQuickView productionQuickView;
-    public static Identification dialog;
+    public boolean okID = false;
+    private int userID = -1;
+    private static boolean frameSaved = false;
+    private static MainFrame _mainFrame;
+    public static JFrame quickViewFrame;
+    private static JFrame _showMainFrame  = null;
+    public static ProductionQuickView productionQuickView = null;
+//    public static Identification dialog;
 //    private final JDialog parent;
-    private ResultSet resultSet;
-    private String login, password;
-    private final Preferences pref = Preferences.userNodeForPackage(Identification.class
-    );
+    private ResultSet resultSet = null;
+    private final Preferences pref = Preferences.userNodeForPackage(Identification.class);
 }

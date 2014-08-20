@@ -9,25 +9,17 @@ import com.jidesoft.grid.TableColumnGroup;
 import com.jidesoft.grid.TableHeaderPopupMenuInstaller;
 import com.jidesoft.grid.TableUtils;
 import com.jidesoft.hssf.HssfTableUtils;
-import com.jidesoft.plaf.LookAndFeelFactory;
 import com.jidesoft.plaf.UIDefaultsLookup;
-import com.jidesoft.swing.DefaultOverlayable;
-import com.jidesoft.swing.InfiniteProgressPanel;
-import com.jidesoft.swing.Overlayable;
-import com.jidesoft.swing.OverlayableUtils;
 import com.jidesoft.swing.PartialGradientLineBorder;
 import com.jidesoft.swing.PartialSide;
 import com.jidesoft.swing.SimpleScrollPane;
 import com.jidesoft.tooltip.ExpandedTipUtils;
 import java.awt.Color;
 import java.awt.Desktop;
-import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
 import java.sql.PreparedStatement;
@@ -37,11 +29,8 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Calendar;
 import javax.swing.BorderFactory;
-import javax.swing.JComponent;
 import javax.swing.JFileChooser;
-import javax.swing.JFrame;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import javax.swing.ListSelectionModel;
 import javax.swing.Timer;
 import javax.swing.border.TitledBorder;
@@ -55,6 +44,10 @@ import tableModel.TableModelEventData;
  * @author Victor Kadiata
  */
 public class EventsDataPanel extends javax.swing.JPanel {
+
+    public static boolean isDataGrouped() {
+        return dataGrouped;
+    }
 
     public EventsDataPanel(String customCodeValue, String query, String machineTitle) throws SQLException {
 //        System.out.println(query);
@@ -97,20 +90,20 @@ public class EventsDataPanel extends javax.swing.JPanel {
         setScrollPaneBorder();
         scrlPanTable.setHorizontalScrollBarPolicy(SimpleScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         scrlPanTable.setVerticalScrollBarPolicy(SimpleScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-        if (run != null) {
-            while (run.isAlive()) {
+        if (runThread != null) {
+            while (runThread.isAlive()) {
                 try {
-                    run.interrupt();
-                    run.join();
+                    runThread.interrupt();
+                    runThread.join();
                 } catch (InterruptedException ex) {
                     ex.printStackTrace();
                 }
             }
         }
-        run = new Thread(r);
-        run.start();
+        runThread = new Thread(runnable);
+        runThread.start();
         ExpandedTipUtils.install(table);
-        if (groupData) {
+        if (dataGrouped) {
             chkGroupData.setSelected(true);
         } else {
             chkGroupData.setSelected(false);
@@ -245,7 +238,7 @@ public class EventsDataPanel extends javax.swing.JPanel {
             cleanTable();
             tableRow = 0;
             setScrollPaneBorder();
-            EventsStatistic._tree.setSelectionRow(-1);
+            EventsStatistic.getTree().setSelectionRow(-1);
         }
     }//GEN-LAST:event_btnCleanTableActionPerformed
 
@@ -326,7 +319,7 @@ public class EventsDataPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_mniClearTableActionPerformed
 
     private void chkGroupDataActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chkGroupDataActionPerformed
-        groupData = chkGroupData.isSelected();
+        dataGrouped = chkGroupData.isSelected();
     }//GEN-LAST:event_chkGroupDataActionPerformed
 
     private void setScrollPaneBorder() {
@@ -340,7 +333,7 @@ public class EventsDataPanel extends javax.swing.JPanel {
                 TitledBorder.CENTER, TitledBorder.ABOVE_TOP), BorderFactory.createEmptyBorder(6, 4, 4, 4)));
     }
 
-    Runnable r = new Runnable() {
+    Runnable runnable = new Runnable() {
 
         @Override
         public void run() {
@@ -348,7 +341,7 @@ public class EventsDataPanel extends javax.swing.JPanel {
                 fillTable();
                 tableRow = table.getModel().getRowCount();
                 setScrollPaneBorder();
-                runOverlayable = false;
+//                runOverlayable = false;
             } catch (SQLException ex) {
                 ConnectDB.catchSQLException(ex);
             }
@@ -367,7 +360,7 @@ public class EventsDataPanel extends javax.swing.JPanel {
                  table with the parameters as starttime and endtime
                  */
                 runDataLogQuery(ConnectDB.res.getString(1), ConnectDB.res.getString(3));
-                runOverlayable = false;
+//                runOverlayable = false;
                 if (nbRow > table.getModel().getRowCount()) {
                     model.addNewRow();
                 }
@@ -387,7 +380,7 @@ public class EventsDataPanel extends javax.swing.JPanel {
      @param endTime 
      */
     synchronized private void runDataLogQuery(String startTime, String endTime) throws SQLException {
-        alValue.clear();
+        ArrayList<Double> alValue = new ArrayList<>();
         totalSum = 0d;
         String query = "SELECT d.LogData FROM datalog d\n"
                 + "WHERE d.ConfigNo = (SELECT DISTINCT c.ConfigNo\n"
@@ -405,7 +398,6 @@ public class EventsDataPanel extends javax.swing.JPanel {
 //            System.out.println(ps.toString());
             this.res = ps.executeQuery();
             while (this.res.next()) {
-                dataFound = true;
                 alValue.add(res.getDouble(1));
             }
         }
@@ -468,7 +460,6 @@ public class EventsDataPanel extends javax.swing.JPanel {
 ////        panel.add(overlayTextArea);
 //        return overlayTextArea;
 //    }
-
 //    private Thread createThread(final InfiniteProgressPanel progressPanel, final JComponent pane) {
 //        return new Thread() {
 //            @Override
@@ -490,22 +481,22 @@ public class EventsDataPanel extends javax.swing.JPanel {
 //            }
 //        };
 //    }
-
-    public static void main(String[] agrs) throws SQLException {
-        LookAndFeelFactory.installDefaultLookAndFeel();
-        final JFrame frame = new JFrame("Smartfactory Events & Downtime Statistics Report 1.0");
-        frame.setSize(700, 500);
-        frame.setContentPane(new EventsDataPanel("Parts Num", "", ""));
-        frame.addWindowListener(new WindowAdapter() {
-
-            @Override
-            public void windowClosing(WindowEvent e) {
-                frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            }
-        });
-        frame.setLocationRelativeTo(null);
-        frame.setVisible(true);
-    }
+//    public static void main(String[] agrs) throws SQLException {
+//        LookAndFeelFactory.installDefaultLookAndFeel();
+//        final JFrame frame = new JFrame("Smartfactory Events & Downtime Statistics Report 1.0");
+//        frame.setSize(700, 500);
+//        frame.setContentPane(new EventsDataPanel("Parts Num", "", ""));
+//        frame.addWindowListener(new WindowAdapter() {
+//
+//            @Override
+//            public void windowClosing(WindowEvent e) {
+//                frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//            }
+//        });
+//        frame.setLocationRelativeTo(null);
+//        frame.setVisible(true);
+//    }
+    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private com.jidesoft.swing.JideButton btnCleanTable;
     private com.jidesoft.swing.JideButton btnExport;
@@ -517,16 +508,13 @@ public class EventsDataPanel extends javax.swing.JPanel {
     private javax.swing.JPopupMenu popMenu;
     private javax.swing.JScrollPane scrlPanTable;
     // End of variables declaration//GEN-END:variables
-    static int tableRow = 0;
-    String _query, _machineTitle;
-    ResultSet res = null;
-    Double totalSum = 0d;
-    String _lastDirectory = ".";
-    private Thread run, _thread;
-    volatile boolean runOverlayable = true, dataFound;
-    private static SortableTable table;
-    private static TableModelEventData model;
-    private static final ArrayList<Double> alValue = new ArrayList<>();
-    public static boolean groupData = false;
+    private static int tableRow = 0;
+    private String _query = null, _machineTitle = null;
+    private ResultSet res = null;
+    private Double totalSum = 0d;
+    private Thread runThread = null;
+    private static SortableTable table = null;
+    private static TableModelEventData model = null;
+    private static boolean dataGrouped = false;
 //    RuleBasedNumberFormat rbnf = new RuleBasedNumberFormat(Locale.US, RuleBasedNumberFormat.FRACTION_FIELD);
 }

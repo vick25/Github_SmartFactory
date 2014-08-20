@@ -34,8 +34,8 @@ public class TableModelTotal extends AbstractTableModel implements ContextSensit
     private final static CellStyle CELL_STYLE_UNDERLAY = new CellStyle();
     private static double machineTarget;
 
-    String[] columnNames = {"Machine(s)", "Current {Last Data:sp}", "Last hour", "Daily", "Weekly", "MTD", "YTD"};
-    ArrayList[] Data;
+    private final String[] columnNames = {"Machine(s)", "Current {Last Data:sp}", "Last hour", "Daily", "Weekly", "MTD", "YTD"};
+    private final ArrayList[] Data;
 
     public TableModelTotal() {
         Data = new ArrayList[columnNames.length];
@@ -65,21 +65,20 @@ public class TableModelTotal extends AbstractTableModel implements ContextSensit
                             ConnectDB.catchSQLException(ex);
                         }
                     }
-                    value = Double.valueOf(value.toString());
-                    if (value instanceof Double) {
+                    Double valueD = Double.valueOf(value.toString());
+                    if (valueD instanceof Double) {
                         Graphics2D g2d = (Graphics2D) g.create();
-                        double actualValue = (Double) value;
                         Rectangle clip = new Rectangle(cellRect.x, cellRect.y, (int) (cellRect.width * 100.0 / 100.0),
                                 cellRect.height);
                         g2d.clip(clip);
-                        if (actualValue >= machineTarget) {//Green new Color(147, 98, 184)
+                        if (valueD >= machineTarget) {//Green new Color(147, 98, 184)
                             JideSwingUtilities.fillGradient(g2d, cellRect,
                                     Color.GREEN, new Color(229, 193, 255), false);
-                        } else if ((actualValue * 0.05) <= machineTarget && machineTarget <= (actualValue * 0.75)) {
+                        } else if ((valueD * 0.05) <= machineTarget && machineTarget <= (valueD * 0.75)) {
                             //Amber or Orange new Color(173, 135, 24)
                             JideSwingUtilities.fillGradient(g2d, cellRect,
                                     Color.ORANGE, new Color(246, 218, 135), false);
-                        } else if (actualValue < machineTarget) {//Red new Color(75, 126, 176)
+                        } else if (valueD < machineTarget) {//Red new Color(75, 126, 176)
                             JideSwingUtilities.fillGradient(g2d, cellRect,
                                     Color.RED, new Color(170, 208, 246), false);
                         } else {
@@ -88,7 +87,7 @@ public class TableModelTotal extends AbstractTableModel implements ContextSensit
                         }
                         g2d.dispose();
                     }
-                } catch (Exception e) {
+                } catch (NumberFormatException e) {
                 }
             }
         });
@@ -137,7 +136,7 @@ public class TableModelTotal extends AbstractTableModel implements ContextSensit
 
     @Override
     public CellStyle getCellStyleAt(int rowIndex, int columnIndex) {
-        if (ProductionQuickView.totProd) {
+        if (ProductionQuickView.isTotProdSelected()) {
             if (columnIndex == 0 || columnIndex == 2) {
                 return CELL_STYLE_UNDERLAY;
             }

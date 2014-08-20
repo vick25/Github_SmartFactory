@@ -1,6 +1,5 @@
 package productionQuickView;
 
-import target.Target;
 import com.jidesoft.grid.JideTable;
 import com.jidesoft.grid.NestedTableHeader;
 import com.jidesoft.grid.RowStripeTableStyleProvider;
@@ -13,7 +12,6 @@ import com.jidesoft.hssf.HssfTableUtils;
 import com.jidesoft.navigation.NavigationList;
 import com.jidesoft.plaf.UIDefaultsLookup;
 import com.jidesoft.swing.CheckBoxList;
-import com.jidesoft.swing.JideTabbedPane;
 import com.jidesoft.swing.PartialGradientLineBorder;
 import com.jidesoft.swing.PartialSide;
 import com.jidesoft.swing.SearchableUtils;
@@ -47,7 +45,7 @@ import java.util.logging.Logger;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
-import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -56,6 +54,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
@@ -69,6 +68,7 @@ import setting.SettingKeyFactory;
 import smartfactoryV2.ConnectDB;
 import tableModel.TableModelRate;
 import tableModel.TableModelTotal;
+import target.Target;
 
 /**
  *
@@ -76,8 +76,17 @@ import tableModel.TableModelTotal;
  */
 public class ProductionQuickView extends javax.swing.JPanel {
 
+    public static boolean isTotProdSelected() {
+        return totProdSelected;
+    }
+
+    public static void setTotProdSelected(boolean totProdSelected) {
+        ProductionQuickView.totProdSelected = totProdSelected;
+    }
+
     public ProductionQuickView(JFrame parent) throws SQLException {
         this._parent = parent;
+        ball = new Ball(this);
         initComponents();
         panTarget.revalidate();
         bslQuickView.setHorizontalAlignment(javax.swing.SwingConstants.LEADING);
@@ -91,7 +100,7 @@ public class ProductionQuickView extends javax.swing.JPanel {
 
             @Override
             public void stateChanged(ChangeEvent e) {
-                int index = ((JideTabbedPane) e.getSource()).getSelectedIndex();
+                int index = ((JTabbedPane) e.getSource()).getSelectedIndex();
                 try {
                     if (catProdTab) {
                         lblProduction.setEnabled(true);
@@ -118,7 +127,7 @@ public class ProductionQuickView extends javax.swing.JPanel {
                                 btnPerHour.setText("Actual parts");
                                 btnPerHour.setSelected(true);
                                 btnTotalProductionActionPerformed(null);
-                                totProd = true;
+                                totProdSelected = true;
                                 break;
                         }
                     }
@@ -652,7 +661,7 @@ public class ProductionQuickView extends javax.swing.JPanel {
                 return;
             }
             outputToExcel(evt, _sortableTable);
-        } catch (Exception e) {
+        } catch (HeadlessException e) {
         }
     }//GEN-LAST:event_btnExportExcelCsvActionPerformed
 
@@ -1178,9 +1187,8 @@ public class ProductionQuickView extends javax.swing.JPanel {
             }
         };
         chooser.setCurrentDirectory(new File(ConnectDB.DEFAULTDIRECTORY));
-        int result = chooser.showDialog(((JButton) e.getSource()).getTopLevelAncestor(), "Export");
+        int result = chooser.showDialog(((JComponent) e.getSource()).getTopLevelAncestor(), "Export");
         if (result == JFileChooser.APPROVE_OPTION) {
-            _lastDirectory = chooser.getCurrentDirectory().getAbsolutePath();
             try {
 //                System.out.println("Exporting to " + _lastDirectory);
                 HssfTableUtils.export(table, chooser.getSelectedFile().getAbsolutePath() + ".xls", "SortableTable",
@@ -1336,12 +1344,11 @@ public class ProductionQuickView extends javax.swing.JPanel {
     private boolean catProdTab = true, showActualTotalValues = true, skipRefresh;
     private int countMachine = 0, nbRow = 1;
     static SortableTable tableRate, tableTotal;
-    public static boolean totProd;
+    private static boolean totProdSelected = false;
     private String rateType = "(p/min)", lastDayDBData;
     private static Date today = null;
     private static ArrayList<String> alTimeValue = new ArrayList<>();
     private static final ArrayList<String> alTime = new ArrayList<>(), alValue = new ArrayList<>();
-    String _lastDirectory = ".";
     private String prodType = "";
     TableModelRate _modelRate;
     TableModelTotal _modelTotal;
@@ -1350,7 +1357,7 @@ public class ProductionQuickView extends javax.swing.JPanel {
 //    Thread[] machinesThread;
     JPopupMenu jpm;
     JMenuItem menu1;
-    Ball ball = new Ball(this);
+    Ball ball = null;
     Thread fillTableThread;
     Color ballColor = Color.RED;
 //    volatile boolean terminate = false;

@@ -44,10 +44,9 @@ public class BalloonTipDemo extends BalloonTip {
         }
         y = _comp.getHeight() / 2;
         text = toolTipText;
-        toggleToolTip();
     }
 
-    private void toggleToolTip() {
+    public void toggleToolTip() {
         if (_balloonTip != null && _balloonTip.isVisible()) {
             hideToolTip();
         } else {
