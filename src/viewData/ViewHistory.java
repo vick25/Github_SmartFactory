@@ -57,7 +57,7 @@ public class ViewHistory extends javax.swing.JPanel {
 
     public ViewHistory(String machineTitle, Date from) throws SQLException {
         initComponents();
-        this.machineTitle = machineTitle;
+        this._machineTitle = machineTitle;
         loadMachine();
         if (from != null) {
             cmbHFrom.setDate(from);
@@ -287,7 +287,6 @@ public class ViewHistory extends javax.swing.JPanel {
         table.setModel(_historyTableModel);
         table.setBackground(BG4);
         table.setName("History Table");
-//        table.getTableHeader().setDefaultRenderer(new ConnectDB.HeaderRenderer(table));
         table.getColumnModel().getColumn(0).setPreferredWidth(100);
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         table.setComponentFactory(new HierarchicalTableComponentFactory() {
@@ -479,9 +478,9 @@ public class ViewHistory extends javax.swing.JPanel {
         return _destroyedCount;
     }
 
-    static class HistoryTableModel extends DefaultTableModel implements HierarchicalTableModel {
+    private static class HistoryTableModel extends DefaultTableModel implements HierarchicalTableModel {
 
-        public HistoryTableModel() {
+        HistoryTableModel() {
             super(getListOfMachine(), DESCRIPTION_COLUMNS);
         }
 
@@ -535,23 +534,23 @@ public class ViewHistory extends javax.swing.JPanel {
         }
     }
 
-    static class FitScrollPane extends JScrollPane implements ComponentListener {
+    private static class FitScrollPane extends JScrollPane implements ComponentListener {
 
-        public FitScrollPane() {
+        FitScrollPane() {
             initScrollPane();
         }
 
-        public FitScrollPane(Component view) {
+        FitScrollPane(Component view) {
             super(view);
             initScrollPane();
         }
 
-        public FitScrollPane(Component view, int vsbPolicy, int hsbPolicy) {
+        FitScrollPane(Component view, int vsbPolicy, int hsbPolicy) {
             super(view, vsbPolicy, hsbPolicy);
             initScrollPane();
         }
 
-        public FitScrollPane(int vsbPolicy, int hsbPolicy) {
+        FitScrollPane(int vsbPolicy, int hsbPolicy) {
             super(vsbPolicy, hsbPolicy);
             initScrollPane();
         }
@@ -614,7 +613,6 @@ public class ViewHistory extends javax.swing.JPanel {
             dx += bounds.x;
             dy += bounds.y;
         }
-
         if (parent != null) {
             aRect.x += dx;
             aRect.y += dy;
@@ -645,7 +643,7 @@ public class ViewHistory extends javax.swing.JPanel {
     }
 
     private static String[][] getListOfMachine() {
-        int i = setMachine.size(), y = 0;
+        short i = (short) setMachine.size(), y = 0;
         String[][] tabDescription = new String[i][2];
         for (String sMachine : setMachine) {
             if (y < i) {
@@ -678,7 +676,7 @@ public class ViewHistory extends javax.swing.JPanel {
     private static String[][] getDetails(String rowMachineName) throws SQLException {
         String[][] tab = null;
         vectConfigNo.removeAllElements();
-        if (!rowMachineName.equals("")) {
+        if (!rowMachineName.isEmpty()) {
             SwingUtilities.invokeLater(new Runnable() {
 
                 @Override
@@ -688,19 +686,19 @@ public class ViewHistory extends javax.swing.JPanel {
                     bslHistory.setText("Processing ... ");
                 }
             });
-            int col = 0;
+            short col = 0;
             String historyQuery = "SELECT c.ConfigNo\n"
                     + "FROM configuration c, hardware h\n"
                     + "WHERE h.HwNo = c.HwNo\n"
                     + "AND h.Machine =?\n"
                     + "ORDER BY c.HwNo ASC, c.AvMinMax DESC";
             try (PreparedStatement ps = ConnectDB.con.prepareStatement(historyQuery)) {
-                int z = 1;
-                ps.setString(z++, rowMachineName);
+                ps.setString(1, rowMachineName);
                 ConnectDB.res = ps.executeQuery();
                 while (ConnectDB.res.next()) {
                     vectConfigNo.add(ConnectDB.res.getInt(1));
                 }
+                //Define the size of the tabFill array
                 tabFill = new String[getRowNum((int) vectConfigNo.elementAt(0))][vectConfigNo.size() + 1];
                 Iterator<Integer> it = vectConfigNo.iterator();
                 while (it.hasNext()) {
@@ -708,7 +706,8 @@ public class ViewHistory extends javax.swing.JPanel {
                     ++col;
                     try {
                         tab = fillTable(col, item);
-                    } catch (Exception e) {
+                    } catch (SQLException e) {
+                        ConnectDB.catchSQLException(e);
                     }
                 }
             }
@@ -717,7 +716,7 @@ public class ViewHistory extends javax.swing.JPanel {
         return tab;
     }
 
-    private static String[][] fillTable(int col, int item) throws SQLException {
+    private static String[][] fillTable(short col, int item) throws SQLException {
         int row = 0;
         String channelQuery = "SELECT d.LogTime, d.LogData\n"
                 + "FROM configuration c, datalog d\n"
@@ -725,8 +724,7 @@ public class ViewHistory extends javax.swing.JPanel {
                 + "AND d.ConfigNo =?\n"
                 + "ORDER BY d.LogTime ASC";
         try (PreparedStatement ps = ConnectDB.con.prepareStatement(runQuery(channelQuery))) {
-            int z = 1;
-            ps.setInt(z++, item);
+            ps.setInt(1, item);
             ConnectDB.res = ps.executeQuery();
             while (ConnectDB.res.next()) {
                 tabFill[row][0] = ConnectDB.res.getString(1);//LogTime
@@ -744,8 +742,7 @@ public class ViewHistory extends javax.swing.JPanel {
                 + "AND d.ConfigNo =?\n"
                 + "ORDER BY d.LogTime ASC";
         try (PreparedStatement ps = ConnectDB.con.prepareStatement(runQuery(channelQuery))) {
-            int z = 1;
-            ps.setInt(z++, row);
+            ps.setInt(1, row);
             ConnectDB.res = ps.executeQuery();
             ConnectDB.res.last();
             return ConnectDB.res.getRow();
@@ -783,15 +780,15 @@ public class ViewHistory extends javax.swing.JPanel {
             }
             cmbMachine.setModel(new DefaultComboBoxModel(data.toArray()));
             data.clear();
-            if ("".equals(this.machineTitle)) {
+            if ("".equals(this._machineTitle)) {
                 cmbMachine.setSelectedIndex(-1);
             } else {
-                cmbMachine.setSelectedItem(this.machineTitle);
+                cmbMachine.setSelectedItem(this._machineTitle);
             }
         }
-        try (PreparedStatement ps1 = ConnectDB.con.prepareStatement("SELECT LogTime FROM datalog\n"
+        try (PreparedStatement ps = ConnectDB.con.prepareStatement("SELECT LogTime FROM datalog\n"
                 + "ORDER BY LogTime DESC LIMIT 1;")) {
-            ConnectDB.res = ps1.executeQuery();
+            ConnectDB.res = ps.executeQuery();
             while (ConnectDB.res.next()) {
                 lblLastData.setText("Last recorded data: " + ConnectDB.res.getString(1).substring(0, 19));
             }
@@ -811,21 +808,21 @@ public class ViewHistory extends javax.swing.JPanel {
     private com.jidesoft.swing.JideLabel jideLabel1;
     private javax.swing.JLabel lblLastData;
     // End of variables declaration//GEN-END:variables
-    private String machineTitle = "";
+    private String _machineTitle = "";
     private static String[][] tabFill = null;
-    public static Set<String> setMachine = new TreeSet<>();
-    static String[] DESCRIPTION_COLUMNS = new String[]{"Machine Name", "Machine History Information"};
-    static Vector vectConfigNo = new Vector();
-    protected static final Color BG1 = new Color(232, 237, 230);
+    private static Set<String> setMachine = new TreeSet<>();
+    private static String[] DESCRIPTION_COLUMNS = new String[]{"Machine Name", "Machine History Information"};
+    private static Vector vectConfigNo = new Vector();
+//    protected static final Color BG1 = new Color(232, 237, 230);
     protected static final Color BG2 = new Color(243, 234, 217);
     protected static final Color BG3 = new Color(214, 231, 247);
     protected static final Color BG4 = new Color(255, 255, 255);
 
     private HierarchicalTable _table;
     private DefaultTableModel _historyTableModel;
-    private int _destroyedCount = 0;
 
-    static TableModel model = null;
+    private static TableModel model = null;
+    private int _destroyedCount = 0;
 
     private ListSelectionModelGroup _group = new ListSelectionModelGroup();
 }

@@ -1,11 +1,16 @@
 package login;
 
+import com.jidesoft.field.IPTextField;
 import setting.SettingKeyFactory;
 import smartfactoryV2.ConnectDB;
 
-public class ServerIP extends javax.swing.JDialog {
+public class ServerIPDialog extends javax.swing.JDialog {
 
-    public ServerIP(java.awt.Dialog parent, boolean modal) {
+    public static IPTextField getTxtServerIP() {
+        return txtServerIP;
+    }
+
+    public ServerIPDialog(java.awt.Dialog parent, boolean modal) {
         super(parent, modal);
         initComponents();
         txtServerIP.setText(ConnectDB.pref.get(SettingKeyFactory.Connection.SERVERIPADDRESS, ConnectDB.serverIP));
@@ -86,20 +91,15 @@ public class ServerIP extends javax.swing.JDialog {
 
     private void btnOKActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnOKActionPerformed
         ConnectDB.pref.put(SettingKeyFactory.Connection.SERVERIPADDRESS, txtServerIP.getText());
-        loadIP(txtServerIP.getText());
         ConnectDB.con = null;
         this.dispose();
     }//GEN-LAST:event_btnOKActionPerformed
 
-    private void loadIP(String IPValue) {
-        _IPValue = IPValue;
-    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private com.jidesoft.swing.JideButton btnOK;
     private javax.swing.JPanel jPanel1;
     private com.jidesoft.swing.JideLabel jideLabel1;
-    private com.jidesoft.field.IPTextField txtServerIP;
+    private static com.jidesoft.field.IPTextField txtServerIP;
     // End of variables declaration//GEN-END:variables
-    public static String _IPValue = "";
 }

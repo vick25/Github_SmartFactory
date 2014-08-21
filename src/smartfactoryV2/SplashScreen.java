@@ -162,7 +162,7 @@ public class SplashScreen extends javax.swing.JFrame {
     private org.jdesktop.swingx.JXPanel panelImage;
     private javax.swing.JProgressBar prbSplashScreen;
     // End of variables declaration//GEN-END:variables
-    private int motion = 1;
+    private short motion = 1;
     private Timer time = null;
     private static Identification identification;
 }

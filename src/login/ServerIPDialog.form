@@ -82,6 +82,9 @@
       </Layout>
       <SubComponents>
         <Component class="com.jidesoft.field.IPTextField" name="txtServerIP">
+          <AuxValues>
+            <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="10"/>
+          </AuxValues>
         </Component>
         <Component class="com.jidesoft.swing.JideButton" name="btnOK">
           <Properties>

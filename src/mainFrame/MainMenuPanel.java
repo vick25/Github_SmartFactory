@@ -238,6 +238,7 @@ public class MainMenuPanel extends JPanel {
                         "Production", new ImageIcon(this.getClass().getResource("/images/icons/kchart12.png")));
                 _documentPane.openDocument(document);
                 MainFrame.confirmCloseTab(document);
+                ProductionPane.setMachineTitle("");
             } catch (SQLException ex) {
                 ConnectDB.catchSQLException(ex);
             }

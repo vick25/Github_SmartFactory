@@ -557,7 +557,7 @@ public class MainFrame extends DefaultDockableBarDockableHolder {
     private static MainFrame _frame;
     private static Date dashBoardDate = null;
     private static LabelStatusBarItem lblStatus;
-    private static StatusBar _statusBar;
-    private ProgressStatusBarItem progress;
-    private static DocumentPane _documentPane;
+    private static StatusBar _statusBar = null;
+    private ProgressStatusBarItem progress = null;
+    private static DocumentPane _documentPane = null;
 }

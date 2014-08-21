@@ -184,14 +184,14 @@ public class Identification extends javax.swing.JDialog {
             }
         });
 
-        txtPassword.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtPasswordActionPerformed(evt);
-            }
-        });
         txtPassword.addFocusListener(new java.awt.event.FocusAdapter() {
             public void focusGained(java.awt.event.FocusEvent evt) {
                 txtPasswordFocusGained(evt);
+            }
+        });
+        txtPassword.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtPasswordActionPerformed(evt);
             }
         });
 
@@ -361,9 +361,10 @@ public class Identification extends javax.swing.JDialog {
     }// </editor-fold>//GEN-END:initComponents
 
     private void hlIPServerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_hlIPServerActionPerformed
-        new ServerIP(this, true).setVisible(true);
-        if (!ServerIP._IPValue.isEmpty() && !ServerIP._IPValue.equalsIgnoreCase("0.0.0.0")) {
-            hlIPServer.setText(ServerIP._IPValue);
+        new ServerIPDialog(this, true).setVisible(true);
+        String serverIPText = ServerIPDialog.getTxtServerIP().getText();
+        if (!serverIPText.isEmpty() && !serverIPText.equalsIgnoreCase("0.0.0.0")) {
+            hlIPServer.setText(serverIPText);
         }
     }//GEN-LAST:event_hlIPServerActionPerformed
 
@@ -394,7 +395,7 @@ public class Identification extends javax.swing.JDialog {
     private void btnEffacerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEffacerActionPerformed
         txtLogin.setText("");
         txtPassword.setText("");
-        hlIPServer.setText(ConnectDB.pref.get("IPServerAddress", ConnectDB.serverIP));
+        hlIPServer.setText(ConnectDB.pref.get(SettingKeyFactory.Connection.SERVERIPADDRESS, ConnectDB.serverIP));
         txtLogin.requestFocus();
         chkSaveLoginDetails.setSelected(false);
     }//GEN-LAST:event_btnEffacerActionPerformed
@@ -407,14 +408,15 @@ public class Identification extends javax.swing.JDialog {
             createUserTableInDatabase();
             //         
             boolean userFound = false;
-            String login = txtLogin.getText();
-            String password = String.copyValueOf(txtPassword.getPassword());
+            passwordChar = txtPassword.getPassword();
+            String login = txtLogin.getText(),
+                    password = String.copyValueOf(passwordChar);
             try (PreparedStatement ps = ConnectDB.con.prepareStatement("SELECT * FROM userlist")) {
                 resultSet = ps.executeQuery();
                 ResultSetMetaData rsmd = resultSet.getMetaData();
                 int nbCols = rsmd.getColumnCount();
                 while (resultSet.next()) {
-                    for (int i = 1; i <= nbCols; i++) {
+                    for (short i = 1; i <= nbCols; i++) {
                         if ((login.equalsIgnoreCase(resultSet.getString(i)))
                                 && (password.equalsIgnoreCase(ConnectDB.decrypter(resultSet.getString(i + 1))))) {
                             userFound = true;
@@ -501,8 +503,8 @@ public class Identification extends javax.swing.JDialog {
 
     private void initValues() {
         hlIPServer.setText(ConnectDB.pref.get(SettingKeyFactory.Connection.SERVERIPADDRESS, hlIPServer.getText()));
-        txtLogin.setText(pref.get("login", txtLogin.getText()));
-        txtPassword.setText(pref.get("password", String.copyValueOf(txtPassword.getPassword())));
+        txtLogin.setText(this.pref.get("login", txtLogin.getText()));
+        txtPassword.setText(this.pref.get("password", String.copyValueOf(txtPassword.getPassword())));
         chkSaveLoginDetails.setSelected(ConnectDB.pref.getBoolean(SettingKeyFactory.Privacy.SAVELOGININFO,
                 chkSaveLoginDetails.isSelected()));
         if (txtLogin.getText().isEmpty()) {
@@ -514,8 +516,8 @@ public class Identification extends javax.swing.JDialog {
 
     private void saveLoginCredentials() {
         ConnectDB.pref.put(SettingKeyFactory.Connection.SERVERIPADDRESS, ConnectDB.serverIP);
-        pref.put("login", txtLogin.getText());
-        pref.put("password", String.copyValueOf(txtPassword.getPassword()));
+        this.pref.put("login", txtLogin.getText());
+        this.pref.put("password", String.copyValueOf(txtPassword.getPassword()));
         ConnectDB.pref.putBoolean(SettingKeyFactory.Privacy.SAVELOGININFO, chkSaveLoginDetails.isSelected());
     }
 
@@ -561,7 +563,6 @@ public class Identification extends javax.swing.JDialog {
 //            @Override
 //            public void run() {
 ////                System.out.println(System.getProperty("jdbc.drivers"));
-//                com.jidesoft.utils.Lm.verifyLicense("OSFAC", "OSFAC-DMT", "vx1xhNgC4CtD2SQc.kC5mp99mO0Bs1d2");
 //                Identification dialog = new Identification(new javax.swing.JFrame(), true);
 //                dialog.setVisible(true);
 //            }
@@ -584,12 +585,13 @@ public class Identification extends javax.swing.JDialog {
     public static javax.swing.JTextField txtLogin;
     public static javax.swing.JPasswordField txtPassword;
     // End of variables declaration//GEN-END:variables
+    private char[] passwordChar = null;
     public boolean okID = false;
     private int userID = -1;
     private static boolean frameSaved = false;
     private static MainFrame _mainFrame;
     public static JFrame quickViewFrame;
-    private static JFrame _showMainFrame  = null;
+    private static JFrame _showMainFrame = null;
     public static ProductionQuickView productionQuickView = null;
 //    public static Identification dialog;
 //    private final JDialog parent;

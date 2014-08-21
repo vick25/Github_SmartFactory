@@ -65,16 +65,14 @@ public class TargetOptions extends javax.swing.JPanel {
 //        this.dsEndTime = dsEndTime;
 //        this.dsEndTime.repaint();
 //    }
-
     public DateSpinner getDsStartTime() {
-        return dsStartTime; 
+        return dsStartTime;
     }
 
 //    public void setDsStartTime(DateSpinner dsStartTime) {
 //        this.dsStartTime = dsStartTime;
 //        this.dsStartTime.repaint();
 //    }
-
     public TargetOptions(String machine) throws SQLException, ParseException {
         _machine = machine;
         initComponents();
@@ -83,8 +81,8 @@ public class TargetOptions extends javax.swing.JPanel {
                     UIDefaultsLookup.getColor("control")}, 2, PartialSide.NORTH),
                 _machine + " Break Times", TitledBorder.CENTER, TitledBorder.ABOVE_TOP),
                 BorderFactory.createEmptyBorder(6, 4, 4, 4)));
-        setTable();
-        loadMachineBreakTime(_machine);
+        this.setTable();
+        this.loadMachineBreakTime(_machine);
 //        getDsStartTime().setValue(new SimpleDateFormat("HH:mm").parse("20:30"));
     }
 
@@ -446,8 +444,8 @@ public class TargetOptions extends javax.swing.JPanel {
         }
 
         @Override
-        public Component getTableCellEditorComponent(JTable table, Object value,
-                boolean isSelected, int row, int column) {
+        public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, 
+                int column) {
             dateSpinner.setValue(value);
             return dateSpinner;
         }
@@ -465,7 +463,6 @@ public class TargetOptions extends javax.swing.JPanel {
     private javax.swing.JScrollPane scrlBreakTime;
     private javax.swing.JSpinner spBreaksNum;
     // End of variables declaration//GEN-END:variables
-//    private int countTotalPart = 1;
     private boolean catLoad = true;
     private int nbLine = 1, n = 0;
     private final String _machine;

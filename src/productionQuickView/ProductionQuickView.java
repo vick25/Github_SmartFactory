@@ -34,6 +34,7 @@ import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -88,6 +89,7 @@ public class ProductionQuickView extends javax.swing.JPanel {
         this._parent = parent;
         ball = new Ball(this);
         initComponents();
+        panTarget.setLayout(new BorderLayout());
         panTarget.revalidate();
         bslQuickView.setHorizontalAlignment(javax.swing.SwingConstants.LEADING);
         bslQuickView.setForeground(Color.GRAY);
@@ -863,16 +865,15 @@ public class ProductionQuickView extends javax.swing.JPanel {
         alValue.clear();
         try {
             try (PreparedStatement ps = ConnectDB.con.prepareStatement(query)) {
-                int i = 1;
-                ps.setInt(i++, configNo);
-                ps.setString(i++, ConnectDB.SDATEFORMATHOUR.format(today));
-                ConnectDB.res = ps.executeQuery();
-                while (ConnectDB.res.next()) {
+                ps.setInt(1, configNo);
+                ps.setString(2, ConnectDB.SDATEFORMATHOUR.format(today));
+                resultSet = ps.executeQuery();
+                while (resultSet.next()) {
                     if (pan == 1) {//Pane for the total production
-                        alTime.add(ConnectDB.res.getString(1));
-                        alValue.add(ConnectDB.res.getString(2));
+                        alTime.add(resultSet.getString(1));
+                        alValue.add(resultSet.getString(2));
                     } else {
-                        alTimeValue.add(ConnectDB.res.getString(1) + ";" + ConnectDB.res.getString(2));//LogTime and LogData
+                        alTimeValue.add(resultSet.getString(1) + ";" + resultSet.getString(2));//LogTime and LogData
                     }
                 }
             }
@@ -950,7 +951,7 @@ public class ProductionQuickView extends javax.swing.JPanel {
     }
 
     synchronized private Double calculateAverage(ArrayList<String> _list, Calendar calDaySet) throws ParseException {
-        Double averageSum = null;
+        Double averageSum = 0d;
         Date date = calDaySet.getTime();//the time set in the form
         int count = 0;
         for (String list : _list) {
@@ -988,7 +989,7 @@ public class ProductionQuickView extends javax.swing.JPanel {
     }
 
     private void createTabbedPanel(JPanel jPanel, String panelName) {
-        int i = 0;
+        short i = 0;
         if (tbpPanDetails.getTabCount() == 0) {
             i = 0;
             createTab(panelName, jPanel, i);
@@ -1031,7 +1032,7 @@ public class ProductionQuickView extends javax.swing.JPanel {
         }
     }
 
-    private void createTab(String tabName, JPanel jpanel, int i) {
+    private void createTab(String tabName, JPanel jpanel, short i) {
         ImageIcon icon = null;
         jpanel.setLayout(new BorderLayout());
         JScrollPane pane = new JScrollPane();
@@ -1227,7 +1228,7 @@ public class ProductionQuickView extends javax.swing.JPanel {
 
     synchronized private void autoFill(String type) throws SQLException {
 //        catMachine = false;
-        countMachine = 0;
+        short countMachine = 0;
         final DefaultListModel listModelMachine = new DefaultListModel(), listModelTarget = new DefaultListModel();
         cblMachine.setModel(listModelMachine);
         _listTarget.setModel(listModelTarget);
@@ -1271,10 +1272,9 @@ public class ProductionQuickView extends javax.swing.JPanel {
                         _listTarget.setFont(new Font("Tahoma", Font.PLAIN, 11));
                         _listTarget.setFocusable(false);
                         _listTarget.setExpandedTip(true);
-                        panTarget.setLayout(new BorderLayout());
+                        panTarget.add(new JScrollPane(_listTarget), BorderLayout.CENTER);
                         panTarget.setBackground(new Color(255, 255, 255));
-                        panTarget.add(new JScrollPane(_listTarget));
-                        panTarget.revalidate();
+//                        panTarget.revalidate();
                     }
                 });
             }
@@ -1342,14 +1342,15 @@ public class ProductionQuickView extends javax.swing.JPanel {
     private com.jidesoft.swing.JideTabbedPane tbpPanDetails;
     // End of variables declaration//GEN-END:variables
     private boolean catProdTab = true, showActualTotalValues = true, skipRefresh;
-    private int countMachine = 0, nbRow = 1;
-    static SortableTable tableRate, tableTotal;
+    private int nbRow = 1;
+    private static SortableTable tableRate, tableTotal;
     private static boolean totProdSelected = false;
     private String rateType = "(p/min)", lastDayDBData;
     private static Date today = null;
     private static ArrayList<String> alTimeValue = new ArrayList<>();
     private static final ArrayList<String> alTime = new ArrayList<>(), alValue = new ArrayList<>();
     private String prodType = "";
+    private ResultSet resultSet = null;
     TableModelRate _modelRate;
     TableModelTotal _modelTotal;
     JFrame _parent;

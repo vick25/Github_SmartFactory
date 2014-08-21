@@ -38,7 +38,7 @@ public class Target extends javax.swing.JDialog {
         initComponents();
         setTableTarget();
         loadTargetTable();
-        addWindowListener(new java.awt.event.WindowAdapter() {
+        this.addWindowListener(new java.awt.event.WindowAdapter() {
             @Override
             public void windowClosing(java.awt.event.WindowEvent e) {
                 btnCloseActionPerformed(null);
@@ -128,7 +128,7 @@ public class Target extends javax.swing.JDialog {
                     break;
             }
         }
-        setLocationRelativeTo(parent);
+        this.setLocationRelativeTo(parent);
     }
 
     @SuppressWarnings("unchecked")

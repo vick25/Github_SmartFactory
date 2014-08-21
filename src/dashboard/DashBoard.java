@@ -234,7 +234,7 @@ public class DashBoard extends javax.swing.JPanel {
 
     public static void main(String[] agrs) throws Exception {
         try {
-            _dashBoardFrame = new JFrame("Smartfactory Machines DashBoard");
+            JFrame _dashBoardFrame = new JFrame("Smartfactory Machines DashBoard");
             _dashBoardFrame.setSize(1025, 700);
             _dashBoardFrame.getContentPane().add(new DashBoard(null, null));
             _dashBoardFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -256,6 +256,5 @@ public class DashBoard extends javax.swing.JPanel {
     private DashBoardSettings dashBoardSettings;
     private boolean date = false;
     private static boolean _showTotalProd = true, _showRateProd = false;
-    public static JFrame _dashBoardFrame;
     private static CollapsiblePaneDashboard _colDashBoard;
 }

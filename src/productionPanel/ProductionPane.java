@@ -90,6 +90,10 @@ public class ProductionPane extends javax.swing.JPanel {
         return machineTitle;
     }
 
+    public static void setMachineTitle(String machineTitle) {
+        ProductionPane.machineTitle = machineTitle;
+    }
+
     public ProductionPane(JFrame parent) throws SQLException {
         //        sclient = new Socket(ConnectDB.serverIP, ConnectDB.PORTMAINSERVER);
         ConnectDB.getConnectionInstance();

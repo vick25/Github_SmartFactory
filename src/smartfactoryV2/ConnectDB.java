@@ -427,6 +427,7 @@ public class ConnectDB {
     public static final Preferences pref = Preferences.userNodeForPackage(ConnectDB.class);
     private static File mainDir = null;
     
+    public static final float OUTLINEWIDTH = 3f;
     public static final Highlight SELECTION_HIGHLIGHT = new Highlight("selection");
     public static final String DEFAULTDIRECTORY = new File(new JFileChooser().getCurrentDirectory().getAbsolutePath()).getParent();
     public static final String WORKINGDIR = System.getProperty("user.dir");
@@ -436,7 +437,6 @@ public class ConnectDB {
     public static final Locale LOCALE = Locale.US;
     public static final Calendar CALENDAR = Calendar.getInstance();
     public static final DecimalFormat DECIMALFORMAT = new DecimalFormat();
-    public static final float OUTLINEWIDTH = 3f;
     public static final Font TITLEFONT = UIManager.getFont("Label.font").deriveFont(Font.BOLD, 13f);
     public static final String SMARTSERVERPATH = File.listRoots()[0].getAbsolutePath() + "CSIR"
             + File.separator + "SmartFactory" + File.separator + "SmartServer.ini";
