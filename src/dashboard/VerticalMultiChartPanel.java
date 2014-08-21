@@ -24,6 +24,20 @@ public class VerticalMultiChartPanel extends JPanel {
     private final Legend legend = new Legend();
     private static double currentTarget, actualBarValue, variance;
 
+//    public static double getCurrentTarget() {
+//        return currentTarget;
+//    }
+    public static void setCurrentTarget(double currentTarget) {
+        VerticalMultiChartPanel.currentTarget = currentTarget;
+    }
+
+//    public static double getActualBarValue() {
+//        return actualBarValue;
+//    }
+    public static void setActualBarValue(double actualBarValue) {
+        VerticalMultiChartPanel.actualBarValue = actualBarValue;
+    }
+
     public VerticalMultiChartPanel(Chart chartTotalProd, Chart chartRateProd) {
         setLayout(new BorderLayout());
 
@@ -87,13 +101,14 @@ public class VerticalMultiChartPanel extends JPanel {
         variance = currentTarget - actualBarValue;
         JPanel variancePanel = new JPanel(new BorderLayout(6, 6));
         variancePanel.setBackground(Color.WHITE);
-        variancePanel.add(new JLabel(Double.toString(actualBarValue)), BorderLayout.CENTER);
-        final JLabel labelVariance = new JLabel("Variance: ");
-        if (currentTarget > actualBarValue) {
+        final JLabel labelVariance = new JLabel(Double.toString(variance));
+        if (currentTarget < actualBarValue) {
             labelVariance.setForeground(Color.RED);
         }
-        variancePanel.add((labelVariance), BorderLayout.BEFORE_LINE_BEGINS);
+        variancePanel.add(labelVariance, BorderLayout.CENTER);
+        variancePanel.add(new JLabel("Variance: "), BorderLayout.BEFORE_LINE_BEGINS);
         legendPanel.add(variancePanel);
+
         legendPanel.add(legend);
     }
 }

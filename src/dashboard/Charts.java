@@ -82,6 +82,7 @@ public class Charts extends Chart {
         int maxNumber = bcm.getMaxSumValue();
         //Get the machine target
         double target = ConnectDB.getMachineTarget(_machineName, "Cumulative");
+        VerticalMultiChartPanel.setCurrentTarget(target);
 //        System.out.println(maxNumber);
 //        System.out.println(maxNumber * (Math.random()) + 2000);
         if (maxNumber < target) {

@@ -210,6 +210,9 @@ public class BarChartModel extends DefaultChartModel {
                     if (sum > maxSumValue) {
                         maxSumValue = sum;
                     }
+                    if (j == dateCategoryChart.size() - 1) {
+                        VerticalMultiChartPanel.setActualBarValue(sum);
+                    }
                     modelShift.addPoint(dateCategoryChart.get(j), sum);
                 }
                 this.setModelPoints(modelShift);
