@@ -408,15 +408,14 @@ public class Identification extends javax.swing.JDialog {
             createUserTableInDatabase();
             //         
             boolean userFound = false;
-            passwordChar = txtPassword.getPassword();
             String login = txtLogin.getText(),
-                    password = String.copyValueOf(passwordChar);
+                    password = String.copyValueOf(txtPassword.getPassword());
             try (PreparedStatement ps = ConnectDB.con.prepareStatement("SELECT * FROM userlist")) {
                 resultSet = ps.executeQuery();
                 ResultSetMetaData rsmd = resultSet.getMetaData();
-                int nbCols = rsmd.getColumnCount();
+                byte nbCols = (byte) rsmd.getColumnCount();
                 while (resultSet.next()) {
-                    for (short i = 1; i <= nbCols; i++) {
+                    for (byte i = 1; i <= nbCols; i++) {
                         if ((login.equalsIgnoreCase(resultSet.getString(i)))
                                 && (password.equalsIgnoreCase(ConnectDB.decrypter(resultSet.getString(i + 1))))) {
                             userFound = true;
@@ -466,7 +465,7 @@ public class Identification extends javax.swing.JDialog {
                                                     quickViewFrame = null;
                                                 }
                                             });
-                                            if (!Target.targetFound) {
+                                            if (!Target.isTargetFound()) {
                                                 new Target(quickViewFrame, true).setVisible(true);
                                             }
                                         }
@@ -585,7 +584,6 @@ public class Identification extends javax.swing.JDialog {
     public static javax.swing.JTextField txtLogin;
     public static javax.swing.JPasswordField txtPassword;
     // End of variables declaration//GEN-END:variables
-    private char[] passwordChar = null;
     public boolean okID = false;
     private int userID = -1;
     private static boolean frameSaved = false;

@@ -213,7 +213,7 @@ public class CollapsiblePaneDashboard extends TimerTask {
                     public GadgetComponent createGadgetComponent() {
                         final CollapsiblePaneGadget gadget = new CollapsiblePaneGadget(this);
                         try {
-                            final short cumulativeConfigNo = (short)getMachineConfigNo(getKey())[0];
+                            final short cumulativeConfigNo = (short) getMachineConfigNo(getKey())[0];
                             if (cumulativeConfigNo > 0) {
                                 /** setGadgetComponentPane method for the content pane of the gadget */
                                 DashBoard.bslTime.setText(removeHtmlTag(getKey()) + " chart loaded.");
@@ -309,6 +309,8 @@ public class CollapsiblePaneDashboard extends TimerTask {
         return s.replaceAll("\\<.*?>", "");
     }
 
+    /*Main method setGadgetComponenPane to create gadget corresponding chart by calling the static method
+     createChart of the GadgetFactory class*/
     public void setGadgetComponentPane(int[] configNo, String keyMachineName, CollapsiblePaneGadget gadget) throws SQLException {
         gadget.getContentPane().removeAll();
         gadget.getContentPane().setPreferredSize(new Dimension(200, 300));

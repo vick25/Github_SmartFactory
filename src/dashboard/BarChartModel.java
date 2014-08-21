@@ -2,7 +2,6 @@ package dashboard;
 
 import com.jidesoft.chart.model.ChartCategory;
 import com.jidesoft.chart.model.DefaultChartModel;
-import com.jidesoft.chart.model.Highlight;
 import com.jidesoft.grid.SortableTable;
 import com.jidesoft.range.Category;
 import com.jidesoft.range.CategoryRange;
@@ -28,8 +27,16 @@ public class BarChartModel extends DefaultChartModel {
         return modelPoints;
     }
 
-    public final void setModelPoints(DefaultChartModel modelPoints) {
+    private void setModelPoints(DefaultChartModel modelPoints) {
         this.modelPoints = modelPoints;
+    }
+
+    public static CategoryRange getCategoryRange() {
+        return categoryRange;
+    }
+
+    public int getMaxSumValue() {
+        return maxSumValue;
     }
 
     public BarChartModel(final int configNo, final String query, final boolean withShifts,
@@ -42,18 +49,16 @@ public class BarChartModel extends DefaultChartModel {
         this._endD = end;
         this._tableTime = tableTime;
 
-        range = new CategoryRange<>();
-        findMaxValue.clear();
+        categoryRange = new CategoryRange<>();
+//        findMaxValue.clear();
         alDateHour.clear();
         alValues.clear();
         _loopQueryFound = false;
-
+        subtractValues = new ArrayList<>();
         PreparedStatement ps = ConnectDB.con.prepareStatement(this._query);
-        int z = 1;
-//        ps.setString(z++, this._chanTitle);
-        ps.setInt(z++, this._configNo);
-        ps.setString(z++, ConnectDB.SDATEFORMATHOUR.format(this._startD));
-        ps.setString(z++, ConnectDB.SDATEFORMATHOUR.format(this._endD));
+        ps.setInt(1, this._configNo);
+        ps.setString(2, ConnectDB.SDATEFORMATHOUR.format(this._startD));
+        ps.setString(3, ConnectDB.SDATEFORMATHOUR.format(this._endD));
 //        System.out.println(ps.toString());
         ConnectDB.res = ps.executeQuery();
         //End SQL query
@@ -71,21 +76,21 @@ public class BarChartModel extends DefaultChartModel {
             ps.close();
             if (_loopQueryFound) {
                 final List LOGTIMEWITHSHIFTS = new ArrayList(new TreeSet<>(dateData));//list to store each sorted date retrieved form the values arrays
-                for (int q = 0; q < LOGTIMEWITHSHIFTS.size(); ++q) {
-                    Category cShifts = new ChartCategory(LOGTIMEWITHSHIFTS.get(q), range);
-                    range.add(cShifts);
+                for (short q = 0; q < LOGTIMEWITHSHIFTS.size(); ++q) {
+                    Category cShifts = new ChartCategory(LOGTIMEWITHSHIFTS.get(q), categoryRange);
+                    categoryRange.add(cShifts);
                 }
                 String queryShift;
                 //case with shifts
                 sumHourValues = new String[3][LOGTIMEWITHSHIFTS.size()];
-                for (int k = 0; k < LOGTIMEWITHSHIFTS.size(); k++) {//dates
+                for (short k = 0; k < LOGTIMEWITHSHIFTS.size(); k++) {//dates
                     String fVal = "", sVal = "";
-                    for (int j = 0; j < 3; j++) {//shifts as row.
+                    for (short j = 0; j < 3; j++) {//shifts as row.
                         alValues.clear();
                         alDateHour.clear();
                         subtractValues.clear();
                         if (j == 2) {//if line is 3rd shift
-                            int x = 0;//shift splited in 2 periods
+                            byte x = 0;//shift splited in 2 periods
                             while (x <= 1) {
                                 if (this._tableTime.getValueAt(j, 1).toString().substring(0, 2).equals("22")
                                         || (Integer.parseInt(this._tableTime.getValueAt(j, 1).toString().
@@ -116,12 +121,12 @@ public class BarChartModel extends DefaultChartModel {
                             queryShift = this._query.substring(0, this._query.indexOf("ORDER")).trim()
                                     + "\nAND (dl0.LogTime BETWEEN '" + fVal + "' AND '" + sVal + "')\n"
                                     + "ORDER BY 'Time' ASC";
-                            runQueryShift(-1, queryShift, this._configNo);
+                            runQueryShift((byte) -1, queryShift, this._configNo);
                         }
                         int sum = 0;
                         if (_loopQueryFound) {
                             if (j != 2) {//First and Second shift
-                                getSubtractedValues(-1, alValues);//send the values to get the difference in each hour
+                                getSubtractedValues((byte) -1, alValues);//send the values to get the difference in each hour
                                 for (String subtractValue : subtractValues) {
                                     if (subtractValue.contains(LOGTIMEWITHSHIFTS.get(k).toString())) {
                                         String[] val = subtractValue.split(";");
@@ -142,7 +147,9 @@ public class BarChartModel extends DefaultChartModel {
                             }
                             int w = k;//copy the index of each date as k to w
                             sumHourValues[j][w] = String.valueOf(sum);
-                            findMaxValue.add(sum);
+                            if (sum > maxSumValue) {
+                                maxSumValue = sum;
+                            }
                         }
                     }//end of each shift in the tableTime
                 }//end of each date
@@ -152,23 +159,20 @@ public class BarChartModel extends DefaultChartModel {
                     list.add(new ArrayList<>(Arrays.asList(row)));//Treat each row of timeDifference as an array
                 }
 
-                int shName = 0;
+                byte shName = 0;
                 DefaultChartModel modelShift = null;
                 for (List<String> row : list) {
                     row.add(0, "Shift " + ++shName);
                     String modelName = row.remove(0);//get each line of data
                     modelShift = new DefaultChartModel(modelName);
                     int column = 1;
-                    for (String value : row) {
-                        if (value == null) {
-                            value = "0";
-                        }
-                        Double v = Double.parseDouble(value);
-                        modelShift.addPoint(range.getCategory(column), v);
+                    for (String rowValue : row) {
+                        Double value = (rowValue == null) ? Double.valueOf("0") : Double.parseDouble(rowValue);
+                        modelShift.addPoint(categoryRange.getCategory(column), value);
                         column++;
                     }
                 }
-                setModelPoints(modelShift);
+                this.setModelPoints(modelShift);
                 list.clear();
             }
         } else {
@@ -184,15 +188,15 @@ public class BarChartModel extends DefaultChartModel {
             ps.close();
             if (_loopQueryFound) {
                 subtractValues.clear();
-                getSubtractedValues(-1, alValues);//send the values to get the difference in each hour
+                getSubtractedValues((byte) -1, alValues);//send the values to get the difference in each hour
                 eachDateH = new ArrayList(new TreeSet<>(alDateHour));//sort the Time data and remove duplicates
                 List<Category> dateCategoryChart = new ArrayList<>();
                 for (String eachDateH1 : eachDateH) {
 //                    Date time = TimeUtils.createTime(eachDateH.get(i).substring(11));
-                    Category c = new ChartCategory((Object) (eachDateH1 + "h:00").substring(11), range);
+                    Category c = new ChartCategory((Object) (eachDateH1 + "h:00").substring(11), categoryRange);
 //                    Category c = new ChartCategory(new TimePosition(time.getTime()), range);
                     dateCategoryChart.add(c);
-                    range.add(c);
+                    categoryRange.add(c);
                 }
                 DefaultChartModel modelShift = new DefaultChartModel("Hourly Total parts");
                 for (int j = 0; j < dateCategoryChart.size(); ++j) {
@@ -203,10 +207,12 @@ public class BarChartModel extends DefaultChartModel {
                             sum += Integer.parseInt(val[1]);
                         }
                     }
-                    findMaxValue.add(sum);
-                    modelShift.addPoint(dateCategoryChart.get(j), (double) sum);
+                    if (sum > maxSumValue) {
+                        maxSumValue = sum;
+                    }
+                    modelShift.addPoint(dateCategoryChart.get(j), sum);
                 }
-                setModelPoints(modelShift);
+                this.setModelPoints(modelShift);
             }
         }
 
@@ -217,7 +223,7 @@ public class BarChartModel extends DefaultChartModel {
         }
     }
 
-    private void getSubtractedValues(int x, ArrayList alValues) {
+    private void getSubtractedValues(byte x, ArrayList alValues) {
         for (int i = 0; i < alValues.size(); i++) {
             int xDiff;
             if (i == 0) {
@@ -239,13 +245,11 @@ public class BarChartModel extends DefaultChartModel {
         }
     }
 
-    private void runQueryShift(int x, String query, int configNo) throws SQLException {
+    private void runQueryShift(byte x, String query, int configNo) throws SQLException {
         try (PreparedStatement psShift = ConnectDB.con.prepareStatement(query)) {
-            int zShift = 1;
-//            psShift.setString(zShift++, this._chanTitle);
-            psShift.setInt(zShift++, configNo);
-            psShift.setString(zShift++, ConnectDB.SDATEFORMATHOUR.format(this._startD));
-            psShift.setString(zShift++, ConnectDB.SDATEFORMATHOUR.format(this._endD));
+            psShift.setInt(1, configNo);
+            psShift.setString(2, ConnectDB.SDATEFORMATHOUR.format(this._startD));
+            psShift.setString(3, ConnectDB.SDATEFORMATHOUR.format(this._endD));
             ConnectDB.res = psShift.executeQuery();
 //            System.out.println(psShift.toString());
             while (ConnectDB.res.next()) {
@@ -270,23 +274,20 @@ public class BarChartModel extends DefaultChartModel {
             c.setTime(date);
             c.add(Calendar.DATE, 1);//add one day
         } catch (ParseException e) {
-            e.printStackTrace();
         }
         return formatter.format(c.getTime());
     }
 
     private volatile boolean _loopQueryFound = false, _withShifts;
     private final ArrayList alDateHour = new ArrayList(), alValues = new ArrayList();
-    public static CategoryRange range;
-    private int countAlValues,lastValue;
+    private static CategoryRange categoryRange;
+    private int countAlValues, lastValue, maxSumValue = 0;
     private final int _configNo;
     private final String _query;
     private final Date _startD, _endD;
     private final SortableTable _tableTime;
-    static final Highlight selectionHighlight = new Highlight("selection");
     private DefaultChartModel modelPoints = new DefaultChartModel();
-    public static String[][] sumHourValues;
-    public static List<String> eachDateH;
-    public static ArrayList<String> subtractValues = new ArrayList<>();
-    public static ArrayList<Integer> findMaxValue = new ArrayList<>();
+    private static String[][] sumHourValues;
+    private static List<String> eachDateH;
+    private static ArrayList<String> subtractValues = null;
 }

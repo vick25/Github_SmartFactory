@@ -86,6 +86,7 @@ public class IntervalSelectorTrial extends JPanel {
         UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         final IntervalSelectorTrial selectorPanel = new IntervalSelectorTrial();
         SwingUtilities.invokeLater(new Runnable() {
+            @Override
             public void run() {
                 JFrame frame = new JFrame("Interval Selector Trial");
                 frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

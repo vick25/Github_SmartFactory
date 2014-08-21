@@ -32,6 +32,18 @@ import tableModel.TableModelTarget;
  */
 public class Target extends javax.swing.JDialog {
 
+    public static boolean isTargetFound() {
+        return targetFound;
+    }
+
+    public static void setTargetFound(boolean targetFound) {
+        Target.targetFound = targetFound;
+    }
+
+    public static boolean isAnyChangeOccured() {
+        return anyChangeOccured;
+    }
+
     public Target(java.awt.Frame parent, boolean modal) throws SQLException {
         super(parent, modal);
         ConnectDB.getConnectionInstance();
@@ -67,10 +79,10 @@ public class Target extends javax.swing.JDialog {
                                 if (index == TableModelEvent.ALL_COLUMNS) {
                                     System.out.println("All columns have changed");
                                 } else {
-//                                    if (anyChange) {
+//                                    if (anyChangeOccured) {
 ////                                        System.out.println(true);
 //                                    }
-                                    anyChange = true;
+                                    anyChangeOccured = true;
                                 }
                             }
                         }
@@ -360,14 +372,14 @@ public class Target extends javax.swing.JDialog {
         if (tableTarget.isEditing()) {
             tableTarget.getCellEditor().stopCellEditing();
         }
-        if (anyChange) {
+        if (anyChangeOccured) {
             tableRow = tableTarget.getModel().getRowCount();
-            int res = 0;
+            byte res = 0;
             for (int row = 0; row < tableRow; row++) {
                 String machine = tableTarget.getValueAt(row, 1).toString();
                 try (PreparedStatement ps = ConnectDB.con.prepareStatement("INSERT INTO target\n"
                         + "VALUES (?,?,?,?)")) {
-                    int col = 4;//column start at 4 for the production values
+                    byte col = 4;//column start at 4 for the production values
                     double targetValue = 0d;
                     for (ProductionType type : ProductionType.values()) {
                         String query = "SELECT DISTINCT c.ConfigNo\n"
@@ -391,7 +403,7 @@ public class Target extends javax.swing.JDialog {
                                 targetValue = Double.valueOf(tableTarget.getValueAt(row, col).toString());
                             }
                             ps.setDouble(4, targetValue);
-                            res = ps.executeUpdate();
+                            res = (byte) ps.executeUpdate();
                             col++;
                         } else {//update
                             try (PreparedStatement psUpdate = ConnectDB.con.prepareStatement("UPDATE target\n"
@@ -402,7 +414,7 @@ public class Target extends javax.swing.JDialog {
                                 }
                                 psUpdate.setDouble(1, targetValue);
                                 psUpdate.setInt(2, targetNo);
-                                res = psUpdate.executeUpdate();
+                                res = (byte) psUpdate.executeUpdate();
                                 col++;
                             }
                         }
@@ -452,7 +464,7 @@ public class Target extends javax.swing.JDialog {
             refModel.removeNewRow(--tableRow);
         }
         nbLine = 1;
-        n = 0;
+        short n = 0;
         try (PreparedStatement ps = ConnectDB.con.prepareStatement("SELECT Machine\n"
                 + "FROM hardware WHERE HwNo > ? ORDER BY HwNo ASC")) {
             ps.setInt(1, 0);
@@ -709,7 +721,7 @@ public class Target extends javax.swing.JDialog {
     private javax.swing.JRadioButton radSecond;
     private javax.swing.JScrollPane scrlTargetOptions;
     // End of variables declaration//GEN-END:variables
-    private int tableRow = 0, targetNo = -1, nbLine = 1, n = 0;
+    private int tableRow = 0, targetNo = -1, nbLine = 1;
     private SortableTable tableTarget, _tableTargetOption;
     private TableModelTarget refModel;
     private TargetOptions targetOptions;
@@ -717,5 +729,5 @@ public class Target extends javax.swing.JDialog {
     private String targetUnit = "hour";
     private double[] cumulTargetValues, rateTargetValues;
     private final SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
-    public static boolean anyChange, targetFound = true;
+    private static boolean anyChangeOccured, targetFound = true;
 }

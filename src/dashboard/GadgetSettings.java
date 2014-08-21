@@ -519,7 +519,7 @@ public class GadgetSettings extends javax.swing.JPanel {
     private javax.swing.JRadioButton radPerMin;
     // End of variables declaration//GEN-END:variables
     private TableModelShiftTime modelTime;
-    public static SortableTable tableTime;
+    private static SortableTable tableTime;
     protected final Color BACKGROUND1 = new Color(253, 253, 220), BACKGROUND2 = new Color(255, 255, 255);
     static boolean saved = true;
     static String propertiesToSave = "";

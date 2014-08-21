@@ -46,9 +46,10 @@ public class Charts extends Chart {
         return chartRate;
     }
 
-    public Charts(String machineName, int configNo, Date startDate) throws SQLException {
+    /*Constructor for the cumulative chart */
+    public Charts(String machineName, int configNo, Date dashBoardStartDate) throws SQLException {
         this._machineName = machineName;
-        this._startDate = startDate;
+        this._startDate = dashBoardStartDate;
         this._configNo = configNo;
         if (DashBoard.isShowTotalProd()) {
             updateModelsTotal();
@@ -57,6 +58,7 @@ public class Charts extends Chart {
 //        xAxis.setTickLabelRotation(Math.PI / 8);
     }
 
+    /*Constructor for the rate chart */
     public Charts(int _configNo, Date _startDate) throws SQLException {
         this._configNo = _configNo;
         this._startDate = _startDate;
@@ -69,18 +71,19 @@ public class Charts extends Chart {
         chartTotal.removeModels();
         chartTotal.removeDrawables();
 
-        modelTotalProd = new BarChartModel(this._configNo, Queries.TOTAL_PRODUCTION, _withShifts,
-                this._machineName, this._startDate, Calendar.getInstance().getTime(), null).getModelPoints();
-        xAxis = new CategoryAxis<>(BarChartModel.range);
-        BarChartModel.subtractValues.clear();
-        ChartStyle styleTotalProd;
+        BarChartModel bcm = new BarChartModel(this._configNo, Queries.TOTAL_PRODUCTION, this._withShifts,
+                this._machineName, this._startDate, Calendar.getInstance().getTime(), null);//create object
+        ChartModel modelTotalProd = bcm.getModelPoints();//get the defaault chart model
+        xAxis = new CategoryAxis<>(BarChartModel.getCategoryRange());
+        
         chartTotal.setXAxis(xAxis);
         chartTotal.getXAxis().setTicksVisible(true);
 
-        int maxNumber = ConnectDB.maxNumber(BarChartModel.findMaxValue);
+        int maxNumber = bcm.getMaxSumValue();
+        //Get the machine target
         double target = ConnectDB.getMachineTarget(_machineName, "Cumulative");
-//////        System.out.println(maxNumber);
-//////        System.out.println(maxNumber * (Math.random()) + 2000);
+//        System.out.println(maxNumber);
+//        System.out.println(maxNumber * (Math.random()) + 2000);
         if (maxNumber < target) {
             maxNumber = (int) target;
         }
@@ -92,6 +95,7 @@ public class Charts extends Chart {
         chartTotal.getYAxis().setTicksVisible(true);
         chartTotal.getYAxis().setVisible(true);
         chartTotal.setYAxis(yAxis);
+        ChartStyle styleTotalProd;
         if (modelTotalProd != null) {
             RaisedBarRenderer renderer = new RaisedBarRenderer(5);
             renderer.setAlwaysShowOutlines(ConnectDB.pref.getBoolean(StatKeyFactory.ChartFeatures.CHKOUTLINE, false));
@@ -117,8 +121,8 @@ public class Charts extends Chart {
                 styleTotalProd.setBarsVisible(true);
                 chartTotal.setGridColor(new Color(150, 150, 150));
                 chartTotal.addModel(modelTotalProd, styleTotalProd);//Total Production Model
-
             }
+
             /* Set the target line */
             if (target > 0d) {
                 LineMarker marker = new LineMarker(chartTotal, Orientation.horizontal, target, Color.RED);
@@ -132,9 +136,9 @@ public class Charts extends Chart {
             LabelStyle labelStyle = new LabelStyle();
             labelStyle.setColor(Color.RED);
             renderer.setLabelStyle(labelStyle);
-            renderer.setLabelsVisible(true);      // Add this to show labels for bars
-            renderer.setOutlineColor(Color.DARK_GRAY);
-            renderer.setOutlineWidth(1.5f);
+            renderer.setLabelsVisible(true);// Add this to show labels for bars
+            renderer.setOutlineColor(Color.WHITE);//the oultine color of a bar
+            renderer.setOutlineWidth(1.6f);
             renderer.setAlwaysShowOutlines(true);
             // This is optional to format the display string
             renderer.setPointLabeler(new PointLabeler() {
@@ -186,7 +190,7 @@ public class Charts extends Chart {
         chartRate.removeModels();
         chartRate.removeDrawables();
 
-        modelRateProd = new LineChartModel(this._configNo, Queries.RATE_PRODUCTION_HR, _startDate,
+        ChartModel modelRateProd = new LineChartModel(this._configNo, Queries.RATE_PRODUCTION_HR, _startDate,
                 Calendar.getInstance().getTime(), "p/hrs").getModelPoints();
         chartRate.setLayout(new BorderLayout());
         chartRate.setBorder(new EmptyBorder(5, 5, 10, 15));
@@ -229,8 +233,6 @@ public class Charts extends Chart {
         }
     }
 
-    ChartModel modelTotalProd;
-    ChartModel modelRateProd;
     private final int _configNo;
     private final Date _startDate;
     private String _machineName;

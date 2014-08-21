@@ -623,7 +623,7 @@ public class ProductionQuickView extends javax.swing.JPanel {
         } catch (SQLException ex) {
             ConnectDB.catchSQLException(ex);
         }
-        if (Target.anyChange) {
+        if (Target.isAnyChangeOccured()) {
             SwingUtilities.invokeLater(new Runnable() {
 
                 @Override
@@ -1251,7 +1251,7 @@ public class ProductionQuickView extends javax.swing.JPanel {
                 countMachine++;
             }
             if (!find) {
-                Target.targetFound = false;
+                Target.setTargetFound(false);
 //                new Target(_parent, true).setVisible(true);
                 return;
             }
