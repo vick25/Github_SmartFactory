@@ -67,18 +67,18 @@ public class DashBoardSettings extends javax.swing.JDialog {
         _parent = parent;
         _tabbedPane = tabbedPane;
         _vertical = vertical;
-        setTitle("DashBoard Settings");
-        setLayout(new BorderLayout());
-        getContentPane().add(this.getOptionsPanel());
-        setLocationRelativeTo(parent);
+        this.setTitle("DashBoard Settings");
+        this.setLayout(new BorderLayout());
+        this.getContentPane().add(this.getOptionsPanel());
+        this.setLocationRelativeTo(parent);
         this.addWindowListener(new WindowAdapter() {
 
             @Override
             public void windowClosing(WindowEvent e) {
-                close();
+                close();//method when closing this dialog
             }
         });
-        setFocusable(true);
+        this.setFocusable(true);
     }
 
     @SuppressWarnings("unchecked")
@@ -231,7 +231,7 @@ public class DashBoardSettings extends javax.swing.JDialog {
                     chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
                     int result = chooser.showDialog(((JComponent) e.getSource()).getTopLevelAncestor(), "Save");
                     if (result == JFileChooser.APPROVE_OPTION) {
-                        _lastDirectory = chooser.getCurrentDirectory().getAbsolutePath();
+//                        _lastDirectory = chooser.getCurrentDirectory().getAbsolutePath();
                         DashboardPersistenceUtils.save(_tabbedPane, chooser.getSelectedFile().getAbsolutePath() + ".xml");
                     }
                 } catch (ParserConfigurationException | IOException e1) {
@@ -260,7 +260,7 @@ public class DashBoardSettings extends javax.swing.JDialog {
                     chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
                     int result = chooser.showDialog(((JComponent) e.getSource()).getTopLevelAncestor(), "Open");
                     if (result == JFileChooser.APPROVE_OPTION) {
-                        _lastDirectory = chooser.getCurrentDirectory().getAbsolutePath();
+//                        _lastDirectory = chooser.getCurrentDirectory().getAbsolutePath();
                         DashboardPersistenceUtils.load(_tabbedPane, chooser.getSelectedFile().getAbsolutePath());
                     }
                 } catch (SAXException | ParserConfigurationException | IOException e1) {
@@ -325,7 +325,7 @@ public class DashBoardSettings extends javax.swing.JDialog {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                close();
+                close();//method call when closing this dialog
             }
         }), ButtonPanel.AFFIRMATIVE_BUTTON);
 //        buttonPanel.addButton(new JButton(new AbstractAction("Remove \"Clock\" Gadget") {
@@ -407,14 +407,14 @@ public class DashBoardSettings extends javax.swing.JDialog {
                 }
                 MainMenuPanel.showDashBoard();
                 timeUpdated = false;
-                DashboardPersistenceUtils.load(DashBoard.getColDashBoard()._tabbedPane, temp.getAbsolutePath());
-                DashBoard.getColDashBoard()._tabbedPane.revalidate();
+                DashboardPersistenceUtils.load(DashBoard.getColDashBoard().getTabbedPane(), temp.getAbsolutePath());
+                DashBoard.getColDashBoard().getTabbedPane().revalidate();
                 temp.deleteOnExit();
             } catch (ParserConfigurationException | IOException | SAXException ex) {
                 Logger.getLogger(DashBoardSettings.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-        dispose();
+        this.dispose();
     }
 
 //    /**
@@ -446,6 +446,6 @@ public class DashBoardSettings extends javax.swing.JDialog {
     private final DashboardTabbedPane _tabbedPane;
     private boolean _vertical;
     public static boolean timeUpdated = false;
-    static String _lastDirectory = ".";
+//    private static String _lastDirectory = ".";
     private final JFrame _parent;
 }

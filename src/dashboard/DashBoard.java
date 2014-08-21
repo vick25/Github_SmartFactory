@@ -72,7 +72,7 @@ public class DashBoard extends javax.swing.JPanel {
             public void actionPerformed(ActionEvent e) {
                 if (dashBoardSettings == null) {
                     dashBoardSettings = new DashBoardSettings(MainMenuPanel._dashBoardFrame, true,
-                            _colDashBoard._vertical, _colDashBoard._tabbedPane);
+                            _colDashBoard._vertical, _colDashBoard.getTabbedPane());
                     dashBoardSettings.setVisible(true);
                 } else {
                     dashBoardSettings.setVisible(true);
@@ -134,7 +134,7 @@ public class DashBoard extends javax.swing.JPanel {
         dtSpinner.setDate(Calendar.getInstance().getTime());
         dtSpinner.setFocusable(false);
         dtSpinner.setMinimumSize(new java.awt.Dimension(150, 16));
-        dtSpinner.setPreferredSize(new java.awt.Dimension(150, 23));
+        dtSpinner.setPreferredSize(new java.awt.Dimension(170, 23));
         dtSpinner.setRequestFocusEnabled(false);
         dtSpinner.setTimeDisplayed(true);
         dtSpinner.setTimeFormat("HH:mm:ss");
@@ -184,7 +184,7 @@ public class DashBoard extends javax.swing.JPanel {
 
     private void callScheduler() throws Exception {
         ReadPropertiesFile.readConfig();//read the property file to get the time and delay for the schedule
-        _colDashBoard = new CollapsiblePaneDashboard(getMachineDummy(), dtSpinner.getDate());
+        _colDashBoard = new CollapsiblePaneDashboard(getMachineDummy());
         Timer timer = new Timer();
         timer.scheduleAtFixedRate(_colDashBoard, getTimePrecision(Constants.delay),
                 getTimePrecision(Constants.timetoquery));

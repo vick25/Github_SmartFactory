@@ -82,7 +82,7 @@
               <Dimension value="[150, 16]"/>
             </Property>
             <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-              <Dimension value="[150, 23]"/>
+              <Dimension value="[170, 23]"/>
             </Property>
             <Property name="requestFocusEnabled" type="boolean" value="false"/>
             <Property name="timeDisplayed" type="boolean" value="true"/>

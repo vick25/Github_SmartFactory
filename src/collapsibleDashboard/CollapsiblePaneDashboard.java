@@ -28,9 +28,7 @@ import java.awt.event.ActionEvent;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
-import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
@@ -49,16 +47,19 @@ import smartfactoryV2.ConnectDB;
 public class CollapsiblePaneDashboard extends TimerTask {
 
     public Map<String, CollapsiblePaneGadget> getMapMach() {
-        return mapMach;
+        return Collections.unmodifiableMap(mapMach);
     }
 
     public void setMapMach(Map<String, CollapsiblePaneGadget> mapMach) {
         this.mapMach = mapMach;
     }
 
-    public CollapsiblePaneDashboard(ArrayList<Machine> machines, Date startDate) {
+    public DashboardTabbedPane getTabbedPane() {
+        return _tabbedPane;
+    }
+
+    public CollapsiblePaneDashboard(ArrayList<Machine> machines) {
         this._machines = machines;
-        this._startDate = startDate;
     }
 
     public Component getDemoPanel() {
@@ -68,7 +69,9 @@ public class CollapsiblePaneDashboard extends TimerTask {
                 return super.validateGadgetDragging(gadget, targetContainer);
             }
         };
-        mapMach.clear();
+        mapMach.clear();//clear the machine HashMap
+        /*Get the machine and call the createGadget method the create 
+         it by adding to the dashboard palette*/
         Enumeration e = Collections.enumeration(_machines);
         while (e.hasMoreElements()) {
             Machine machName = (Machine) e.nextElement();
@@ -163,13 +166,14 @@ public class CollapsiblePaneDashboard extends TimerTask {
             }
         });
 
-        final Dashboard dashBoard = _tabbedPane.createDashboard("Machines DashBoard");
+        final Dashboard dashBoard = _tabbedPane.createDashboard("Machines DashBoard (click show palette)");
         dashBoard.setColumnCount(3);
         dashBoard.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         _tabbedPane.setUseFloatingPalette(false);
         _tabbedPane.getGadgetManager().addDashboard(dashBoard);
 
+        /*Gadget options when maximized or restored*/
         manager.addGadgetListener(new GadgetListener() {
             @Override
             public void eventHappened(GadgetEvent e) {
@@ -192,8 +196,8 @@ public class CollapsiblePaneDashboard extends TimerTask {
                 }
             }
         });
-        /* My Options */
 
+        /* My Options */
         _tabbedPane.getGadgetManager().setAllowMultipleGadgetInstances(false);
         _tabbedPane.setPaletteSide(SwingConstants.SOUTH);
 
@@ -203,18 +207,19 @@ public class CollapsiblePaneDashboard extends TimerTask {
     protected AbstractGadget createGadget(String keyMachineName) {
 //        IconsFactory.getImageIcon(CollapsiblePaneDashboard.class, "/icons/" + key.toLowerCase() + "_32x32.png")
         AbstractGadget dashboardElement = new AbstractGadget(keyMachineName,
-                IconsFactory.getImageIcon(CollapsiblePaneDashboard.class, "/icons/machinetool_64x64.png"),
-                IconsFactory.getImageIcon(CollapsiblePaneDashboard.class, "/icons/machinetool_64x64.png")) {
+                IconsFactory.getImageIcon(CollapsiblePaneDashboard.class, "/icons/machine_24x24.png"),
+                IconsFactory.getImageIcon(CollapsiblePaneDashboard.class, "/icons/machine_24x24.png")) {
                     @Override
                     public GadgetComponent createGadgetComponent() {
                         final CollapsiblePaneGadget gadget = new CollapsiblePaneGadget(this);
                         try {
-                            final int cumulativeConfigNo = getMachineConfigNo(getKey())[0];
+                            final short cumulativeConfigNo = (short)getMachineConfigNo(getKey())[0];
                             if (cumulativeConfigNo > 0) {
                                 /** setGadgetComponentPane method for the content pane of the gadget */
-                                DashBoard.bslTime.setText(noHtmlTag(getKey()) + " chart loaded.");
-                                setGadgetComponentPane(getMachineConfigNo(getKey()), noHtmlTag(getKey()), gadget);
-                                //
+                                DashBoard.bslTime.setText(removeHtmlTag(getKey()) + " chart loaded.");
+                                //Create gadget -- important
+                                setGadgetComponentPane(getMachineConfigNo(getKey()), removeHtmlTag(getKey()), gadget);
+                                /**/
                                 CollapsiblePaneTitleButton toolSettingsButton = new CollapsiblePaneTitleButton(gadget,
                                         IconsFactory.getImageIcon(CollapsiblePaneDashboard.class, "/icons/gadget_tool.png"));
                                 toolSettingsButton.addActionListener(new AbstractAction() {
@@ -223,14 +228,14 @@ public class CollapsiblePaneDashboard extends TimerTask {
                                     public void actionPerformed(ActionEvent e) {
                                         try {
                                             GadgetSettings.showSettingsDialog(getMachineConfigNo(getKey()),
-                                                    noHtmlTag(getKey()), gadget);//Settings for each gadget
+                                                    removeHtmlTag(getKey()), gadget);//Settings for each gadget
                                         } catch (SQLException ex) {
                                             ConnectDB.catchSQLException(ex);
                                         }
                                     }
                                 });
                                 gadget.addButton(toolSettingsButton, 1);
-                                gadget.setMessage("Last update on " + ObjectConverterManager.toString(Calendar.getInstance()));
+                                gadget.setMessage("Last update on " + ObjectConverterManager.toString(ConnectDB.CALENDAR));
                                 final ResizableGadgetComponent actualGadgetComponent = new ResizableGadgetComponent(gadget);
                                 gadget._maximizeButton.addActionListener(new AbstractAction() {
 
@@ -250,7 +255,7 @@ public class CollapsiblePaneDashboard extends TimerTask {
                                 });
                                 return actualGadgetComponent;
                             } else {
-                                JOptionPane.showMessageDialog(null, getKey() + " does not have a "
+                                JOptionPane.showMessageDialog(_tabbedPane, getKey() + " does not have a "
                                         + "configuration channel.", "Machine DashBoard", JOptionPane.ERROR_MESSAGE);
                             }
                         } catch (SQLException ex) {
@@ -278,10 +283,10 @@ public class CollapsiblePaneDashboard extends TimerTask {
                 + "AND h.Machine =?\n"
                 + "AND c.Active = 1 ORDER BY h.HwNo ASC";
         try (PreparedStatement ps = ConnectDB.con.prepareStatement(query)) {
-            ps.setString(1, noHtmlTag(machineName));
+            ps.setString(1, removeHtmlTag(machineName));
             ConnectDB.res = ps.executeQuery();
             while (ConnectDB.res.next()) {
-                configNum[0] = ConnectDB.res.getInt(1);
+                configNum[0] = ConnectDB.res.getInt(1);//Cumalative configNo
             }
         }
 
@@ -291,35 +296,34 @@ public class CollapsiblePaneDashboard extends TimerTask {
                 + "AND h.Machine =?\n"
                 + "AND c.Active = 1 ORDER BY h.HwNo ASC";
         try (PreparedStatement ps = ConnectDB.con.prepareStatement(query)) {
-            ps.setString(1, noHtmlTag(machineName));
+            ps.setString(1, removeHtmlTag(machineName));
             ConnectDB.res = ps.executeQuery();
             while (ConnectDB.res.next()) {
-                configNum[1] = ConnectDB.res.getInt(1);
+                configNum[1] = ConnectDB.res.getInt(1);//Rate configNo
             }
         }
         return configNum;
     }
 
-    private String noHtmlTag(String s) {
+    private String removeHtmlTag(String s) {
         return s.replaceAll("\\<.*?>", "");
     }
 
-    public void setGadgetComponentPane(int[] configNo, String key, CollapsiblePaneGadget gadget) throws SQLException {
+    public void setGadgetComponentPane(int[] configNo, String keyMachineName, CollapsiblePaneGadget gadget) throws SQLException {
         gadget.getContentPane().removeAll();
         gadget.getContentPane().setPreferredSize(new Dimension(200, 300));
         gadget.getContentPane().setLayout(new BorderLayout());
         gadget.getContentPane().setBorder(BorderFactory.createEmptyBorder(6, 6, 6, 6));
         /* Create the chart for the selection of each machine */
-        _startDate = DashBoard.getDate();
-        Component chart = GadgetFactory.createChart(configNo, key, _startDate);
-        if (key.startsWith("Machine")) {
+        Component chart = GadgetFactory.createChart(configNo, keyMachineName, DashBoard.getDate());
+        if (keyMachineName.startsWith("Machine")) {
             gadget.getContentPane().add(chart);
         } else {
 //            gadget.getContentPane().setPreferredSize(new Dimension(200, 100 + (int) (Math.random() * 200)));
             gadget.getContentPane().add(chart);
             gadget.revalidate();
             gadget.repaint();
-            mapMach.put(noHtmlTag(key), gadget);
+            mapMach.put(removeHtmlTag(keyMachineName), gadget);
         }
     }
 
@@ -349,10 +353,10 @@ public class CollapsiblePaneDashboard extends TimerTask {
         }
     }
 
-    public DashboardTabbedPane _tabbedPane;
+    private DashboardTabbedPane _tabbedPane;
     public boolean _vertical = false;
-    private Date _startDate;
+//    private Date _startDate;
     private final ArrayList<Machine> _machines;
-    GadgetManager manager;
-    Map<String, CollapsiblePaneGadget> mapMach = new HashMap<>();
+    private GadgetManager manager;
+    private Map<String, CollapsiblePaneGadget> mapMach = new HashMap<>();
 }
