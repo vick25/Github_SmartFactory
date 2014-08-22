@@ -17,8 +17,10 @@ import com.jidesoft.chart.model.DefaultChartModel;
 import com.jidesoft.chart.render.Axis3DRenderer;
 import com.jidesoft.chart.render.CylinderBarRenderer;
 import com.jidesoft.chart.render.DefaultPointRenderer;
+import com.jidesoft.chart.render.PointLabeler;
 import com.jidesoft.chart.render.RaisedBarRenderer;
 import com.jidesoft.chart.style.ChartStyle;
+import com.jidesoft.chart.style.LabelStyle;
 import com.jidesoft.chart.util.ColorFactory;
 import com.jidesoft.range.Category;
 import com.jidesoft.range.CategoryRange;
@@ -229,7 +231,7 @@ public class BarChart extends Chart {
                 }
                 chart.setTitle(new AutoPositionedLabel("\"" + this._machineTitle + "\" Total Production Per Shift",
                         Color.BLACK, ConnectDB.TITLEFONT));
-                ProductionPane.setChartTitle(chart.getTitle().toString()); 
+                ProductionPane.setChartTitle(chart.getTitle().toString());
                 chart.setBarsGrouped(true);
                 chart.setBarGroupGapProportion(0.6);//changed from 0.5 for the size of the bar
                 CylinderBarRenderer barR = new CylinderBarRenderer();
@@ -255,10 +257,7 @@ public class BarChart extends Chart {
                     modelShift = new DefaultChartModel(modelName);
                     int column = 1;
                     for (String rowValue : row) {
-                        if (rowValue == null) {
-                            rowValue = "0";
-                        }
-                        Double value = Double.parseDouble(rowValue);
+                        Double value = (rowValue == null) ? Double.valueOf("0") : Double.parseDouble(rowValue);
                         modelShift.addPoint(range.getCategory(column), value);
                         column++;
                     }
@@ -356,6 +355,26 @@ public class BarChart extends Chart {
                     chart.setBarResizePolicy(BarResizePolicy.RESIZE_OFF);
                     chart.setBarGap(8);
                     RaisedBarRenderer barRenderer = new RaisedBarRenderer(5);
+                    LabelStyle labelStyle = new LabelStyle();
+                    labelStyle.setColor(Color.RED);
+                    barRenderer.setLabelStyle(labelStyle);
+                    barRenderer.setLabelsVisible(true);// Add this to show labels for bars
+                    barRenderer.setOutlineColor(Color.WHITE);//the oultine color of a bar
+                    barRenderer.setOutlineWidth(1.6f);
+                    barRenderer.setAlwaysShowOutlines(true);
+                    // This is optional to format the display string
+                    barRenderer.setPointLabeler(new PointLabeler() {
+                        @Override
+                        public String getDisplayText(Chartable p) {
+                            Positionable yPos;
+                            try {
+                                yPos = p.getY();
+                                return yPos == null ? "" : String.format("%.0f", yPos.position());
+                            } catch (Exception e) {
+                                return "";
+                            }
+                        }
+                    });
                     barRenderer.setZeroHeightBarsVisible(true);
                     chart.setBarRenderer(barRenderer);
                     chart.setAnimateOnShow(true);

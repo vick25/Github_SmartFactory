@@ -299,10 +299,9 @@ public class TargetOptions extends javax.swing.JPanel {
         col = sortableTable.getColumnModel().getColumn(4);
         col.setCellEditor(new ButtonsCellEditorRenderer());
         col.setCellRenderer(new ButtonsCellEditorRenderer());
-        int columnWidth = 28;
-        col.setPreferredWidth(columnWidth);
-        col.setMaxWidth(columnWidth);
-        col.setMinWidth(columnWidth);
+        col.setPreferredWidth(28);
+        col.setMaxWidth(28);
+        col.setMinWidth(28);
         col = sortableTable.getColumnModel().getColumn(1);
         col.setCellRenderer(new MyTimeCellRenderer());
         col.setCellEditor(new MyTimeCellEditor());
@@ -464,10 +463,10 @@ public class TargetOptions extends javax.swing.JPanel {
     private javax.swing.JSpinner spBreaksNum;
     // End of variables declaration//GEN-END:variables
     private boolean catLoad = true;
-    private int nbLine = 1, n = 0;
+    private short nbLine = 1, n = 0;
     private final String _machine;
-    private SortableTable sortableTable;
-    private TableModelBreaksTime tableModelBreaksTime;
+    private SortableTable sortableTable = null;
+    private TableModelBreaksTime tableModelBreaksTime = null;
     private final ImageIcon removeIcon = IconsFactory.getImageIcon(TargetOptions.class, "/images/icons/office/remove_package.png");
     private final ImageIcon removeRolloverIcon = IconsFactory.getImageIcon(TargetOptions.class, "/images/icons/office/remove_package_rollover.png");
 }

@@ -45,7 +45,7 @@ public class VerticalMultiChartPanel extends JPanel {
         chartPanel.setLayout(gridBagLayout);
         legend.setBorder(null);
         legend.setColumns(4);
-        legend.setBackground(Color.WHITE);;
+        legend.setBackground(Color.WHITE);
         //
         createLegendPanelComponents();
         //
