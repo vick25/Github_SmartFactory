@@ -63,6 +63,7 @@ public class DynamicTarget {
         }
 
         System.out.println("Start & Earlier Time in second: " + startTime + "----" + earlierStartTime);
+        System.out.println("Target Unit: " + targetTimeUnit);
         System.out.println("Time fraction: " + fraction);
         System.out.println("PTF: " + calculateProdTargetFraction(fraction, targetTimeUnit));
     }
@@ -79,7 +80,7 @@ public class DynamicTarget {
                     prodTargetFraction = (1 - fraction) * targetValue;
                     break;
                 default:
-                    prodTargetFraction = (1 - fraction) * (60 * targetValue);
+                    prodTargetFraction = (1 - fraction) * (3600 * targetValue);
                     break;
             }
         }

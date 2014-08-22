@@ -57,7 +57,7 @@
                       <Group type="102" alignment="0" attributes="0">
                           <Component id="btnClose" min="-2" pref="73" max="-2" attributes="0"/>
                           <EmptySpace max="32767" attributes="0"/>
-                          <Component id="btnLoadSetting" min="-2" max="-2" attributes="0"/>
+                          <Component id="btnSaveSettings" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <Component id="jScrollPane1" alignment="0" max="32767" attributes="0"/>
                       <Component id="jPanel5" alignment="0" max="32767" attributes="0"/>
@@ -86,7 +86,7 @@
                   <Component id="scrlTargetOptions" pref="270" max="32767" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <Component id="btnLoadSetting" min="-2" max="-2" attributes="0"/>
+                      <Component id="btnSaveSettings" min="-2" max="-2" attributes="0"/>
                       <Component id="btnClose" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace max="-2" attributes="0"/>
@@ -99,20 +99,20 @@
 
           <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
         </Container>
-        <Component class="javax.swing.JButton" name="btnLoadSetting">
+        <Component class="javax.swing.JButton" name="btnSaveSettings">
           <Properties>
             <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
               <Color blue="ff" green="ff" red="ff" type="rgb"/>
             </Property>
             <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-              <Image iconType="3" name="/images/icons/valider.png"/>
+              <Image iconType="3" name="/images/icons/save.png"/>
             </Property>
-            <Property name="text" type="java.lang.String" value="Load Settings"/>
+            <Property name="text" type="java.lang.String" value="Save Settings"/>
             <Property name="focusable" type="boolean" value="false"/>
             <Property name="iconTextGap" type="int" value="8"/>
           </Properties>
           <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnLoadSettingActionPerformed"/>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnSaveSettingsActionPerformed"/>
           </Events>
         </Component>
         <Component class="javax.swing.JLabel" name="jLabel1">
