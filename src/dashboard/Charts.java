@@ -30,6 +30,7 @@ import java.awt.Color;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.sql.SQLException;
+import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
 import javax.swing.border.EmptyBorder;
@@ -81,7 +82,13 @@ public class Charts extends Chart {
 
         int maxNumber = bcm.getMaxSumValue();
         //Get the machine target
-        double target = ConnectDB.getMachineTarget(_machineName, "Cumulative");
+//        double target = ConnectDB.getMachineTarget(_machineName, "Cumulative");
+        double target = 0;
+        try {
+            target = new DynamicTarget(this._machineName).getReturnTargets();
+        } catch (ParseException ex) {
+            ex.printStackTrace();
+        }
         VerticalMultiChartPanel.setCurrentTarget(target);
 //        System.out.println(maxNumber);
 //        System.out.println(maxNumber * (Math.random()) + 2000);

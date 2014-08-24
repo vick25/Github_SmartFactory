@@ -267,8 +267,7 @@ public class TargetOptions extends javax.swing.JPanel {
                 }
             }
         });
-        DefaultCellEditor editor = new DefaultCellEditor(comboBox);
-        table.getColumnModel().getColumn(column).setCellEditor(editor);
+        table.getColumnModel().getColumn(column).setCellEditor(new DefaultCellEditor(comboBox));
     }
 
     private String[] getBreakName() throws SQLException {

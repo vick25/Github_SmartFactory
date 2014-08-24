@@ -129,8 +129,8 @@ public class Target extends javax.swing.JDialog {
 //                }
             }
         });
-        if (null != ConnectDB.pref.get(SettingKeyFactory.DefaultProperties.TARGETTIMEUNIT, targetUnit)) {
-            switch (ConnectDB.pref.get(SettingKeyFactory.DefaultProperties.TARGETTIMEUNIT, targetUnit)) {
+        if (null != ConnectDB.pref.get(SettingKeyFactory.DefaultProperties.TARGET_TIME_UNIT, lastTargetUnit)) {
+            switch (ConnectDB.pref.get(SettingKeyFactory.DefaultProperties.TARGET_TIME_UNIT, lastTargetUnit)) {
                 case "second":
                     radSecond.setSelected(true);
                     break;
@@ -443,23 +443,23 @@ public class Target extends javax.swing.JDialog {
 
     private void radSecondActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_radSecondActionPerformed
         this.setTitle("Machines Target Value (second)");
-        targetUnit = "second";
-        ConnectDB.pref.put(SettingKeyFactory.DefaultProperties.TARGETTIMEUNIT, targetUnit);
-//        changeTableTargetValue("second");
+        lastTargetUnit = ConnectDB.pref.get(SettingKeyFactory.DefaultProperties.TARGET_TIME_UNIT, lastTargetUnit);
+        ConnectDB.pref.put(SettingKeyFactory.DefaultProperties.TARGET_TIME_UNIT, "second");
+        changeTableTargetValue("second");
     }//GEN-LAST:event_radSecondActionPerformed
 
     private void radMinuteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_radMinuteActionPerformed
         this.setTitle("Machines Target Value (minute)");
-        targetUnit = "minute";
-        ConnectDB.pref.put(SettingKeyFactory.DefaultProperties.TARGETTIMEUNIT, targetUnit);
-//        changeTableTargetValue("minute");
+        lastTargetUnit = ConnectDB.pref.get(SettingKeyFactory.DefaultProperties.TARGET_TIME_UNIT, lastTargetUnit);
+        ConnectDB.pref.put(SettingKeyFactory.DefaultProperties.TARGET_TIME_UNIT, "minute");
+        changeTableTargetValue("minute");
     }//GEN-LAST:event_radMinuteActionPerformed
 
     private void radHourActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_radHourActionPerformed
         this.setTitle("Machines Target Value (hour)");
-        targetUnit = "hour";
-        ConnectDB.pref.put(SettingKeyFactory.DefaultProperties.TARGETTIMEUNIT, targetUnit);
-//        changeTableTargetValue("hour");
+        lastTargetUnit = ConnectDB.pref.get(SettingKeyFactory.DefaultProperties.TARGET_TIME_UNIT, lastTargetUnit);
+        changeTableTargetValue("hour");
+        ConnectDB.pref.put(SettingKeyFactory.DefaultProperties.TARGET_TIME_UNIT, "hour");
     }//GEN-LAST:event_radHourActionPerformed
 
     private void loadTargetTable() throws SQLException {
@@ -590,30 +590,48 @@ public class Target extends javax.swing.JDialog {
                 double value = (double) tableTarget.getValueAt(i, j);
                 switch (timeOptions) {
                     case "second":
-                        if ("minute".equals(targetUnit)) {
-                            tableTarget.setValueAt(value * 60, i, j);
-                        } else if ("hour".equals(targetUnit)) {
-                            tableTarget.setValueAt(value * 3600, i, j);
-                        } else {
-                            tableTarget.setValueAt(value / 3600, i, j);
+                        if (null != lastTargetUnit) {
+                            switch (lastTargetUnit) {
+                                case "minute":
+                                    tableTarget.setValueAt(value / 60, i, j);
+                                    break;
+                                case "hour":
+                                    tableTarget.setValueAt(value / 3600, i, j);
+                                    break;
+                                default:
+//                                    tableTarget.setValueAt(value, i, j);
+                                    break;
+                            }
                         }
                         break;
                     case "minute":
-                        if ("second".equals(targetUnit)) {
-                            tableTarget.setValueAt(value * 60, i, j);
-                        } else if ("hour".equals(targetUnit)) {
-                            tableTarget.setValueAt(value * 3600, i, j);
-                        } else {
-                            tableTarget.setValueAt(value / 60, i, j);
+                        if (null != lastTargetUnit) {
+                            switch (lastTargetUnit) {
+                                case "second":
+                                    tableTarget.setValueAt(value * 60, i, j);
+                                    break;
+                                case "hour":
+                                    tableTarget.setValueAt(value / 60, i, j);
+                                    break;
+                                default:
+//                                    tableTarget.setValueAt(value, i, j);
+                                    break;
+                            }
                         }
                         break;
                     case "hour":
-                        if ("minute".equals(targetUnit)) {
-                            tableTarget.setValueAt(value * 60, i, j);
-                        } else if ("second".equals(targetUnit)) {
-                            tableTarget.setValueAt(value * 3600, i, j);
-                        } else {
-                            tableTarget.setValueAt(value * 60, i, j);
+                        if (null != lastTargetUnit) {
+                            switch (lastTargetUnit) {
+                                case "minute":
+                                    tableTarget.setValueAt(value * 60, i, j);
+                                    break;
+                                case "second":
+                                    tableTarget.setValueAt(value * 3600, i, j);
+                                    break;
+                                default:
+//                                    tableTarget.setValueAt(value, i, j);
+                                    break;
+                            }
                         }
                         break;
                 }
@@ -731,7 +749,7 @@ public class Target extends javax.swing.JDialog {
     private TableModelTarget refModel;
     private TargetOptions targetOptions;
     private String _machine;
-    private String targetUnit = "hour";
+    private String lastTargetUnit = "hour";
     private double[] cumulTargetValues, rateTargetValues;
     private final SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
     private static boolean anyChangeOccured, targetFound = true;

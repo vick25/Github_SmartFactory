@@ -181,8 +181,7 @@ public class BarChartModel extends DefaultChartModel {
              */
             while (ConnectDB.res.next()) {
                 _loopQueryFound = true;
-                String logTime = ConnectDB.res.getString(1);
-                alDateHour.add(logTime.substring(0, 13));//only the Date and Hour
+                alDateHour.add(ConnectDB.res.getString(1).substring(0, 13));//only the Date and Hour
                 alValues.add(ConnectDB.res.getString(2));
             }
             ps.close();

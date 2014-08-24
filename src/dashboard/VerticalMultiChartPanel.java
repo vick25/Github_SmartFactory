@@ -11,6 +11,7 @@ import java.awt.GridLayout;
 import java.awt.Insets;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import smartfactoryV2.ConnectDB;
 
 /**
  *
@@ -101,7 +102,7 @@ public class VerticalMultiChartPanel extends JPanel {
         variance = currentTarget - actualBarValue;
         JPanel variancePanel = new JPanel(new BorderLayout(6, 6));
         variancePanel.setBackground(Color.WHITE);
-        final JLabel labelVariance = new JLabel(Double.toString(variance));
+        final JLabel labelVariance = new JLabel(ConnectDB.DECIMALFORMAT.format(variance));
         if (currentTarget < actualBarValue) {
             labelVariance.setForeground(Color.RED);
         }

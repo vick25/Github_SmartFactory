@@ -316,11 +316,10 @@ public class EventsHierarchicalTable extends JFrame {
             PreparedStatement ps;
             try {
                 ps = ConnectDB.con.prepareStatement(eventQuery);
-                int z = 1;
-                ps.setInt(z++, EventsStatistic.getMachineID());
-                ps.setString(z++, EventsStatistic.getMinLogTime());
-                ps.setString(z++, EventsStatistic.getMaxLogTime());
-                ps.setString(z++, rowNameDesc);
+                ps.setInt(1, EventsStatistic.getMachineID());
+                ps.setString(2, EventsStatistic.getMinLogTime());
+                ps.setString(3, EventsStatistic.getMaxLogTime());
+                ps.setString(4, rowNameDesc);
                 ConnectDB.res = ps.executeQuery();
                 ConnectDB.res.last();
                 tab = new String[ConnectDB.res.getRow()][7];

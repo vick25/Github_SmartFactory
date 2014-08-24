@@ -4,6 +4,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import setting.SettingKeyFactory;
 import smartfactoryV2.ConnectDB;
 
@@ -37,35 +38,41 @@ public class DynamicTarget {
     }
 
     private void showTime() throws ParseException, SQLException {
-        long startTime = dateFormat.parse(getProdStartTime()).getTime();
-        long earlierStartTime = dateFormat.parse(getProdStartTime().substring(0, 3) + "00").getTime();
+        try {
+            long startTime = dateFormat.parse(getProdStartTime()).getTime();
+            long earlierStartTime = dateFormat.parse(getProdStartTime().substring(0, 2) + ":00").getTime();
 
-        long endTime = dateFormat.parse(getProdEndTime()).getTime();
-        long earlierEndtime = dateFormat.parse(getProdEndTime().substring(0, 3) + "00").getTime();
+            long endTime = dateFormat.parse(getProdEndTime()).getTime();
+            long earlierEndtime = dateFormat.parse(getProdEndTime().substring(0, 2) + ":00").getTime();
 
-        long s = (startTime - earlierStartTime) / 1000; //in seconds
-        long e = (endTime - earlierEndtime) / 1000; //in seconds
+            long s = (startTime - earlierStartTime) / 1000; //in seconds
+            long e = (endTime - earlierEndtime) / 1000; //in seconds
 
-        double fraction = 0;
-        String targetTimeUnit = ConnectDB.pref.get(SettingKeyFactory.DefaultProperties.TARGETTIMEUNIT, "hour");
-        if (null != targetTimeUnit) {
-            switch (targetTimeUnit) {
-                case "hour":
-                    fraction = Double.parseDouble(String.format("%.6f", s / (60d * 60))) / 60;
-                    break;
-                case "minute":
-                    fraction = Double.parseDouble(String.format("%.6f", s / 60d)) / 60;
-                    break;
-                default:
-                    fraction = Double.parseDouble(String.format("%.6f", s));
-                    break;
+            double fraction = 0;
+            String targetTimeUnit = ConnectDB.pref.get(SettingKeyFactory.DefaultProperties.TARGET_TIME_UNIT, "hour");
+            if (null != targetTimeUnit) {
+                switch (targetTimeUnit) {
+                    case "hour":
+                        fraction = Double.parseDouble(String.format("%.6f", s / (60d * 60))) / 60;
+                        break;
+                    case "minute":
+                        fraction = Double.parseDouble(String.format("%.6f", s / 60d)) / 60;
+                        break;
+                    default:
+                        fraction = Double.parseDouble(String.format("%.6f", s));
+                        break;
+                }
             }
-        }
 
-        System.out.println("Start & Earlier Time in second: " + startTime + "----" + earlierStartTime);
-        System.out.println("Target Unit: " + targetTimeUnit);
-        System.out.println("Time fraction: " + fraction);
-        System.out.println("PTF: " + calculateProdTargetFraction(fraction, targetTimeUnit));
+            System.out.println("Start & Earlier Time in second: " + startTime + "----" + earlierStartTime);
+            System.out.println("Target Unit: " + targetTimeUnit);
+            System.out.println("Time fraction: " + fraction);
+
+            dynamicTargetValue = calculateProdTargetFraction(fraction, targetTimeUnit);
+            System.out.println("PTF: " + dynamicTargetValue);
+        } catch (NullPointerException e) {
+            targetValue = ConnectDB.getMachineTarget(_machineName, "Cumulative");
+        }
     }
 
     private double calculateProdTargetFraction(double fraction, String targetTimeUnit) throws SQLException {
@@ -88,13 +95,31 @@ public class DynamicTarget {
         return prodTargetFraction;
     }
 
+    public double getReturnTargets() throws ParseException {
+        try {
+            String sHour = prodStartTime.substring(0, 2);
+            String eHour = prodEndTime.substring(0, 2);
+            System.out.println("shour "+ sHour);
+            System.out.println("eHour "+ eHour);
+            long currentTime = dateFormat.parse(dateFormat.format(Calendar.getInstance().getTime())).getTime();
+            if (dateFormat.parse(sHour + ":00").getTime() > currentTime
+                    || dateFormat.parse(eHour + ":00").getTime() < currentTime) {
+                return ConnectDB.DECIMALFORMAT.parse(ConnectDB.DECIMALFORMAT.format(dynamicTargetValue)).doubleValue();
+            } else {
+                return targetValue;
+            }
+        } catch (NullPointerException e) {
+            return targetValue;
+        }
+    }
+
     public static void main(String[] args) throws SQLException, ParseException {
         ConnectDB.getConnectionInstance();
         new DynamicTarget("Balconi");
     }
 
     private final String _machineName;
-    private double targetValue;
+    private double targetValue, dynamicTargetValue;
     private String prodStartTime;
     private String prodEndTime;
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm");
