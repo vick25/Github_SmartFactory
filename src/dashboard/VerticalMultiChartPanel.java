@@ -5,12 +5,15 @@ import com.jidesoft.chart.Legend;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Insets;
+import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.border.EtchedBorder;
 import smartfactoryV2.ConnectDB;
 
 /**
@@ -85,8 +88,8 @@ public class VerticalMultiChartPanel extends JPanel {
 
     private void createLegendPanelComponents() {
         legendPanel.setLayout(new GridLayout(0, 2));
-        legendPanel.setBackground(Color.WHITE);
-//        legendPanel.setBorder(BorderFactory.createLineBorder(Color.RED));
+        legendPanel.setBackground(Color.LIGHT_GRAY);
+        legendPanel.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
         JPanel currentTargetPanel = new JPanel(new BorderLayout(6, 6));
         currentTargetPanel.setBackground(Color.WHITE);
         currentTargetPanel.add(new JLabel(Double.toString(currentTarget)), BorderLayout.CENTER);
@@ -99,13 +102,16 @@ public class VerticalMultiChartPanel extends JPanel {
         actualValuePanel.add(new JLabel("Actual Value: "), BorderLayout.BEFORE_LINE_BEGINS);
         legendPanel.add(actualValuePanel);
 
-        variance = currentTarget - actualBarValue;
+        variance = actualBarValue - currentTarget;
         JPanel variancePanel = new JPanel(new BorderLayout(6, 6));
         variancePanel.setBackground(Color.WHITE);
         final JLabel labelVariance = new JLabel(ConnectDB.DECIMALFORMAT.format(variance));
-        if (currentTarget < actualBarValue) {
+        if (variance < 0) {
             labelVariance.setForeground(Color.RED);
+        } else {
+            labelVariance.setForeground(Color.GREEN);
         }
+        labelVariance.setFont(new Font("Tahoma", Font.BOLD, 12));
         variancePanel.add(labelVariance, BorderLayout.CENTER);
         variancePanel.add(new JLabel("Variance: "), BorderLayout.BEFORE_LINE_BEGINS);
         legendPanel.add(variancePanel);

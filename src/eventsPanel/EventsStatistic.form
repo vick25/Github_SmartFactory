@@ -259,7 +259,7 @@
                         </Property>
                         <Property name="focusable" type="boolean" value="false"/>
                         <Property name="format" type="java.text.DateFormat" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                          <Connection code="ConnectDB.SDATEFORMATHOUR" type="code"/>
+                          <Connection code="ConnectDB.SDATE_FORMAT_HOUR" type="code"/>
                         </Property>
                         <Property name="timeDisplayed" type="boolean" value="true"/>
                         <Property name="timeFormat" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
@@ -281,7 +281,7 @@
                         </Property>
                         <Property name="focusable" type="boolean" value="false"/>
                         <Property name="format" type="java.text.DateFormat" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                          <Connection code="ConnectDB.SDATEFORMATHOUR" type="code"/>
+                          <Connection code="ConnectDB.SDATE_FORMAT_HOUR" type="code"/>
                         </Property>
                         <Property name="timeDisplayed" type="boolean" value="true"/>
                         <Property name="timeFormat" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
@@ -975,7 +975,7 @@
         <DimensionLayout dim="0">
           <Group type="103" groupAlignment="0" attributes="0">
               <Component id="_field" pref="203" max="32767" attributes="0"/>
-              <Component id="jScrollPane2" max="32767" attributes="0"/>
+              <Component id="sclPaneTree" max="32767" attributes="0"/>
               <Component id="lblTimeSum" alignment="0" max="32767" attributes="0"/>
           </Group>
         </DimensionLayout>
@@ -984,7 +984,7 @@
               <Group type="102" attributes="0">
                   <Component id="_field" min="-2" max="-2" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
-                  <Component id="jScrollPane2" max="32767" attributes="0"/>
+                  <Component id="sclPaneTree" max="32767" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
                   <Component id="lblTimeSum" min="-2" pref="11" max="-2" attributes="0"/>
               </Group>
@@ -1004,7 +1004,7 @@
             <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new com.jidesoft.tree.QuickTreeFilterField(){&#xa;            @Override&#xa;            public void applyFilter() {&#xa;                super.applyFilter();&#xa;                TreeUtils.expandAll(_tree);&#xa;            }&#xa;        }"/>
           </AuxValues>
         </Component>
-        <Container class="javax.swing.JScrollPane" name="jScrollPane2">
+        <Container class="javax.swing.JScrollPane" name="sclPaneTree">
 
           <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
         </Container>

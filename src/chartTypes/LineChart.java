@@ -58,8 +58,8 @@ public class LineChart extends Chart {
             int i = 1;
             ps.setString(i++, this._chanTitle);
             ps.setInt(i++, ConfigNo);
-            ps.setString(i++, ConnectDB.SDATEFORMATHOUR.format(this._startD));
-            ps.setString(i++, ConnectDB.SDATEFORMATHOUR.format(this._endD));
+            ps.setString(i++, ConnectDB.SDATE_FORMAT_HOUR.format(this._startD));
+            ps.setString(i++, ConnectDB.SDATE_FORMAT_HOUR.format(this._endD));
             ConnectDB.res = ps.executeQuery();
             timeList.clear();
             alValues.clear();

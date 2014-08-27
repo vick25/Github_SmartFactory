@@ -85,8 +85,8 @@ public class MachineRun extends javax.swing.JPanel {
                 int i = 1;
                 ps.setString(i++, machineName);
                 ps.setInt(i++, IDChannel);
-                ps.setString(i++, ConnectDB.SDATEFORMATHOUR.format(ProductionPane.dt_startP));
-                ps.setString(i++, ConnectDB.SDATEFORMATHOUR.format(ProductionPane.dt_endP));
+                ps.setString(i++, ConnectDB.SDATE_FORMAT_HOUR.format(ProductionPane.dt_startP));
+                ps.setString(i++, ConnectDB.SDATE_FORMAT_HOUR.format(ProductionPane.dt_endP));
                 ConnectDB.res = ps.executeQuery();
 //                System.out.println(ps.toString());
                 alTime.clear();

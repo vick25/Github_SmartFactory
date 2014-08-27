@@ -114,7 +114,7 @@ public class ViewHistory extends javax.swing.JPanel {
         cmbHFrom.setDate(Calendar.getInstance().getTime());
         cmbHFrom.setEnabled(false);
         cmbHFrom.setFocusable(false);
-        cmbHFrom.setFormat(ConnectDB.SDATEFORMATHOUR);
+        cmbHFrom.setFormat(ConnectDB.SDATE_FORMAT_HOUR);
         cmbHFrom.setRequestFocusEnabled(false);
         cmbHFrom.setTimeDisplayed(true);
         cmbHFrom.setTimeFormat("HH:mm:ss");
@@ -605,8 +605,7 @@ public class ViewHistory extends javax.swing.JPanel {
         Container parent;
         int dx = component.getX(), dy = component.getY();
 
-        for (parent = component.getParent();
-                parent != null && (!(parent instanceof JViewport)
+        for (parent = component.getParent(); parent != null && (!(parent instanceof JViewport)
                 || (((JViewport) parent).getClientProperty("HierarchicalTable.mainViewport") == null));
                 parent = parent.getParent()) {
             Rectangle bounds = parent.getBounds();
@@ -753,7 +752,7 @@ public class ViewHistory extends javax.swing.JPanel {
         String channelQuery = channel;
         if (chkFrom.isSelected()) {
             channelQuery = channel.substring(0, channel.lastIndexOf("ORDER")).trim() + "\n"
-                    + "AND d.LogTime >= '" + ConnectDB.SDATEFORMATHOUR.format(cmbHFrom.getDate()) + "'\n"
+                    + "AND d.LogTime >= '" + ConnectDB.SDATE_FORMAT_HOUR.format(cmbHFrom.getDate()) + "'\n"
                     + "ORDER BY d.LogTime ASC";
         }
         return channelQuery;

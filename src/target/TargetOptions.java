@@ -442,7 +442,7 @@ public class TargetOptions extends javax.swing.JPanel {
         }
 
         @Override
-        public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, 
+        public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row,
                 int column) {
             dateSpinner.setValue(value);
             return dateSpinner;

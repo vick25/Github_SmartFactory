@@ -8,7 +8,6 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -71,7 +70,7 @@ public class DashBoard extends javax.swing.JPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (dashBoardSettings == null) {
-                    dashBoardSettings = new DashBoardSettings(MainMenuPanel._dashBoardFrame, true,
+                    dashBoardSettings = new DashBoardSettings(MainMenuPanel.getDashBoardFrame(), true,
                             _colDashBoard._vertical, _colDashBoard.getTabbedPane());
                     dashBoardSettings.setVisible(true);
                 } else {
@@ -81,7 +80,7 @@ public class DashBoard extends javax.swing.JPanel {
         });
         panSettings.add(btnSettings, FlowLayout.LEFT);
 
-        dtSpinner.setFormat(ConnectDB.SDATEFORMATHOUR);
+        dtSpinner.setFormat(ConnectDB.SDATE_FORMAT_HOUR);
         if (dt == null) {
             Calendar working = ((Calendar) ConnectDB.CALENDAR.clone());
             int hour = ConnectDB.CALENDAR.get(Calendar.HOUR_OF_DAY),
@@ -103,7 +102,6 @@ public class DashBoard extends javax.swing.JPanel {
         bslTime.setVerticalTextPosition(SwingConstants.CENTER);
         bslTime.setBusy(true);
         bslTime.setVisible(true);
-        date = false;
     }
 
     @SuppressWarnings("unchecked")
@@ -138,11 +136,6 @@ public class DashBoard extends javax.swing.JPanel {
         dtSpinner.setRequestFocusEnabled(false);
         dtSpinner.setTimeDisplayed(true);
         dtSpinner.setTimeFormat("HH:mm:ss");
-        dtSpinner.addItemListener(new java.awt.event.ItemListener() {
-            public void itemStateChanged(java.awt.event.ItemEvent evt) {
-                dtSpinnerItemStateChanged(evt);
-            }
-        });
         panStatus.add(dtSpinner);
 
         bslTime.setBusy(true);
@@ -172,15 +165,6 @@ public class DashBoard extends javax.swing.JPanel {
                     .addComponent(panSettings, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
         );
     }// </editor-fold>//GEN-END:initComponents
-
-    private void dtSpinnerItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_dtSpinnerItemStateChanged
-        if (date) {
-            if (evt.getStateChange() == ItemEvent.SELECTED) {
-//                System.out.println("hjkjjhksd");
-            }
-        }
-        date = true;
-    }//GEN-LAST:event_dtSpinnerItemStateChanged
 
     private void callScheduler() throws Exception {
         ReadPropertiesFile.readConfig();//read the property file to get the time and delay for the schedule
@@ -254,7 +238,6 @@ public class DashBoard extends javax.swing.JPanel {
     private javax.swing.JPanel panStatus;
     // End of variables declaration//GEN-END:variables
     private DashBoardSettings dashBoardSettings;
-    private boolean date = false;
     private static boolean _showTotalProd = true, _showRateProd = false;
     private static CollapsiblePaneDashboard _colDashBoard;
 }

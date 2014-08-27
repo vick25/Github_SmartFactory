@@ -14,7 +14,6 @@ import com.jidesoft.chart.event.PointDescriptor;
 import com.jidesoft.chart.event.ZoomLocation;
 import com.jidesoft.chart.model.ChartModel;
 import com.jidesoft.chart.model.Chartable;
-import com.jidesoft.chart.model.Highlight;
 import com.jidesoft.chart.render.Axis3DRenderer;
 import com.jidesoft.chart.render.DefaultPointRenderer;
 import com.jidesoft.chart.render.PointLabeler;
@@ -29,6 +28,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.Calendar;
@@ -48,7 +48,7 @@ public class Charts extends Chart {
     }
 
     /*Constructor for the cumulative chart */
-    public Charts(String machineName, int configNo, Date dashBoardStartDate) throws SQLException {
+    public Charts(String machineName, int configNo, Date dashBoardStartDate) throws SQLException, ParseException {
         this._machineName = machineName;
         this._startDate = dashBoardStartDate;
         this._configNo = configNo;
@@ -68,7 +68,7 @@ public class Charts extends Chart {
         }
     }
 
-    private void updateModelsTotal() throws SQLException {
+    private void updateModelsTotal() throws SQLException, ParseException {
         chartTotal.removeModels();
         chartTotal.removeDrawables();
 
@@ -76,36 +76,38 @@ public class Charts extends Chart {
                 this._machineName, this._startDate, Calendar.getInstance().getTime(), null);//create object
         ChartModel modelTotalProd = bcm.getModelPoints();//get the defaault chart model
         xAxis = new CategoryAxis<>(BarChartModel.getCategoryRange());
-        
+
         chartTotal.setXAxis(xAxis);
         chartTotal.getXAxis().setTicksVisible(true);
 
-        int maxNumber = bcm.getMaxSumValue();
+        int maxNumber = bcm.getMaxSumValue();//get the maximum bar chart sum
         //Get the machine target
-//        double target = ConnectDB.getMachineTarget(_machineName, "Cumulative");
         double target = 0;
         try {
             target = new DynamicTarget(this._machineName).getReturnTargets();
         } catch (ParseException ex) {
             ex.printStackTrace();
         }
-        VerticalMultiChartPanel.setCurrentTarget(target);
-//        System.out.println(maxNumber);
-//        System.out.println(maxNumber * (Math.random()) + 2000);
+        //Calculate the current target and send it to the currentTarget method in the verticalMultiChartPanel
+        VerticalMultiChartPanel.setCurrentTarget(calculateCurrentTarget(target, bcm.getLastHourValue()));
+        //
         if (maxNumber < target) {
             maxNumber = (int) target;
         }
-        NumericAxis yAxis = new NumericAxis(0, maxNumber + (Math.random()) + 1000);
+//        System.out.println(maxNumber);
+//        System.out.println(maxNumber + (int) (Math.random() * maxNumber));
+        NumericAxis yAxis = new NumericAxis(0, maxNumber + (int) (0.08 * maxNumber));
+
         yAxis.setLabel(new AutoPositionedLabel("Total Parts", Color.BLACK));
         chartTotal.setLayout(new BorderLayout());
         chartTotal.setBorder(new EmptyBorder(5, 5, 10, 15));
-//        chartTotal.setShadowV isible(true);
+//        chartTotal.setShadowVisible(true);
         chartTotal.getYAxis().setTicksVisible(true);
         chartTotal.getYAxis().setVisible(true);
         chartTotal.setYAxis(yAxis);
         ChartStyle styleTotalProd;
         if (modelTotalProd != null) {
-            RaisedBarRenderer renderer = new RaisedBarRenderer(5);
+            RaisedBarRenderer renderer = new RaisedBarRenderer();
             renderer.setAlwaysShowOutlines(ConnectDB.pref.getBoolean(StatKeyFactory.ChartFeatures.CHKOUTLINE, false));
             renderer.setZeroHeightBarsVisible(true);
             renderer.setSelectionColor(Color.BLACK);
@@ -125,8 +127,8 @@ public class Charts extends Chart {
                 chartTotal.setBarResizePolicy(BarResizePolicy.RESIZE_OFF);
                 chartTotal.setBarGap(8);
                 chartTotal.setVerticalGridLinesVisible(false);
-                styleTotalProd = new ChartStyle(Color.BLUE, false, false);
-                styleTotalProd.setBarsVisible(true);
+                styleTotalProd = new ChartStyle(Color.BLUE, false, false, true);
+                styleTotalProd.setBarWidthProportion(0.8);
                 chartTotal.setGridColor(new Color(150, 150, 150));
                 chartTotal.addModel(modelTotalProd, styleTotalProd);//Total Production Model
             }
@@ -232,7 +234,7 @@ public class Charts extends Chart {
             styleRateProd.setPointShape(PointShape.BOX);
             ChartStyle selectionStyle = new ChartStyle(styleRateProd);
             selectionStyle.setPointSize(15);
-            chartRate.setHighlightStyle(SELECTIONHIGHLIGHT, selectionStyle);
+            chartRate.setHighlightStyle(ConnectDB.SELECTION_HIGHLIGHT, selectionStyle);
             chartRate.setLazyRenderingThreshold(10000);//for swing drawing response
             MouseWheelZoomer zoomer = new MouseWheelZoomer(chartRate, true, false);
             zoomer.setZoomLocation(ZoomLocation.MOUSE_CURSOR);
@@ -241,12 +243,37 @@ public class Charts extends Chart {
         }
     }
 
+    private double calculateCurrentTarget(double target, String lastHourValue) throws SQLException, ParseException {
+        String PStart = "", Tcurrent = "";
+        try (PreparedStatement ps = ConnectDB.con.prepareStatement(""
+                + "(SELECT Logtime FROM datalog WHERE Logtime LIKE ? ORDER BY Logtime ASC LIMIT 1)\n"
+                + "UNION \n"
+                + "(SELECT Logtime FROM datalog WHERE Logtime LIKE ? ORDER BY Logtime DESC LIMIT 1)")) {
+            ps.setString(1, lastHourValue + "%");
+            ps.setString(2, lastHourValue + "%");
+            ConnectDB.res = ps.executeQuery();
+            boolean getFristValue = true;
+            while (ConnectDB.res.next()) {
+                if (getFristValue) {
+                    PStart = ConnectDB.res.getString(1);
+                    getFristValue = false;
+                }
+                Tcurrent = ConnectDB.res.getString(1);
+            }
+        }
+
+        double[] diffs = ConnectDB.getTimeDifference(
+                ConnectDB.SDATE_FORMAT_HOUR.parse(ConnectDB.correctToBarreDate(PStart)),
+                ConnectDB.SDATE_FORMAT_HOUR.parse(ConnectDB.correctToBarreDate(Tcurrent)));
+        double currentTarget = diffs[2] * (target / 60);
+        return ConnectDB.DECIMALFORMAT.parse(ConnectDB.DECIMALFORMAT.format(currentTarget)).doubleValue();
+    }
+
     private final int _configNo;
     private final Date _startDate;
     private String _machineName;
     private final boolean _withShifts = false;
     private static CategoryAxis xAxis;
     private static final Color BLUEFILL = new Color(0, 75, 190, 75);
-    private static final Highlight SELECTIONHIGHLIGHT = new Highlight("selection");
     private final Chart chartTotal = new Chart("Bar"), chartRate = new Chart("Line");
 }

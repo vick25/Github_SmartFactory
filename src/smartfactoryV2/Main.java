@@ -1,5 +1,9 @@
 package smartfactoryV2;
 
+import java.awt.HeadlessException;
+import java.io.IOException;
+import java.net.Socket;
+import javax.swing.JOptionPane;
 import net.sf.jasperreports.engine.JREmptyDataSource;
 import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JasperFillManager;
@@ -26,8 +30,7 @@ public class Main {
             }
         };
         th.start();
-        new SplashScreen().setVisible(true);
-//        new Main().doit();
+        doit();
 //        try {
 //            System.setErr(new PrintStream(new FileOutputStream(System.getProperty("user.home") + "/error.log")));
 //        } catch (FileNotFoundException ex) {
@@ -35,16 +38,16 @@ public class Main {
 //        }
     }
 //
-//    private void doit() {
-////        try {
-////            Socket clientSocket = new Socket(ConnectDB.serverIP, ConnectDB.PORTMAINSERVER);
-////            JOptionPane.showMessageDialog(null, "An instance of this application is already running.",
-////                    "SmartFactory Report Tool", JOptionPane.ERROR_MESSAGE);
-////            System.out.println("*** Already running! ***");
-////            System.exit(0);
-////        } catch (IOException | HeadlessException e) {
-////            new JustOneServer().start();
-////        }
-//        new SplashScreen().setVisible(true);
-//    }
+    private static void doit() {
+        try {
+            Socket clientSocket = new Socket(ConnectDB.serverIP, ConnectDB.PORTMAINSERVER);
+            JOptionPane.showMessageDialog(null, "An instance of this application is already running.",
+                    "SmartFactory Report Tool", JOptionPane.ERROR_MESSAGE);
+            System.out.println("*** Already running! ***");
+            System.exit(0);
+        } catch (IOException | HeadlessException e) {
+            new JustOneServer().start();
+        }
+        new SplashScreen().setVisible(true);
+    }
 }

@@ -2,6 +2,7 @@ package dashboard;
 
 import com.jidesoft.chart.Chart;
 import java.sql.SQLException;
+import java.text.ParseException;
 import java.util.Date;
 import javax.swing.JComponent;
 
@@ -23,7 +24,7 @@ public class GadgetFactory {
     }
 
     public static JComponent createChart(int[] configNo, String machineTitle, Date dashBoardStartDate)
-            throws SQLException {
+            throws SQLException, ParseException {
         _machineTitle = machineTitle;
         _configNo = configNo;
         _startDate = dashBoardStartDate;

@@ -265,7 +265,7 @@ public class EventsStatistic extends javax.swing.JPanel {
                 TreeUtils.expandAll(_tree);
             }
         };
-        jScrollPane2 = new javax.swing.JScrollPane();
+        sclPaneTree = new javax.swing.JScrollPane();
         lblTimeSum = new javax.swing.JLabel();
 
         jPanel5.setBackground(new java.awt.Color(255, 255, 255));
@@ -307,7 +307,7 @@ public class EventsStatistic extends javax.swing.JPanel {
         cmbETo.setShowWeekNumbers(false);
         cmbETo.setDate(Calendar.getInstance().getTime());
         cmbETo.setFocusable(false);
-        cmbETo.setFormat(ConnectDB.SDATEFORMATHOUR);
+        cmbETo.setFormat(ConnectDB.SDATE_FORMAT_HOUR);
         cmbETo.setTimeDisplayed(true);
         cmbETo.setTimeFormat("HH:mm:ss");
         cmbETo.addActionListener(new java.awt.event.ActionListener() {
@@ -319,7 +319,7 @@ public class EventsStatistic extends javax.swing.JPanel {
         cmbEFrom.setShowWeekNumbers(false);
         cmbEFrom.setDate(Calendar.getInstance().getTime());
         cmbEFrom.setFocusable(false);
-        cmbEFrom.setFormat(ConnectDB.SDATEFORMATHOUR);
+        cmbEFrom.setFormat(ConnectDB.SDATE_FORMAT_HOUR);
         cmbEFrom.setTimeDisplayed(true);
         cmbEFrom.setTimeFormat("HH:mm:ss");
         cmbEFrom.addActionListener(new java.awt.event.ActionListener() {
@@ -523,7 +523,7 @@ public class EventsStatistic extends javax.swing.JPanel {
             jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel8Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(radHour, javax.swing.GroupLayout.PREFERRED_SIZE, 53, Short.MAX_VALUE)
+                .addComponent(radHour, javax.swing.GroupLayout.DEFAULT_SIZE, 53, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(radMinute, javax.swing.GroupLayout.PREFERRED_SIZE, 60, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -809,7 +809,7 @@ public class EventsStatistic extends javax.swing.JPanel {
             .addGroup(jPanel5Layout.createSequentialGroup()
                 .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jToolBar2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jSplitPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 760, Short.MAX_VALUE))
+                    .addComponent(jSplitPane1))
                 .addGap(0, 0, 0))
         );
         jPanel5Layout.setVerticalGroup(
@@ -835,7 +835,7 @@ public class EventsStatistic extends javax.swing.JPanel {
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(_field, javax.swing.GroupLayout.DEFAULT_SIZE, 203, Short.MAX_VALUE)
-            .addComponent(jScrollPane2)
+            .addComponent(sclPaneTree)
             .addComponent(lblTimeSum, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         jPanel1Layout.setVerticalGroup(
@@ -843,7 +843,7 @@ public class EventsStatistic extends javax.swing.JPanel {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addComponent(_field, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane2)
+                .addComponent(sclPaneTree)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(lblTimeSum, javax.swing.GroupLayout.PREFERRED_SIZE, 11, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
@@ -871,12 +871,8 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
     cmbValue.setSelectedIndex(-1);
     panChart.removeAll();
     panChart.repaint();
-    _field.setText(null);
-    TreePath[] paths = _tree.getSelectionPaths();
-    for (TreePath path : paths) {
-        System.out.println("You've selected: " + path.getLastPathComponent());
-    }
     _tree.setSelectionRow(-1);
+    _field.setText(null);
     lblTimeSum.setText("");
     btnPieChartActionPerformed(evt);
     catMachine = true;
@@ -926,7 +922,16 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
 
     private void btnRefreshActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRefreshActionPerformed
         catMachine = true;
-        cmbMachineTitleItemStateChanged(null);
+        try {
+            TreePath[] paths = _tree.getSelectionPaths();
+            short count = 0;
+            for (TreePath path : paths) {
+                count++;
+            }
+            cmbMachineTitleItemStateChanged(null);
+            _tree.setSelectionPath(paths[count - 1]);
+        } catch (java.util.NoSuchElementException | NullPointerException e) {
+        }
     }//GEN-LAST:event_btnRefreshActionPerformed
 
     private void btnClipboardActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnClipboardActionPerformed
@@ -959,7 +964,7 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
                 try {
                     HashMap hashMap = new HashMap();
                     chart.setTitle("");
-                    ConnectDB.setMainDir(new File(ConnectDB.DEFAULTDIRECTORY + File.separator + "SmartFactory Data"));
+                    ConnectDB.setMainDir(new File(ConnectDB.DEFAULT_DIRECTORY + File.separator + "SmartFactory Data"));
                     if (!ConnectDB.getMainDir().exists()) {
                         ConnectDB.getMainDir().mkdirs();
                     }
@@ -1043,7 +1048,7 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
                 }
                 panChart.removeAll();
                 panChart.repaint();
-                jScrollPane2.setViewportView(null);//clearing the scrollpanel of the jtree
+                sclPaneTree.setViewportView(null);//clearing the scrollpanel of the jtree
                 boolean find = false;
                 ArrayList<String> data = new ArrayList<>();
                 try (PreparedStatement ps = ConnectDB.con.prepareStatement("SELECT DISTINCT(c.Description) "
@@ -1081,12 +1086,12 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
                     lblFrom.setText("");
                     lblTo.setText("");
                     _field.setTreeModel(new DefaultTreeModel(new DefaultMutableTreeNode(EMPTYEVENTS)));
-                    jScrollPane2.setViewportView(null);
+                    sclPaneTree.setViewportView(null);
                 }
             } else {
                 panChart.removeAll();
                 panChart.repaint();
-                jScrollPane2.setViewportView(null);
+                sclPaneTree.setViewportView(null);
                 cmbDescription.setModel(new DefaultComboBoxModel());
                 cmbDescription.setSelectedIndex(-1);
                 cmbValue.setModel(new DefaultComboBoxModel());
@@ -1187,7 +1192,6 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
         descriptionSet.clear();
         String time = null, query;
         boolean loopQueryFound = false;
-        int j = 1;
 
         if (btnDataEvent.isSelected()) {
             time = "";
@@ -1204,13 +1208,14 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
                     + "AND (d.LogTime BETWEEN ? AND ?)\n"
                     + "GROUP BY LogData";
             ps = ConnectDB.con.prepareStatement(query);
-            ps.setInt(j++, (int) spProductionRate.getValue());
-            ps.setInt(j++, getIDChannel());
-            ps.setInt(j++, machineID);
-            ps.setString(j++, ConnectDB.SDATEFORMATHOUR.format(dt_startE));
-            ps.setString(j++, ConnectDB.SDATEFORMATHOUR.format(dt_stopE));
+            ps.setInt(1, (int) spProductionRate.getValue());
+            ps.setInt(2, getConfigNo());
+            ps.setInt(3, machineID);
+            ps.setString(4, ConnectDB.SDATE_FORMAT_HOUR.format(dt_startE));
+            ps.setString(5, ConnectDB.SDATE_FORMAT_HOUR.format(dt_stopE));
             ConnectDB.res = ps.executeQuery();
             while (ConnectDB.res.next()) {
+                loopQueryFound = true;
                 time = ConnectDB.res.getString(2);
             }
             ps.close();
@@ -1224,8 +1229,8 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
                 lblFrom.setText(minLogTime);
                 lblTo.setText(maxLogTime);
             } else {//case for the data event
-                minLogTime = ConnectDB.SDATEFORMATHOUR.format(dt_startE);//the eventtime minimum value
-                maxLogTime = ConnectDB.SDATEFORMATHOUR.format(dt_stopE);//the eventtime maximum value
+                minLogTime = ConnectDB.SDATE_FORMAT_HOUR.format(dt_startE);//the eventtime minimum value
+                maxLogTime = ConnectDB.SDATE_FORMAT_HOUR.format(dt_stopE);//the eventtime maximum value
                 lblFrom.setText("");
                 lblTo.setText("");
             }
@@ -1237,10 +1242,9 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
                     + "AND (e.EventTime BETWEEN ? AND ?)\n"
                     + "ORDER BY c.Description ASC, e.Value ASC";
             ps = ConnectDB.con.prepareStatement(query);
-            j = 1;
-            ps.setInt(j++, machineID);
-            ps.setString(j++, minLogTime);
-            ps.setString(j++, maxLogTime);
+            ps.setInt(1, machineID);
+            ps.setString(2, minLogTime);
+            ps.setString(3, maxLogTime);
             ConnectDB.res = ps.executeQuery();
             while (ConnectDB.res.next()) {
                 loopQueryFound = true;
@@ -1267,14 +1271,14 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
                 _field.setTreeModel(new DefaultTreeModel(new DefaultMutableTreeNode(EMPTYEVENTS)));
                 JOptionPane.showMessageDialog(_parent, "No data found and retrieved. Please check "
                         + "the period provided", "Events", JOptionPane.WARNING_MESSAGE);
-                jScrollPane2.setViewportView(null);
+                sclPaneTree.setViewportView(null);
                 lblTimeSum.setText("");
             }
         } else {
             _field.setTreeModel(new DefaultTreeModel(new DefaultMutableTreeNode(EMPTYEVENTS)));
             JOptionPane.showMessageDialog(this, "No events registered during the periods specified for the \""
                     + machineTitle + "\".", "Events", JOptionPane.WARNING_MESSAGE);
-            jScrollPane2.setViewportView(null);
+            sclPaneTree.setViewportView(null);
             lblFrom.setText("");
             lblTo.setText("");
             lblTimeSum.setText("");
@@ -1302,9 +1306,9 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
             renderer.setLeafIcon(new ImageIcon(getClass().getResource("/images/icons/new12.gif")));
             renderer.setClosedIcon(new ImageIcon(getClass().getResource("/images/icons/background(6).png")));
             renderer.setOpenIcon(new ImageIcon(getClass().getResource("/images/icons/background2.png")));
-            renderer.setTextSelectionColor(Color.white);
-            renderer.setBackgroundSelectionColor(Color.blue);
-            renderer.setBorderSelectionColor(Color.black);
+            renderer.setTextSelectionColor(Color.WHITE);
+            renderer.setBackgroundSelectionColor(Color.BLUE);
+            renderer.setBorderSelectionColor(Color.BLACK);
             _field.setTree(_tree);
             TreeSearchable searchable = SearchableUtils.installSearchable(_tree);
             searchable.setFromStart(false);
@@ -1335,7 +1339,7 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
             TreeUtils.expandAll(_tree, true);
             _tree.setRootVisible(true);
             _tree.setShowsRootHandles(true);
-            jScrollPane2.setViewportView(_tree);//adding the tree to the scrollpanel
+            sclPaneTree.setViewportView(_tree);//adding the tree to the scrollpanel
         } catch (java.lang.NullPointerException e) {
         }
     }
@@ -1480,8 +1484,8 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
                     setDescOrValue.add(ConnectDB.res.getString(3).toLowerCase());//Description or Value
                     try {
                         double[] diffs = ConnectDB.getTimeDifference(
-                                ConnectDB.SDATEFORMATHOUR.parse(ConnectDB.correctToBarreDate(eventTime)),
-                                ConnectDB.SDATEFORMATHOUR.parse(ConnectDB.correctToBarreDate(untilTime)));
+                                ConnectDB.SDATE_FORMAT_HOUR.parse(ConnectDB.correctToBarreDate(eventTime)),
+                                ConnectDB.SDATE_FORMAT_HOUR.parse(ConnectDB.correctToBarreDate(untilTime)));
                         //for each row in the result set, get the difference in hours
                         //and the Description or Value
                         if (radHour.isSelected()) {
@@ -1582,14 +1586,14 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
         chart = new Chart(model);
         Axis xAxis = new CategoryAxis(colorsCategoryRange);
         Axis yAxis = chartTitleAxis();
-        chart.setBackground(Color.white);
+        chart.setBackground(Color.WHITE);
         ChartStyle style = new ChartStyle();
         style.setBarsVisible(true);
         style.setLinesVisible(false);
         style.setPointsVisible(false);
         chart.setStyle(model, style);
         chart.setGridColor(new Color(150, 150, 150));
-        chart.setChartBackground(new GradientPaint(0f, 0f, Color.lightGray.brighter(), 300f, 300f, Color.lightGray));
+        chart.setChartBackground(new GradientPaint(0f, 0f, Color.LIGHT_GRAY.brighter(), 300f, 300f, Color.LIGHT_GRAY));
         chart.setLayout(new BorderLayout());
         chart.setBorder(new EmptyBorder(5, 5, 10, 15));
         chart.setXAxis(xAxis);
@@ -1597,7 +1601,7 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
         chart.setHorizontalGridLinesVisible(ConnectDB.pref.getBoolean(StatKeyFactory.ChartFeatures.BarChBHLine, true));
         chart.setVerticalGridLinesVisible(ConnectDB.pref.getBoolean(StatKeyFactory.ChartFeatures.BarChBVLine, false));
         chart.setRolloverEnabled(ConnectDB.pref.getBoolean(StatKeyFactory.ChartFeatures.ChBRollover, false));
-        chart.setShadowVisible(ConnectDB.pref.getBoolean(StatKeyFactory.ChartFeatures.ChBShadow, true));
+//        chart.setShadowVisible(ConnectDB.pref.getBoolean(StatKeyFactory.ChartFeatures.ChBShadow, true));
         chart.setSelectionEnabled(true);
         chart.setSelectionShowsOutline(false);
         for (Object HL1 : HL) {
@@ -1618,12 +1622,14 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
             chart.getXAxis().setAxisRenderer(new Axis3DRenderer());
         } else if (ConnectDB.pref.getBoolean(StatKeyFactory.ChartFeatures.RBRaised, false)) {
             RaisedBarRenderer barRenderer = new RaisedBarRenderer();
+            barRenderer.setZeroHeightBarsVisible(true);
             barRenderer.setOutlineWidth(ConnectDB.OUTLINEWIDTH);
             barRenderer.setAlwaysShowOutlines(ConnectDB.pref.getBoolean(StatKeyFactory.ChartFeatures.CHKOUTLINE, false));
             chart.setBarRenderer(barRenderer);
             chart.getXAxis().setAxisRenderer(new NoAxisRenderer());
         } else {
             DefaultBarRenderer barRenderer = new DefaultBarRenderer();
+            barRenderer.setZeroHeightBarsVisible(true);
             barRenderer.setOutlineWidth(ConnectDB.OUTLINEWIDTH);
             barRenderer.setAlwaysShowOutlines(ConnectDB.pref.getBoolean(StatKeyFactory.ChartFeatures.CHKOUTLINE, false));
             chart.setBarRenderer(barRenderer);
@@ -1718,7 +1724,7 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
                 }
             }
         });
-        chart.setShadowVisible(ConnectDB.pref.getBoolean(StatKeyFactory.ChartFeatures.ChBShadow, true));
+//        chart.setShadowVisible(ConnectDB.pref.getBoolean(StatKeyFactory.ChartFeatures.ChBShadow, true));
         chart.setSelectionShowsOutline(ConnectDB.pref.getBoolean(StatKeyFactory.ChartFeatures.ChBSelectionOutline, false));
         legendPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
         legendPanel.setOpaque(true);
@@ -1736,7 +1742,7 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
         Axis yAxis = chartTitleAxis();
         ChartStyle style = new ChartStyle(ConnectDB.getColorFromKey(ConnectDB.pref.get(StatKeyFactory.ChartFeatures.CBColor, "255, 0, 0")), true, true);
         style.setLineWidth(ConnectDB.pref.getInt(StatKeyFactory.ChartFeatures.SPLineWidth, 2));
-        chart.setBackground(Color.white);
+        chart.setBackground(Color.WHITE);
         chart.setBorder(new EmptyBorder(5, 5, 10, 15));
         chart.setGridColor(new Color(150, 150, 150));
         style.setPointSize(12);
@@ -1771,14 +1777,14 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
                 chart.repaint();
             }
         });
-        chart.setChartBackground(new GradientPaint(0f, 0f, Color.lightGray.brighter(), 300f, 300f, Color.lightGray));
+        chart.setChartBackground(new GradientPaint(0f, 0f, Color.LIGHT_GRAY.brighter(), 300f, 300f, Color.LIGHT_GRAY));
         chart.setXAxis(xAxis);
         chart.setYAxis(yAxis);
         chart.setHorizontalGridLinesVisible(ConnectDB.pref.getBoolean(StatKeyFactory.ChartFeatures.LineChBHLine, true));
         chart.setVerticalGridLinesVisible(ConnectDB.pref.getBoolean(StatKeyFactory.ChartFeatures.LineChBVLine, true));
         chart.setSelectionEnabled(true);
         chart.setRolloverEnabled(ConnectDB.pref.getBoolean(StatKeyFactory.ChartFeatures.ChBRollover, false));
-        chart.setShadowVisible(ConnectDB.pref.getBoolean(StatKeyFactory.ChartFeatures.ChBShadow, true));
+//        chart.setShadowVisible(ConnectDB.pref.getBoolean(StatKeyFactory.ChartFeatures.ChBShadow, true));
         chart.setBarResizePolicy(BarResizePolicy.RESIZE_OFF);
         chart.setBarGap(10);
         panner = new MouseDragPanner(chart, true, false);
@@ -1836,21 +1842,20 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
         catMachine = true;
     }
 
-    private int getIDChannel() throws SQLException {
-        int IDChannel = -1;
+    private int getConfigNo() throws SQLException {
+        int configNo = -1;
         try (PreparedStatement ps = ConnectDB.con.prepareStatement("SELECT ConfigNo FROM `configuration` c,\n"
                 + "hardware h\n"
                 + "WHERE h.HwNo = c.HwNo AND AvMinMax = 'rate' AND Active =?\n"
                 + "AND h.HwNo =?")) {
-            int i = 1;
-            ps.setInt(i++, 1);
-            ps.setInt(i++, machineID);
+            ps.setInt(1, 1);
+            ps.setInt(2, machineID);
             ConnectDB.res = ps.executeQuery();
             while (ConnectDB.res.next()) {
-                IDChannel = ConnectDB.res.getInt(1);
+                configNo = ConnectDB.res.getInt(1);
             }
         }
-        return IDChannel;
+        return configNo;
     }
 
     private class Machine {
@@ -1942,7 +1947,6 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
     private javax.swing.JPanel jPanel6;
     private javax.swing.JPanel jPanel7;
     private javax.swing.JPanel jPanel8;
-    private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JToolBar.Separator jSeparator1;
     private javax.swing.JToolBar.Separator jSeparator2;
     private javax.swing.JToolBar.Separator jSeparator3;
@@ -1959,6 +1963,7 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
     private javax.swing.JRadioButton radHour;
     private javax.swing.JRadioButton radMinute;
     private javax.swing.JRadioButton radSecond;
+    private javax.swing.JScrollPane sclPaneTree;
     private javax.swing.JSpinner spProductionRate;
     // End of variables declaration//GEN-END:variables
     private static int machineID = -1;

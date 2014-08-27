@@ -20,10 +20,12 @@ import java.awt.event.ItemListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.PrintStream;
 import java.sql.SQLException;
 import java.util.Properties;
 import java.util.logging.Level;
@@ -53,7 +55,7 @@ import resources.Constants;
 import resources.ReadPropertiesFile;
 import setting.SettingKeyFactory;
 import smartfactoryV2.ConnectDB;
-import target.Target;
+import target.TargetInsert;
 
 /**
  *
@@ -79,6 +81,7 @@ public class DashBoardSettings extends javax.swing.JDialog {
             }
         });
         this.setFocusable(true);
+//        System.out.println(DashBoardSettings.class.getResourceAsStream("/resources/smfProperties.properties").toString());
     }
 
     @SuppressWarnings("unchecked")
@@ -280,7 +283,9 @@ public class DashBoardSettings extends javax.swing.JDialog {
                 try {
                     int value = (int) spinner.getValue();
                     ConnectDB.pref.putInt(SettingKeyFactory.DefaultProperties.REFRESHTIME, value);
-                    setSettings(value + "m");
+                    //Save the value in the propertie file
+                    setSettingsInPropertieFile(value + "m");
+                    //Read the file
                     ReadPropertiesFile.readConfig();
                     DashBoard.bslTime.setText("Scheduler of " + Constants.timetoquery + " is running "
                             + "to refresh the chart(s) if any is shown...");
@@ -300,6 +305,7 @@ public class DashBoardSettings extends javax.swing.JDialog {
         JPanel paletteTarget = new JPanel(new BorderLayout(6, 6));
         JideButton btnTarget = new JideButton("Show/Edit Target(s)");
         btnTarget.setFocusable(false);
+        btnTarget.setFont(ConnectDB.TITLEFONT);
         btnTarget.setForeground(Color.BLUE);
         btnTarget.setOpaque(true);
         btnTarget.setButtonStyle(ButtonStyle.TOOLBOX_STYLE);
@@ -308,7 +314,7 @@ public class DashBoardSettings extends javax.swing.JDialog {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    new Target(_parent, true).setVisible(true);
+                    new TargetInsert(_parent, true).setVisible(true);
                 } catch (SQLException ex) {
                     ConnectDB.catchSQLException(ex);
                 }
@@ -316,6 +322,8 @@ public class DashBoardSettings extends javax.swing.JDialog {
         });
         paletteTarget.setBackground(Color.WHITE);
         paletteTarget.add(btnTarget, BorderLayout.WEST);
+        paletteTarget.add(new JLabel("current unit: " + ConnectDB.pref.get(
+                SettingKeyFactory.DefaultProperties.TARGET_TIME_UNIT, "hour")));
         buttonPanel.add(paletteTarget);
 
         buttonPanel.add(new JPanel(new BorderLayout(6, 6)));
@@ -359,13 +367,16 @@ public class DashBoardSettings extends javax.swing.JDialog {
         return buttonPanel;
     }
 
-    private void setSettings(String timeToQuery) {
+    private void setSettingsInPropertieFile(String timeToQuery) throws IOException {
         Properties props = new Properties();
         OutputStream out = null;
+        File file = null;
         try {
-            File f = new File(ConnectDB.WORKINGDIR + File.separator + "src\\resources\\smfProperties.properties");
-            if (f.exists()) {
-                props.load(new FileReader(f));
+            file = new File(ConnectDB.WORKINGDIR + File.separator + "src\\resources\\smfProperties.properties");
+//            file = new File(new File(ConnectDB.WORKINGDIR).getParentFile() + File.separator + "src\\resources\\smfProperties.properties");
+//            System.out.println(file.getCanonicalPath());
+            if (file.exists()) {
+                props.load(new FileReader(file));
                 //Change the values here
                 props.setProperty("timetoquery", timeToQuery);
             } else {
@@ -374,15 +385,30 @@ public class DashBoardSettings extends javax.swing.JDialog {
                 props.setProperty("timetoquery", "5m");
                 props.setProperty("delay", "2s");
                 props.setProperty("ipAddress", "127.0.0.1");
-                f.createNewFile();
+                file.createNewFile();
             }
-            out = new FileOutputStream(f);
+            out = new FileOutputStream(file);
             props.store(out, "This is the property file for the smartfactory reporting tool"
                     + " application.\nrunning: Check if application is running;\n"
                     + "timetoquery: Repeat for every given time.\n"
                     + "delay: Start after 2 seconds for the first time.\n\nVictor Kadiata");
         } catch (IOException e) {
-            e.printStackTrace();
+            FileOutputStream fos = null;
+            try {
+                fos = new FileOutputStream(new File("ApplicationExceptions.txt"), true);
+                PrintStream ps = new PrintStream(fos);
+                e.printStackTrace(ps);
+                ps.print(" \n\n");
+                ps.print("File path is: " + file.getCanonicalPath());
+            } catch (FileNotFoundException ex1) {
+                Logger.getLogger(MainMenuPanel.class.getName()).log(Level.SEVERE, null, ex1);
+            } finally {
+                try {
+                    fos.close();
+                } catch (IOException ex1) {
+                    Logger.getLogger(MainMenuPanel.class.getName()).log(Level.SEVERE, null, ex1);
+                }
+            }
         } finally {
             if (out != null) {
                 try {
@@ -396,25 +422,29 @@ public class DashBoardSettings extends javax.swing.JDialog {
     }
 
     private void close() {
-        if (timeUpdated) {
-            try {
-                File temp = File.createTempFile("dashBoard", ".xml");
-                DashboardPersistenceUtils.save(_tabbedPane, temp.getAbsolutePath());
-                this._parent.dispose();
+        try {
+            if (timeUpdated) {
                 try {
-                    Thread.sleep(2000);
-                } catch (InterruptedException ex) {
+                    File temp = File.createTempFile("dashBoard", ".xml");
+                    DashboardPersistenceUtils.save(_tabbedPane, temp.getAbsolutePath());
+                    this._parent.dispose();
+                    try {
+                        Thread.sleep(2000);
+                    } catch (InterruptedException ex) {
+                    }
+                    MainMenuPanel.showDashBoard();
+                    timeUpdated = false;
+                    DashboardPersistenceUtils.load(DashBoard.getColDashBoard().getTabbedPane(), temp.getAbsolutePath());
+                    DashBoard.getColDashBoard().getTabbedPane().revalidate();
+                    temp.deleteOnExit();
+                } catch (ParserConfigurationException | IOException | SAXException ex) {
+                    Logger.getLogger(DashBoardSettings.class.getName()).log(Level.SEVERE, null, ex);
                 }
-                MainMenuPanel.showDashBoard();
-                timeUpdated = false;
-                DashboardPersistenceUtils.load(DashBoard.getColDashBoard().getTabbedPane(), temp.getAbsolutePath());
-                DashBoard.getColDashBoard().getTabbedPane().revalidate();
-                temp.deleteOnExit();
-            } catch (ParserConfigurationException | IOException | SAXException ex) {
-                Logger.getLogger(DashBoardSettings.class.getName()).log(Level.SEVERE, null, ex);
             }
+            this.dispose();
+        } catch (NullPointerException e) {
+            this.dispose();
         }
-        this.dispose();
     }
 
 //    /**
@@ -445,7 +475,7 @@ public class DashBoardSettings extends javax.swing.JDialog {
     // End of variables declaration//GEN-END:variables
     private final DashboardTabbedPane _tabbedPane;
     private boolean _vertical;
-    public static boolean timeUpdated = false;
+    private static boolean timeUpdated = false;
 //    private static String _lastDirectory = ".";
     private final JFrame _parent;
 }

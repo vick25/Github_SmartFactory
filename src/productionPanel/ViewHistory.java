@@ -110,7 +110,7 @@ public class ViewHistory extends javax.swing.JDialog {
         cmbHFrom.setDate(Calendar.getInstance().getTime());
         cmbHFrom.setEnabled(false);
         cmbHFrom.setFocusable(false);
-        cmbHFrom.setFormat(ConnectDB.SDATEFORMATHOUR);
+        cmbHFrom.setFormat(ConnectDB.SDATE_FORMAT_HOUR);
         cmbHFrom.setRequestFocusEnabled(false);
         cmbHFrom.setTimeDisplayed(true);
         cmbHFrom.setTimeFormat("HH:mm:ss");
@@ -471,7 +471,7 @@ public class ViewHistory extends javax.swing.JDialog {
 
     static class HistoryTableModel extends DefaultTableModel implements HierarchicalTableModel {
 
-        public HistoryTableModel() {
+        HistoryTableModel() {
             super(getListOfMachine(), DESCRIPTION_COLUMNS);
         }
 
@@ -521,21 +521,21 @@ public class ViewHistory extends javax.swing.JDialog {
 
     static class FitScrollPane extends JScrollPane implements ComponentListener {
 
-        public FitScrollPane() {
+        FitScrollPane() {
             initScrollPane();
         }
 
-        public FitScrollPane(Component view) {
+        FitScrollPane(Component view) {
             super(view);
             initScrollPane();
         }
 
-        public FitScrollPane(Component view, int vsbPolicy, int hsbPolicy) {
+        FitScrollPane(Component view, int vsbPolicy, int hsbPolicy) {
             super(view, vsbPolicy, hsbPolicy);
             initScrollPane();
         }
 
-        public FitScrollPane(int vsbPolicy, int hsbPolicy) {
+        FitScrollPane(int vsbPolicy, int hsbPolicy) {
             super(vsbPolicy, hsbPolicy);
             initScrollPane();
         }
@@ -662,7 +662,7 @@ public class ViewHistory extends javax.swing.JDialog {
     private static String[][] getDetails(String rowMachineName) throws SQLException {
         String[][] tab = null;
         vectConfigNo.removeAllElements();
-        if (!rowMachineName.equals("")) {
+        if (!rowMachineName.isEmpty()) {
             int col = 0;
             String historyQuery = "SELECT c.ConfigNo\n"
                     + "FROM configuration c, hardware h\n"
@@ -670,8 +670,7 @@ public class ViewHistory extends javax.swing.JDialog {
                     + "AND h.Machine =?\n"
                     + "ORDER BY c.HwNo ASC, c.AvMinMax DESC";
             try (PreparedStatement ps = ConnectDB.con.prepareStatement(historyQuery)) {
-                int z = 1;
-                ps.setString(z++, rowMachineName);
+                ps.setString(1, rowMachineName);
                 ConnectDB.res = ps.executeQuery();
                 while (ConnectDB.res.next()) {
                     vectConfigNo.add(ConnectDB.res.getInt(1));
@@ -699,8 +698,7 @@ public class ViewHistory extends javax.swing.JDialog {
                 + "AND d.ConfigNo =?\n"
                 + "ORDER BY d.LogTime ASC";
         try (PreparedStatement ps = ConnectDB.con.prepareStatement(runQuery(channelQuery))) {
-            int z = 1;
-            ps.setInt(z++, item);
+            ps.setInt(1, item);
             ConnectDB.res = ps.executeQuery();
             while (ConnectDB.res.next()) {
                 tabFill[row][0] = ConnectDB.res.getString(1);//LogTime
@@ -718,8 +716,7 @@ public class ViewHistory extends javax.swing.JDialog {
                 + "AND d.ConfigNo =?\n"
                 + "ORDER BY d.LogTime ASC";
         try (PreparedStatement ps = ConnectDB.con.prepareStatement(runQuery(channelQuery))) {
-            int z = 1;
-            ps.setInt(z++, row);
+            ps.setInt(1, row);
             ConnectDB.res = ps.executeQuery();
             ConnectDB.res.last();
             return ConnectDB.res.getRow();
@@ -730,7 +727,7 @@ public class ViewHistory extends javax.swing.JDialog {
         String channelQuery = channel;
         if (chkFrom.isSelected()) {
             channelQuery = channel.substring(0, channel.lastIndexOf("ORDER")).trim() + "\n"
-                    + "AND d.LogTime >= '" + ConnectDB.SDATEFORMATHOUR.format(cmbHFrom.getDate()) + "'\n"
+                    + "AND d.LogTime >= '" + ConnectDB.SDATE_FORMAT_HOUR.format(cmbHFrom.getDate()) + "'\n"
                     + "ORDER BY d.LogTime ASC";
         }
         return channelQuery;
@@ -784,7 +781,7 @@ public class ViewHistory extends javax.swing.JDialog {
 //    static String[] DETAIL_COLUMNS = new String[]{"Time", "EventTime", "UntilTime",
 //        "Value", "Hours", "Minutes", "Seconds"};
     static Vector vectConfigNo = new Vector();
-    protected static final Color BG1 = new Color(232, 237, 230);
+//    protected static final Color BG1 = new Color(232, 237, 230);
     protected static final Color BG2 = new Color(243, 234, 217);
     protected static final Color BG3 = new Color(214, 231, 247);
     protected static final Color BG4 = new Color(255, 255, 255);

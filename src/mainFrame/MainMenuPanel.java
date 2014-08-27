@@ -7,8 +7,15 @@ import dashboard.DashBoard;
 import eventsPanel.EventsStatistic;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintStream;
 import java.sql.SQLException;
 import java.util.Date;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
@@ -24,9 +31,13 @@ import viewData.ViewHistory;
 
 public class MainMenuPanel extends JPanel {
 
+    public static JFrame getDashBoardFrame() {
+        return _dashBoardFrame;
+    }
+
     public MainMenuPanel(MainFrame parent) {
         _parent = parent;
-        _documentPane = MainFrame.getDocumentPane();
+        this._documentPane = MainFrame.getDocumentPane();
         initComponents();
     }
 
@@ -305,7 +316,7 @@ public class MainMenuPanel extends JPanel {
     }//GEN-LAST:event_btnViewHistoryActionPerformed
 
     private void btnLogOutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLogOutActionPerformed
-        MainFrame.actionLogOut();        
+        MainFrame.actionLogOut();
         Identification.setFrameSaved(true);
         SplashScreen.getIdentification().setVisible(true);
     }//GEN-LAST:event_btnLogOutActionPerformed
@@ -325,7 +336,7 @@ public class MainMenuPanel extends JPanel {
             _dashBoardFrame = new JFrame("Smartfactory Machines DashBoard");
             _dashBoardFrame.setSize(1125, 700);
             _dashBoardFrame.setIconImage(_parent.getIconImage());
-            _dashBoard = new DashBoard(_parent, MainFrame.getDashBoardDate());
+            DashBoard _dashBoard = new DashBoard(_parent, MainFrame.getDashBoardDate());
             _dashBoardFrame.getContentPane().add(_dashBoard);
             _dashBoardFrame.addWindowListener(new WindowAdapter() {
 
@@ -339,7 +350,20 @@ public class MainMenuPanel extends JPanel {
             _dashBoardFrame.setLocationRelativeTo(null);
             _dashBoardFrame.setVisible(true);
         } catch (Exception ex) {
-//            ex.printStackTrace();
+            FileOutputStream fos = null;
+            try {
+                fos = new FileOutputStream(new File("ApplicationExceptions.txt"), true);
+                PrintStream ps = new PrintStream(fos);
+                ex.printStackTrace(ps);
+            } catch (FileNotFoundException ex1) {
+                Logger.getLogger(MainMenuPanel.class.getName()).log(Level.SEVERE, null, ex1);
+            } finally {
+                try {
+                    fos.close();
+                } catch (IOException ex1) {
+                    Logger.getLogger(MainMenuPanel.class.getName()).log(Level.SEVERE, null, ex1);
+                }
+            }
         }
     }
 
@@ -360,7 +384,6 @@ public class MainMenuPanel extends JPanel {
     private Date date;
     private final DocumentPane _documentPane;
     private static MainFrame _parent;
-    public static DashBoard _dashBoard;
-    public static JFrame _dashBoardFrame;
+    private static JFrame _dashBoardFrame;
     private ProductionPane productionPane = null;
 }

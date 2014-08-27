@@ -253,7 +253,7 @@ public class EventsDataPanel extends javax.swing.JPanel {
                 jfc.addChoosableFileFilter(new FileNameExtensionFilter("Csv Documents (*.csv)", "csv"));
                 try {
                     fichier = new File(ConnectDB.fsv.getRoots()[0] + File.separator + "data_"
-                            + ConnectDB.correctBarreFileName(ConnectDB.SDATEFORMATHOUR.format(Calendar.getInstance().getTime())));
+                            + ConnectDB.correctBarreFileName(ConnectDB.SDATE_FORMAT_HOUR.format(Calendar.getInstance().getTime())));
                 } catch (Exception e) {
                     JOptionPane.showMessageDialog(EventsDataPanel.this, jfc.getSelectedFile().getName()
                             + "\n The file name is not valid.", "Export", JOptionPane.WARNING_MESSAGE);

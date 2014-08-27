@@ -106,8 +106,8 @@ public class BarChart extends Chart {
         alDateHour.clear();
         alValues.clear();
         flagLogTime.clear();
-//        modelPoints = new DefaultChartModel(ConnectDB.SDATEFORMATHOUR.format(Production.dt_startP)
-//                + " - " + ConnectDB.SDATEFORMATHOUR.format(Production.dt_endP));
+//        modelPoints = new DefaultChartModel(ConnectDB.SDATE_FORMAT_HOUR.format(Production.dt_startP)
+//                + " - " + ConnectDB.SDATE_FORMAT_HOUR.format(Production.dt_endP));
         if (modelPoints != null) {
             modelPoints.clearPoints();
         }
@@ -116,8 +116,8 @@ public class BarChart extends Chart {
         int z = 1;
         ps.setString(z++, this._chanTitle);
         ps.setInt(z++, ConfigNo);
-        ps.setString(z++, ConnectDB.SDATEFORMATHOUR.format(this._startD));
-        ps.setString(z++, ConnectDB.SDATEFORMATHOUR.format(this._endD));
+        ps.setString(z++, ConnectDB.SDATE_FORMAT_HOUR.format(this._startD));
+        ps.setString(z++, ConnectDB.SDATE_FORMAT_HOUR.format(this._endD));
 //        System.out.println(ps.toString());
         ConnectDB.res = ps.executeQuery();
         loopQueryFound = false;
@@ -483,8 +483,8 @@ public class BarChart extends Chart {
             int zShift = 1;
             psShift.setString(zShift++, this._chanTitle);
             psShift.setInt(zShift++, IDChannel);
-            psShift.setString(zShift++, ConnectDB.SDATEFORMATHOUR.format(this._startD));
-            psShift.setString(zShift++, ConnectDB.SDATEFORMATHOUR.format(this._endD));
+            psShift.setString(zShift++, ConnectDB.SDATE_FORMAT_HOUR.format(this._startD));
+            psShift.setString(zShift++, ConnectDB.SDATE_FORMAT_HOUR.format(this._endD));
             ConnectDB.res = psShift.executeQuery();
 //            System.out.println(psShift.toString());
             while (ConnectDB.res.next()) {
@@ -526,8 +526,8 @@ public class BarChart extends Chart {
                     try {
                         /* Time difference in minutes. */
                         double[] diffs = ConnectDB.getTimeDifference(
-                                ConnectDB.SDATEFORMATHOUR.parse(ConnectDB.correctToBarreDate(flagLogTime.get(i))),
-                                ConnectDB.SDATEFORMATHOUR.parse(ConnectDB.correctToBarreDate(flagLogTime.get(i + 1))));
+                                ConnectDB.SDATE_FORMAT_HOUR.parse(ConnectDB.correctToBarreDate(flagLogTime.get(i))),
+                                ConnectDB.SDATE_FORMAT_HOUR.parse(ConnectDB.correctToBarreDate(flagLogTime.get(i + 1))));
                         if (diffs[2] > flagTime) {
                             //create a timer to make text blink periodically
                             makeItBlink = new Timer(blinkInterval, new ActionListener() {

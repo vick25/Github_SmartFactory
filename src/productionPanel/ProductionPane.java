@@ -710,7 +710,7 @@ public class ProductionPane extends javax.swing.JPanel {
         cmbPFrom.setShowWeekNumbers(false);
         cmbPFrom.setDate(Calendar.getInstance().getTime());
         cmbPFrom.setFocusable(false);
-        cmbPFrom.setFormat(ConnectDB.SDATEFORMATHOUR);
+        cmbPFrom.setFormat(ConnectDB.SDATE_FORMAT_HOUR);
         cmbPFrom.setRequestFocusEnabled(false);
         cmbPFrom.setTimeDisplayed(true);
         cmbPFrom.setTimeFormat("HH:mm:ss");
@@ -723,7 +723,7 @@ public class ProductionPane extends javax.swing.JPanel {
         cmbPTo.setShowWeekNumbers(false);
         cmbPTo.setDate(Calendar.getInstance().getTime());
         cmbPTo.setFocusable(false);
-        cmbPTo.setFormat(ConnectDB.SDATEFORMATHOUR);
+        cmbPTo.setFormat(ConnectDB.SDATE_FORMAT_HOUR);
         cmbPTo.setRequestFocusEnabled(false);
         cmbPTo.setTimeDisplayed(true);
         cmbPTo.setTimeFormat("HH:mm:ss");
@@ -1090,7 +1090,7 @@ public class ProductionPane extends javax.swing.JPanel {
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jSplitPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 730, Short.MAX_VALUE)
+            .addComponent(jSplitPane2)
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1170,7 +1170,7 @@ public class ProductionPane extends javax.swing.JPanel {
                 try {
                     Map<String, Object> hm = new HashMap<>();
                     JasperPrint jpMaster;
-                    ConnectDB.setMainDir(new File(ConnectDB.DEFAULTDIRECTORY + File.separator + "SmartFactory Data"));
+                    ConnectDB.setMainDir(new File(ConnectDB.DEFAULT_DIRECTORY + File.separator + "SmartFactory Data"));
                     if (!ConnectDB.getMainDir().exists()) {
                         ConnectDB.getMainDir().mkdirs();
                     }
@@ -1189,8 +1189,8 @@ public class ProductionPane extends javax.swing.JPanel {
                     }
                     hm.put("companyTitle", reportOptions.getCompanyTitle());
                     hm.put("title", reportOptions.getReportTitle());
-                    hm.put("date1", ConnectDB.SDATEFORMATHOUR.format(dt_startP));
-                    hm.put("date2", ConnectDB.SDATEFORMATHOUR.format(dt_endP));
+                    hm.put("date1", ConnectDB.SDATE_FORMAT_HOUR.format(dt_startP));
+                    hm.put("date2", ConnectDB.SDATE_FORMAT_HOUR.format(dt_endP));
                     hm.put("valueTitle", tableType);//represents parts/hr or rate/hr
                     hm.put("SUBREPORT_DIR", getClass().getResourceAsStream("/jasper/tableExample.jasper"));
                     if (reportOptions.isAddTable()) {
@@ -1689,7 +1689,7 @@ public class ProductionPane extends javax.swing.JPanel {
                 jfc.addChoosableFileFilter(new FileNameExtensionFilter("Csv Documents (*.csv)", "csv"));
                 try {
                     fichier = new File(ConnectDB.fsv.getRoots()[0] + File.separator + "data_"
-                            + ConnectDB.correctBarreFileName(ConnectDB.SDATEFORMATHOUR.format(Calendar.getInstance().getTime())));
+                            + ConnectDB.correctBarreFileName(ConnectDB.SDATE_FORMAT_HOUR.format(Calendar.getInstance().getTime())));
                 } catch (Exception e) {
                     JOptionPane.showMessageDialog(_parent, jfc.getSelectedFile().getName()
                             + "\n The file name is not valid.", "Export", JOptionPane.WARNING_MESSAGE);

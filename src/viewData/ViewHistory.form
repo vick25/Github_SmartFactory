@@ -166,7 +166,7 @@
                 <Property name="enabled" type="boolean" value="false"/>
                 <Property name="focusable" type="boolean" value="false"/>
                 <Property name="format" type="java.text.DateFormat" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                  <Connection code="ConnectDB.SDATEFORMATHOUR" type="code"/>
+                  <Connection code="ConnectDB.SDATE_FORMAT_HOUR" type="code"/>
                 </Property>
                 <Property name="requestFocusEnabled" type="boolean" value="false"/>
                 <Property name="timeDisplayed" type="boolean" value="true"/>

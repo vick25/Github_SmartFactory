@@ -405,7 +405,7 @@ public class MainFrame extends DefaultDockableBarDockableHolder {
         if (Desktop.isDesktopSupported()) {
             try {
                 Desktop desktop = Desktop.getDesktop();
-                desktop.open(new File(ConnectDB.DEFAULTDIRECTORY + File.separator + "SmartFactory Data"));
+                desktop.open(new File(ConnectDB.DEFAULT_DIRECTORY + File.separator + "SmartFactory Data"));
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
@@ -476,7 +476,7 @@ public class MainFrame extends DefaultDockableBarDockableHolder {
             InputStream inputStream = null;
             OutputStream outputStream = null;
             try {
-                ConnectDB.setMainDir(new File(ConnectDB.DEFAULTDIRECTORY + File.separator + "SmartFactory Data"));
+                ConnectDB.setMainDir(new File(ConnectDB.DEFAULT_DIRECTORY + File.separator + "SmartFactory Data"));
                 if (!ConnectDB.getMainDir().exists()) {
                     ConnectDB.getMainDir().mkdirs();
                 }

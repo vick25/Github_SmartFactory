@@ -137,8 +137,7 @@ public class ViewData extends javax.swing.JDialog {
         fc.setFileFilter(new FileNameExtensionFilter("Excel file", "xls"));
         File fichier = new File(fsv.getRoots()[0] + File.separator + "data.xls");
         fc.setSelectedFile(fichier);
-        int result = fc.showSaveDialog(this);
-        if (result == JFileChooser.APPROVE_OPTION) {
+        if (fc.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
             if (!fc.getSelectedFile().exists()) {
                 try {
                     if (!fc.getSelectedFile().getAbsolutePath().contains(".")) {

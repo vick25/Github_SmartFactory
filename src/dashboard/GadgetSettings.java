@@ -16,6 +16,7 @@ import java.awt.Point;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.sql.SQLException;
+import java.text.ParseException;
 import javax.swing.BorderFactory;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -396,6 +397,8 @@ public class GadgetSettings extends javax.swing.JPanel {
 //            DashBoard.bslTime.setText("Regenerating " + this._keyMachine + " in a while.");
         } catch (SQLException ex) {
             ConnectDB.catchSQLException(ex);
+        } catch (ParseException ex) {
+            ex.printStackTrace();
         }
     }//GEN-LAST:event_btnRegenerateChartActionPerformed
 
@@ -477,7 +480,7 @@ public class GadgetSettings extends javax.swing.JPanel {
     }
 
     public static void showSettingsDialog(int[] configNo, String keyMachine, Component gadget) {
-        dialog = new JDialog(MainMenuPanel._dashBoardFrame, keyMachine + " Gadget Settings");
+        dialog = new JDialog(MainMenuPanel.getDashBoardFrame(), keyMachine + " Gadget Settings");
         dialog.setLayout(new BorderLayout());
         dialog.getContentPane().add(new GadgetSettings(configNo, keyMachine, gadget));
         dialog.setPreferredSize(new Dimension(370, 340));

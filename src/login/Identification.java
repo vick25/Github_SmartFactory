@@ -30,7 +30,7 @@ import productionQuickView.ProductionQuickView;
 import setting.SettingKeyFactory;
 import smartfactoryV2.ConnectDB;
 import smartfactoryV2.Queries;
-import target.Target;
+import target.TargetInsert;
 import user.ChangePassword;
 import user.CreateUser;
 import user.PasswordForgot;
@@ -435,7 +435,7 @@ public class Identification extends javax.swing.JDialog {
                                     }
                                 }
                                 this.dispose();
-                                createTablesInDatabase();//Creating the Target table in the database
+                                createTablesInDatabase();//Creating the TargetInsert table in the database
 //                                ConnectDB.saveIP(ConnectDB.serverIP);
                                 if ("root".equals(login)) {
                                     new CreateUser(_mainFrame, true).setVisible(true);
@@ -465,8 +465,8 @@ public class Identification extends javax.swing.JDialog {
                                                     quickViewFrame = null;
                                                 }
                                             });
-                                            if (!Target.isTargetFound()) {
-                                                new Target(quickViewFrame, true).setVisible(true);
+                                            if (!TargetInsert.isTargetFound()) {
+                                                new TargetInsert(quickViewFrame, true).setVisible(true);
                                             }
                                         }
                                     }

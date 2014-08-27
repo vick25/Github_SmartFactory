@@ -27,6 +27,7 @@ import java.awt.HeadlessException;
 import java.awt.event.ActionEvent;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -259,8 +260,8 @@ public class CollapsiblePaneDashboard extends TimerTask {
                                         + "configuration channel.", "Machine DashBoard", JOptionPane.ERROR_MESSAGE);
                             }
                         } catch (SQLException ex) {
-                            ex.printStackTrace();
-                        } catch (HeadlessException ex) {
+                            ConnectDB.catchSQLException(ex);
+                        } catch (HeadlessException | ParseException ex) {                            
                         }
                         return null;
                     }
@@ -311,7 +312,8 @@ public class CollapsiblePaneDashboard extends TimerTask {
 
     /*Main method setGadgetComponenPane to create gadget corresponding chart by calling the static method
      createChart of the GadgetFactory class*/
-    public void setGadgetComponentPane(int[] configNo, String keyMachineName, CollapsiblePaneGadget gadget) throws SQLException {
+    public void setGadgetComponentPane(int[] configNo, String keyMachineName, CollapsiblePaneGadget gadget) 
+            throws SQLException, ParseException {
         gadget.getContentPane().removeAll();
         gadget.getContentPane().setPreferredSize(new Dimension(200, 300));
         gadget.getContentPane().setLayout(new BorderLayout());
@@ -346,7 +348,7 @@ public class CollapsiblePaneDashboard extends TimerTask {
                     _tabbedPane.repaint();
                 } catch (SQLException ex) {
                     ConnectDB.catchSQLException(ex);
-                } catch (Exception ex) {
+                } catch (ParseException ex) {
                     ex.printStackTrace();
                 }
             }
@@ -357,7 +359,6 @@ public class CollapsiblePaneDashboard extends TimerTask {
 
     private DashboardTabbedPane _tabbedPane;
     public boolean _vertical = false;
-//    private Date _startDate;
     private final ArrayList<Machine> _machines;
     private GadgetManager manager;
     private Map<String, CollapsiblePaneGadget> mapMach = new HashMap<>();

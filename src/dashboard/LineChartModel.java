@@ -42,8 +42,8 @@ public class LineChartModel extends DefaultChartModel {
         try (PreparedStatement ps = ConnectDB.con.prepareStatement(this._query)) {
             int i = 1;
             ps.setInt(i++, this._configNo);
-            ps.setString(i++, ConnectDB.SDATEFORMATHOUR.format(this._startD));
-            ps.setString(i++, ConnectDB.SDATEFORMATHOUR.format(this._endD));
+            ps.setString(i++, ConnectDB.SDATE_FORMAT_HOUR.format(this._startD));
+            ps.setString(i++, ConnectDB.SDATE_FORMAT_HOUR.format(this._endD));
             ConnectDB.res = ps.executeQuery();
             alTime.clear();
             alValues.clear();

@@ -69,7 +69,7 @@ import setting.SettingKeyFactory;
 import smartfactoryV2.ConnectDB;
 import tableModel.TableModelRate;
 import tableModel.TableModelTotal;
-import target.Target;
+import target.TargetInsert;
 
 /**
  *
@@ -197,7 +197,7 @@ public class ProductionQuickView extends javax.swing.JPanel {
             }
         });
         time.start();
-        cmbDay.setFormat(ConnectDB.SDATEFORMATHOUR);
+        cmbDay.setFormat(ConnectDB.SDATE_FORMAT_HOUR);
         cmbDay.setDate(Calendar.getInstance().getTime());
         cmbDay.getEditor().getEditorComponent().setFocusable(false);
         createTabbedPanel(new JPanel(), "Production Rate");
@@ -619,11 +619,11 @@ public class ProductionQuickView extends javax.swing.JPanel {
 
     private void btnLoadMachinesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLoadMachinesActionPerformed
         try {
-            new Target(_parent, true).setVisible(true);
+            new TargetInsert(_parent, true).setVisible(true);
         } catch (SQLException ex) {
             ConnectDB.catchSQLException(ex);
         }
-        if (Target.isAnyChangeOccured()) {
+        if (TargetInsert.isAnyChangeOccured()) {
             SwingUtilities.invokeLater(new Runnable() {
 
                 @Override
@@ -866,7 +866,7 @@ public class ProductionQuickView extends javax.swing.JPanel {
         try {
             try (PreparedStatement ps = ConnectDB.con.prepareStatement(query)) {
                 ps.setInt(1, configNo);
-                ps.setString(2, ConnectDB.SDATEFORMATHOUR.format(today));
+                ps.setString(2, ConnectDB.SDATE_FORMAT_HOUR.format(today));
                 resultSet = ps.executeQuery();
                 while (resultSet.next()) {
                     if (pan == 1) {//Pane for the total production
@@ -915,8 +915,8 @@ public class ProductionQuickView extends javax.swing.JPanel {
                 String[] data = alTimeValue.get(listSize - 1).split(";");
                 working = (Calendar) now.clone();
                 String currentData = data[1];
-                if (ConnectDB.SDATEFORMATHOUR.parse(ConnectDB.correctToBarreDate(lastDayDBData)).compareTo(working.getTime()) > 0
-                        || ConnectDB.SDATEFORMATHOUR.parse(ConnectDB.correctToBarreDate(lastDayDBData)).compareTo(working.getTime()) == 0) {
+                if (ConnectDB.SDATE_FORMAT_HOUR.parse(ConnectDB.correctToBarreDate(lastDayDBData)).compareTo(working.getTime()) > 0
+                        || ConnectDB.SDATE_FORMAT_HOUR.parse(ConnectDB.correctToBarreDate(lastDayDBData)).compareTo(working.getTime()) == 0) {
                     averageSum = Double.parseDouble(currentData);
                 }
                 break;
@@ -924,7 +924,7 @@ public class ProductionQuickView extends javax.swing.JPanel {
                 working = (Calendar) now.clone();
                 working.add(Calendar.HOUR_OF_DAY, -1);
                 averageSum = calculateAverage(list, working);
-//                System.out.println(ConnectDB.SDATEFORMATHOUR.format(working.getTime()));
+//                System.out.println(ConnectDB.SDATE_FORMAT_HOUR.format(working.getTime()));
                 break;
             case "daily":
                 working = (Calendar) now.clone();
@@ -959,8 +959,8 @@ public class ProductionQuickView extends javax.swing.JPanel {
             String logTime = stringTokenizer.nextToken();//LogTime
             String logData = stringTokenizer.nextToken();
             if (Double.valueOf(logData) > 0d) {
-                if (ConnectDB.SDATEFORMATHOUR.parse(ConnectDB.correctToBarreDate(logTime)).compareTo(date) > 0
-                        || ConnectDB.SDATEFORMATHOUR.parse(ConnectDB.correctToBarreDate(logTime)).compareTo(date) == 0) {
+                if (ConnectDB.SDATE_FORMAT_HOUR.parse(ConnectDB.correctToBarreDate(logTime)).compareTo(date) > 0
+                        || ConnectDB.SDATE_FORMAT_HOUR.parse(ConnectDB.correctToBarreDate(logTime)).compareTo(date) == 0) {
                     averageSum += Double.parseDouble(logData);//LogData value
                     count++;
                 }
@@ -1187,7 +1187,7 @@ public class ProductionQuickView extends javax.swing.JPanel {
                 return dialog;
             }
         };
-        chooser.setCurrentDirectory(new File(ConnectDB.DEFAULTDIRECTORY));
+        chooser.setCurrentDirectory(new File(ConnectDB.DEFAULT_DIRECTORY));
         int result = chooser.showDialog(((JComponent) e.getSource()).getTopLevelAncestor(), "Export");
         if (result == JFileChooser.APPROVE_OPTION) {
             try {
@@ -1251,8 +1251,8 @@ public class ProductionQuickView extends javax.swing.JPanel {
                 countMachine++;
             }
             if (!find) {
-                Target.setTargetFound(false);
-//                new Target(_parent, true).setVisible(true);
+                TargetInsert.setTargetFound(false);
+//                new TargetInsert(_parent, true).setVisible(true);
                 return;
             }
             if (find) {

@@ -328,8 +328,8 @@ public class EventsHierarchicalTable extends JFrame {
                     String eventTime = ConnectDB.res.getString(2),//EventTime
                             untilTime = ConnectDB.res.getString(3);//UntilTime
                     double[] diffs = ConnectDB.getTimeDifference(
-                            ConnectDB.SDATEFORMATHOUR.parse(ConnectDB.correctToBarreDate(eventTime)),
-                            ConnectDB.SDATEFORMATHOUR.parse(ConnectDB.correctToBarreDate(untilTime)));
+                            ConnectDB.SDATE_FORMAT_HOUR.parse(ConnectDB.correctToBarreDate(eventTime)),
+                            ConnectDB.SDATE_FORMAT_HOUR.parse(ConnectDB.correctToBarreDate(untilTime)));
                     tab[row][0] = ConnectDB.res.getString(1);//EventNo
                     tab[row][1] = eventTime;
                     tab[row][2] = untilTime;

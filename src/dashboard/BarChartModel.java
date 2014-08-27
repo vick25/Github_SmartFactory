@@ -39,6 +39,10 @@ public class BarChartModel extends DefaultChartModel {
         return maxSumValue;
     }
 
+    public String getLastHourValue() {
+        return lastHourValue;
+    }
+
     public BarChartModel(final int configNo, final String query, final boolean withShifts,
             final String machineTitle, Date start, Date end, SortableTable tableTime) throws SQLException {
         super();
@@ -51,14 +55,14 @@ public class BarChartModel extends DefaultChartModel {
 
         categoryRange = new CategoryRange<>();
 //        findMaxValue.clear();
-        alDateHour.clear();
-        alValues.clear();
+        logDateHourList.clear();
+        datalogValuesList.clear();
         _loopQueryFound = false;
-        subtractValues = new ArrayList<>();
+        subtractedDatalogValues = new ArrayList<>();
         PreparedStatement ps = ConnectDB.con.prepareStatement(this._query);
         ps.setInt(1, this._configNo);
-        ps.setString(2, ConnectDB.SDATEFORMATHOUR.format(this._startD));
-        ps.setString(3, ConnectDB.SDATEFORMATHOUR.format(this._endD));
+        ps.setString(2, ConnectDB.SDATE_FORMAT_HOUR.format(this._startD));
+        ps.setString(3, ConnectDB.SDATE_FORMAT_HOUR.format(this._endD));
 //        System.out.println(ps.toString());
         ConnectDB.res = ps.executeQuery();
         //End SQL query
@@ -86,9 +90,9 @@ public class BarChartModel extends DefaultChartModel {
                 for (short k = 0; k < LOGTIMEWITHSHIFTS.size(); k++) {//dates
                     String fVal = "", sVal = "";
                     for (short j = 0; j < 3; j++) {//shifts as row.
-                        alValues.clear();
-                        alDateHour.clear();
-                        subtractValues.clear();
+                        datalogValuesList.clear();
+                        logDateHourList.clear();
+                        subtractedDatalogValues.clear();
                         if (j == 2) {//if line is 3rd shift
                             byte x = 0;//shift splited in 2 periods
                             while (x <= 1) {
@@ -108,9 +112,9 @@ public class BarChartModel extends DefaultChartModel {
                                 queryShift = this._query.substring(0, this._query.indexOf("ORDER")).trim()
                                         + "\nAND (dl0.LogTime BETWEEN '" + fVal + "' AND '" + sVal + "')\n"
                                         + "ORDER BY 'Time' ASC";
-                                alValues.clear();
+                                datalogValuesList.clear();
                                 runQueryShift(x, queryShift, this._configNo);
-                                getSubtractedValues(x, alValues);
+                                getSubtractedValues(x, datalogValuesList);
                                 x++;
                             }
                         } else {//First and Second shift
@@ -126,8 +130,8 @@ public class BarChartModel extends DefaultChartModel {
                         int sum = 0;
                         if (_loopQueryFound) {
                             if (j != 2) {//First and Second shift
-                                getSubtractedValues((byte) -1, alValues);//send the values to get the difference in each hour
-                                for (String subtractValue : subtractValues) {
+                                getSubtractedValues((byte) -1, datalogValuesList);//send the values to get the difference in each hour
+                                for (String subtractValue : subtractedDatalogValues) {
                                     if (subtractValue.contains(LOGTIMEWITHSHIFTS.get(k).toString())) {
                                         String[] val = subtractValue.split(";");
                                         sum += Integer.parseInt(val[1]);
@@ -136,7 +140,7 @@ public class BarChartModel extends DefaultChartModel {
                             } else {//Third shift
                                 int v = k;
                                 while (v < LOGTIMEWITHSHIFTS.size()) {
-                                    for (String subtractValue : subtractValues) {
+                                    for (String subtractValue : subtractedDatalogValues) {
                                         if (subtractValue.contains(LOGTIMEWITHSHIFTS.get(v).toString())) {
                                             String[] val = subtractValue.split(";");
                                             sum += Integer.parseInt(val[1]);
@@ -181,35 +185,41 @@ public class BarChartModel extends DefaultChartModel {
              */
             while (ConnectDB.res.next()) {
                 _loopQueryFound = true;
-                alDateHour.add(ConnectDB.res.getString(1).substring(0, 13));//only the Date and Hour
-                alValues.add(ConnectDB.res.getString(2));
+                logDateHourList.add(ConnectDB.res.getString(1).substring(0, 13));//LogTime only Date and Hour
+                datalogValuesList.add(ConnectDB.res.getString(2));//LogData
             }
             ps.close();
             if (_loopQueryFound) {
-                subtractValues.clear();
-                getSubtractedValues((byte) -1, alValues);//send the values to get the difference in each hour
-                eachDateH = new ArrayList(new TreeSet<>(alDateHour));//sort the Time data and remove duplicates
-                List<Category> dateCategoryChart = new ArrayList<>();
-                for (String eachDateH1 : eachDateH) {
-//                    Date time = TimeUtils.createTime(eachDateH.get(i).substring(11));
-                    Category c = new ChartCategory((Object) (eachDateH1 + "h:00").substring(11), categoryRange);
-//                    Category c = new ChartCategory(new TimePosition(time.getTime()), range);
+                subtractedDatalogValues.clear();
+                //Method used to send the datalog values to get the difference in row for each hour
+                getSubtractedValues((byte) -1, datalogValuesList);
+                //
+                eachDateHour = new ArrayList(new TreeSet<>(logDateHourList));//sort the Time data and remove duplicates
+                List<Category> dateCategoryChart = new ArrayList<>();//List of chart category
+                for (String eachDateH : eachDateHour) {
+//                    Date time = TimeUtils.createTime(eachDateH1.substring(11));
+                    Category c = new ChartCategory((Object) (eachDateH + "h:00").substring(11), categoryRange);
+//                    Category d = new ChartCategory(new TimePosition(time.getTime()), categoryRange);
                     dateCategoryChart.add(c);
                     categoryRange.add(c);
                 }
                 DefaultChartModel modelShift = new DefaultChartModel("Hourly Total parts");
-                for (int j = 0; j < dateCategoryChart.size(); ++j) {
+                int categoryListLength = dateCategoryChart.size();
+                for (int j = 0; j < categoryListLength; ++j) {
                     int sum = 0;
-                    for (String subtractValue : subtractValues) {
-                        if (subtractValue.contains(eachDateH.get(j))) {
-                            String[] val = subtractValue.split(";");
-                            sum += Integer.parseInt(val[1]);
+                    for (String subtractValue : subtractedDatalogValues) {
+                        if (subtractValue.contains(eachDateHour.get(j))) {
+                            String[] value = subtractValue.split(";");
+                            sum += Integer.parseInt(value[1]);
                         }
                     }
+                    //Get the maximum sum of values
                     if (sum > maxSumValue) {
                         maxSumValue = sum;
                     }
-                    if (j == dateCategoryChart.size() - 1) {
+                    //Get the sum of the last hour value as the chart actual bar value
+                    if (j == (categoryListLength - 1)) {
+                        this.lastHourValue = eachDateHour.get(j);
                         VerticalMultiChartPanel.setActualBarValue(sum);
                     }
                     modelShift.addPoint(dateCategoryChart.get(j), sum);
@@ -219,9 +229,9 @@ public class BarChartModel extends DefaultChartModel {
         }
 
         if (_loopQueryFound) {
-            subtractValues.clear();
+            subtractedDatalogValues.clear();
         } else {
-            subtractValues.clear();
+            subtractedDatalogValues.clear();
         }
     }
 
@@ -231,18 +241,18 @@ public class BarChartModel extends DefaultChartModel {
             if (i == 0) {
                 if (x == 1) {//Third shift and next day
                     xDiff = Integer.parseInt(alValues.get(i).toString()) - lastValue;
-                    subtractValues.add(alDateHour.get(++countAlValues) + ";" + xDiff);
+                    subtractedDatalogValues.add(logDateHourList.get(++countAlValues) + ";" + xDiff);
                 } else {//Same day
                     xDiff = Integer.parseInt(alValues.get(i).toString()) - Integer.parseInt(alValues.get(i).toString());
-                    subtractValues.add(alDateHour.get(i) + ";" + xDiff);
+                    subtractedDatalogValues.add(logDateHourList.get(i) + ";" + xDiff);
                 }
                 continue;
             }
             xDiff = Integer.parseInt(alValues.get(i).toString()) - Integer.parseInt(alValues.get(i - 1).toString());
             if (x == 1) {//Third shift and next day
-                subtractValues.add(alDateHour.get(++countAlValues) + ";" + xDiff);
+                subtractedDatalogValues.add(logDateHourList.get(++countAlValues) + ";" + xDiff);
             } else {//Same day
-                subtractValues.add(alDateHour.get(i) + ";" + xDiff);
+                subtractedDatalogValues.add(logDateHourList.get(i) + ";" + xDiff);
             }
         }
     }
@@ -250,19 +260,19 @@ public class BarChartModel extends DefaultChartModel {
     private void runQueryShift(byte x, String query, int configNo) throws SQLException {
         try (PreparedStatement psShift = ConnectDB.con.prepareStatement(query)) {
             psShift.setInt(1, configNo);
-            psShift.setString(2, ConnectDB.SDATEFORMATHOUR.format(this._startD));
-            psShift.setString(3, ConnectDB.SDATEFORMATHOUR.format(this._endD));
+            psShift.setString(2, ConnectDB.SDATE_FORMAT_HOUR.format(this._startD));
+            psShift.setString(3, ConnectDB.SDATE_FORMAT_HOUR.format(this._endD));
             ConnectDB.res = psShift.executeQuery();
 //            System.out.println(psShift.toString());
             while (ConnectDB.res.next()) {
                 _loopQueryFound = true;
-                alDateHour.add(ConnectDB.res.getString(1).substring(0, 13));//Date and Hour
-                alValues.add(ConnectDB.res.getString(2));
+                logDateHourList.add(ConnectDB.res.getString(1).substring(0, 13));//Date and Hour
+                datalogValuesList.add(ConnectDB.res.getString(2));
             }
             if (x == 0) {
-                countAlValues = alValues.size() - 1;
+                countAlValues = datalogValuesList.size() - 1;
                 if (countAlValues != -1) {
-                    lastValue = Integer.parseInt(alValues.get(countAlValues).toString());
+                    lastValue = Integer.parseInt(datalogValuesList.get(countAlValues).toString());
                 }
             }
         }
@@ -280,8 +290,25 @@ public class BarChartModel extends DefaultChartModel {
         return formatter.format(c.getTime());
     }
 
+    private class Interval {
+
+        private final double min, max;
+
+        Interval(double min, double max) {
+            this.min = min;
+            this.max = max;
+        }
+
+        @Override
+        public String toString() {
+            return String.format("[%.1f, %.1f]", min, max);
+        }
+    }
+
+    private String lastHourValue;
     private volatile boolean _loopQueryFound = false, _withShifts;
-    private final ArrayList alDateHour = new ArrayList(), alValues = new ArrayList();
+    private final ArrayList logDateHourList = new ArrayList(),
+            datalogValuesList = new ArrayList();
     private static CategoryRange categoryRange;
     private int countAlValues, lastValue, maxSumValue = 0;
     private final int _configNo;
@@ -290,6 +317,6 @@ public class BarChartModel extends DefaultChartModel {
     private final SortableTable _tableTime;
     private DefaultChartModel modelPoints = new DefaultChartModel();
     private static String[][] sumHourValues;
-    private static List<String> eachDateH;
-    private static ArrayList<String> subtractValues = null;
+    private static List<String> eachDateHour;
+    private ArrayList<String> subtractedDatalogValues = null;
 }

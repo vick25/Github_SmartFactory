@@ -191,7 +191,7 @@ public class ConnectDB {
     }
 
     public static String getDefaultDirectory() {
-        return pref.get(SettingKeyFactory.DefaultProperties.DEFAULTDIRECTORY, DEFAULTDIRECTORY);
+        return pref.get(SettingKeyFactory.DefaultProperties.DEFAULTDIRECTORY, DEFAULT_DIRECTORY);
     }
 
     public static void setDefaultDirectory(String dir) {
@@ -429,7 +429,7 @@ public class ConnectDB {
     
     public static final float OUTLINEWIDTH = 3f;
     public static final Highlight SELECTION_HIGHLIGHT = new Highlight("selection");
-    public static final String DEFAULTDIRECTORY = new File(new JFileChooser().getCurrentDirectory().getAbsolutePath()).getParent();
+    public static final String DEFAULT_DIRECTORY = new File(new JFileChooser().getCurrentDirectory().getAbsolutePath()).getParent();
     public static final String WORKINGDIR = System.getProperty("user.dir");
     public static final FileSystemView fsv = FileSystemView.getFileSystemView();
     public static SimpleDateFormat dateFormat = new SimpleDateFormat(pref.get(SettingKeyFactory.General.DATEFORMAT,
@@ -441,5 +441,5 @@ public class ConnectDB {
     public static final String SMARTSERVERPATH = File.listRoots()[0].getAbsolutePath() + "CSIR"
             + File.separator + "SmartFactory" + File.separator + "SmartServer.ini";
 //    public static final SimpleDateFormat SDATEFORMAT = new SimpleDateFormat("yyyy-MM-dd", new DateFormatSymbols());
-    public static final SimpleDateFormat SDATEFORMATHOUR = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+    public static final SimpleDateFormat SDATE_FORMAT_HOUR = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 }

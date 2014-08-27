@@ -30,21 +30,21 @@ import tableModel.TableModelTarget;
  *
  * @author Victor Kadiata
  */
-public class Target extends javax.swing.JDialog {
+public class TargetInsert extends javax.swing.JDialog {
 
     public static boolean isTargetFound() {
         return targetFound;
     }
 
     public static void setTargetFound(boolean targetFound) {
-        Target.targetFound = targetFound;
+        TargetInsert.targetFound = targetFound;
     }
 
     public static boolean isAnyChangeOccured() {
         return anyChangeOccured;
     }
 
-    public Target(java.awt.Frame parent, boolean modal) throws SQLException {
+    public TargetInsert(java.awt.Frame parent, boolean modal) throws SQLException {
         super(parent, modal);
         ConnectDB.getConnectionInstance();
         initComponents();
@@ -112,7 +112,7 @@ public class Target extends javax.swing.JDialog {
                         } catch (SQLException ex) {
                             ConnectDB.catchSQLException(ex);
                         } catch (ParseException ex) {
-                            Logger.getLogger(Target.class.getName()).log(Level.SEVERE, null, ex);
+                            Logger.getLogger(TargetInsert.class.getName()).log(Level.SEVERE, null, ex);
                         }
                     } else {
                         scrlTargetOptions.setViewportView(null);
@@ -121,7 +121,7 @@ public class Target extends javax.swing.JDialog {
 //                else if (e.getSource() == tableTarget.getColumnModel().getSelectionModel()
 //                        && tableTarget.getColumnSelectionAllowed()) {
 //                    int first = e.getFirstIndex();
-//                    int last = e.getLastIndex();                    
+//                    int last = e.getLastIndex();
 //                    System.out.println("2" + first + " -- " + last);
 //                }
 //                if (e.getValueIsAdjusting()) {
@@ -369,7 +369,7 @@ public class Target extends javax.swing.JDialog {
         } catch (SQLException ex) {
             ConnectDB.catchSQLException(ex);
         } catch (ParseException ex) {
-            Logger.getLogger(Target.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(TargetInsert.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_btnSaveSettingsActionPerformed
 
@@ -599,7 +599,6 @@ public class Target extends javax.swing.JDialog {
                                     tableTarget.setValueAt(value / 3600, i, j);
                                     break;
                                 default:
-//                                    tableTarget.setValueAt(value, i, j);
                                     break;
                             }
                         }
@@ -614,7 +613,6 @@ public class Target extends javax.swing.JDialog {
                                     tableTarget.setValueAt(value / 60, i, j);
                                     break;
                                 default:
-//                                    tableTarget.setValueAt(value, i, j);
                                     break;
                             }
                         }
@@ -629,7 +627,6 @@ public class Target extends javax.swing.JDialog {
                                     tableTarget.setValueAt(value * 3600, i, j);
                                     break;
                                 default:
-//                                    tableTarget.setValueAt(value, i, j);
                                     break;
                             }
                         }
@@ -719,9 +716,9 @@ public class Target extends javax.swing.JDialog {
         java.awt.EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
-                Target dialog = null;
+                TargetInsert dialog = null;
                 try {
-                    dialog = new Target(new javax.swing.JFrame(), true);
+                    dialog = new TargetInsert(new javax.swing.JFrame(), true);
                 } catch (SQLException ex) {
                     ConnectDB.catchSQLException(ex);
                 }
