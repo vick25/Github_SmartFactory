@@ -731,6 +731,6 @@ public class ViewHistory extends javax.swing.JDialog {
 //    private DefaultTableModel _historyTableModel;
     private int _destroyedCount = 0;
 
-    private ListSelectionModelGroup _group = new ListSelectionModelGroup();
-    private List _subTablesList = new ArrayList();
+    private final ListSelectionModelGroup _group = new ListSelectionModelGroup();
+    private final List _subTablesList = new ArrayList();
 }
