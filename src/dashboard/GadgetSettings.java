@@ -45,8 +45,8 @@ public class GadgetSettings extends javax.swing.JPanel {
                     UIDefaultsLookup.getColor("control")}, 2, PartialSide.NORTH),
                 "Hours", TitledBorder.CENTER, TitledBorder.ABOVE_TOP),
                 BorderFactory.createEmptyBorder(6, 4, 4, 4)));
-        setTableTime(3);
-        setPropertiesTimeSaved(ConnectDB.pref.get(SettingKeyFactory.DefaultProperties.TIMESHIFT, getPropertiesToSave()));
+        this.setTableTime(3);
+        this.setPropertiesTimeSaved(ConnectDB.pref.get(SettingKeyFactory.DefaultProperties.TIMESHIFT, getPropertiesToSave()));
         if (DashBoard.isShowTotalProd()) {
             chkTotalProduction.setSelected(true);
         } else {
@@ -71,7 +71,7 @@ public class GadgetSettings extends javax.swing.JPanel {
         chkPerShift = new javax.swing.JCheckBox();
         jPanel4 = new javax.swing.JPanel();
         panShiftTime = new javax.swing.JPanel();
-        jScrollPane3 = new javax.swing.JScrollPane();
+        timeShiftPane = new javax.swing.JScrollPane();
         btnShiftTable = new com.jidesoft.swing.JideButton();
         radPerMin = new javax.swing.JRadioButton();
         radPerHour = new javax.swing.JRadioButton();
@@ -120,7 +120,7 @@ public class GadgetSettings extends javax.swing.JPanel {
 
         panShiftTime.setBackground(new java.awt.Color(255, 255, 255));
 
-        jScrollPane3.setBackground(new java.awt.Color(255, 255, 255));
+        timeShiftPane.setBackground(new java.awt.Color(255, 255, 255));
 
         javax.swing.GroupLayout panShiftTimeLayout = new javax.swing.GroupLayout(panShiftTime);
         panShiftTime.setLayout(panShiftTimeLayout);
@@ -130,7 +130,7 @@ public class GadgetSettings extends javax.swing.JPanel {
             .addGroup(panShiftTimeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(panShiftTimeLayout.createSequentialGroup()
                     .addContainerGap()
-                    .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 247, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(timeShiftPane, javax.swing.GroupLayout.PREFERRED_SIZE, 247, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
         );
         panShiftTimeLayout.setVerticalGroup(
@@ -138,7 +138,7 @@ public class GadgetSettings extends javax.swing.JPanel {
             .addGap(0, 83, Short.MAX_VALUE)
             .addGroup(panShiftTimeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(panShiftTimeLayout.createSequentialGroup()
-                    .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 74, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(timeShiftPane, javax.swing.GroupLayout.PREFERRED_SIZE, 74, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGap(0, 9, Short.MAX_VALUE)))
         );
 
@@ -310,25 +310,26 @@ public class GadgetSettings extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnShiftTableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnShiftTableMouseClicked
+        final Point pos = this.btnShiftTable.getLocationOnScreen();
+        final SetTableTime setTableTime = new SetTableTime(null, true, pos);
         if (evt.getClickCount() == 2) {
-            final Point pos = this.btnShiftTable.getLocationOnScreen();
-            new SetTableTime(null, true, pos).setVisible(true);
-            if (SetTableTime.isWindowClosed()) {
-                String[] ses = SetTableTime.getTimeString().split(";");
-                tableTime.setValueAt(ses[0], 0, 1);
-                tableTime.setValueAt(ses[1], 0, 2);
-                tableTime.setValueAt(ses[2], 1, 1);
-                tableTime.setValueAt(ses[3], 1, 2);
-                tableTime.setValueAt(ses[4], 2, 1);
-                tableTime.setValueAt(ses[5], 2, 2);
+            setTableTime.setVisible(true);
+            if (setTableTime.isWindowClosed()) {
+                String[] ses = setTableTime.getTimeString().split(";");
+                tableOfTime.setValueAt(ses[0], 0, 1);
+                tableOfTime.setValueAt(ses[1], 0, 2);
+                tableOfTime.setValueAt(ses[2], 1, 1);
+                tableOfTime.setValueAt(ses[3], 1, 2);
+                tableOfTime.setValueAt(ses[4], 2, 1);
+                tableOfTime.setValueAt(ses[5], 2, 2);
             }
         } else {
-            tableTime.setValueAt(SetTableTime.getTimes()[0], 0, 1);
-            tableTime.setValueAt(SetTableTime.getTimes()[1], 0, 2);
-            tableTime.setValueAt(SetTableTime.getTimes()[2], 1, 1);
-            tableTime.setValueAt(SetTableTime.getTimes()[3], 1, 2);
-            tableTime.setValueAt(SetTableTime.getTimes()[4], 2, 1);
-            tableTime.setValueAt(SetTableTime.getTimes()[5], 2, 2);
+            tableOfTime.setValueAt(setTableTime.getTimes()[0], 0, 1);
+            tableOfTime.setValueAt(setTableTime.getTimes()[1], 0, 2);
+            tableOfTime.setValueAt(setTableTime.getTimes()[2], 1, 1);
+            tableOfTime.setValueAt(setTableTime.getTimes()[3], 1, 2);
+            tableOfTime.setValueAt(setTableTime.getTimes()[4], 2, 1);
+            tableOfTime.setValueAt(setTableTime.getTimes()[5], 2, 2);
         }
         saveChanges();
     }//GEN-LAST:event_btnShiftTableMouseClicked
@@ -349,16 +350,16 @@ public class GadgetSettings extends javax.swing.JPanel {
         if (chkPerShift.isSelected()) {
             btnShiftTable.setEnabled(true);
             ConnectDB.pref.putBoolean(ProdStatKeyFactory.ProdFeatures.CHKSHIFTON, chkPerShift.isSelected());
-            jScrollPane3.getHorizontalScrollBar().setEnabled(true);
-            jScrollPane3.getVerticalScrollBar().setEnabled(true);
-            jScrollPane3.getViewport().getView().setEnabled(true);
+            timeShiftPane.getHorizontalScrollBar().setEnabled(true);
+            timeShiftPane.getVerticalScrollBar().setEnabled(true);
+            timeShiftPane.getViewport().getView().setEnabled(true);
             saveChanges();
         } else {
             btnShiftTable.setEnabled(false);
             ConnectDB.pref.putBoolean(ProdStatKeyFactory.ProdFeatures.CHKSHIFTON, chkPerShift.isSelected());
-            jScrollPane3.getHorizontalScrollBar().setEnabled(false);
-            jScrollPane3.getVerticalScrollBar().setEnabled(false);
-            jScrollPane3.getViewport().getView().setEnabled(false);
+            timeShiftPane.getHorizontalScrollBar().setEnabled(false);
+            timeShiftPane.getVerticalScrollBar().setEnabled(false);
+            timeShiftPane.getViewport().getView().setEnabled(false);
         }
     }//GEN-LAST:event_chkPerShiftItemStateChanged
 
@@ -389,7 +390,8 @@ public class GadgetSettings extends javax.swing.JPanel {
             dialog.dispose();
             this._gadget.getContentPane().removeAll();
             try {
-                DashBoard.bslTime.setText("Regenerating " + this._keyMachine + " in a while.");
+                DashBoard.bslTime.setText(new StringBuilder("Regenerating ").
+                        append(this._keyMachine).append(" in a while.").toString());
                 Thread.sleep(500);
             } catch (InterruptedException ex) {
             }
@@ -404,8 +406,8 @@ public class GadgetSettings extends javax.swing.JPanel {
 
     private void saveChanges() {
         if (saved) {
-            if (tableTime.isEditing()) {
-                tableTime.getCellEditor().stopCellEditing();
+            if (tableOfTime.isEditing()) {
+                tableOfTime.getCellEditor().stopCellEditing();
             }
             propertiesToSave = getPropertiesToSave();
         }
@@ -414,14 +416,14 @@ public class GadgetSettings extends javax.swing.JPanel {
 
     private String getPropertiesToSave() {
         chkPerShift.setSelected(ConnectDB.pref.getBoolean(ProdStatKeyFactory.ProdFeatures.CHKSHIFTON, false));
-        String properties = "";
-        for (int i = 0; i < tableTime.getRowCount(); i++) {
-            for (int j = 1; j < tableTime.getColumnCount(); j++) {
-                properties += tableTime.getValueAt(i, j) + "\t";
+        StringBuilder properties = new StringBuilder();
+        for (int i = 0; i < tableOfTime.getRowCount(); i++) {
+            for (int j = 1; j < tableOfTime.getColumnCount(); j++) {
+                properties.append(tableOfTime.getValueAt(i, j)).append("\t");
             }
-            properties += "\r\n";
+            properties.append("\r\n");
         }
-        return properties;
+        return properties.toString();
     }
 
     private void setPropertiesTimeSaved(String values) {
@@ -430,11 +432,11 @@ public class GadgetSettings extends javax.swing.JPanel {
             propertiesToSave = values;
             saved = false;
             String[] rowValues = values.split("\r\n");
-            int k = 0;
+            short k = 0;
             while (k < rowValues.length) {
                 String[] columnTrainee = rowValues[k].split("\t");
                 for (int j = 0; j < columnTrainee.length; j++) {
-                    tableTime.setValueAt(columnTrainee[j], k, j + 1);
+                    tableOfTime.setValueAt(columnTrainee[j], k, j + 1);
                 }
                 k++;
             }
@@ -461,26 +463,27 @@ public class GadgetSettings extends javax.swing.JPanel {
 
     private void setTableTime(int numRow) {
         modelTime = new TableModelShiftTime(numRow);
-        tableTime = new SortableTable(modelTime);
-        tableTime.getTableHeader().setReorderingAllowed(false);
-        tableTime.setFocusable(false);
-        tableTime.setSortable(false);
-        tableTime.getTableHeader().setFont(new Font("Tahoma", Font.BOLD, 10));
-        tableTime.getTableHeader().setBackground(Color.BLUE);
-        tableTime.setColumnAutoResizable(true);
-        tableTime.setTableStyleProvider(new RowStripeTableStyleProvider(new Color[]{BACKGROUND1, BACKGROUND2}));
-        tableTime.getColumnModel().getColumn(0).setMinWidth(35);
-        tableTime.getColumnModel().getColumn(0).setMaxWidth(35);
-        tableTime.getColumnModel().getColumn(0).setResizable(false);
-        tableTime.setRowSelectionAllowed(true);
-        tableTime.setColumnSelectionAllowed(true);
-        tableTime.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
-        tableTime.getColumnModel().getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
-        jScrollPane3.setViewportView(tableTime);
+        tableOfTime = new SortableTable(modelTime);
+        tableOfTime.getTableHeader().setReorderingAllowed(false);
+        tableOfTime.setFocusable(false);
+        tableOfTime.setSortable(false);
+        tableOfTime.getTableHeader().setFont(new Font("Tahoma", Font.BOLD, 10));
+        tableOfTime.getTableHeader().setBackground(Color.BLUE);
+        tableOfTime.setColumnAutoResizable(true);
+        tableOfTime.setTableStyleProvider(new RowStripeTableStyleProvider(new Color[]{ConnectDB.BG5, ConnectDB.BG4}));
+        tableOfTime.getColumnModel().getColumn(0).setMinWidth(35);
+        tableOfTime.getColumnModel().getColumn(0).setMaxWidth(35);
+        tableOfTime.getColumnModel().getColumn(0).setResizable(false);
+        tableOfTime.setRowSelectionAllowed(true);
+        tableOfTime.setColumnSelectionAllowed(true);
+        tableOfTime.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
+        tableOfTime.getColumnModel().getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
+        timeShiftPane.setViewportView(tableOfTime);
     }
 
     public static void showSettingsDialog(int[] configNo, String keyMachine, Component gadget) {
-        dialog = new JDialog(MainMenuPanel.getDashBoardFrame(), keyMachine + " Gadget Settings");
+        dialog = new JDialog(MainMenuPanel.getDashBoardFrame(), new StringBuilder().append(keyMachine).
+                append(" Gadget Settings").toString());
         dialog.setLayout(new BorderLayout());
         dialog.getContentPane().add(new GadgetSettings(configNo, keyMachine, gadget));
         dialog.setPreferredSize(new Dimension(370, 340));
@@ -515,15 +518,14 @@ public class GadgetSettings extends javax.swing.JPanel {
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
-    private javax.swing.JScrollPane jScrollPane3;
     private org.jdesktop.swingx.JXComboBox jXComboBox1;
     private javax.swing.JPanel panShiftTime;
     private javax.swing.JRadioButton radPerHour;
     private javax.swing.JRadioButton radPerMin;
+    private javax.swing.JScrollPane timeShiftPane;
     // End of variables declaration//GEN-END:variables
     private TableModelShiftTime modelTime;
-    private static SortableTable tableTime;
-    protected final Color BACKGROUND1 = new Color(253, 253, 220), BACKGROUND2 = new Color(255, 255, 255);
+    private static SortableTable tableOfTime;
     static boolean saved = true;
     static String propertiesToSave = "";
     private static JDialog dialog;

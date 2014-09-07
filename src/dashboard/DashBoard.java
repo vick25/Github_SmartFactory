@@ -21,6 +21,7 @@ import mainFrame.MainMenuPanel;
 import resources.Constants;
 import resources.ReadPropertiesFile;
 import smartfactoryV2.ConnectDB;
+import smartfactoryV2.Queries;
 
 /**
  *
@@ -72,10 +73,8 @@ public class DashBoard extends javax.swing.JPanel {
                 if (dashBoardSettings == null) {
                     dashBoardSettings = new DashBoardSettings(MainMenuPanel.getDashBoardFrame(), true,
                             _colDashBoard._vertical, _colDashBoard.getTabbedPane());
-                    dashBoardSettings.setVisible(true);
-                } else {
-                    dashBoardSettings.setVisible(true);
                 }
+                dashBoardSettings.setVisible(true);
             }
         });
         panSettings.add(btnSettings, FlowLayout.LEFT);
@@ -172,16 +171,15 @@ public class DashBoard extends javax.swing.JPanel {
         Timer timer = new Timer();
         timer.scheduleAtFixedRate(_colDashBoard, getTimePrecision(Constants.delay),
                 getTimePrecision(Constants.timetoquery));
-        bslTime.setText("Scheduler of " + Constants.timetoquery + " is running to refresh the chart(s) if any "
-                + "is shown...");
+        bslTime.setText(new StringBuilder().append("Scheduler of ").append(Constants.timetoquery).
+                append(" is running to refresh the chart(s) if any is shown...").toString());
         this.panDashBoard.removeAll();
         this.panDashBoard.add(_colDashBoard.getDemoPanel());
     }
 
     private ArrayList<Machine> getMachineDummy() throws SQLException {
         ArrayList<Machine> machines = new ArrayList<>();
-        try (PreparedStatement ps = ConnectDB.con.prepareStatement("SELECT HwNo, Machine FROM hardware\n"
-                + "WHERE HwNo > ?")) {
+        try (PreparedStatement ps = ConnectDB.con.prepareStatement(Queries.GET_HARDWARE)) {
             ps.setInt(1, 0);//not selecting the SYSTEM as hardware
             ResultSet resultSet = ps.executeQuery();
             while (resultSet.next()) {

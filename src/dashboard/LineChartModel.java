@@ -21,32 +21,23 @@ public class LineChartModel extends DefaultChartModel {
         return modelPoints;
     }
 
-    public final void setModelPoints(DefaultChartModel model) {
-        this.modelPoints = model;
-    }
-
     public static double getMaxNum() {
         return _maxNum;
     }
 
-    public LineChartModel(final int configNo, final String query, Date start, Date end, String unit)
+    public LineChartModel(final int myConfigNo, final String myQuery, Date myStartDate, Date myEndDate, String unit)
             throws SQLException {
         super();
-        this._configNo = configNo;
-        this._query = query;
-        this._startD = start;
-        this._endD = end;
-//        this._unit = unit;
+        boolean _loopQueryFound = false;
 
-        range = new CategoryRange<>();
-        try (PreparedStatement ps = ConnectDB.con.prepareStatement(this._query)) {
-            int i = 1;
-            ps.setInt(i++, this._configNo);
-            ps.setString(i++, ConnectDB.SDATE_FORMAT_HOUR.format(this._startD));
-            ps.setString(i++, ConnectDB.SDATE_FORMAT_HOUR.format(this._endD));
+        CategoryRange range = new CategoryRange<>();
+        try (PreparedStatement ps = ConnectDB.con.prepareStatement(myQuery)) {
+            ps.setInt(1, myConfigNo);
+            ps.setString(2, ConnectDB.SDATE_FORMAT_HOUR.format(myStartDate));
+            ps.setString(3, ConnectDB.SDATE_FORMAT_HOUR.format(myEndDate));
             ConnectDB.res = ps.executeQuery();
-            alTime.clear();
-            alValues.clear();
+            alTime = new ArrayList<>();
+            alValues = new ArrayList<>();
             while (ConnectDB.res.next()) {
                 _loopQueryFound = true;
                 alTime.add(ConnectDB.res.getString(1)); //Time
@@ -54,36 +45,32 @@ public class LineChartModel extends DefaultChartModel {
             }
         }
         if (_loopQueryFound) {
+            dateCategoryChart = new ArrayList<>();
             for (String alTime1 : alTime) {
                 Category c = new ChartCategory((Object) alTime1.substring(0, 19), range);
                 dateCategoryChart.add(c);
                 range.add(c);
             }
-            setModelPoints(createModel());
+            this.createModel();
         } else {
         }
     }
 
     private DefaultChartModel createModel() {
         _maxNum = 0d;
-        DefaultChartModel modelChart = new DefaultChartModel("Rate");
+        modelPoints = new DefaultChartModel("Rate");
         for (int i = 0; i < alValues.size(); i++) {
             double value = Double.valueOf(alValues.get(i));
-            modelChart.addPoint(dateCategoryChart.get(i), value);
+            modelPoints.addPoint(dateCategoryChart.get(i), value);
             if (_maxNum < value) {
                 _maxNum = value;
             }
         }
-        return modelChart;
+        return modelPoints;
     }
 
-    private final int _configNo;
-    private boolean _loopQueryFound = false;
     private static double _maxNum = 0d;
-    private final String _query;
-    private final Date _startD, _endD;
-    private DefaultChartModel modelPoints = new DefaultChartModel();
-    private static final List<Category> dateCategoryChart = new ArrayList<>();
-    private static final ArrayList<String> alTime = new ArrayList<>(), alValues = new ArrayList<>();
-    public static CategoryRange range;
+    private DefaultChartModel modelPoints;
+    private List<Category> dateCategoryChart = null;
+    private final ArrayList<String> alTime, alValues;
 }

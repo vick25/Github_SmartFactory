@@ -63,7 +63,7 @@ public class IntervalSelectorTrial extends JPanel {
         long fromL = from.getTime();
         long toL = to.getTime();
         int numPoints = 1000;
-        DefaultChartModel model = new DefaultChartModel();
+        DefaultChartModel model1 = new DefaultChartModel();
         long timePeriod = toL - fromL;
         double current = Math.random() * 100;
         for (int i = 0; i < numPoints; i++) {
@@ -77,9 +77,9 @@ public class IntervalSelectorTrial extends JPanel {
             }
             long timePoint = fromL + (long) ((((double) i) / numPoints) * timePeriod);
 
-            model.addPoint(timePoint, current);
+            model1.addPoint(timePoint, current);
         }
-        return model;
+        return model1;
     }
 
     public static void main(String[] args) throws Exception {

@@ -16,9 +16,9 @@ import java.awt.HeadlessException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.AbstractAction;
+import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
-import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.border.BevelBorder;
@@ -29,7 +29,6 @@ public class StatSetting extends MultiplePageDialog {
 
     public StatSetting(JFrame owner, String title) throws HeadlessException {
         super(owner, title);
-//        parent = this;
     }
 
     @Override
@@ -66,8 +65,8 @@ public class StatSetting extends MultiplePageDialog {
                 dispose();
             }
         };
-        ((JButton) buttonPanel.getButtonByName(ButtonNames.OK)).setAction(okAction);
-        ((JButton) buttonPanel.getButtonByName(ButtonNames.CANCEL)).setAction(cancelAction);
+        ((AbstractButton) buttonPanel.getButtonByName(ButtonNames.OK)).setAction(okAction);
+        ((AbstractButton) buttonPanel.getButtonByName(ButtonNames.CANCEL)).setAction(cancelAction);
         setDefaultCancelAction(cancelAction);
         setDefaultAction(okAction);
         this.getApplyButton().addActionListener(new ActionListener() {
@@ -102,11 +101,11 @@ public class StatSetting extends MultiplePageDialog {
 
     private static class OptionPage extends AbstractDialogPage {
 
-        public OptionPage(String name) {
+        OptionPage(String name) {
             super(name);
         }
 
-        public OptionPage(String name, Icon icon) {
+        OptionPage(String name, Icon icon) {
             super(name, icon);
         }
 
@@ -128,7 +127,7 @@ public class StatSetting extends MultiplePageDialog {
 
     private static class OptionPageGeneral extends OptionPage {
 
-        public OptionPageGeneral(String name, Icon icon) {
+        OptionPageGeneral(String name, Icon icon) {
             super(name, icon);
             chartFeaturePan = new ChartFeature(this, parent);
         }
@@ -156,8 +155,8 @@ public class StatSetting extends MultiplePageDialog {
         ConnectDB.pref.putBoolean(StatKeyFactory.ChartFeatures.BarChBHLine, ChartFeature.BarChBHLine.isSelected());
         ConnectDB.pref.putBoolean(StatKeyFactory.ChartFeatures.LineChBVLine, ChartFeature.LineChBVLine.isSelected());
         ConnectDB.pref.putBoolean(StatKeyFactory.ChartFeatures.LineChBHLine, ChartFeature.LineChBHLine.isSelected());
-        setColorFromKey(ChartFeature.CBColor.getSelectedColor(), StatKeyFactory.ChartFeatures.CBColor);
-        setColorFromKey(ChartFeature.CBColor2.getSelectedColor(), StatKeyFactory.ChartFeatures.CBColor2);
+        ConnectDB.setColorFromKey(ChartFeature.CBColor.getSelectedColor(), StatKeyFactory.ChartFeatures.CBColor);
+        ConnectDB.setColorFromKey(ChartFeature.CBColor2.getSelectedColor(), StatKeyFactory.ChartFeatures.CBColor2);
         ConnectDB.pref.putBoolean(StatKeyFactory.ChartFeatures.RandomColor, ChartFeature.RandomColor.isSelected());
         ConnectDB.pref.putBoolean(StatKeyFactory.ChartFeatures.OneColor, ChartFeature.OneColor.isSelected());
         ConnectDB.pref.putInt(StatKeyFactory.ChartFeatures.SPLineWidth, Integer.parseInt(ChartFeature.SPLineWidth.getValue().toString()));
@@ -179,9 +178,6 @@ public class StatSetting extends MultiplePageDialog {
         }
     }
 
-    private void setColorFromKey(Color color, String key) {
-        ConnectDB.pref.put(key, color.getRed() + ", " + color.getGreen() + ", " + color.getBlue());
-    }
     static ChartFeature chartFeaturePan;
     static JDialog parent;
 }

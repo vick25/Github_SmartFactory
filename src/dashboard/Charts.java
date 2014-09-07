@@ -26,6 +26,7 @@ import com.jidesoft.range.Positionable;
 import eventsPanel.StatKeyFactory;
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.sql.PreparedStatement;
@@ -72,7 +73,7 @@ public class Charts extends Chart {
         chartTotal.removeModels();
         chartTotal.removeDrawables();
 
-        BarChartModel bcm = new BarChartModel(this._configNo, Queries.TOTAL_PRODUCTION, this._withShifts,
+        BarChartModel bcm = new BarChartModel(this._configNo, Queries.DATALOG_PRODUCTION, this._withShifts,
                 this._machineName, this._startDate, Calendar.getInstance().getTime(), null);//create object
         ChartModel modelTotalProd = bcm.getModelPoints();//get the defaault chart model
         xAxis = new CategoryAxis<>(BarChartModel.getCategoryRange());
@@ -183,7 +184,7 @@ public class Charts extends Chart {
                         Chartable chartable = shape.getChartable();
 //                        int xPos = (int) chartable.getX().position() - 1;
                         StringBuilder builder = new StringBuilder("<html><table>");
-                        builder.append(String.format("<tr><td><b>Date</b></td><td>%s</td></tr>",
+                        builder.append(String.format("<tr><td><b>Time</b></td><td>%s</td></tr>",
                                 ((Category) chartable.getX()).getValue().toString()));
                         builder.append(String.format("<tr><td><b>Value</b></td><td>%.0f part(s)</td></tr>",
                                 chartable.getY().position()));
@@ -192,6 +193,18 @@ public class Charts extends Chart {
                     }
                 }
             };
+            chartTotal.addMouseListener(new MouseAdapter() {
+
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    PointDescriptor shape = chartTotal.containingShape(e.getPoint());
+                    if (shape != null) {
+                        if (e.getClickCount() == 2) {
+                            System.out.println(((Category) shape.getChartable().getX()).getValue().toString());
+                        }
+                    }
+                }
+            });
             chartTotal.addMouseMotionListener(listener);
         }
     }
@@ -200,7 +213,7 @@ public class Charts extends Chart {
         chartRate.removeModels();
         chartRate.removeDrawables();
 
-        ChartModel modelRateProd = new LineChartModel(this._configNo, Queries.RATE_PRODUCTION_HR, _startDate,
+        ChartModel modelRateProd = new LineChartModel(this._configNo, Queries.DATALOG_PRODUCTION_HR, _startDate,
                 Calendar.getInstance().getTime(), "p/hrs").getModelPoints();
         chartRate.setLayout(new BorderLayout());
         chartRate.setBorder(new EmptyBorder(5, 5, 10, 15));
@@ -245,8 +258,8 @@ public class Charts extends Chart {
 
     private double calculateCurrentTarget(double target, String lastHourValue) throws SQLException, ParseException {
         String PStart = "", Tcurrent = "";
-        try (PreparedStatement ps = ConnectDB.con.prepareStatement(""
-                + "(SELECT Logtime FROM datalog WHERE Logtime LIKE ? ORDER BY Logtime ASC LIMIT 1)\n"
+        try (PreparedStatement ps = ConnectDB.con.prepareStatement(
+                "(SELECT Logtime FROM datalog WHERE Logtime LIKE ? ORDER BY Logtime ASC LIMIT 1)\n"
                 + "UNION \n"
                 + "(SELECT Logtime FROM datalog WHERE Logtime LIKE ? ORDER BY Logtime DESC LIMIT 1)")) {
             ps.setString(1, lastHourValue + "%");

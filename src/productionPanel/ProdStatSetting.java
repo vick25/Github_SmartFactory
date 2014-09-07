@@ -123,8 +123,8 @@ public class ProdStatSetting extends MultiplePageDialog {
             BannerPanel headerPanel = new BannerPanel(getTitle(), null);
             headerPanel.setForeground(Color.WHITE);
             headerPanel.setBackground(new Color(10, 36, 106));
-            headerPanel.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED, Color.white,
-                    Color.darkGray, Color.darkGray, Color.gray));
+            headerPanel.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED, Color.WHITE,
+                    Color.DARK_GRAY, Color.DARK_GRAY, Color.GRAY));
             setLayout(new BorderLayout());
             add(headerPanel, BorderLayout.BEFORE_FIRST_LINE);
         }

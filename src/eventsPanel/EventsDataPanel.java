@@ -233,8 +233,8 @@ public class EventsDataPanel extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnCleanTableActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCleanTableActionPerformed
-        if (JOptionPane.showConfirmDialog(this, "Would you like to remove all the lines in the table?"
-                + "", "Data Events", 0) == 0) {
+        if (JOptionPane.showConfirmDialog(this, "Would you like to remove all the lines in the table?",
+                "Data Events", 0) == 0) {
             cleanTable();
             tableRow = 0;
             setScrollPaneBorder();
@@ -252,11 +252,12 @@ public class EventsDataPanel extends javax.swing.JPanel {
                 jfc.addChoosableFileFilter(new FileNameExtensionFilter("Excel Documents (*.xls)", "xls"));
                 jfc.addChoosableFileFilter(new FileNameExtensionFilter("Csv Documents (*.csv)", "csv"));
                 try {
-                    fichier = new File(ConnectDB.fsv.getRoots()[0] + File.separator + "data_"
-                            + ConnectDB.correctBarreFileName(ConnectDB.SDATE_FORMAT_HOUR.format(Calendar.getInstance().getTime())));
+                    fichier = new File(ConnectDB.fsv.getRoots()[0] + new StringBuilder(File.separator).
+                            append("data_").append(ConnectDB.correctBarreFileName(ConnectDB.SDATE_FORMAT_HOUR.
+                                            format(Calendar.getInstance().getTime()))).toString());
                 } catch (Exception e) {
-                    JOptionPane.showMessageDialog(EventsDataPanel.this, jfc.getSelectedFile().getName()
-                            + "\n The file name is not valid.", "Export", JOptionPane.WARNING_MESSAGE);
+                    JOptionPane.showMessageDialog(EventsDataPanel.this, new StringBuilder(jfc.getSelectedFile().getName()).
+                            append("\n The file name is not valid.").toString(), "Export", JOptionPane.WARNING_MESSAGE);
                     return;
                 }
                 short fileType = 0;
@@ -296,7 +297,7 @@ public class EventsDataPanel extends javax.swing.JPanel {
                     } else {
                         JOptionPane.showMessageDialog(EventsDataPanel.this, jfc.getSelectedFile().getName()
                                 + " already exists...", "Export", JOptionPane.WARNING_MESSAGE);
-                        return;
+//                        return;
                     }
                 }
             }
@@ -329,7 +330,7 @@ public class EventsDataPanel extends javax.swing.JPanel {
         scrlPanTable.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder(
                 new PartialGradientLineBorder(new Color[]{new Color(0, 0, 128),
                     UIDefaultsLookup.getColor("control")}, 2, PartialSide.NORTH),
-                "Events of data [" + tableRow + "]",
+                new StringBuilder("Events of data [").append(tableRow).append("]").toString(),
                 TitledBorder.CENTER, TitledBorder.ABOVE_TOP), BorderFactory.createEmptyBorder(6, 4, 4, 4)));
     }
 
@@ -356,7 +357,7 @@ public class EventsDataPanel extends javax.swing.JPanel {
         try (Statement stat = ConnectDB.con.createStatement()) {
             ConnectDB.res = stat.executeQuery(_query);
             while (ConnectDB.res.next()) {
-                /** Get the data from the runDataLogQuery method for the total production from the datalog 
+                /** Get the data from the runDataLogQuery method for the total production from the datalog
                  table with the parameters as starttime and endtime
                  */
                 runDataLogQuery(ConnectDB.res.getString(1), ConnectDB.res.getString(3));
@@ -377,7 +378,7 @@ public class EventsDataPanel extends javax.swing.JPanel {
     /**This method run the query in the datalog table with the given time frame as parameters and
      returns the total sum of the subtracted values in the totalSum variable
      @param startTime
-     @param endTime 
+     @param endTime
      */
     synchronized private void runDataLogQuery(String startTime, String endTime) throws SQLException {
         ArrayList<Double> alValue = new ArrayList<>();
@@ -391,10 +392,9 @@ public class EventsDataPanel extends javax.swing.JPanel {
                 + "AND d.LogTime >=? AND d.LogTime <=?\n"
                 + "ORDER BY d.LogTime ASC";
         try (PreparedStatement ps = ConnectDB.con.prepareStatement(query)) {
-            int i = 1;
-            ps.setString(i++, this._machineTitle);
-            ps.setString(i++, startTime);
-            ps.setString(i++, endTime);
+            ps.setString(1, this._machineTitle);
+            ps.setString(2, startTime);
+            ps.setString(3, endTime);
 //            System.out.println(ps.toString());
             this.res = ps.executeQuery();
             while (this.res.next()) {
@@ -496,7 +496,7 @@ public class EventsDataPanel extends javax.swing.JPanel {
 //        frame.setLocationRelativeTo(null);
 //        frame.setVisible(true);
 //    }
-    
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private com.jidesoft.swing.JideButton btnCleanTable;
     private com.jidesoft.swing.JideButton btnExport;

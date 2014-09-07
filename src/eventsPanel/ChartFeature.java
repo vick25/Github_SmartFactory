@@ -4,10 +4,6 @@ import com.jidesoft.dialog.AbstractDialogPage;
 import com.jidesoft.dialog.ButtonEvent;
 import com.jidesoft.dialog.ButtonNames;
 import com.jidesoft.pane.CollapsiblePane;
-import com.jidesoft.swing.JideSwingUtilities;
-import java.awt.Color;
-import javax.swing.BorderFactory;
-import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 import smartfactoryV2.ConnectDB;
@@ -18,10 +14,10 @@ public class ChartFeature extends javax.swing.JPanel {
         this.page = page;
         this.parent = parent;
         initComponents();
-        CollapsiblePaneProperties(collapsiblePane3);
-        CollapsiblePaneProperties(collapsiblePane4);
-        CollapsiblePaneProperties(collapsiblePane6);
-        CollapsiblePaneProperties(collapsiblePane7);
+        ConnectDB.collapsiblePaneProperties(collapsiblePane3);
+        ConnectDB.collapsiblePaneProperties(collapsiblePane4);
+        ConnectDB.collapsiblePaneProperties(collapsiblePane6);
+        ConnectDB.collapsiblePaneProperties(collapsiblePane7);
         initValues();
     }
 
@@ -498,7 +494,7 @@ public class ChartFeature extends javax.swing.JPanel {
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -513,47 +509,47 @@ public class ChartFeature extends javax.swing.JPanel {
     }//GEN-LAST:event_ChBShadowItemStateChanged
 
     private void ChBRolloverItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_ChBRolloverItemStateChanged
-        page.fireButtonEvent(ButtonEvent.ENABLE_BUTTON, ButtonNames.APPLY);        
+        page.fireButtonEvent(ButtonEvent.ENABLE_BUTTON, ButtonNames.APPLY);
     }//GEN-LAST:event_ChBRolloverItemStateChanged
 
     private void ChBOutlineItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_ChBOutlineItemStateChanged
-        page.fireButtonEvent(ButtonEvent.ENABLE_BUTTON, ButtonNames.APPLY);     
+        page.fireButtonEvent(ButtonEvent.ENABLE_BUTTON, ButtonNames.APPLY);
     }//GEN-LAST:event_ChBOutlineItemStateChanged
 
     private void ChBSelectionOutlineItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_ChBSelectionOutlineItemStateChanged
-        page.fireButtonEvent(ButtonEvent.ENABLE_BUTTON, ButtonNames.APPLY);        
+        page.fireButtonEvent(ButtonEvent.ENABLE_BUTTON, ButtonNames.APPLY);
     }//GEN-LAST:event_ChBSelectionOutlineItemStateChanged
 
     private void ChBExplodedSegmentItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_ChBExplodedSegmentItemStateChanged
-        page.fireButtonEvent(ButtonEvent.ENABLE_BUTTON, ButtonNames.APPLY);      
+        page.fireButtonEvent(ButtonEvent.ENABLE_BUTTON, ButtonNames.APPLY);
     }//GEN-LAST:event_ChBExplodedSegmentItemStateChanged
 
     private void BarChBVLineItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_BarChBVLineItemStateChanged
-        page.fireButtonEvent(ButtonEvent.ENABLE_BUTTON, ButtonNames.APPLY);        
+        page.fireButtonEvent(ButtonEvent.ENABLE_BUTTON, ButtonNames.APPLY);
     }//GEN-LAST:event_BarChBVLineItemStateChanged
 
     private void BarChBHLineItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_BarChBHLineItemStateChanged
-        page.fireButtonEvent(ButtonEvent.ENABLE_BUTTON, ButtonNames.APPLY);        
+        page.fireButtonEvent(ButtonEvent.ENABLE_BUTTON, ButtonNames.APPLY);
     }//GEN-LAST:event_BarChBHLineItemStateChanged
 
     private void LineChBVLineItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_LineChBVLineItemStateChanged
-        page.fireButtonEvent(ButtonEvent.ENABLE_BUTTON, ButtonNames.APPLY);       
+        page.fireButtonEvent(ButtonEvent.ENABLE_BUTTON, ButtonNames.APPLY);
     }//GEN-LAST:event_LineChBVLineItemStateChanged
 
     private void LineChBHLineItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_LineChBHLineItemStateChanged
-        page.fireButtonEvent(ButtonEvent.ENABLE_BUTTON, ButtonNames.APPLY);   
+        page.fireButtonEvent(ButtonEvent.ENABLE_BUTTON, ButtonNames.APPLY);
     }//GEN-LAST:event_LineChBHLineItemStateChanged
 
     private void RBLineLabelItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_RBLineLabelItemStateChanged
-        page.fireButtonEvent(ButtonEvent.ENABLE_BUTTON, ButtonNames.APPLY);       
+        page.fireButtonEvent(ButtonEvent.ENABLE_BUTTON, ButtonNames.APPLY);
     }//GEN-LAST:event_RBLineLabelItemStateChanged
 
     private void RBSimpleLabelItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_RBSimpleLabelItemStateChanged
-        page.fireButtonEvent(ButtonEvent.ENABLE_BUTTON, ButtonNames.APPLY);        
+        page.fireButtonEvent(ButtonEvent.ENABLE_BUTTON, ButtonNames.APPLY);
     }//GEN-LAST:event_RBSimpleLabelItemStateChanged
 
     private void RBNoLabelItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_RBNoLabelItemStateChanged
-        page.fireButtonEvent(ButtonEvent.ENABLE_BUTTON, ButtonNames.APPLY);      
+        page.fireButtonEvent(ButtonEvent.ENABLE_BUTTON, ButtonNames.APPLY);
     }//GEN-LAST:event_RBNoLabelItemStateChanged
 
     private void SLAngleStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_SLAngleStateChanged
@@ -563,23 +559,23 @@ public class ChartFeature extends javax.swing.JPanel {
             EventsStatistic.getStylePieChart().setPieOffsetAngle(value);
             EventsStatistic.getChart().repaint();
         }
-        page.fireButtonEvent(ButtonEvent.ENABLE_BUTTON, ButtonNames.APPLY);       
+        page.fireButtonEvent(ButtonEvent.ENABLE_BUTTON, ButtonNames.APPLY);
     }//GEN-LAST:event_SLAngleStateChanged
 
     private void CBColorItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_CBColorItemStateChanged
-        page.fireButtonEvent(ButtonEvent.ENABLE_BUTTON, ButtonNames.APPLY);        
+        page.fireButtonEvent(ButtonEvent.ENABLE_BUTTON, ButtonNames.APPLY);
     }//GEN-LAST:event_CBColorItemStateChanged
 
     private void RBFlatItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_RBFlatItemStateChanged
-        page.fireButtonEvent(ButtonEvent.ENABLE_BUTTON, ButtonNames.APPLY);        
+        page.fireButtonEvent(ButtonEvent.ENABLE_BUTTON, ButtonNames.APPLY);
     }//GEN-LAST:event_RBFlatItemStateChanged
 
     private void RBRaisedItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_RBRaisedItemStateChanged
-        page.fireButtonEvent(ButtonEvent.ENABLE_BUTTON, ButtonNames.APPLY);       
+        page.fireButtonEvent(ButtonEvent.ENABLE_BUTTON, ButtonNames.APPLY);
     }//GEN-LAST:event_RBRaisedItemStateChanged
 
     private void RB3DItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_RB3DItemStateChanged
-        page.fireButtonEvent(ButtonEvent.ENABLE_BUTTON, ButtonNames.APPLY);        
+        page.fireButtonEvent(ButtonEvent.ENABLE_BUTTON, ButtonNames.APPLY);
     }//GEN-LAST:event_RB3DItemStateChanged
 
     private void SPLineWidthStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_SPLineWidthStateChanged
@@ -587,7 +583,7 @@ public class ChartFeature extends javax.swing.JPanel {
     }//GEN-LAST:event_SPLineWidthStateChanged
 
     private void btnRestoreActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRestoreActionPerformed
-        if (JOptionPane.showConfirmDialog(this, "Would you like to restore default features?", "Confirm", 0) == 0) {
+        if (JOptionPane.showConfirmDialog(this, "Would you like to restore default features ?", "Confirm", 0) == 0) {
             RBLineLabel.setSelected(true);
             RBSimpleLabel.setSelected(false);
             RBNoLabel.setSelected(false);
@@ -596,13 +592,13 @@ public class ChartFeature extends javax.swing.JPanel {
 
             OneColor.setSelected(false);
             RandomColor.setSelected(true);
-            CBColor2.setSelectedColor(getColorFromKey("0, 204, 0"));
+            CBColor2.setSelectedColor(ConnectDB.getColorFromKey("0, 204, 0"));
 
             BarChBVLine.setSelected(false);
             BarChBHLine.setSelected(true);
             LineChBVLine.setSelected(true);
             LineChBHLine.setSelected(true);
-            CBColor.setSelectedColor(getColorFromKey("255, 0, 0"));
+            CBColor.setSelectedColor(ConnectDB.getColorFromKey("255, 0, 0"));
             SPLineWidth.setValue(2);
 
             RBFlat.setSelected(true);
@@ -624,11 +620,11 @@ public class ChartFeature extends javax.swing.JPanel {
             ConnectDB.pref.putBoolean(StatKeyFactory.ChartFeatures.BarChBHLine, ChartFeature.BarChBHLine.isSelected());
             ConnectDB.pref.putBoolean(StatKeyFactory.ChartFeatures.LineChBVLine, ChartFeature.LineChBVLine.isSelected());
             ConnectDB.pref.putBoolean(StatKeyFactory.ChartFeatures.LineChBHLine, ChartFeature.LineChBHLine.isSelected());
-            setColorFromKey(ChartFeature.CBColor.getSelectedColor(), StatKeyFactory.ChartFeatures.CBColor);
+            ConnectDB.setColorFromKey(ChartFeature.CBColor.getSelectedColor(), StatKeyFactory.ChartFeatures.CBColor);
 
             ConnectDB.pref.putBoolean(StatKeyFactory.ChartFeatures.OneColor, ChartFeature.OneColor.isSelected());
             ConnectDB.pref.putBoolean(StatKeyFactory.ChartFeatures.RandomColor, ChartFeature.RandomColor.isSelected());
-            setColorFromKey(ChartFeature.CBColor2.getSelectedColor(), StatKeyFactory.ChartFeatures.CBColor2);
+            ConnectDB.setColorFromKey(ChartFeature.CBColor2.getSelectedColor(), StatKeyFactory.ChartFeatures.CBColor2);
 
             ConnectDB.pref.putInt(StatKeyFactory.ChartFeatures.SPLineWidth, Integer.parseInt(ChartFeature.SPLineWidth.getValue().toString()));
 
@@ -680,12 +676,12 @@ public class ChartFeature extends javax.swing.JPanel {
         BarChBHLine.setSelected(ConnectDB.pref.getBoolean(StatKeyFactory.ChartFeatures.BarChBHLine, true));
         LineChBVLine.setSelected(ConnectDB.pref.getBoolean(StatKeyFactory.ChartFeatures.LineChBVLine, true));
         LineChBHLine.setSelected(ConnectDB.pref.getBoolean(StatKeyFactory.ChartFeatures.LineChBHLine, true));
-        CBColor.setSelectedColor(getColorFromKey(ConnectDB.pref.get(StatKeyFactory.ChartFeatures.CBColor, "255, 0, 0")));
+        CBColor.setSelectedColor(ConnectDB.getColorFromKey(ConnectDB.pref.get(StatKeyFactory.ChartFeatures.CBColor, "255, 0, 0")));
         SPLineWidth.setValue(ConnectDB.pref.getInt(StatKeyFactory.ChartFeatures.SPLineWidth, 2));
 
         OneColor.setSelected(ConnectDB.pref.getBoolean(StatKeyFactory.ChartFeatures.OneColor, false));
         RandomColor.setSelected(ConnectDB.pref.getBoolean(StatKeyFactory.ChartFeatures.RandomColor, true));
-        CBColor2.setSelectedColor(getColorFromKey(ConnectDB.pref.get(StatKeyFactory.ChartFeatures.CBColor2, "0, 204, 0")));
+        CBColor2.setSelectedColor(ConnectDB.getColorFromKey(ConnectDB.pref.get(StatKeyFactory.ChartFeatures.CBColor2, "0, 204, 0")));
 
         RBFlat.setSelected(ConnectDB.pref.getBoolean(StatKeyFactory.ChartFeatures.RBFlat, true));
         RBRaised.setSelected(ConnectDB.pref.getBoolean(StatKeyFactory.ChartFeatures.RBRaised, false));
@@ -697,23 +693,6 @@ public class ChartFeature extends javax.swing.JPanel {
         cmbTime.setSelectedIndex(ConnectDB.pref.getInt(StatKeyFactory.ChartFeatures.CMBTIME, 0));
     }
 
-    private void setColorFromKey(Color color, String key) {
-        ConnectDB.pref.put(key, color.getRed() + ", " + color.getGreen() + ", " + color.getBlue());
-    }
-
-    private Color getColorFromKey(String value) {
-        String tab[] = value.split(", ");
-        return new Color(Integer.parseInt(tab[0]), Integer.parseInt(tab[1]), Integer.parseInt(tab[2]));
-    }
-
-    private static void CollapsiblePaneProperties(CollapsiblePane pane) {
-        pane.setBackground(Color.white);
-        pane.getContentPane().setBorder(BorderFactory.createEmptyBorder(0, 16, 0, 0));
-        pane.getContentPane().setOpaque(false);
-        pane.getActualComponent().setBackground(Color.white);
-        JComponent actualComponent = pane.getActualComponent();
-        JideSwingUtilities.setOpaqueRecursively(actualComponent, false);
-    }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     public static javax.swing.JCheckBox BarChBHLine;
     public static javax.swing.JCheckBox BarChBVLine;

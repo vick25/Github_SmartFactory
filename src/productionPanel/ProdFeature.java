@@ -4,10 +4,6 @@ import com.jidesoft.dialog.AbstractDialogPage;
 import com.jidesoft.dialog.ButtonEvent;
 import com.jidesoft.dialog.ButtonNames;
 import com.jidesoft.pane.CollapsiblePane;
-import com.jidesoft.swing.JideSwingUtilities;
-import java.awt.Color;
-import javax.swing.BorderFactory;
-import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 import mainFrame.MainFrame;
@@ -19,8 +15,8 @@ public class ProdFeature extends javax.swing.JPanel {
         this._page = page;
         this._parent = parent;
         initComponents();
-        CollapsiblePaneProperties(collapsiblePane1);
-        CollapsiblePaneProperties(collapsiblePane2);
+        ConnectDB.collapsiblePaneProperties(collapsiblePane1);
+        ConnectDB.collapsiblePaneProperties(collapsiblePane2);
         initValues();
     }
 
@@ -217,7 +213,7 @@ public class ProdFeature extends javax.swing.JPanel {
     }//GEN-LAST:event_spFlagTimeStateChanged
 
     private void btnRestoreActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRestoreActionPerformed
-        if (JOptionPane.showConfirmDialog(this, "Would you like to restore default features?", "Settings", 0) == 0) {
+        if (JOptionPane.showConfirmDialog(this, "Would you like to restore default features ?", "Settings", 0) == 0) {
             spFlagTime.setValue(10);
             radShiftOn.setSelected(false);
             radShiftOFF.setSelected(true);
@@ -261,15 +257,6 @@ public class ProdFeature extends javax.swing.JPanel {
         radShiftOn.setSelected(ConnectDB.pref.getBoolean(ProdStatKeyFactory.ProdFeatures.CHKSHIFTON, false));
         radPerMin.setSelected(ConnectDB.pref.getBoolean(ProdStatKeyFactory.ProdFeatures.RADPERMIN, true));
         radPerHour.setSelected(ConnectDB.pref.getBoolean(ProdStatKeyFactory.ProdFeatures.RADPERHOUR, false));
-    }
-
-    private static void CollapsiblePaneProperties(CollapsiblePane pane) {
-        pane.setBackground(Color.WHITE);
-        pane.getContentPane().setBorder(BorderFactory.createEmptyBorder(0, 16, 0, 0));
-        pane.getContentPane().setOpaque(false);
-        pane.getActualComponent().setBackground(Color.WHITE);
-        JComponent actualComponent = pane.getActualComponent();
-        JideSwingUtilities.setOpaqueRecursively(actualComponent, false);
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

@@ -1,5 +1,6 @@
 package smartfactoryV2;
 
+import com.alee.laf.WebLookAndFeel;
 import com.jidesoft.plaf.LookAndFeelFactory;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -23,16 +24,22 @@ public class SplashScreen extends javax.swing.JFrame {
     public SplashScreen() {
 //        final String workingDir = System.getProperty("user.dir");
         initComponents();
+        try {
+            this.setIconImage(new ImageIcon(cl.getResource("images/iDeaX.jpg")).getImage());
+            panelImage.setBackgroundPainter(new ImagePainter(
+                    ImageIO.read(cl.getResource("images/Smart_Factory Logo300x134_2.jpg"))));
+        } catch (IOException | NullPointerException | IllegalArgumentException ex) {
+        }
         time = new Timer(150, new ActionListener() {
 
             @Override
             public void actionPerformed(ActionEvent e) {
                 prbSplashScreen.setValue(motion);
-                if (motion == 15) {
+                if (motion == 10) {
                     lblSplash.setText("Starting ...");
-                } else if (motion == 50) {
+                } else if (motion == 45) {
                     lblSplash.setText("Loading smarfactory modules ...");
-                } else if (motion == 75) {
+                } else if (motion == 60) {
                     try {
                         lblSplash.setText("Initialization ...");
                         Thread.sleep(2000);
@@ -48,11 +55,14 @@ public class SplashScreen extends javax.swing.JFrame {
 //                        getClass().getResourceAsStream("./sqldump/smartNewDump.sql")).start();
 //                    lblSplash.setText("Launching application ...");
                 }
-                if (motion == 110) {
+                if (motion == 100) {
                     motion = 0;
                     time.stop();
                     dispose();
-                    LookAndFeelFactory.installDefaultLookAndFeelAndExtension();
+                    System.gc();
+                    WebLookAndFeel.install();
+                    LookAndFeelFactory.installJideExtension(LookAndFeelFactory.XERTO_STYLE);
+//                    LookAndFeelFactory.installDefaultLookAndFeelAndExtension();
                     identification = new Identification(null, false);
                     identification.setVisible(true);
                 }
@@ -60,12 +70,6 @@ public class SplashScreen extends javax.swing.JFrame {
             }
         });
         time.start();
-        this.setIconImage(new ImageIcon(getClass().getResource("/images/iDeaX.jpg")).getImage());
-        try {
-            panelImage.setBackgroundPainter(new ImagePainter(
-                    ImageIO.read(getClass().getResource("/images/Smart_Factory Logo300x134_2.jpg"))));
-        } catch (IOException ex) {
-        }
         this.setLocationRelativeTo(null);
     }
 
@@ -162,7 +166,8 @@ public class SplashScreen extends javax.swing.JFrame {
     private org.jdesktop.swingx.JXPanel panelImage;
     private javax.swing.JProgressBar prbSplashScreen;
     // End of variables declaration//GEN-END:variables
-    private short motion = 1;
+    private byte motion = 1;
     private Timer time = null;
     private static Identification identification;
+    private ClassLoader cl = this.getClass().getClassLoader();
 }

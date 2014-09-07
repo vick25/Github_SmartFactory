@@ -12,9 +12,7 @@ public class TotalProduction extends javax.swing.JPanel {
     public TotalProduction(Chart chart) {
         this.chartPanel = chart;
         initComponents();
-        this.removeAll();
-        this.repaint();
-        setLayout(new BorderLayout());
+        this.setLayout(new BorderLayout());
         if (this.chartPanel != null) {
             this.add(this.chartPanel, BorderLayout.CENTER);
         }

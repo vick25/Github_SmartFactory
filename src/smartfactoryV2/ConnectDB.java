@@ -4,12 +4,16 @@ import com.jidesoft.chart.model.Highlight;
 import com.jidesoft.grid.CsvTableUtils;
 import com.jidesoft.grid.SortableTable;
 import com.jidesoft.hssf.HssfTableUtils;
+import com.jidesoft.pane.CollapsiblePane;
 import com.jidesoft.plaf.LookAndFeelFactory;
+import com.jidesoft.swing.JideSwingUtilities;
 import com.mysql.jdbc.exceptions.jdbc4.CommunicationsException;
 import com.mysql.jdbc.exceptions.jdbc4.MySQLNonTransientConnectionException;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.Font;
+import java.awt.Rectangle;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -30,10 +34,13 @@ import java.util.logging.Level;
 import java.util.prefs.Preferences;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
+import javax.swing.JViewport;
 import javax.swing.UIManager;
 import javax.swing.filechooser.FileSystemView;
 import org.jdesktop.swingx.JXErrorPane;
@@ -59,7 +66,7 @@ public class ConnectDB {
             LookAndFeelFactory.installDefaultLookAndFeelAndExtension();
             LookAndFeelFactory.installJideExtension(pref.getInt(SettingKeyFactory.Theme.LOOKANDFEEL,
                     LookAndFeelFactory.OFFICE2003_STYLE));//Set the theme
-            /* Server Connection */            
+            /* Server Connection */
             serverIP = pref.get(SettingKeyFactory.Connection.SERVERIPADDRESS, serverIP);
             System.out.println(serverIP + " " + ++count);
             con = DriverManager.getConnection("jdbc:mysql://" + serverIP + ":3306/" + DBNAME
@@ -206,6 +213,10 @@ public class ConnectDB {
         return cs;
     }
 
+    public static void setColorFromKey(Color color, String key) {
+        ConnectDB.pref.put(key, color.getRed() + ", " + color.getGreen() + ", " + color.getBlue());
+    }
+
     public static Color getColorFromKey(String value) {
         String tab[] = value.split(", ");
         return new Color(Integer.parseInt(tab[0]), Integer.parseInt(tab[1]), Integer.parseInt(tab[2]));
@@ -245,8 +256,7 @@ public class ConnectDB {
             }
             int maxNum = numbers[0];
             for (int i = 1; i < numbers.length;) {
-                int j;
-                j = numbers[i];
+                int j = numbers[i];
                 if (j > maxNum) {
                     maxNum = j;
                 }
@@ -258,10 +268,26 @@ public class ConnectDB {
         }
     }
 
+    public static String retrieveCateria(Object[] machineList) {
+        StringBuilder values = new StringBuilder();
+        for (Object list : machineList) {
+            values.append("\'").append(ConnectDB.firstLetterCapital(list.toString())).append("\',");
+        }
+        return values.substring(0, values.length() - 1);
+    }
+
+    public static String reverseWords(String text) {
+        StringBuilder strBuild = new StringBuilder();
+        String[] ses = text.split(" ");
+        for (int i = ses.length - 1; i > -1; i--) {
+            strBuild.append(ses[i]).append(" ");
+        }
+        return strBuild.toString();
+    }
+
     public static int getIDMachine(String machine) throws SQLException {
         int machineID = -1;
-        try (PreparedStatement ps = ConnectDB.con.prepareStatement("SELECT HwNo, Machine FROM hardware "
-                + "WHERE Machine =?")) {
+        try (PreparedStatement ps = ConnectDB.con.prepareStatement(Queries.GET_HARDWARE)) {
             ps.setString(1, ConnectDB.firstLetterCapital(machine));
             ConnectDB.res = ps.executeQuery();
             while (ConnectDB.res.next()) {
@@ -375,6 +401,11 @@ public class ConnectDB {
         }
     }
 
+    public static void showChartMessageDialog(JFrame parent) {
+        JOptionPane.showMessageDialog(parent, "No data retrieved. Please check "
+                + "the dates and time provided", "Chart", JOptionPane.WARNING_MESSAGE);
+    }
+
     public static void outputToExcel(SortableTable table, File file) {
         try {
             HssfTableUtils.export(table, file.getAbsolutePath() + ".xls", "SortableTable",
@@ -414,6 +445,38 @@ public class ConnectDB {
         }
     }
 
+    public static void scrollRectToVisible(Component component, Rectangle aRect) {
+        Container parent;
+        int dx = component.getX(), dy = component.getY();
+
+        for (parent = component.getParent();
+                parent != null && (!(parent instanceof JViewport)
+                || (((JViewport) parent).getClientProperty("HierarchicalTable.mainViewport") == null));
+                parent = parent.getParent()) {
+            Rectangle bounds = parent.getBounds();
+            dx += bounds.x;
+            dy += bounds.y;
+        }
+
+        if (parent != null) {
+            aRect.x += dx;
+            aRect.y += dy;
+
+            ((JComponent) parent).scrollRectToVisible(aRect);
+            aRect.x -= dx;
+            aRect.y -= dy;
+        }
+    }
+
+    public static void collapsiblePaneProperties(CollapsiblePane pane) {
+        pane.setBackground(Color.WHITE);
+        pane.getContentPane().setBorder(BorderFactory.createEmptyBorder(0, 16, 0, 0));
+        pane.getContentPane().setOpaque(false);
+        pane.getActualComponent().setBackground(Color.WHITE);
+        JComponent actualComponent = pane.getActualComponent();
+        JideSwingUtilities.setOpaqueRecursively(actualComponent, false);
+    }
+
     private static final String KEYCODE = "crypter";
     private static final String DBNAME = "smartfactory";
     private static final String DBUSERNAME = "root";
@@ -426,7 +489,13 @@ public class ConnectDB {
     public static ResultSet res = null;
     public static final Preferences pref = Preferences.userNodeForPackage(ConnectDB.class);
     private static File mainDir = null;
-    
+
+    public static final Color BG1 = new Color(232, 237, 230);
+    public static final Color BG2 = new Color(243, 234, 217);
+    public static final Color BG3 = new Color(214, 231, 247);
+    public static final Color BG4 = new Color(255, 255, 255);
+    public static final Color BG5 = new Color(253, 253, 220);
+
     public static final float OUTLINEWIDTH = 3f;
     public static final Highlight SELECTION_HIGHLIGHT = new Highlight("selection");
     public static final String DEFAULT_DIRECTORY = new File(new JFileChooser().getCurrentDirectory().getAbsolutePath()).getParent();

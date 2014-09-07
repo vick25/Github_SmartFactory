@@ -30,6 +30,7 @@ public class AddModule extends javax.swing.JDialog {
 
     public AddModule(java.awt.Frame parent, boolean modal) throws SQLException {
         super(parent, modal);
+        initComponents();
         ConnectDB.getConnectionInstance();
         _parent = parent;
         table = new JXTable(new TableModelAddModule("Mode"));
@@ -43,11 +44,10 @@ public class AddModule extends javax.swing.JDialog {
         table.setSortable(false);
         table.setSelectionMode(0);
         table.setShowGrid(true);
-        initComponents();
         setPropertiesSaved(ConnectDB.pref.get(SettingKeyFactory.DefaultProperties.MODULES, getPropertiesToSave()));
-        fillModules();
+        this.fillModules();
         Scrll.setViewportView(table);
-        addWindowListener(new WindowAdapter() {
+        this.addWindowListener(new WindowAdapter() {
 
             @Override
             public void windowClosing(WindowEvent e) {
@@ -278,8 +278,9 @@ public class AddModule extends javax.swing.JDialog {
                 break;
             }
         } else {
-            JOptionPane.showMessageDialog(this, "The module name \"" + txtName.getText()
-                    + "\" already exists in the table", "Warning", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(this, new StringBuilder("The module name \"").
+                    append(txtName.getText()).append("\" already exists in the table").toString(),
+                    "Warning", JOptionPane.WARNING_MESSAGE);
         }
     }//GEN-LAST:event_btnAddActionPerformed
 
@@ -324,14 +325,14 @@ public class AddModule extends javax.swing.JDialog {
     }
 
     private String getPropertiesToSave() {
-        String properties = "";
+        StringBuilder properties = new StringBuilder();
         for (int i = 0; i < table.getRowCount(); i++) {
             for (int j = 0; j < table.getColumnCount(); j++) {
-                properties += table.getValueAt(i, j) + "\t";
+                properties.append(table.getValueAt(i, j)).append("\t");
             }
-            properties += "\r\n";
+            properties.append("\r\n");
         }
-        return properties;
+        return properties.toString();
     }
 
     private void setPropertiesSaved(String values) {
@@ -342,7 +343,7 @@ public class AddModule extends javax.swing.JDialog {
             cleantable();
             String[] rowValues = values.split("\r\n");
 
-            int k = rowValues.length;
+            byte k = (byte) rowValues.length;
             while (k >= rowValues.length) {
                 String[] columnTrainee = rowValues[k - rowValues.length].split("\t");
                 for (int j = 0; j < columnTrainee.length; j++) {
@@ -368,7 +369,7 @@ public class AddModule extends javax.swing.JDialog {
         catModules = false;
         cmbMode.removeAllItems();
         cmbMode.addItem(" ");
-        try (PreparedStatement ps = ConnectDB.con.prepareStatement("SELECT DISTINCT(AvMinMax)\n"
+        try (PreparedStatement ps = ConnectDB.con.prepareStatement("SELECT DISTINCT(AvMinMax) \n"
                 + "FROM `configuration`")) {
             ConnectDB.res = ps.executeQuery();
             while (ConnectDB.res.next()) {
@@ -378,7 +379,7 @@ public class AddModule extends javax.swing.JDialog {
         catModules = true;
     }
 
-    private void fillProductionModule() {
+    public void fillProductionModule() {
         try {
             ProductionPane.setCatOptions(false);
             String[] rowValues = savedProperties.split("\r\n");
@@ -407,13 +408,12 @@ public class AddModule extends javax.swing.JDialog {
     }
 
     private boolean uniqueness(String value) {
-        boolean unique = true;
         for (int i = 0; i < table.getRowCount(); i++) {
             if (table.getValueAt(i, 0).toString().equals(value)) {
                 return false;
             }
         }
-        return unique;
+        return true;
     }
 
     private void firePopupTable(MouseEvent evt) {
@@ -461,40 +461,40 @@ public class AddModule extends javax.swing.JDialog {
     private class TableModelAddModule extends AbstractTableModel {
 
         private final String _titre;
-        private final String[] columnNames = new String[2];
-        private final ArrayList[] data;
+        private final String[] COLUMNS_NAME = new String[2];
+        private final ArrayList[] DATA;
 
         TableModelAddModule(String titre) {
             _titre = titre;
-            columnNames[0] = "Name";
-            columnNames[1] = _titre;
-            data = new ArrayList[columnNames.length];
-            for (int i = 0; i < columnNames.length; i++) {
-                data[i] = new ArrayList();
+            COLUMNS_NAME[0] = "Name";
+            COLUMNS_NAME[1] = _titre;
+            DATA = new ArrayList[COLUMNS_NAME.length];
+            for (int i = 0; i < COLUMNS_NAME.length; i++) {
+                DATA[i] = new ArrayList();
             }
-            for (int i = 0; i < columnNames.length; i++) {
-                data[i].add("");
+            for (int i = 0; i < COLUMNS_NAME.length; i++) {
+                DATA[i].add("");
             }
         }
 
         @Override
         public int getColumnCount() {
-            return columnNames.length;
+            return COLUMNS_NAME.length;
         }
 
         @Override
         public int getRowCount() {
-            return data[0].size();
+            return DATA[0].size();
         }
 
         @Override
         public String getColumnName(int col) {
-            return columnNames[col];
+            return COLUMNS_NAME[col];
         }
 
         @Override
         public Object getValueAt(int row, int col) {
-            return data[col].get(row);
+            return DATA[col].get(row);
         }
 
         @Override
@@ -505,41 +505,41 @@ public class AddModule extends javax.swing.JDialog {
         @Override
         public boolean isCellEditable(int row, int col) {
             if (EDIT) {
-                return (true);
+                return true;
             } else {
                 if (col == 0) {
-                    return (true);
+                    return true;
                 } else {
-                    return (false);
+                    return false;
                 }
             }
         }
 
         @Override
         public void setValueAt(Object value, int row, int col) {
-            data[col].set(row, value);
+            DATA[col].set(row, value);
             fireTableCellUpdated(row, col);
         }
 
         public void addNewRow() {
-            for (int i = 0; i < columnNames.length; i++) {
-                data[i].add("");
+            for (int i = 0; i < COLUMNS_NAME.length; i++) {
+                DATA[i].add("");
             }
-            this.fireTableRowsInserted(0, data[0].size() - 1);
+            this.fireTableRowsInserted(0, DATA[0].size() - 1);
         }
 
         public void removeNewRow() {
-            for (int i = 0; i < columnNames.length; i++) {
-                data[i].remove(data[i].size() - 1);
+            for (int i = 0; i < COLUMNS_NAME.length; i++) {
+                DATA[i].remove(DATA[i].size() - 1);
             }
-            this.fireTableRowsDeleted(0, data[0].size() - 1);
+            this.fireTableRowsDeleted(0, DATA[0].size() - 1);
         }
 
         public void removeNewRow(int index) {
-            for (int i = 0; i < columnNames.length; i++) {
-                data[i].remove(index);
+            for (int i = 0; i < COLUMNS_NAME.length; i++) {
+                DATA[i].remove(index);
             }
-            this.fireTableRowsDeleted(0, data[0].size() - 1);
+            this.fireTableRowsDeleted(0, DATA[0].size() - 1);
         }
     }
 

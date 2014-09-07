@@ -95,6 +95,7 @@ import net.sf.jasperreports.engine.JasperPrint;
 import org.jdesktop.swingx.autocomplete.AutoCompleteDecorator;
 import reportSettings.ReportOptions;
 import smartfactoryV2.ConnectDB;
+import smartfactoryV2.Queries;
 
 public class EventsStatistic extends javax.swing.JPanel {
 
@@ -964,11 +965,13 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
                 try {
                     HashMap hashMap = new HashMap();
                     chart.setTitle("");
-                    ConnectDB.setMainDir(new File(ConnectDB.DEFAULT_DIRECTORY + File.separator + "SmartFactory Data"));
+                    ConnectDB.setMainDir(new File(new StringBuilder(ConnectDB.DEFAULT_DIRECTORY).
+                            append(File.separator).append("SmartFactory Data").toString()));
                     if (!ConnectDB.getMainDir().exists()) {
                         ConnectDB.getMainDir().mkdirs();
                     }
-                    String dirIcon = ConnectDB.getMainDir().getAbsolutePath() + File.separator + "chart.png";
+                    String dirIcon = new StringBuilder(ConnectDB.getMainDir().getAbsolutePath()).
+                            append(File.separator).append("chart.png").toString();
                     ChartUtils.writePngToFile(panChart, new File(dirIcon));
                     hashMap.put("logo", reportOptions.getPhoto());
                     hashMap.put("logo2", getClass().getResourceAsStream("/jasper/smartfactory.png"));
@@ -1080,8 +1083,8 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
 //                    catMachine = false;
                 } else {
                     catMachine = false;
-                    JOptionPane.showMessageDialog(this, "No description/category exist for the \""
-                            + machineTitle + "\" machine",
+                    JOptionPane.showMessageDialog(this, new StringBuilder("No description/category exists for the \"").
+                            append(machineTitle).append("\" machine").toString(),
                             "Events", JOptionPane.INFORMATION_MESSAGE);
                     lblFrom.setText("");
                     lblTo.setText("");
@@ -1110,15 +1113,11 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
         if (catDescription) {
             if (cmbDescription.getSelectedObjects().length != 0) {
                 ArrayList<String> dataValue = new ArrayList<>();
-                try (PreparedStatement ps = ConnectDB.con.prepareStatement("SELECT DISTINCT(e.Value) "
-                        + "FROM eventlog e, customlist c \n"
-                        + "WHERE e.HwNo =? "
-                        + "AND e.Customcode = c.Code AND \n"
-                        + "c.Description IN (" + manyCriteria(cmbDescription.getSelectedObjects()) + ") \n"
-                        + "AND e.Value <> '(null)' \n"
-                        + "ORDER BY VALUE ASC")) {
-                    int i = 1;
-                    ps.setInt(i++, machineID);
+                try (PreparedStatement ps = ConnectDB.con.prepareStatement(new StringBuilder("SELECT DISTINCT(e.Value) ").
+                        append("FROM eventlog e, customlist c \nWHERE e.HwNo =? AND e.Customcode = c.Code AND \n"
+                                + "c.Description IN (").append(ConnectDB.retrieveCateria(cmbDescription.getSelectedObjects())).
+                        append(") \nAND e.Value <> '(null)' \nORDER BY VALUE ASC").toString())) {
+                    ps.setInt(1, machineID);
                     ConnectDB.res = ps.executeQuery();
                     while (ConnectDB.res.next()) {
                         dataValue.add(ConnectDB.res.getString(1));
@@ -1185,7 +1184,7 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
 
     private void createTreeDisplay() throws SQLException {
         //
-        getComponentDates();
+        this.getComponentDates();
         //
         Set<String> setDescriptionValue = new TreeSet<>();
         PreparedStatement ps;
@@ -1197,16 +1196,13 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
             time = "";
         } else {
             //Get the minimum and maximum logtime of a specified production rate value (ie. 0)
-            query = "SELECT LogData,\n"
-                    + "CONCAT(MIN(LogTime), ', ', MAX(LogTime)) AS Time\n"
-                    + "FROM datalog d, configuration co, hardware h\n"
-                    + "WHERE co.HwNo = h.HwNo\n"
-                    + "AND co.ConfigNo = d.ConfigNo\n"
-                    + "AND ((d.LogData * 60) " + cmbProductionType.getSelectedItem() + " ?)\n"
-                    + "AND d.ConfigNo =?\n"
-                    + "AND co.HwNo =? \n"
-                    + "AND (d.LogTime BETWEEN ? AND ?)\n"
-                    + "GROUP BY LogData";
+            query = new StringBuilder("SELECT LogData, \n").append("CONCAT(MIN(LogTime), ', ', MAX(LogTime)) AS Time \n"
+                    + "FROM datalog d, configuration co, hardware h \nWHERE co.HwNo = h.HwNo \n"
+                    + "AND co.ConfigNo = d.ConfigNo \nAND ((d.LogData * 60) ").
+                    append(cmbProductionType.getSelectedItem()).append(" ?) \n"
+                            + "AND d.ConfigNo =? \nAND co.HwNo =? \n"
+                            + "AND (d.LogTime BETWEEN ? AND ?) \n"
+                            + "GROUP BY LogData").toString();
             ps = ConnectDB.con.prepareStatement(query);
             ps.setInt(1, (int) spProductionRate.getValue());
             ps.setInt(2, getConfigNo());
@@ -1234,12 +1230,12 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
                 lblFrom.setText("");
                 lblTo.setText("");
             }
-            query = "SELECT e.EventNo, CONCAT(e.EventTime, ',', e.UntilTime) AS 'Time', e.Value, c.Description\n"
-                    + "FROM eventlog e, customlist c\n"
-                    + "WHERE e.CustomCode = c.Code\n"
-                    + "AND e.HwNo =?\n"
-                    + "AND e.Value <> '(null)'\n"
-                    + "AND (e.EventTime BETWEEN ? AND ?)\n"
+            query = "SELECT e.EventNo, CONCAT(e.EventTime, ',', e.UntilTime) AS 'Time', e.Value, c.Description \n"
+                    + "FROM eventlog e, customlist c \n"
+                    + "WHERE e.CustomCode = c.Code \n"
+                    + "AND e.HwNo =? \n"
+                    + "AND e.Value <> '(null)' \n"
+                    + "AND (e.EventTime BETWEEN ? AND ?) \n"
                     + "ORDER BY c.Description ASC, e.Value ASC";
             ps = ConnectDB.con.prepareStatement(query);
             ps.setInt(1, machineID);
@@ -1249,8 +1245,8 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
             while (ConnectDB.res.next()) {
                 loopQueryFound = true;
                 descriptionSet.add(ConnectDB.res.getString(4).toLowerCase());//get only the description
-                setDescriptionValue.add(ConnectDB.res.getString(4).toLowerCase() + ","
-                        + ConnectDB.res.getString(3).toLowerCase());//get the description and Value
+                setDescriptionValue.add(new StringBuilder(ConnectDB.res.getString(4)).append(",").
+                        append(ConnectDB.res.getString(3)).toString().toLowerCase());//get the description and Value
             }
             ps.close();
             if (loopQueryFound) {//boolean value for description and value
@@ -1276,8 +1272,8 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
             }
         } else {
             _field.setTreeModel(new DefaultTreeModel(new DefaultMutableTreeNode(EMPTYEVENTS)));
-            JOptionPane.showMessageDialog(this, "No events registered during the periods specified for the \""
-                    + machineTitle + "\".", "Events", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(this, new StringBuilder("No events registered during the periods "
+                    + "specified for the \"").append(machineTitle).append("\"."), "Events", JOptionPane.WARNING_MESSAGE);
             sclPaneTree.setViewportView(null);
             lblFrom.setText("");
             lblTo.setText("");
@@ -1287,10 +1283,10 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
 
     private Vector getDummyData(Set<String> set) {
         Vector dummyPartData = new Vector();
-        String treeValue;
         for (Object object : set) {
-            String treeDescription = object.toString().split(",")[0];
-            treeValue = object.toString().split(",")[1];
+            StringTokenizer tokenizer = new StringTokenizer(object.toString(), ",");
+            String treeDescription = tokenizer.nextToken(),
+                    treeValue = tokenizer.nextToken();
             dummyPartData.addElement(new Machine(treeValue, treeDescription));
         }
         return dummyPartData;
@@ -1362,100 +1358,94 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
     }
 
     private static String chartTitle() {
-        String title = "";
+        StringBuilder title = new StringBuilder();
         TreePath treePath = _tree.getSelectionPath();
         if (treePath != null) {
             if (!_tree.getModel().isLeaf(treePath.getLastPathComponent())) {
-                title = treePath.getPath()[0].toString();//Root Node title
+                title.append(treePath.getPath()[0]);//Root Node title
                 if (!_tree.getModel().isLeaf(treePath.getLastPathComponent())
                         && (!treePath.getLastPathComponent().toString().equals(treePath.getPath()[0].toString()))) {
                     for (Object path : treePath.getPath()) {
-                        title = "";
+                        title = new StringBuilder();
                         if (!path.toString().equalsIgnoreCase(machineTitle)) {
-                            title += path + " ";
+                            title.append(path).append(" ");
                         }
                     }
-                    title = title.substring(0, title.length() - 1).toLowerCase();
+                    return title.substring(0, title.length() - 1).toLowerCase();
                 }
             } else {//case is a leaf
 //                System.out.println("leaf");
             }
         }
-        return title;
+        return title.toString();
     }
 
     private String clickTreeSQLQuery(String leafTitle) {
-        String query = "";
         if (leafTitle.equalsIgnoreCase(machineTitle)) {//Main node
             //query to retrieve only the description for the entire machine
             if (btnDataEvent.isSelected()) {//case for data events
                 customCodeValue = machineTitle;
                 if (!EventsDataPanel.isDataGrouped()) {
-                    return query = "SELECT e.`EventTime`, e.`Value`, e.`UntilTime`\n"
-                            + "FROM eventlog e, customlist c\n"
-                            + "WHERE e.HwNo = '" + machineID + "' AND e.CustomCode = c.Code \n"
-                            + "AND e.Value <> '(null)'\n"
-                            + "AND (e.EventTime BETWEEN '" + minLogTime + "' AND '" + maxLogTime + "')\n"
-                            + "AND c.`Description` IN (" + manyCriteria(descriptionSet.toArray()) + ")\n"
-                            + "ORDER BY e.CustomCode ASC, e.`EventTime` ASC, e.`Value` ASC";
+                    return new StringBuilder("SELECT e.`EventTime`, e.`Value`, e.`UntilTime` \n").
+                            append("FROM eventlog e, customlist c\n" + "WHERE e.HwNo = '").
+                            append(machineID).append("' AND e.CustomCode = c.Code \nAND e.Value <> '(null)' \n"
+                                    + "AND (e.EventTime BETWEEN '").append(minLogTime).append("' AND '").
+                            append(maxLogTime).append("')\n" + "AND c.`Description` IN (").
+                            append(ConnectDB.retrieveCateria(descriptionSet.toArray())).append(") \n"
+                                    + "ORDER BY e.CustomCode ASC, e.`EventTime` ASC, e.`Value` ASC").toString();
                 } else {
-                    return query = "SELECT main.`EventTime`, main.`Value`,\n"
-                            + "(SELECT MAX(e.UntilTime) FROM eventlog e \n"
-                            + "WHERE e.Value = main.Value AND e.UntilTime > main.UntilTime) AS NextTime "
-                            + "FROM eventlog main, customlist c\n"
-                            + "WHERE main.HwNo = '" + machineID + "'\n"
-                            + "AND main.CustomCode = c.Code \n"
-                            + "AND main.Value <> '(null)'\n"
-                            + "AND (main.EventTime BETWEEN '" + minLogTime + "' AND '" + maxLogTime + "')\n"
-                            + "AND c.`Description` IN (" + manyCriteria(descriptionSet.toArray()) + ")\n"
-                            + "GROUP BY main.Value\n"
-                            + "ORDER BY c.Description ASC, main.Value ASC, main.`EventTime` ASC";
+                    return new StringBuilder("SELECT main.`EventTime`, main.`Value`, \n").
+                            append("(SELECT MAX(e.UntilTime) FROM eventlog e \nWHERE e.Value = main.Value AND "
+                                    + "e.UntilTime > main.UntilTime) AS NextTime \nFROM eventlog main, customlist c \n"
+                                    + "WHERE main.HwNo = '").append(machineID).append("' \nAND main.CustomCode = c.Code \n"
+                                    + "AND main.Value <> '(null)' \nAND (main.EventTime BETWEEN '").append(minLogTime).
+                            append("' AND '").append(maxLogTime).append("') \nAND c.`Description` IN (").
+                            append(ConnectDB.retrieveCateria(descriptionSet.toArray())).append(") \n"
+                                    + "GROUP BY main.Value \nORDER BY c.Description ASC, main.Value ASC, main.`EventTime` ASC").toString();
                 }
             } else {//case for time events
-                return query = "SELECT e.`EventTime`, e.`UntilTime`, c.`Description`\n"
-                        + "FROM eventlog e, customlist c\n"
-                        + "WHERE e.HwNo = '" + machineID + "' AND e.CustomCode = c.Code \n"
-                        + "AND e.Value <> '(null)'\n"
-                        + "AND (e.EventTime BETWEEN '" + minLogTime + "' AND '" + maxLogTime + "')\n"
-                        + "AND c.`Description` IN (" + manyCriteria(descriptionSet.toArray()) + ")\n"
-                        + "ORDER BY c.Description ASC, e.`EventTime` ASC";
+                return new StringBuilder("SELECT e.`EventTime`, e.`UntilTime`, c.`Description` \n").
+                        append("FROM eventlog e, customlist c \nWHERE e.HwNo = '").append(machineID).
+                        append("' AND e.CustomCode = c.Code \nAND e.Value <> '(null)'\n"
+                                + "AND (e.EventTime BETWEEN '").append(minLogTime).append("' AND '").
+                        append(maxLogTime).append("') \n" + "AND c.`Description` IN (").
+                        append(ConnectDB.retrieveCateria(descriptionSet.toArray())).append(") \n"
+                                + "ORDER BY c.Description ASC, e.`EventTime` ASC").toString();
             }
         } else if (descriptionSet.contains(leafTitle.toLowerCase())) {//Node
             //query to retrieve the specific values bound to a description of a machine
             if (btnDataEvent.isSelected()) {//case for data events
                 customCodeValue = ConnectDB.firstLetterCapital(leafTitle.toLowerCase());
                 if (!EventsDataPanel.isDataGrouped()) {
-                    return query = "SELECT e.`EventTime`, e.`Value`, e.`UntilTime`\n"
-                            + "FROM eventlog e, customlist c\n"
-                            + "WHERE e.HwNo = '" + machineID + "' AND e.CustomCode = c.Code \n"
-                            + "AND e.Value <> '(null)'\n"
-                            + "AND (e.EventTime BETWEEN '" + minLogTime + "' AND '" + maxLogTime + "')\n"
-                            + "AND c.`Description` = '" + ConnectDB.firstLetterCapital(leafTitle.toLowerCase()) + "'\n"
-                            + "ORDER BY e.CustomCode ASC, e.`EventTime` ASC, e.`Value` ASC";
+                    return new StringBuilder("SELECT e.`EventTime`, e.`Value`, e.`UntilTime` \n").
+                            append("FROM eventlog e, customlist c \nWHERE e.HwNo = '").append(machineID).
+                            append("' AND e.CustomCode = c.Code \nAND e.Value <> '(null)' \n"
+                                    + "AND (e.EventTime BETWEEN '").append(minLogTime).append("' AND '").
+                            append(maxLogTime).append("') \n" + "AND c.`Description` = '").
+                            append(ConnectDB.firstLetterCapital(leafTitle.toLowerCase())).
+                            append("' \nORDER BY e.CustomCode ASC, e.`EventTime` ASC, e.`Value` ASC").toString();
                 } else {
-                    return query = "SELECT main.`EventTime`, main.`Value`,\n"
-                            + "(SELECT MAX(e.UntilTime) FROM eventlog e \n"
-                            + "WHERE e.Value = main.Value AND e.UntilTime > main.UntilTime) AS NextTime "
-                            + "FROM eventlog main, customlist c\n"
-                            + "WHERE main.HwNo = '" + machineID + "'\n"
-                            + "AND main.CustomCode = c.Code \n"
-                            + "AND main.Value <> '(null)'\n"
-                            + "AND (main.EventTime BETWEEN '" + minLogTime + "' AND '" + maxLogTime + "')\n"
-                            + "AND c.`Description` = '" + ConnectDB.firstLetterCapital(leafTitle.toLowerCase()) + "'\n"
-                            + "GROUP BY main.Value\n"
-                            + "ORDER BY c.Description ASC, main.Value ASC, main.`EventTime` ASC";
+                    return new StringBuilder("SELECT main.`EventTime`, main.`Value`, \n").
+                            append("(SELECT MAX(e.UntilTime) FROM eventlog e \nWHERE e.Value = main.Value AND "
+                                    + "e.UntilTime > main.UntilTime) AS NextTime FROM eventlog main, customlist c \n"
+                                    + "WHERE main.HwNo = '").append(machineID).append("' \nAND main.CustomCode = c.Code "
+                                    + "\nAND main.Value <> '(null)' \nAND (main.EventTime BETWEEN '").
+                            append(minLogTime).append("' AND '").append(maxLogTime).append("') \nAND c.`Description` = '").
+                            append(ConnectDB.firstLetterCapital(leafTitle.toLowerCase())).
+                            append("' \nGROUP BY main.Value \n"
+                                    + "ORDER BY c.Description ASC, main.Value ASC, main.`EventTime` ASC").toString();
                 }
             } else {//case for time events
-                return query = "SELECT e.`EventTime`, e.`UntilTime`, e.`Value`\n"
-                        + "FROM eventlog e, customlist c\n"
-                        + "WHERE e.HwNo = '" + machineID + "' AND e.CustomCode = c.Code \n"
-                        + "AND e.Value <> '(null)'\n"
-                        + "AND (e.EventTime BETWEEN '" + minLogTime + "' AND '" + maxLogTime + "')\n"
-                        + "AND c.`Description` = '" + ConnectDB.firstLetterCapital(leafTitle.toLowerCase()) + "'\n"
-                        + "ORDER BY e.`Value` ASC, e.`EventTime` ASC";
+                return new StringBuilder("SELECT e.`EventTime`, e.`UntilTime`, e.`Value` \n").
+                        append("FROM eventlog e, customlist c \n" + "WHERE e.HwNo = '").append(machineID).
+                        append("' AND e.CustomCode = c.Code \n" + "AND e.Value <> '(null)' \n"
+                                + "AND (e.EventTime BETWEEN '").append(minLogTime).append("' AND '").
+                        append(maxLogTime).append("') \n" + "AND c.`Description` = '").
+                        append(ConnectDB.firstLetterCapital(leafTitle.toLowerCase())).
+                        append("' \nORDER BY e.`Value` ASC, e.`EventTime` ASC").toString();
             }
         } else {//Leaf
-            return query;
+            return "";
         }
     }
 
@@ -1490,13 +1480,16 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
                         //and the Description or Value
                         if (radHour.isSelected()) {
                             timeFormat = "hour";//Time + The Description or Value
-                            allDatas.add(diffs[1] + "," + ConnectDB.res.getString(3).toLowerCase());
+                            allDatas.add(new StringBuilder().append(diffs[1]).append(",").
+                                    append(ConnectDB.res.getString(3)).toString().toLowerCase());
                         } else if (radMinute.isSelected()) {
                             timeFormat = "min";
-                            allDatas.add(diffs[2] + "," + ConnectDB.res.getString(3).toLowerCase());
+                            allDatas.add(new StringBuilder().append(diffs[2]).append(",").
+                                    append(ConnectDB.res.getString(3)).toString().toLowerCase());
                         } else {
                             timeFormat = "sec";
-                            allDatas.add(diffs[3] + "," + ConnectDB.res.getString(3).toLowerCase());
+                            allDatas.add(new StringBuilder().append(diffs[3]).append(",").
+                                    append(ConnectDB.res.getString(3)).toString().toLowerCase());
                         }
                     } catch (ParseException ex) {
                         ex.printStackTrace();
@@ -1520,7 +1513,8 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
                             sum += Double.parseDouble(time);//get the sum of time
                         }
                     }
-                    HL.add(new ChartCategory((Object) ConnectDB.firstLetterCapital(setLine), new Highlight("hl" + i)));
+                    HL.add(new ChartCategory((Object) ConnectDB.firstLetterCapital(setLine),
+                            new Highlight(new StringBuilder("hl").append(i).toString())));
                     colorsCategoryRange.add((Category<ChartCategory>) HL.get(i));
                     model.addPoint(new ChartPoint((Positionable) HL.get(i), sum));
                     i++;
@@ -1530,8 +1524,9 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
                     totalSum += sum;
                 }
                 //Create the charts
-                lblTimeSum.setText("<html>Total " + timeFormat + ": <font color=red>"
-                        + ConnectDB.DECIMALFORMAT.format(totalSum) + "</font>");
+                lblTimeSum.setText(new StringBuilder("<html>Total ").append(timeFormat).
+                        append(": <font color=red>").append(ConnectDB.DECIMALFORMAT.format(totalSum)).
+                        append("</font>").toString());
                 if (!btnBarChart.isEnabled()) {
                     createBarChart();
                 } else if (!btnPieChart.isEnabled()) {
@@ -1572,12 +1567,12 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
     private static Axis chartTitleAxis(int num, String smallName, String bigName) {
         Axis yAxis;
         yAxis = new Axis(new NumericRange(0, max + num));
-        yAxis.setLabel(new AutoPositionedLabel(smallName + "(s)", Color.BLACK));
-        chartTitle = chartTitle().toUpperCase() + " (" + bigName + ")";
-        reportTitle = "<html>" + chartTitle().toUpperCase() + " "
-                + "<font color=Red><strong>(" + bigName + ")</strong></font><html>";
-        chart.setTitle(new AutoPositionedLabel(reportTitle,
-                Color.BLACK, ConnectDB.TITLEFONT));
+        yAxis.setLabel(new AutoPositionedLabel(new StringBuilder(smallName).append("(s)").toString(), Color.BLACK));
+        String title = chartTitle().toUpperCase();
+        chartTitle = new StringBuilder(title).append(" (").append(bigName).append(")").toString();
+        reportTitle = new StringBuilder("<html>").append(title).append(" <font color=Red><strong>(").
+                append(bigName).append(")</strong></font><html>").toString();
+        chart.setTitle(new AutoPositionedLabel(reportTitle, Color.BLACK, ConnectDB.TITLEFONT));
         return yAxis;
     }
 
@@ -1653,8 +1648,8 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
         JPanel legendPanel = new JPanel();
         JToggleButton btnPercentage = new JToggleButton("<html><font color=black><strong>(%) Percentage</strong></font>");
         btnPercentage.setFocusable(false);
-        btnPercentage.setToolTipText("Percentage calculated with proportion of "
-                + ConnectDB.DECIMALFORMAT.format(totalSum) + " as the total sum of values.");
+        btnPercentage.setToolTipText(new StringBuilder("Percentage calculated with proportion of ").
+                append(ConnectDB.DECIMALFORMAT.format(totalSum)).append(" as the total sum of values.").toString());
         stylePieChart = new ChartStyle();
         chart = new Chart(model);
         chart.setBarGap(10);
@@ -1797,15 +1792,6 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
         panChart.revalidate();
     }
 
-    private String manyCriteria(Object[] list) {
-        String values = "";
-        for (Object list1 : list) {
-            values += "\'" + ConnectDB.firstLetterCapital(list1.toString()) + "\',";
-        }
-        values = values.substring(0, values.length() - 1);
-        return values;
-    }
-
     private void enableResetButton() {
         if (cmbMachineTitle.getSelectedIndex() > 0 || cmbValue.getSelectedObjects().length != 0
                 //                CBCategory.getSelectedObjects().length != 0
@@ -1831,8 +1817,7 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
         catMachine = false;
         cmbMachineTitle.removeAllItems();
         cmbMachineTitle.addItem(" ");
-        try (PreparedStatement ps = ConnectDB.con.prepareStatement("SELECT Machine "
-                + "FROM hardware WHERE HwNo > ?")) {
+        try (PreparedStatement ps = ConnectDB.con.prepareStatement(Queries.GET_HARDWARE)) {
             ps.setInt(1, 0);//not selecting the SYSTEM as hardware
             ConnectDB.res = ps.executeQuery();
             while (ConnectDB.res.next()) {
@@ -1844,12 +1829,9 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
 
     private int getConfigNo() throws SQLException {
         int configNo = -1;
-        try (PreparedStatement ps = ConnectDB.con.prepareStatement("SELECT ConfigNo FROM `configuration` c,\n"
-                + "hardware h\n"
-                + "WHERE h.HwNo = c.HwNo AND AvMinMax = 'rate' AND Active =?\n"
-                + "AND h.HwNo =?")) {
-            ps.setInt(1, 1);
-            ps.setInt(2, machineID);
+        try (PreparedStatement ps = ConnectDB.con.prepareStatement(Queries.GET_CONFIGNO)) {
+            ps.setString(1, "Rate");
+            ps.setString(2, machineTitle);
             ConnectDB.res = ps.executeQuery();
             while (ConnectDB.res.next()) {
                 configNo = ConnectDB.res.getInt(1);

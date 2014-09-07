@@ -1,5 +1,6 @@
 package dashboard;
 
+import chartTypes.CumulativeSubractedValues;
 import com.jidesoft.chart.model.ChartCategory;
 import com.jidesoft.chart.model.DefaultChartModel;
 import com.jidesoft.grid.SortableTable;
@@ -21,7 +22,7 @@ import smartfactoryV2.ConnectDB;
  *
  * @author Victor Kadiata
  */
-public class BarChartModel extends DefaultChartModel {
+public class BarChartModel extends DefaultChartModel implements CumulativeSubractedValues {
 
     public DefaultChartModel getModelPoints() {
         return modelPoints;
@@ -43,11 +44,9 @@ public class BarChartModel extends DefaultChartModel {
         return lastHourValue;
     }
 
-    public BarChartModel(final int configNo, final String query, final boolean withShifts,
+    public BarChartModel(final int myConfigNo, final String myQuery, final boolean withShifts,
             final String machineTitle, Date start, Date end, SortableTable tableTime) throws SQLException {
         super();
-        this._configNo = configNo;
-        this._query = query;
         this._withShifts = withShifts;
         this._startD = start;
         this._endD = end;
@@ -59,8 +58,8 @@ public class BarChartModel extends DefaultChartModel {
         datalogValuesList.clear();
         _loopQueryFound = false;
         subtractedDatalogValues = new ArrayList<>();
-        PreparedStatement ps = ConnectDB.con.prepareStatement(this._query);
-        ps.setInt(1, this._configNo);
+        PreparedStatement ps = ConnectDB.con.prepareStatement(myQuery);
+        ps.setInt(1, myConfigNo);
         ps.setString(2, ConnectDB.SDATE_FORMAT_HOUR.format(this._startD));
         ps.setString(3, ConnectDB.SDATE_FORMAT_HOUR.format(this._endD));
 //        System.out.println(ps.toString());
@@ -84,11 +83,11 @@ public class BarChartModel extends DefaultChartModel {
                     Category cShifts = new ChartCategory(LOGTIMEWITHSHIFTS.get(q), categoryRange);
                     categoryRange.add(cShifts);
                 }
-                String queryShift;
+                StringBuilder queryShift;
                 //case with shifts
                 sumHourValues = new String[3][LOGTIMEWITHSHIFTS.size()];
                 for (short k = 0; k < LOGTIMEWITHSHIFTS.size(); k++) {//dates
-                    String fVal = "", sVal = "";
+                    StringBuilder fVal = null, sVal = null;
                     for (short j = 0; j < 3; j++) {//shifts as row.
                         datalogValuesList.clear();
                         logDateHourList.clear();
@@ -100,32 +99,34 @@ public class BarChartModel extends DefaultChartModel {
                                         || (Integer.parseInt(this._tableTime.getValueAt(j, 1).toString().
                                                 substring(0, 2)) < 24)) {
                                     if (x == 0) {//first split
-                                        fVal = LOGTIMEWITHSHIFTS.get(k).toString() + " "
-                                                + this._tableTime.getValueAt(j, 1).toString() + ":00";
-                                        sVal = LOGTIMEWITHSHIFTS.get(k).toString() + " " + "23:59:59";
+                                        fVal = new StringBuilder().append(LOGTIMEWITHSHIFTS.get(k).toString()).
+                                                append(" ").append(this._tableTime.getValueAt(j, 1).toString()).append(":00");
+                                        sVal = new StringBuilder().append(LOGTIMEWITHSHIFTS.get(k).toString()).append(" 23:59:59");
                                     } else {//(00:00:00 to 06:00:00) of the next day
-                                        fVal = addDate(LOGTIMEWITHSHIFTS.get(k).toString()) + " " + "00:00:00";
-                                        sVal = addDate(LOGTIMEWITHSHIFTS.get(k).toString()) + " "
-                                                + this._tableTime.getValueAt(j, 2).toString() + ":00";
+                                        fVal = new StringBuilder().append(addDate(LOGTIMEWITHSHIFTS.get(k).toString()))
+                                                .append(" 00:00:00");
+                                        sVal = new StringBuilder().append(addDate(LOGTIMEWITHSHIFTS.get(k).toString()))
+                                                .append(" ").append(this._tableTime.getValueAt(j, 2).toString()).append(":00");
                                     }
                                 }
-                                queryShift = this._query.substring(0, this._query.indexOf("ORDER")).trim()
-                                        + "\nAND (dl0.LogTime BETWEEN '" + fVal + "' AND '" + sVal + "')\n"
-                                        + "ORDER BY 'Time' ASC";
+                                queryShift = new StringBuilder().append(myQuery.substring(0, myQuery.
+                                        indexOf("ORDER")).trim()).append("\nAND (dl0.LogTime BETWEEN '").
+                                        append(fVal.toString()).append("' AND '").append(sVal.toString()).append("')\nORDER BY 'Time' ASC");
                                 datalogValuesList.clear();
-                                runQueryShift(x, queryShift, this._configNo);
+                                runQueryShift(x, queryShift.toString(), myConfigNo);
                                 getSubtractedValues(x, datalogValuesList);
                                 x++;
                             }
                         } else {//First and Second shift
-                            fVal = LOGTIMEWITHSHIFTS.get(k).toString() + " "
-                                    + this._tableTime.getValueAt(j, 1).toString() + ":00";
-                            sVal = LOGTIMEWITHSHIFTS.get(k).toString() + " "
-                                    + this._tableTime.getValueAt(j, 2).toString() + ":00";
-                            queryShift = this._query.substring(0, this._query.indexOf("ORDER")).trim()
-                                    + "\nAND (dl0.LogTime BETWEEN '" + fVal + "' AND '" + sVal + "')\n"
-                                    + "ORDER BY 'Time' ASC";
-                            runQueryShift((byte) -1, queryShift, this._configNo);
+                            fVal = new StringBuilder().append(LOGTIMEWITHSHIFTS.get(k).toString()).append(" ").
+                                    append(this._tableTime.getValueAt(j, 1).toString()).append(":00");
+                            sVal = new StringBuilder().append(LOGTIMEWITHSHIFTS.get(k).toString()).append(" ").
+                                    append(this._tableTime.getValueAt(j, 2).toString()).append(":00");
+                            queryShift = new StringBuilder().append(myQuery.substring(0, myQuery.
+                                    indexOf("ORDER")).trim()).append("\nAND (dl0.LogTime BETWEEN '").
+                                    append(fVal.toString()).append("' AND '").append(sVal.toString()).
+                                    append("')\nORDER BY 'Time' ASC");
+                            runQueryShift((byte) -1, queryShift.toString(), myConfigNo);
                         }
                         int sum = 0;
                         if (_loopQueryFound) {
@@ -166,7 +167,7 @@ public class BarChartModel extends DefaultChartModel {
                 byte shName = 0;
                 DefaultChartModel modelShift = null;
                 for (List<String> row : list) {
-                    row.add(0, "Shift " + ++shName);
+                    row.add(0, new StringBuilder("Shift ").append(++shName).toString());
                     String modelName = row.remove(0);//get each line of data
                     modelShift = new DefaultChartModel(modelName);
                     int column = 1;
@@ -198,7 +199,8 @@ public class BarChartModel extends DefaultChartModel {
                 List<Category> dateCategoryChart = new ArrayList<>();//List of chart category
                 for (String eachDateH : eachDateHour) {
 //                    Date time = TimeUtils.createTime(eachDateH1.substring(11));
-                    Category c = new ChartCategory((Object) (eachDateH + "h:00").substring(11), categoryRange);
+                    Category c = new ChartCategory((Object) new StringBuilder().append(eachDateH).append("h:00")
+                            .substring(11), categoryRange);
 //                    Category d = new ChartCategory(new TimePosition(time.getTime()), categoryRange);
                     dateCategoryChart.add(c);
                     categoryRange.add(c);
@@ -227,32 +229,28 @@ public class BarChartModel extends DefaultChartModel {
                 this.setModelPoints(modelShift);
             }
         }
-
-        if (_loopQueryFound) {
-            subtractedDatalogValues.clear();
-        } else {
-            subtractedDatalogValues.clear();
-        }
+        subtractedDatalogValues.clear();
     }
 
-    private void getSubtractedValues(byte x, ArrayList alValues) {
+    @Override
+    public void getSubtractedValues(byte x, ArrayList<String> alValues) {
         for (int i = 0; i < alValues.size(); i++) {
             int xDiff;
             if (i == 0) {
                 if (x == 1) {//Third shift and next day
-                    xDiff = Integer.parseInt(alValues.get(i).toString()) - lastValue;
-                    subtractedDatalogValues.add(logDateHourList.get(++countAlValues) + ";" + xDiff);
+                    xDiff = Integer.parseInt(alValues.get(i)) - lastValue;
+                    subtractedDatalogValues.add(new StringBuilder().append(logDateHourList.get(++countAlValues)).append(";").append(xDiff).toString());
                 } else {//Same day
-                    xDiff = Integer.parseInt(alValues.get(i).toString()) - Integer.parseInt(alValues.get(i).toString());
-                    subtractedDatalogValues.add(logDateHourList.get(i) + ";" + xDiff);
+                    xDiff = Integer.parseInt(alValues.get(i)) - Integer.parseInt(alValues.get(i));
+                    subtractedDatalogValues.add(new StringBuilder().append(logDateHourList.get(i)).append(";").append(xDiff).toString());
                 }
                 continue;
             }
-            xDiff = Integer.parseInt(alValues.get(i).toString()) - Integer.parseInt(alValues.get(i - 1).toString());
+            xDiff = Integer.parseInt(alValues.get(i)) - Integer.parseInt(alValues.get(i - 1));
             if (x == 1) {//Third shift and next day
-                subtractedDatalogValues.add(logDateHourList.get(++countAlValues) + ";" + xDiff);
+                subtractedDatalogValues.add(new StringBuilder().append(logDateHourList.get(++countAlValues)).append(";").append(xDiff).toString());
             } else {//Same day
-                subtractedDatalogValues.add(logDateHourList.get(i) + ";" + xDiff);
+                subtractedDatalogValues.add(new StringBuilder().append(logDateHourList.get(i)).append(";").append(xDiff).toString());
             }
         }
     }
@@ -290,29 +288,26 @@ public class BarChartModel extends DefaultChartModel {
         return formatter.format(c.getTime());
     }
 
-    private class Interval {
-
-        private final double min, max;
-
-        Interval(double min, double max) {
-            this.min = min;
-            this.max = max;
-        }
-
-        @Override
-        public String toString() {
-            return String.format("[%.1f, %.1f]", min, max);
-        }
-    }
-
+//    private class Interval {
+//
+//        private final double min, max;
+//
+//        Interval(double min, double max) {
+//            this.min = min;
+//            this.max = max;
+//        }
+//
+//        @Override
+//        public String toString() {
+//            return String.format("[%.1f, %.1f]", min, max);
+//        }
+//    }
     private String lastHourValue;
     private volatile boolean _loopQueryFound = false, _withShifts;
     private final ArrayList logDateHourList = new ArrayList(),
             datalogValuesList = new ArrayList();
     private static CategoryRange categoryRange;
     private int countAlValues, lastValue, maxSumValue = 0;
-    private final int _configNo;
-    private final String _query;
     private final Date _startD, _endD;
     private final SortableTable _tableTime;
     private DefaultChartModel modelPoints = new DefaultChartModel();

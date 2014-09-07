@@ -350,11 +350,11 @@ public class Identification extends javax.swing.JDialog {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(pantout, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addComponent(pantout, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(pantout, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addComponent(pantout, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
         pack();
@@ -521,27 +521,27 @@ public class Identification extends javax.swing.JDialog {
     }
 
     private void createUserTableInDatabase() {
-        String query = "USE smartfactory;\n"
-                + "CREATE TABLE IF NOT EXISTS `userlist` (\n"
-                + " `IDuser` smallint(6) NOT NULL AUTO_INCREMENT,\n"
-                + " `firstname` varchar(50) NOT NULL, \n"
-                + " `lastname` varchar(50) NOT NULL, \n"
-                + " `othername` varchar(50) NOT NULL, \n"
-                + " `email` text NOT NULL,\n"
-                + " `login` varchar(20) NOT NULL,\n"
-                + " `password` varchar(15) NOT NULL,\n"
-                + " `question` text NOT NULL,\n"
-                + " `answer` text NOT NULL,\n"
-                + " `privilege` varchar(20) NOT NULL,\n"
-                + " `status` varchar(20) NOT NULL,\n"
-                + " PRIMARY KEY (`IDuser`)) \n"
-                + " ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1;\n"
-                + "INSERT INTO `userlist` \n(`IDuser`, `firstname`,`lastname`,`othername`,`email`,"
-                + "`login`,`password`,`question`,`answer`,`privilege`,`status`) VALUES\n"
-                + "(1,'root','root','mf','smartfactory','root','" + ConnectDB.crypter("root123") + "','ideax',"
-                + "'" + ConnectDB.crypter("smartfactory") + "','Admin','mainUser');";
+        StringBuilder query = new StringBuilder(1024).append("USE smartfactory; \n" 
+                + "CREATE TABLE IF NOT EXISTS `userlist` ( \n" 
+                + " `IDuser` smallint(6) NOT NULL AUTO_INCREMENT, \n" 
+                + " `firstname` varchar(50) NOT NULL, \n" 
+                + " `lastname` varchar(50) NOT NULL, \n" 
+                + " `othername` varchar(50) NOT NULL, \n" 
+                + " `email` text NOT NULL, \n" 
+                + " `login` varchar(20) NOT NULL, \n" 
+                + " `password` varchar(15) NOT NULL, \n" 
+                + " `question` text NOT NULL, \n" 
+                + " `answer` text NOT NULL, \n" 
+                + " `privilege` varchar(20) NOT NULL, \n" 
+                + " `status` varchar(20) NOT NULL, \n" 
+                + " PRIMARY KEY (`IDuser`)) \n" 
+                + " ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1; \n" 
+                + "INSERT INTO `userlist` \n(`IDuser`, `firstname`,`lastname`,`othername`,`email`," 
+                + "`login`,`password`,`question`,`answer`,`privilege`,`status`) VALUES \n" 
+                + "(1,'root','root','mf','smartfactory','root','").append(ConnectDB.crypter("root123")).
+                append("','ideax'," + "'").append(ConnectDB.crypter("smartfactory")).append("','Admin','mainUser');");
         try (Statement stmt = ConnectDB.con.createStatement()) {
-            stmt.executeUpdate(query);
+            stmt.executeUpdate(query.toString());
         } catch (SQLException ex) {
         }
     }
@@ -556,17 +556,17 @@ public class Identification extends javax.swing.JDialog {
         }
     }
 //
-//    public static void main(String args[]) {
-//        java.awt.EventQueue.invokeLater(new Runnable() {
-//
-//            @Override
-//            public void run() {
-////                System.out.println(System.getProperty("jdbc.drivers"));
-//                Identification dialog = new Identification(new javax.swing.JFrame(), true);
-//                dialog.setVisible(true);
-//            }
-//        });
-//    }
+    public static void main(String args[]) {
+        java.awt.EventQueue.invokeLater(new Runnable() {
+
+            @Override
+            public void run() {
+//                System.out.println(System.getProperty("jdbc.drivers"));
+                Identification dialog = new Identification(new javax.swing.JFrame(), true);
+                dialog.setVisible(true);
+            }
+        });
+    }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnConnexion;
     private javax.swing.JButton btnEffacer;

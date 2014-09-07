@@ -119,7 +119,6 @@ public class DynamicTarget {
 
     private final String _machineName;
     private double targetValue, dynamicTargetValue;
-    private String prodStartTime;
-    private String prodEndTime;
+    private String prodStartTime, prodEndTime;
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm");
 }

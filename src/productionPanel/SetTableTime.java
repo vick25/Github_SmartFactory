@@ -14,15 +14,15 @@ import javax.swing.Timer;
  */
 public class SetTableTime extends javax.swing.JDialog {
 
-    public static boolean isWindowClosed() {
+    public boolean isWindowClosed() {
         return windowClosed;
     }
 
-    public static String getTimeString() {
-        return timeString;
+    public String getTimeString() {
+        return timeString.toString();
     }
 
-    public static String[] getTimes() {
+    public String[] getTimes() {
         return times;
     }
 
@@ -188,7 +188,7 @@ public class SetTableTime extends javax.swing.JDialog {
     private void btnValidActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnValidActionPerformed
         JTextField[] fields = new JTextField[]{txt1, txt2, txt3, txt4, txt5, txt6};
         for (JTextField txtField : fields) {
-            timeString += getValue(txtField) + ":00;";
+            timeString.append(getValue(txtField)).append(":00;");
         }
 //        prefs.put("shiftTimes", timeString.substring(0, timeString.length() - 1));
 //        System.out.println(timeString.substring(0, timeString.length() - 1));
@@ -202,7 +202,7 @@ public class SetTableTime extends javax.swing.JDialog {
 
     private String getValue(JTextField field) {
         if (field.getText().length() < 2) {
-            return "0" + field.getText();
+            return new StringBuilder().append("0").append(field.getText()).toString();
         }
         return field.getText();
     }
@@ -223,7 +223,7 @@ public class SetTableTime extends javax.swing.JDialog {
     private javax.swing.JTextField txt5;
     private javax.swing.JTextField txt6;
     // End of variables declaration//GEN-END:variables
-    private static boolean windowClosed;
-    private static String timeString = "";
-    private static final String[] times = {"06:00", "14:00", "14:00", "22:00", "22:00", "06:00"};
+    private boolean windowClosed;
+    private final StringBuilder timeString = new StringBuilder();
+    private final String[] times = {"06:00", "14:00", "14:00", "22:00", "22:00", "06:00"};
 }

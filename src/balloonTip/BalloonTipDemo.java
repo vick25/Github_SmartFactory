@@ -22,14 +22,16 @@ import javax.swing.SwingConstants;
  */
 public class BalloonTipDemo extends BalloonTip {
 
-    private final BalloonShape _shape = new RoundedRectangularBalloonShape();
+    private final BalloonShape _shape;
     private BalloonTip _balloonTip;
     private final int x, y;
-    String text = "";
-    JComponent _comp;
+    private final String toolTipText;
+    private final JComponent _comp;
 
-    public BalloonTipDemo(JComponent c, String toolTipText) {
-        _comp = c;
+    public BalloonTipDemo(JComponent myComponent, String myToolTipText) {
+        this._comp = myComponent;
+        this.toolTipText = myToolTipText;
+        this._shape = new RoundedRectangularBalloonShape();
         _comp.addMouseListener(new MouseAdapter() {
 
             @Override
@@ -37,13 +39,12 @@ public class BalloonTipDemo extends BalloonTip {
                 hideToolTip();
             }
         });
-        if (c instanceof JPanel) {
+        if (myComponent instanceof JPanel) {
             x = _comp.getWidth() / 2;
         } else {
             x = _comp.getWidth() / 4;
         }
         y = _comp.getHeight() / 2;
-        text = toolTipText;
     }
 
     public void toggleToolTip() {
@@ -99,7 +100,7 @@ public class BalloonTipDemo extends BalloonTip {
         JPanel fieldPanel = new JPanel(new BorderLayout());
         fieldPanel.setOpaque(false);
         fieldPanel.add(new JLabel("Tip: "), BorderLayout.BEFORE_LINE_BEGINS);
-        fieldPanel.add(new JLabel(this.text));
+        fieldPanel.add(new JLabel(this.toolTipText));
         panel.add(fieldPanel, BorderLayout.AFTER_LAST_LINE);
         panel.setOpaque(false);
         return panel;

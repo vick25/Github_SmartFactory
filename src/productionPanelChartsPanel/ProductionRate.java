@@ -1,11 +1,11 @@
 package productionPanelChartsPanel;
 
 import chartTypes.LineChart;
-import static chartTypes.LineChart.timeList;
 import com.jidesoft.chart.Chart;
 import com.jidesoft.chart.Drawable;
 import com.jidesoft.chart.event.PointSelection;
 import com.jidesoft.chart.model.Chartable;
+import com.jidesoft.chart.model.DefaultChartModel;
 import com.jidesoft.chart.model.Highlightable;
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;
@@ -17,6 +17,7 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.awt.geom.Point2D;
@@ -30,54 +31,66 @@ import smartfactoryV2.ConnectDB;
  */
 public class ProductionRate extends javax.swing.JPanel {
 
-    public ProductionRate(Chart chart, final String unit) {
+    public ProductionRate(Chart chart, final String unit, final DefaultChartModel chartModel, final LineChart lineChart) {
         initComponents();
         this.chartPanel = chart;
-        this.removeAll();
-        this.repaint();
-        setLayout(new BorderLayout());
+        this.setLayout(new BorderLayout());
 
         MouseMotionListener listener = new MouseMotionListener() {
+
             @Override
             public void mouseDragged(MouseEvent e) {
             }
 
             @Override
             public void mouseMoved(MouseEvent e) {
-                Point p = e.getPoint();
-                PointSelection ps = chartPanel.nearestPoint(p, LineChart.getChartModel());
-                double distance = ps.getDistance();
-                if (distance < 50) {
-                    if (selectedPoint != ps.getSelected()) {
-                        if (selectedPoint != null) {
-                            Highlightable h = (Highlightable) selectedPoint;
-                            h.setHighlight(null);
-                        }
-                        selectedPoint = ps.getSelected();
-                        if (selectedPoint instanceof Highlightable) {
-                            Highlightable h = (Highlightable) selectedPoint;
-                            h.setHighlight(ConnectDB.SELECTION_HIGHLIGHT);
-                            if (toolTip == null) {
-                                toolTip = new CustomToolTip();
-                                chartPanel.addDrawable(toolTip);
+                try {
+                    Point p = e.getPoint();
+                    PointSelection ps = chartPanel.nearestPoint(p, chartModel);
+                    double distance = ps.getDistance();
+                    if (distance < 50) {
+                        if (selectedPoint != ps.getSelected()) {
+                            if (selectedPoint != null) {
+                                Highlightable h = (Highlightable) selectedPoint;
+                                h.setHighlight(null);
                             }
-                            try {
-                                int xPos = (int) selectedPoint.getX().position() - 1;
-                                toolTip.setText(String.format("%.0f " + unit, selectedPoint.getY().position()));
+                            selectedPoint = ps.getSelected();
+                            if (selectedPoint instanceof Highlightable) {
+                                Highlightable h = (Highlightable) selectedPoint;
+                                h.setHighlight(ConnectDB.SELECTION_HIGHLIGHT);
+                                if (toolTip == null) {
+                                    toolTip = new CustomToolTip();
+                                    chartPanel.addDrawable(toolTip);
+                                }
+                                try {
+                                    int xPos = (int) selectedPoint.getX().position() - 1;
+                                    toolTip.setText(String.format("%.0f " + unit, selectedPoint.getY().position()));
 //                                toolTip.setText(String.format("%.0f parts/hr", selectedPoint.getY().position()));
-                                toolTip.setSubText(String.format(timeList.get(xPos), selectedPoint.getX().position()));
-                                chartPanel.repaint();
-                            } catch (java.lang.IndexOutOfBoundsException ex) {
+                                    toolTip.setSubText(String.format(lineChart.getLogTimeList().get(xPos), selectedPoint.getX().position()));
+                                    chartPanel.repaint();
+                                } catch (java.lang.IndexOutOfBoundsException ex) {
+                                }
                             }
+                            moveToolTipTo(getToolTipLocation(ps));
                         }
-                        moveToolTipTo(getToolTipLocation(ps));
                     }
+                    ps.getSelected();
+                } catch (NullPointerException ex) {
                 }
-                ps.getSelected();
             }
         };
+
         if (this.chartPanel != null) {
             this.chartPanel.addMouseMotionListener(listener);
+            this.chartPanel.addMouseListener(new MouseAdapter() {
+
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    if (e.getClickCount() == 2) {
+                        System.out.println("chart clicked");
+                    }
+                }
+            });
             this.add(this.chartPanel, BorderLayout.CENTER);
         }
     }
@@ -145,7 +158,7 @@ public class ProductionRate extends javax.swing.JPanel {
                 chartPanel.repaint();
             }
         };
-        toolTipTimer = new Timer(6000, disappearListener);
+        toolTipTimer = new Timer(5000, disappearListener);
         toolTipTimer.setRepeats(false);
         toolTipTimer.start();
     }
@@ -226,12 +239,12 @@ public class ProductionRate extends javax.swing.JPanel {
                     int textWidth = fm.stringWidth(text);
                     int subTextWidth = fm2.stringWidth(subText);
                     g2.setFont(textFont);
-                    g2.setColor(Color.white);
+                    g2.setColor(Color.WHITE);
                     g2.drawString(text, (TOOL_TIP_WIDTH - textWidth) / 2, 20);
                     g2.setFont(subTextFont);
                     g2.setColor(new Color(0, 75, 190).brighter());
                     g2.drawString(subText, (TOOL_TIP_WIDTH - subTextWidth) / 2, 38);
-                    g2.setColor(Color.gray);
+                    g2.setColor(Color.GRAY);
                     g2.setStroke(new BasicStroke(3f));
                     g2.drawRoundRect(0, 0, width - 1, height - 1, 12, 12);
                     g2.dispose();

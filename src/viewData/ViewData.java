@@ -21,7 +21,7 @@ import smartfactoryV2.ConnectDB;
 
 public class ViewData extends javax.swing.JDialog {
 
-    public ViewData(java.awt.Frame parent, boolean modal, TableModel tableModel) {
+    public ViewData(java.awt.Frame parent, boolean modal, TableModel tableModel, String myTableName) {
         super(parent, modal);
         initComponents();
         if (tableModel != null) {
@@ -48,6 +48,7 @@ public class ViewData extends javax.swing.JDialog {
             Scrll.setViewportView(this.table);
         }
         btnExcel.setVisible(false);
+        this.setTitle(myTableName);
         this.setIconImage(new ImageIcon(
                 getClass().getResource("/images/icons/view_multicolumn(10).png")).getImage());
         this.setLocationRelativeTo(parent);

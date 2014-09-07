@@ -14,6 +14,7 @@ import com.jidesoft.chart.event.RectangleSelectionEvent;
 import com.jidesoft.chart.event.RubberBandZoomer;
 import com.jidesoft.chart.event.ZoomFrame;
 import com.jidesoft.chart.event.ZoomListener;
+import com.jidesoft.chart.model.ChartCategory;
 import com.jidesoft.chart.model.ChartModel;
 import com.jidesoft.chart.model.ChartPoint;
 import com.jidesoft.chart.model.DefaultChartModel;
@@ -35,12 +36,14 @@ import java.awt.event.WindowEvent;
 import java.awt.geom.Point2D;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Stack;
 import java.util.logging.Logger;
 import javax.swing.JFrame;
-import javax.swing.JOptionPane;
 import javax.swing.border.EmptyBorder;
+import mainFrame.MainFrame;
 import productionPanel.ProductionPane;
 import smartfactoryV2.ConnectDB;
 
@@ -50,16 +53,29 @@ import smartfactoryV2.ConnectDB;
  */
 public class MachineRun extends javax.swing.JPanel {
 
-    public MachineRun(int ChannelID, String query) throws SQLException {
-        this._IDChannel = ChannelID;
-        this._query = query;
-        this.removeAll();
-        this.repaint();
-        Chart chartPanel = new StepChart(_IDChannel, _query).chart;
+    public Chart getChart() {
+        return chart;
+    }
+
+    public static ArrayList<String> getLogTimeList() {
+        return logTimeList;
+    }
+
+    public static ArrayList<Integer> getLogDataList() {
+        return logDataList;
+    }
+
+    public MachineRun(int myConfigNo, String myQuery, String myMachineTitle, Date myStart, Date myEnd) throws SQLException {
+        ConnectDB.getConnectionInstance();
         initComponents();
-//        setLayout(new BorderLayout());
-        if (chartPanel != null) {
-            this.add(chartPanel, BorderLayout.CENTER);
+        _startD = myStart;
+        _endD = myEnd;
+        _machineTitle = myMachineTitle;
+
+        this.setLayout(new BorderLayout());
+        chart = new StepChart(myConfigNo, myQuery).getInnerChart();
+        if (chart != null) {
+            this.add(chart, BorderLayout.CENTER);
         }
     }
 
@@ -74,49 +90,65 @@ public class MachineRun extends javax.swing.JPanel {
         setLayout(new java.awt.BorderLayout());
     }// </editor-fold>//GEN-END:initComponents
 
-    class StepChart extends Chart {
+    private static class StepChart extends Chart {
 
-        public StepChart(int IDChannel, String query) throws SQLException {
-            chart = new Chart("Step Chart");
-            chart.removeAll();
-            String machineName = ProductionPane.cmbMachineTitle.getSelectedItem().toString();
-            ProductionPane.getComponentDates();//get the dates from the production class      
-            try (PreparedStatement ps = ConnectDB.con.prepareStatement(query)) {
-                int i = 1;
-                ps.setString(i++, machineName);
-                ps.setInt(i++, IDChannel);
-                ps.setString(i++, ConnectDB.SDATE_FORMAT_HOUR.format(ProductionPane.dt_startP));
-                ps.setString(i++, ConnectDB.SDATE_FORMAT_HOUR.format(ProductionPane.dt_endP));
+        private static Chart innerChart;
+        private static CategoryRange<?> categoryRange;
+        private static CategoryRange<BinaryTrace> yRange;
+        private static final double[] DISTANCES = {1.3, 0.7};
+        private static final String[] NAMES = {"ON", "OFF"};
+        private boolean loopQueryFound = false;
+        private final int _IDChannel;
+        private final String _query;
+
+        public Chart getInnerChart() {
+            return innerChart;
+        }
+
+        StepChart(int myConfigNo, String myQuery) throws SQLException {
+            super();
+            this._IDChannel = myConfigNo;
+            this._query = myQuery;
+            innerChart = new Chart("Step Chart");
+            categoryRange = new CategoryRange<>();
+            yRange = new CategoryRange<>();
+
+            try (PreparedStatement ps = ConnectDB.con.prepareStatement(this._query)) {
+                ps.setInt(1, this._IDChannel);
+                ps.setString(2, ConnectDB.SDATE_FORMAT_HOUR.format(_startD));
+                ps.setString(3, ConnectDB.SDATE_FORMAT_HOUR.format(_endD));
                 ConnectDB.res = ps.executeQuery();
 //                System.out.println(ps.toString());
-                alTime.clear();
-                alValues.clear();
+                logTimeList = new ArrayList<>();
+                logDataList = new ArrayList<>();
                 while (ConnectDB.res.next()) {
                     loopQueryFound = true;
-                    alTime.add(ConnectDB.res.getString(1)); //Time
-                    alValues.add(ConnectDB.res.getInt(2)); //Values
+                    logTimeList.add(ConnectDB.res.getString(1)); //Time
+                    logDataList.add(ConnectDB.res.getInt(2)); //Values
                 }
-            } 
+            }
             if (loopQueryFound) {
-                String categoryString = "Machine";
-                xEnd = (double) alValues.size() + 1;
-                chart.setPreferredSize(new Dimension(600, 300));
-                chart.setTitle(new AutoPositionedLabel("Step Charts (ON/OFF) for \"" + machineName + "\"",
-                        Color.BLACK, ConnectDB.TITLEFONT));
-                chart.setAnimateOnShow(true);
-                chart.setAntiAliasing(false);
+                xEnd = (double) logDataList.size() + 1;
+                innerChart.setPreferredSize(new Dimension(600, 300));
+                innerChart.setTitle(new AutoPositionedLabel(new StringBuilder().append("Step Charts (ON/OFF) for \"").
+                        append(_machineTitle).append("\"").toString(), Color.BLACK, ConnectDB.TITLEFONT));
+                ProductionPane.setChartTitle(innerChart.getTitle().toString());
+                innerChart.setAnimateOnShow(true);
+                innerChart.setAntiAliasing(false);
 
-                double[] vTransition = new double[alValues.size()];
+                double[] vTransition = new double[logDataList.size()];
                 int i = 0;
-                for (double v1 : alValues) {
+                for (String logTime : logTimeList) {
+                    Category c = new ChartCategory((Object) logTime.substring(0, 19), categoryRange);
                     vTransition[i++] = i + 1;
+                    categoryRange.add(c);
                 }
                 boolean firstValueState = false;
-                if (alValues.get(0) == 1) {
+                if (logDataList.get(0) == 1) {
                     firstValueState = true;
                 }
                 BinaryTrace bt = new BinaryTrace(firstValueState, vTransition);
-                Category<BinaryTrace> cat = new Category<>(categoryString, bt);
+                Category<BinaryTrace> cat = new Category<>("Machine", bt);
                 yRange.add(cat);
                 CategoryAxis<BinaryTrace> yCatAxis = new CategoryAxis<>(yRange);
                 yCatAxis.setTicksVisible(true);
@@ -124,69 +156,74 @@ public class MachineRun extends javax.swing.JPanel {
                 // Paint some 'tram lines' for each of the categories
                 for (Category<BinaryTrace> category : yRange.getCategoryValues()) {
                     double pos = category.position();
-                    RectangularRegionMarker marker = new RectangularRegionMarker(chart, xStart, xEnd,
+                    RectangularRegionMarker marker = new RectangularRegionMarker(innerChart, xStart, xEnd,
                             pos - binaryOffset, pos + binaryOffset, new Color(200, 200, 255, 75));
                     marker.setOutlineColor(new Color(140, 140, 140, 75));
-                    chart.addDrawable(marker);
+                    innerChart.addDrawable(marker);
                 }
-                for (int j = 0; j < distances.length; j++) {
-                    LineMarker marker = new LineMarker(chart, Orientation.horizontal, distances[j], Color.GRAY);
-                    marker.setLabel(names[j]);
+                for (int j = 0; j < DISTANCES.length; j++) {
+                    LineMarker marker = new LineMarker(innerChart, Orientation.horizontal, DISTANCES[j], Color.WHITE);
+                    marker.setLabel(NAMES[j]);
+                    marker.setLabelFont(ConnectDB.TITLEFONT);
                     marker.setLabelPlacement(LabelPlacement.NORTH_WEST);
-                    chart.addDrawable(marker);
+                    innerChart.addDrawable(marker);
                 }
 
-                Range<?> xRange = new NumericRange(xStart, xEnd);
-                final Axis xAxis = new Axis(xRange, "Time");
+//                Range<?> xRange = new NumericRange(xStart, xEnd);
+                final CategoryAxis xAxis = new CategoryAxis(categoryRange, "Time");
+                xAxis.setTickLabelRotation(Math.PI / 16);
+//                 Axis xAxis = new Axis(xRange, "Time");
                 final Axis yAxis = new Axis(yCatAxis.getRange());
                 xAxis.setTicksVisible(true);
                 xAxis.setMinorTickColor(Color.RED);
 
-                chart.setXAxis(xAxis);
-                chart.setYAxis(yCatAxis);
-                chart.setHorizontalGridLinesVisible(false);
-                chart.setVerticalGridLinesVisible(false);
-                chart.setGridColor(new Color(150, 150, 150));
-//                chart.setGridColor(new Color(220, 220, 220));
-                chart.setBorder(new EmptyBorder(5, 5, 10, 15));
+                innerChart.setXAxis(xAxis);
+                innerChart.setYAxis(yCatAxis);
+                innerChart.setHorizontalGridLinesVisible(false);
+                innerChart.setVerticalGridLinesVisible(true);
+//                innerChart.setGridColor(new Color(150, 150, 150));
+//                innerChart.setGridColor(new Color(220, 220, 220));
+                innerChart.setBorder(new EmptyBorder(5, 5, 10, 15));
                 for (Category<BinaryTrace> c : yRange.getCategoryValues()) {
                     BinaryTrace b = c.getValue();
                     ChartModel model = b.getModel(c);
                     ChartStyle style = new ChartStyle(Color.RED).withLines();
                     style.setLineWidth(2);
-                    chart.addModel(model, style);
+                    innerChart.addModel(model, style);
                 }
                 ChartStyle continuityStyle = continuousStyle;
-//                chart.addMouseZoomer().addMousePanner();
-                chart.setHighlightStyle(discontinuity, continuityStyle);
-                chart.setPanelBackground(new Color(153, 153, 153));
-                chart.setChartBackground(new GradientPaint(0f, 0f, Color.lightGray.brighter(), 300f, 300f,
-                        Color.lightGray));
-                chart.setLabelColor(Color.BLACK);
+//                innerChart.addMouseZoomer().addMousePanner();
+                innerChart.drawInBackground();
+                innerChart.setLazyRenderingThreshold(10000);//for swing drawing response
+                innerChart.setHighlightStyle(discontinuity, continuityStyle);
+//                innerChart.setPanelBackground(new Color(153, 153, 153));
+                innerChart.setChartBackground(new GradientPaint(0f, 0f, Color.LIGHT_GRAY.brighter(), 300f, 300f,
+                        Color.LIGHT_GRAY));
+                innerChart.setLabelColor(Color.BLACK);
 
-                RubberBandZoomer rubberBand = new RubberBandZoomer(chart);
+                RubberBandZoomer rubberBand = new RubberBandZoomer(innerChart);
 //            rubberBand.setOutlineColor(null);
 //            rubberBand.setOutlineStroke(new BasicStroke(1f));
                 rubberBand.setFill(new Color(128, 128, 128, 50));
                 rubberBand.setKeepWidthHeightRatio(true);
-                chart.addDrawable(rubberBand);
-                chart.addMouseListener(rubberBand);
-                chart.addMouseMotionListener(rubberBand);
+                innerChart.addDrawable(rubberBand);
+                innerChart.addMouseListener(rubberBand);
+                innerChart.addMouseMotionListener(rubberBand);
 
                 rubberBand.addZoomListener(new ZoomListener() {
                     @Override
                     public void zoomChanged(ChartSelectionEvent event) {
                         if (event instanceof RectangleSelectionEvent) {
-                            Range<?> currentXRange = chart.getXAxis().getOutputRange();
-                            Range<?> currentYRange = chart.getYAxis().getOutputRange();
+                            Range<?> currentXRange = innerChart.getXAxis().getOutputRange();
+                            Range<?> currentYRange = innerChart.getYAxis().getOutputRange();
                             ZoomFrame frame = new ZoomFrame(currentXRange, currentYRange);
                             zoomStack.push(frame);
                             Rectangle selection = (Rectangle) event.getLocation();
                             Point topLeft = selection.getLocation();
                             Point bottomRight = new Point(topLeft.x + selection.width, topLeft.y + selection.height);
                             assert bottomRight.x >= topLeft.x;
-                            Point2D rp1 = chart.calculateUserPoint(topLeft);
-                            Point2D rp2 = chart.calculateUserPoint(bottomRight);
+                            Point2D rp1 = innerChart.calculateUserPoint(topLeft);
+                            Point2D rp2 = innerChart.calculateUserPoint(bottomRight);
                             if (rp1 != null && rp2 != null) {
                                 // Catch the problem case when division has led to NaN
                                 if (Double.isNaN(rp1.getX()) || Double.isNaN(rp2.getX())
@@ -195,7 +232,8 @@ public class MachineRun extends javax.swing.JPanel {
                                     return;
                                 }
                                 assert rp2.getX() >= rp1.getX() : rp2.getX() + " must be greater than or equal to " + rp1.getX();
-                                Range<?> xRange = new NumericRange(rp1.getX(), rp2.getX());
+                                Range<?> xRange = new CategoryRange(rp1.getX(), rp2.getX());
+//                                Range<?> xRange = new NumericRange(rp1.getX(), rp2.getX());
                                 assert rp1.getY() >= rp2.getY() : rp1.getY() + " must be greater than or equal to " + rp2.getY();
                                 Range<?> yRange = new NumericRange(rp2.getY(), rp1.getY());
                                 xAxis.setRange(xRange);
@@ -213,20 +251,18 @@ public class MachineRun extends javax.swing.JPanel {
                     }
                 });
             } else {
-                chart = null;
-                JOptionPane.showMessageDialog(null, "No data retrieved. Please check "
-                        + "the dates and time provided", "Chart", JOptionPane.WARNING_MESSAGE);
+                innerChart = null;
+                ConnectDB.showChartMessageDialog(MainFrame.getFrame());
             }
         }
-        public Chart chart;
     }
 
-    class BinaryTrace {
+    static private class BinaryTrace {
 
         private final double[] transitions;
         private final boolean initialState;
 
-        public BinaryTrace(boolean initialState, double... transitions) {
+        BinaryTrace(boolean initialState, double... transitions) {
             this.initialState = initialState;
             this.transitions = transitions;
         }
@@ -240,7 +276,7 @@ public class MachineRun extends javax.swing.JPanel {
                 ChartPoint p1 = new ChartPoint(transition, getY(category, state));
                 p1.setHighlight(discontinuity);
                 model.addPoint(p1);
-                state = alValues.get(i) == 1;
+                state = logDataList.get(i) == 1;
                 ChartPoint p2 = new ChartPoint(transition, getY(category, state));
                 model.addPoint(p2);
             }
@@ -253,16 +289,17 @@ public class MachineRun extends javax.swing.JPanel {
         }
     }
 
-    public static void main(String[] agrs) {
+    public static void main(String[] agrs) throws SQLException, ParseException {
         try {
             final JFrame frame = new JFrame("Machine Run");
-            String query = "SELECT dl0.LogTime AS 'Time', dl0.LogData AS ? "
+            String query = "SELECT dl0.LogTime AS 'Time', dl0.LogData AS MachineRun "
                     + "FROM datalog dl0 "
                     + "WHERE dl0.ConfigNo =? "
                     + "AND dl0.LogTime >=? AND dl0.LogTime <=? "
                     + "ORDER BY 'Time' ASC";
             frame.setSize(800, 500);
-            frame.setContentPane(new MachineRun(10, query));
+            frame.setContentPane(new MachineRun(22, query, "", ConnectDB.SDATE_FORMAT_HOUR.parse("2014/08/15 09:37:46"),
+                    ConnectDB.SDATE_FORMAT_HOUR.parse("2014/09/02 09:37:46")));
             frame.addWindowListener(new WindowAdapter() {
 
                 @Override
@@ -272,7 +309,7 @@ public class MachineRun extends javax.swing.JPanel {
             });
             frame.setLocationRelativeTo(null);
             frame.setVisible(true);
-        } catch (HeadlessException | SQLException e) {
+        } catch (HeadlessException e) {
 //            e.printStackTrace();
         }
     }
@@ -281,20 +318,17 @@ public class MachineRun extends javax.swing.JPanel {
     // End of variables declaration//GEN-END:variables
     // Defines the width of the gap between the true and false values for a bit trace
     // This value must be between 0 and 0.5
-    private boolean loopQueryFound = false;
-    private final int _IDChannel;
-    private String _query = "";
+    private Chart chart = null;
     private static final double binaryOffset = 0.30;
-    private final ChartStyle continuousStyle = new ChartStyle(Color.black).withLines();
-    private final Highlight discontinuity = new Highlight("discontinuity");
-    private final double xStart = 0.0;
-    private double xEnd = 8;
-    private final CategoryRange<BinaryTrace> yRange = new CategoryRange<>();
-    public static ArrayList<String> alTime = new ArrayList<>();
+    private static final ChartStyle continuousStyle = new ChartStyle(Color.BLACK).withLines();
+    private static final Highlight discontinuity = new Highlight("discontinuity");
+    private static final double xStart = 0.0;
+    private static double xEnd = 8;
+    private static Date _startD, _endD;
+    private static String _machineTitle;
+    private static ArrayList<String> logTimeList;
 //    private static MouseDragPanner panner;
-    public static ArrayList<Integer> alValues = new ArrayList<>();
-    private final double[] distances = {1.3, 0.7};
-    private final String[] names = {"ON", "OFF"};
-    private final Stack<ZoomFrame> zoomStack = new Stack<>();
+    private static ArrayList<Integer> logDataList;
+    private static final Stack<ZoomFrame> zoomStack = new Stack<>();
     private static final Logger logger = Logger.getLogger(MachineRun.class.getName());
 }

@@ -83,7 +83,7 @@ public class ResizableGadgetComponent extends JPanel implements GadgetComponent 
                 size.height = Math.min(component.getMaximumSize().height, size.height);
 
                 if (delegate instanceof CollapsiblePaneGadget) {
-                    JComponent content = ((CollapsiblePaneGadget) delegate).getContentPane();
+                    JComponent content = ((CollapsiblePane) delegate).getContentPane();
                     size.height -= (delegate.getHeight() - content.getHeight());
                     size.width -= (delegate.getWidth() - content.getWidth());
                     content.setPreferredSize(size);
@@ -92,7 +92,6 @@ public class ResizableGadgetComponent extends JPanel implements GadgetComponent 
                 } else {
                     component.setPreferredSize(size);
                 }
-
                 CollapsiblePaneGadget.repaintAncestors(component);
             }
 

@@ -23,21 +23,18 @@ public class GadgetFactory {
     private GadgetFactory() {
     }
 
-    public static JComponent createChart(int[] configNo, String machineTitle, Date dashBoardStartDate)
+    public static JComponent createChart(int[] myConfigNo, String myMachineTitle, Date myDashBoardStartDate)
             throws SQLException, ParseException {
-        _machineTitle = machineTitle;
-        _configNo = configNo;
-        _startDate = dashBoardStartDate;
         if (DashBoard.isShowTotalProd()) {
             //create the cumulative bar chart
-            chartTotalProd = new Charts(_machineTitle, _configNo[0], _startDate).getChartTotal();
+            chartTotalProd = new Charts(myMachineTitle, myConfigNo[0], myDashBoardStartDate).getChartTotal();
         } else {
             //create an empty chart
             chartTotalProd = new Chart();
         }
         if (DashBoard.isShowRateProd()) {
             //create the rate chart
-            chartRateProd = new Charts(_configNo[1], _startDate).getChartRate();
+            chartRateProd = new Charts(myConfigNo[1], myDashBoardStartDate).getChartRate();
         } else {
             //create an empty chart
             chartRateProd = new Chart();
@@ -46,8 +43,5 @@ public class GadgetFactory {
         return new VerticalMultiChartPanel(chartTotalProd, chartRateProd);//panel returned with the chart
     }
 
-    private static int[] _configNo;
-    private static String _machineTitle;
-    private static Date _startDate;
     private static Chart chartTotalProd, chartRateProd;
 }

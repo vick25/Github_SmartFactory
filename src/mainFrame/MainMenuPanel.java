@@ -343,7 +343,10 @@ public class MainMenuPanel extends JPanel {
                 @Override
                 public void windowClosing(WindowEvent e) {
                     Identification.getShowMainFrame().setVisible(true);
-                    Identification.getShowMainFrame().revalidate();
+//                    Identification.getShowMainFrame().revalidate();
+//                    ((DockableBarHolder) Identification.getShowMainFrame()).getDockableBarManager().updateComponentTreeUI();
+//                    ((DockableHolder) Identification.getShowMainFrame()).getDockingManager().updateComponentTreeUI();
+//                    SwingUtilities.updateComponentTreeUI(Identification.getShowMainFrame());
                 }
             });
             _dashBoardFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);

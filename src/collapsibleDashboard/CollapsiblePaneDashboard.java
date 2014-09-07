@@ -40,6 +40,7 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingConstants;
 import resources.Constants;
 import smartfactoryV2.ConnectDB;
+import smartfactoryV2.Queries;
 
 /**
  *
@@ -76,8 +77,8 @@ public class CollapsiblePaneDashboard extends TimerTask {
         Enumeration e = Collections.enumeration(_machines);
         while (e.hasMoreElements()) {
             Machine machName = (Machine) e.nextElement();
-            manager.addGadget(createGadget("<html><font color=darkblue size=4><strong>"
-                    + machName.getMachineName() + "</strong></font>"));
+            StringBuilder builder = new StringBuilder("<html><font color=darkblue size=4><strong>");
+            manager.addGadget(createGadget(builder.append(machName.getMachineName()).append("</strong></font>").toString()));
         }
         manager.setColumnResizable(true);
 
@@ -261,7 +262,7 @@ public class CollapsiblePaneDashboard extends TimerTask {
                             }
                         } catch (SQLException ex) {
                             ConnectDB.catchSQLException(ex);
-                        } catch (HeadlessException | ParseException ex) {                            
+                        } catch (HeadlessException | ParseException ex) {
                         }
                         return null;
                     }
@@ -278,26 +279,17 @@ public class CollapsiblePaneDashboard extends TimerTask {
 
     private int[] getMachineConfigNo(String machineName) throws SQLException {
         int[] configNum = new int[2];
-        String query = "SELECT DISTINCT c.ConfigNo FROM configuration c, hardware h\n"
-                + "WHERE h.HwNo = c.HwNo\n"
-                + "AND c.AvMinMax = 'Cumulative'\n"
-                + "AND h.Machine =?\n"
-                + "AND c.Active = 1 ORDER BY h.HwNo ASC";
-        try (PreparedStatement ps = ConnectDB.con.prepareStatement(query)) {
-            ps.setString(1, removeHtmlTag(machineName));
+        try (PreparedStatement ps = ConnectDB.con.prepareStatement(Queries.GET_CONFIGNO)) {
+            ps.setString(1, "Cumulative");
+            ps.setString(2, removeHtmlTag(machineName));
             ConnectDB.res = ps.executeQuery();
             while (ConnectDB.res.next()) {
                 configNum[0] = ConnectDB.res.getInt(1);//Cumalative configNo
             }
         }
-
-        query = "SELECT DISTINCT c.ConfigNo FROM configuration c, hardware h\n"
-                + "WHERE h.HwNo = c.HwNo\n"
-                + "AND c.AvMinMax = 'Rate'\n"
-                + "AND h.Machine =?\n"
-                + "AND c.Active = 1 ORDER BY h.HwNo ASC";
-        try (PreparedStatement ps = ConnectDB.con.prepareStatement(query)) {
-            ps.setString(1, removeHtmlTag(machineName));
+        try (PreparedStatement ps = ConnectDB.con.prepareStatement(Queries.GET_CONFIGNO)) {
+            ps.setString(1, "Rate");
+            ps.setString(2, removeHtmlTag(machineName));
             ConnectDB.res = ps.executeQuery();
             while (ConnectDB.res.next()) {
                 configNum[1] = ConnectDB.res.getInt(1);//Rate configNo
@@ -312,7 +304,7 @@ public class CollapsiblePaneDashboard extends TimerTask {
 
     /*Main method setGadgetComponenPane to create gadget corresponding chart by calling the static method
      createChart of the GadgetFactory class*/
-    public void setGadgetComponentPane(int[] configNo, String keyMachineName, CollapsiblePaneGadget gadget) 
+    public void setGadgetComponentPane(int[] configNo, String keyMachineName, CollapsiblePaneGadget gadget)
             throws SQLException, ParseException {
         gadget.getContentPane().removeAll();
         gadget.getContentPane().setPreferredSize(new Dimension(200, 300));
@@ -352,8 +344,8 @@ public class CollapsiblePaneDashboard extends TimerTask {
                     ex.printStackTrace();
                 }
             }
-            DashBoard.bslTime.setText("Scheduler of " + Constants.timetoquery + " is running to refresh the "
-                    + "chart(s) if any is shown...");
+            DashBoard.bslTime.setText(new StringBuilder().append("Scheduler of ").append(Constants.timetoquery).
+                    append(" is running to refresh the chart(s) if any is shown...").toString());
         }
     }
 

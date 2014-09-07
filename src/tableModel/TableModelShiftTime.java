@@ -16,27 +16,27 @@ public class TableModelShiftTime extends AbstractTableModel implements HeaderSty
 
     private static final CellStyle CENTER_STYLE = new CellStyle();
     private static final CellStyle PERIOD_STYLE = new CellStyle();
-    String[] columnNames = {"#", "From", "To"};
-    ArrayList[] Data;
+    private final String[] COLUMN_NAMES = {"#", "From", "To"};
+    private final ArrayList[] DATA;
 
     static {
-        CENTER_STYLE.setForeground(Color.gray);
+        CENTER_STYLE.setForeground(Color.GRAY);
         CENTER_STYLE.setHorizontalAlignment(SwingConstants.CENTER);
         PERIOD_STYLE.setFontStyle(Font.BOLD);
         PERIOD_STYLE.setHorizontalAlignment(SwingConstants.CENTER);
     }
 
     public TableModelShiftTime(int taille) {
-        Data = new ArrayList[columnNames.length];
-        for (int i = 0; i < columnNames.length; i++) {
-            Data[i] = new ArrayList();
+        DATA = new ArrayList[COLUMN_NAMES.length];
+        for (int i = 0; i < COLUMN_NAMES.length; i++) {
+            DATA[i] = new ArrayList();
         }
-        for (int i = 0; i < columnNames.length; i++) {
+        for (int i = 0; i < COLUMN_NAMES.length; i++) {
             for (int j = 0; j < taille; j++) {
                 if (i == 0) {
-                    Data[i].add(j, j + 1);
+                    DATA[i].add(j, j + 1);
                 } else {
-                    Data[i].add(j, "00:00");
+                    DATA[i].add(j, "00:00");
                 }
             }
         }
@@ -44,17 +44,17 @@ public class TableModelShiftTime extends AbstractTableModel implements HeaderSty
 
     @Override
     public String getColumnName(int col) {
-        return columnNames[col];
+        return COLUMN_NAMES[col];
     }
 
     @Override
     public int getRowCount() {
-        return Data[0].size();
+        return DATA[0].size();
     }
 
     @Override
     public int getColumnCount() {
-        return columnNames.length;
+        return COLUMN_NAMES.length;
     }
 
     @Override
@@ -64,12 +64,12 @@ public class TableModelShiftTime extends AbstractTableModel implements HeaderSty
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
-        return Data[columnIndex].get(rowIndex);
+        return DATA[columnIndex].get(rowIndex);
     }
 
     @Override
     public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
-        Data[columnIndex].set(rowIndex, aValue);
+        DATA[columnIndex].set(rowIndex, aValue);
         fireTableCellUpdated(rowIndex, columnIndex);
     }
 
@@ -95,25 +95,25 @@ public class TableModelShiftTime extends AbstractTableModel implements HeaderSty
 
     public void addNewRow() {
         for (int i = 0; i < 1; i++) {
-            Data[i].add(Data[i].size());
+            DATA[i].add(DATA[i].size());
         }
-        for (int i = 1; i < columnNames.length; i++) {
-            Data[i].add(Data[i].size(), "00:00");
+        for (int i = 1; i < COLUMN_NAMES.length; i++) {
+            DATA[i].add(DATA[i].size(), "00:00");
         }
-        this.fireTableRowsInserted(0, Data[0].size() - 1);
+        this.fireTableRowsInserted(0, DATA[0].size() - 1);
     }
 
     public void removeNewRow() {
-        for (int i = 0; i < columnNames.length; i++) {
-            Data[i].remove(Data[i].size() - 1);
+        for (int i = 0; i < COLUMN_NAMES.length; i++) {
+            DATA[i].remove(DATA[i].size() - 1);
         }
-        this.fireTableRowsDeleted(0, Data[0].size() - 1);
+        this.fireTableRowsDeleted(0, DATA[0].size() - 1);
     }
 
     public void removeNewRow(int index) {
-        for (int i = 0; i < columnNames.length; i++) {
-            Data[i].remove(index);
+        for (int i = 0; i < COLUMN_NAMES.length; i++) {
+            DATA[i].remove(index);
         }
-        this.fireTableRowsDeleted(0, Data[0].size() - 1);
+        this.fireTableRowsDeleted(0, DATA[0].size() - 1);
     }
 }

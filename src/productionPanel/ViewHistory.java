@@ -1,6 +1,8 @@
 package productionPanel;
 
 import com.jidesoft.grid.AutoFilterTableHeader;
+import com.jidesoft.grid.CellStyle;
+import com.jidesoft.grid.HeaderStyleModel;
 import com.jidesoft.grid.HierarchicalTable;
 import com.jidesoft.grid.HierarchicalTableComponentFactory;
 import com.jidesoft.grid.HierarchicalTableModel;
@@ -17,10 +19,9 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
-import java.awt.event.MouseWheelListener;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -29,24 +30,28 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.Vector;
-import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JViewport;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 import smartfactoryV2.ConnectDB;
+import smartfactoryV2.Queries;
+import tableModel.FitScrollPane;
 
 /**
  *
@@ -54,13 +59,13 @@ import smartfactoryV2.ConnectDB;
  */
 public class ViewHistory extends javax.swing.JDialog {
 
-    public ViewHistory(java.awt.Frame parent, boolean modal, String machineTitle, Date from) throws SQLException {
+    public ViewHistory(java.awt.Frame parent, boolean modal, String myMachineTitle, Date myDateFrom) throws SQLException {
         super(parent, modal);
         initComponents();
-        this.machineTitle = machineTitle;
-        loadMachine();
-        if (from != null) {
-            cmbHFrom.setDate(from);
+        this._machineTitle = myMachineTitle;
+        this.loadMachine();
+        if (myDateFrom != null) {
+            cmbHFrom.setDate(myDateFrom);
         } else {
             cmbHFrom.setDate(Calendar.getInstance().getTime());
         }
@@ -79,7 +84,7 @@ public class ViewHistory extends javax.swing.JDialog {
         chkFrom = new javax.swing.JCheckBox();
         cmbHFrom = new com.jidesoft.combobox.DateComboBox();
         btnRefresh = new javax.swing.JButton();
-        jScrollPane1 = new javax.swing.JScrollPane();
+        _topPane = new javax.swing.JScrollPane();
         btnClose = new com.jidesoft.swing.JideButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
@@ -180,7 +185,7 @@ public class ViewHistory extends javax.swing.JDialog {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(_topPane, javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                         .addGap(0, 0, Short.MAX_VALUE)
                         .addComponent(btnClose, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
@@ -192,7 +197,7 @@ public class ViewHistory extends javax.swing.JDialog {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 274, Short.MAX_VALUE)
+                .addComponent(_topPane, javax.swing.GroupLayout.DEFAULT_SIZE, 274, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btnClose, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
@@ -230,16 +235,14 @@ public class ViewHistory extends javax.swing.JDialog {
 
     private void cmbMachineItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_cmbMachineItemStateChanged
         if (cmbMachine.getSelectedObjects().length != 0) {
-            jScrollPane1.setViewportView(null);
-            setMachine.clear();
-            String query = "SELECT h.Machine, c.ConfigNo, c.ChannelID\n"
-                    + "FROM configuration c, hardware h\n"
-                    + "WHERE h.HwNo = c.HwNo\n"
-                    + "AND c.HwNo IN (SELECT HwNo FROM hardware WHERE Machine IN ("
-                    + substringMachine(cmbMachine.getSelectedObjects()) + "))\n"
-                    + "ORDER BY c.HwNo ASC, c.AvMinMax DESC";
-            try (Statement stat = ConnectDB.con.createStatement()) {//for the channel 
-                ConnectDB.res = stat.executeQuery(query);
+            _topPane.setViewportView(null);
+            setMachine = new TreeSet<>();
+            StringBuilder query = new StringBuilder("SELECT h.Machine \n").append("FROM configuration c, hardware h \n"
+                    + "WHERE h.HwNo = c.HwNo \nAND c.HwNo IN (SELECT HwNo FROM hardware WHERE Machine IN (").
+                    append(ConnectDB.retrieveCateria(cmbMachine.getSelectedObjects())).append(")) \n"
+                            + "ORDER BY c.HwNo ASC, c.AvMinMax DESC");
+            try (Statement stat = ConnectDB.con.createStatement()) {//for the channel
+                ConnectDB.res = stat.executeQuery(query.toString());
                 while (ConnectDB.res.next()) {
                     setMachine.add(ConnectDB.res.getString(1));
                 }
@@ -248,7 +251,7 @@ public class ViewHistory extends javax.swing.JDialog {
             }
             getDemoPanel();//create everything
         } else {
-            jScrollPane1.setViewportView(null);
+            _topPane.setViewportView(null);
         }
     }//GEN-LAST:event_cmbMachineItemStateChanged
 
@@ -264,25 +267,43 @@ public class ViewHistory extends javax.swing.JDialog {
 
     private void getDemoPanel() {
         _table = createTable();
-        jScrollPane1.setViewportView(_table);
+        _topPane.setViewportView(_table);
+
 //        JScrollPane scrollPane = new JScrollPane(_table);
-        jScrollPane1.getViewport().putClientProperty("HierarchicalTable.mainViewport", Boolean.TRUE);
+        _topPane.getViewport().putClientProperty("HierarchicalTable.mainViewport", Boolean.TRUE);
+        _topPane.getViewport().addChangeListener(new ChangeListener() {
+
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                Point point = ((JViewport) e.getSource()).getViewPosition();
+                int rowIndex = _table.rowAtPoint(point);
+                try {
+                    // according to the value of rowIndex and if the row is expanded, you could now choose to
+                    //switch the column header view as you wish
+                    _topPane.setColumnHeaderView(((JTable) _subTablesList.get(rowIndex)).getTableHeader());
+                } catch (Exception ex) {
+                    if (_subTablesList.size() > 0) {
+                        _topPane.setColumnHeaderView(((JTable) _subTablesList.get(rowIndex - rowIndex)).getTableHeader());
+                    }
+                }
+            }
+        });
     }
 
     // create property table
     private HierarchicalTable createTable() {
-        _historyTableModel = new HistoryTableModel();
         final HierarchicalTable table = new HierarchicalTable();
+        table.getTableHeader().setReorderingAllowed(false);
         table.setAutoRefreshOnRowUpdate(false);
-        table.setModel(_historyTableModel);
-        table.setBackground(BG4);
+        table.setModel(new HistoryTableModel());//set the table from the data collected in the database
+        table.setBackground(ConnectDB.BG4);
         table.setName("History Table");
 //        table.getTableHeader().setDefaultRenderer(new ConnectDB.HeaderRenderer(table));
         table.getColumnModel().getColumn(0).setPreferredWidth(100);
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         table.setComponentFactory(new HierarchicalTableComponentFactory() {
             Map<Integer, TableModel> _tableModels = new HashMap<>();
-            Map<Integer, JTable> _tables = new HashMap<>();
+            Map<Integer, JTable> _subTables = new HashMap<>();
 
             @Override
             public Component createChildComponent(HierarchicalTable table, Object value, int row) {
@@ -294,10 +315,10 @@ public class ViewHistory extends javax.swing.JDialog {
                     HierarchicalTable childTable = new HierarchicalTable(model) {
                         @Override
                         public void scrollRectToVisible(Rectangle aRect) {
-                            ViewHistory.scrollRectToVisible(this, aRect);
+                            ConnectDB.scrollRectToVisible(this, aRect);
                         }
                     };
-                    childTable.setBackground(BG2);
+                    childTable.setBackground(ConnectDB.BG2);
                     childTable.setOpaque(true);
                     childTable.setName("Detail Table");
                     childTable.setComponentFactory(new HierarchicalTableComponentFactory() {
@@ -308,11 +329,11 @@ public class ViewHistory extends javax.swing.JDialog {
                                 SortableTable sortableTable = new SortableTable(model) {
                                     @Override
                                     public void scrollRectToVisible(Rectangle aRect) {
-                                        ViewHistory.scrollRectToVisible(this, aRect);
+                                        ConnectDB.scrollRectToVisible(this, aRect);
                                     }
                                 };
                                 FitScrollPane pane = new FitScrollPane(sortableTable);
-                                sortableTable.setBackground(BG3);
+                                sortableTable.setBackground(ConnectDB.BG3);
                                 _group.add(sortableTable.getSelectionModel());
                                 TreeLikeHierarchicalPanel treeLikeHierarchicalPanel = new TreeLikeHierarchicalPanel(pane);
                                 treeLikeHierarchicalPanel.setBackground(sortableTable.getMarginBackground());
@@ -338,60 +359,18 @@ public class ViewHistory extends javax.swing.JDialog {
                 }
             }
 
+            //SubTables panel
             private JComponent createPanel(final TableModel model, final int row) {
-                TableModel emptyTableModel = new TableModel() {
-                    @Override
-                    public int getRowCount() {
-                        return 0;
-                    }
-
-                    @Override
-                    public int getColumnCount() {
-                        return model.getColumnCount();
-                    }
-
-                    @Override
-                    public String getColumnName(int columnIndex) {
-                        return model.getColumnName(columnIndex);
-                    }
-
-                    @Override
-                    public Class<?> getColumnClass(int columnIndex) {
-                        return model.getColumnClass(columnIndex);
-                    }
-
-                    @Override
-                    public boolean isCellEditable(int rowIndex, int columnIndex) {
-                        return false;
-                    }
-
-                    @Override
-                    public Object getValueAt(int rowIndex, int columnIndex) {
-                        return null;
-                    }
-
-                    @Override
-                    public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
-
-                    }
-
-                    @Override
-                    public void addTableModelListener(TableModelListener l) {
-
-                    }
-
-                    @Override
-                    public void removeTableModelListener(TableModelListener l) {
-
-                    }
-                };
-                SortableTable sortableTable = new SortableTable(emptyTableModel) {
+                SortableTable sortableTable = new SortableTable(new ChildTableModel(model)) {
                     @Override
                     public void scrollRectToVisible(Rectangle aRect) {
-                        ViewHistory.scrollRectToVisible(this, aRect);
+                        ConnectDB.scrollRectToVisible(this, aRect);
                     }
                 };
-                sortableTable.setBackground(BG2);
+                if (!_subTablesList.contains(sortableTable)) {
+                    _subTablesList.add(sortableTable);//add the subtables to a list
+                }
+                sortableTable.setBackground(ConnectDB.BG2);
                 _group.add(sortableTable.getSelectionModel());
                 TreeLikeHierarchicalPanel treeLikeHierarchicalPanel = new TreeLikeHierarchicalPanel(new FitScrollPane(sortableTable));
                 treeLikeHierarchicalPanel.setBackground(sortableTable.getMarginBackground());
@@ -406,7 +385,7 @@ public class ViewHistory extends javax.swing.JDialog {
                 overlayable.addOverlayComponent(progressPanel);
                 progressPanel.start();
                 overlayable.setOverlayVisible(true);
-                _tables.put(row, sortableTable);
+                _subTables.put(row, sortableTable);
                 _tableModels.put(row, model);
                 Thread thread = new Thread() {
                     @Override
@@ -421,7 +400,7 @@ public class ViewHistory extends javax.swing.JDialog {
 
                             @Override
                             public void run() {
-                                JTable internalTable = _tables.get(row);
+                                JTable internalTable = _subTables.get(row);
                                 Container parent1 = internalTable.getParent();
                                 while (parent1 != null && !(parent1 instanceof TreeLikeHierarchicalPanel)) {
                                     parent1 = parent1.getParent();
@@ -453,6 +432,8 @@ public class ViewHistory extends javax.swing.JDialog {
                 if (t instanceof JTable) {
                     _group.remove(((JTable) t).getSelectionModel());
                 }
+                _subTablesList.clear();
+                _topPane.setColumnHeaderView(_table.getTableHeader());
                 _destroyedCount++;
             }
         });
@@ -469,7 +450,83 @@ public class ViewHistory extends javax.swing.JDialog {
         return _destroyedCount;
     }
 
-    static class HistoryTableModel extends DefaultTableModel implements HierarchicalTableModel {
+    static private class ChildTableModel extends DefaultTableModel implements HeaderStyleModel {
+
+        private static final CellStyle CENTER_STYLE = new CellStyle();
+        private final TableModel model;
+
+        static {
+            CENTER_STYLE.setForeground(Color.GRAY);
+            CENTER_STYLE.setHorizontalAlignment(SwingConstants.CENTER);
+        }
+
+        ChildTableModel(TableModel model) {
+            this.model = model;
+        }
+
+        @Override
+        public int getRowCount() {
+            return 0;
+        }
+
+        @Override
+        public int getColumnCount() {
+            return model.getColumnCount();
+        }
+
+        @Override
+        public String getColumnName(int columnIndex) {
+            return model.getColumnName(columnIndex);
+        }
+
+        @Override
+        public Class<?> getColumnClass(int columnIndex) {
+            return model.getColumnClass(columnIndex);
+        }
+
+        @Override
+        public boolean isCellEditable(int rowIndex, int columnIndex) {
+            return false;
+        }
+
+        @Override
+        public Object getValueAt(int rowIndex, int columnIndex) {
+            return null;
+        }
+
+        @Override
+        public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
+        }
+
+        @Override
+        public void addTableModelListener(TableModelListener l) {
+        }
+
+        @Override
+        public void removeTableModelListener(TableModelListener l) {
+        }
+
+        @Override
+        public CellStyle getHeaderStyleAt(int i, int i1) {
+            return CENTER_STYLE;
+        }
+
+        @Override
+        public boolean isHeaderStyleOn() {
+            return true;
+        }
+
+    }
+
+    static private class HistoryTableModel extends DefaultTableModel implements HierarchicalTableModel,
+            HeaderStyleModel {
+
+        private static final CellStyle PERIOD_STYLE = new CellStyle();
+
+        static {
+            PERIOD_STYLE.setFontStyle(Font.BOLD);
+            PERIOD_STYLE.setHorizontalAlignment(SwingConstants.CENTER);
+        }
 
         HistoryTableModel() {
             super(getListOfMachine(), DESCRIPTION_COLUMNS);
@@ -503,8 +560,9 @@ public class ViewHistory extends javax.swing.JDialog {
         @Override
         public Object getChildValueAt(int row) {
             TableModel model = null;
-            String name = getValueAt(row, 0).toString(); //machine name
             try {
+                String name = getValueAt(row, 0).toString(); //machine name
+                //For each child table get the name and the available channels ID from the database
                 model = new DefaultTableModel(getDetails(name), getChannelID_DETAIL_COLUMNS(name)) {
 
                     @Override
@@ -517,95 +575,15 @@ public class ViewHistory extends javax.swing.JDialog {
             }
             return model;
         }
-    }
 
-    static class FitScrollPane extends JScrollPane implements ComponentListener {
-
-        FitScrollPane() {
-            initScrollPane();
-        }
-
-        FitScrollPane(Component view) {
-            super(view);
-            initScrollPane();
-        }
-
-        FitScrollPane(Component view, int vsbPolicy, int hsbPolicy) {
-            super(view, vsbPolicy, hsbPolicy);
-            initScrollPane();
-        }
-
-        FitScrollPane(int vsbPolicy, int hsbPolicy) {
-            super(vsbPolicy, hsbPolicy);
-            initScrollPane();
-        }
-
-        private void initScrollPane() {
-            setBorder(BorderFactory.createLineBorder(Color.GRAY));
-            setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-            setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
-            getViewport().getView().addComponentListener(this);
-            removeMouseWheelListeners();
-        }
-
-        // remove MouseWheelListener as there is no need for it in FitScrollPane.
-        private void removeMouseWheelListeners() {
-            MouseWheelListener[] listeners = getMouseWheelListeners();
-            for (MouseWheelListener listener : listeners) {
-                removeMouseWheelListener(listener);
-            }
+        @Override
+        public CellStyle getHeaderStyleAt(int i, int i1) {
+            return PERIOD_STYLE;
         }
 
         @Override
-        public void updateUI() {
-            super.updateUI();
-            removeMouseWheelListeners();
-        }
-
-        @Override
-        public void componentResized(ComponentEvent e) {
-            setSize(getSize().width, getPreferredSize().height);
-        }
-
-        @Override
-        public void componentMoved(ComponentEvent e) {
-        }
-
-        @Override
-        public void componentShown(ComponentEvent e) {
-        }
-
-        @Override
-        public void componentHidden(ComponentEvent e) {
-        }
-
-        @Override
-        public Dimension getPreferredSize() {
-            getViewport().setPreferredSize(getViewport().getView().getPreferredSize());
-            return super.getPreferredSize();
-        }
-    }
-
-    public static void scrollRectToVisible(Component component, Rectangle aRect) {
-        Container parent;
-        int dx = component.getX(), dy = component.getY();
-
-        for (parent = component.getParent();
-                parent != null && (!(parent instanceof JViewport) || (((JViewport) parent).getClientProperty("HierarchicalTable.mainViewport") == null));
-                parent = parent.getParent()) {
-            Rectangle bounds = parent.getBounds();
-
-            dx += bounds.x;
-            dy += bounds.y;
-        }
-
-        if (parent != null) {
-            aRect.x += dx;
-            aRect.y += dy;
-
-            ((JComponent) parent).scrollRectToVisible(aRect);
-            aRect.x -= dx;
-            aRect.y -= dy;
+        public boolean isHeaderStyleOn() {
+            return true;
         }
     }
 
@@ -629,12 +607,12 @@ public class ViewHistory extends javax.swing.JDialog {
     }
 
     private static String[][] getListOfMachine() {
-        int i = setMachine.size(), y = 0;
+        byte i = (byte) setMachine.size(), y = 0;
         String[][] tabDescription = new String[i][2];
         for (String sMachine : setMachine) {
             if (y < i) {
                 tabDescription[y][0] = sMachine;
-                tabDescription[y][1] = sMachine + " channels";
+                tabDescription[y][1] = new StringBuilder(sMachine).append(" channels").toString();
             }
             y++;
         }
@@ -643,12 +621,7 @@ public class ViewHistory extends javax.swing.JDialog {
 
     private static Object[] getChannelID_DETAIL_COLUMNS(String name) throws SQLException {
         ArrayList<String> channelID = new ArrayList<>();
-        String query = "SELECT c.ChannelID\n"
-                + "FROM configuration c, hardware h\n"
-                + "WHERE h.HwNo = c.HwNo\n"
-                + "AND h.Machine =?\n"
-                + "ORDER BY c.HwNo ASC, c.AvMinMax DESC";
-        try (PreparedStatement ps = ConnectDB.con.prepareStatement(query)) {
+        try (PreparedStatement ps = ConnectDB.con.prepareStatement(Queries.HISTORY_MACHINE_CHANNELID)) {
             ps.setString(1, name);
             ConnectDB.res = ps.executeQuery();
             channelID.add("Time");
@@ -661,15 +634,10 @@ public class ViewHistory extends javax.swing.JDialog {
 
     private static String[][] getDetails(String rowMachineName) throws SQLException {
         String[][] tab = null;
-        vectConfigNo.removeAllElements();
+        Vector vectConfigNo = new Vector();
         if (!rowMachineName.isEmpty()) {
-            int col = 0;
-            String historyQuery = "SELECT c.ConfigNo\n"
-                    + "FROM configuration c, hardware h\n"
-                    + "WHERE h.HwNo = c.HwNo\n"
-                    + "AND h.Machine =?\n"
-                    + "ORDER BY c.HwNo ASC, c.AvMinMax DESC";
-            try (PreparedStatement ps = ConnectDB.con.prepareStatement(historyQuery)) {
+            short col = 0;
+            try (PreparedStatement ps = ConnectDB.con.prepareStatement(Queries.HISTORY)) {
                 ps.setString(1, rowMachineName);
                 ConnectDB.res = ps.executeQuery();
                 while (ConnectDB.res.next()) {
@@ -692,12 +660,7 @@ public class ViewHistory extends javax.swing.JDialog {
 
     private static String[][] fillTable(int col, int item) throws SQLException {
         int row = 0;
-        String channelQuery = "SELECT d.LogTime, d.LogData\n"
-                + "FROM configuration c, datalog d\n"
-                + "WHERE c.ConfigNo = d.ConfigNo\n"
-                + "AND d.ConfigNo =?\n"
-                + "ORDER BY d.LogTime ASC";
-        try (PreparedStatement ps = ConnectDB.con.prepareStatement(runQuery(channelQuery))) {
+        try (PreparedStatement ps = ConnectDB.con.prepareStatement(runQuery(Queries.HISTORY_LOGDATA))) {
             ps.setInt(1, item);
             ConnectDB.res = ps.executeQuery();
             while (ConnectDB.res.next()) {
@@ -710,12 +673,7 @@ public class ViewHistory extends javax.swing.JDialog {
     }
 
     private static int getRowNum(int row) throws SQLException {
-        String channelQuery = "SELECT d.LogTime, d.LogData\n"
-                + "FROM configuration c, datalog d\n"
-                + "WHERE c.ConfigNo = d.ConfigNo\n"
-                + "AND d.ConfigNo =?\n"
-                + "ORDER BY d.LogTime ASC";
-        try (PreparedStatement ps = ConnectDB.con.prepareStatement(runQuery(channelQuery))) {
+        try (PreparedStatement ps = ConnectDB.con.prepareStatement(runQuery(Queries.HISTORY_LOGDATA))) {
             ps.setInt(1, row);
             ConnectDB.res = ps.executeQuery();
             ConnectDB.res.last();
@@ -724,45 +682,36 @@ public class ViewHistory extends javax.swing.JDialog {
     }
 
     private static String runQuery(String channel) {
-        String channelQuery = channel;
+        StringBuilder channelQuery = new StringBuilder(channel);
         if (chkFrom.isSelected()) {
-            channelQuery = channel.substring(0, channel.lastIndexOf("ORDER")).trim() + "\n"
-                    + "AND d.LogTime >= '" + ConnectDB.SDATE_FORMAT_HOUR.format(cmbHFrom.getDate()) + "'\n"
-                    + "ORDER BY d.LogTime ASC";
+            channelQuery = new StringBuilder(channel.substring(0, channel.lastIndexOf("ORDER")).trim()).
+                    append(" \nAND d.LogTime >= '").append(ConnectDB.SDATE_FORMAT_HOUR.format(cmbHFrom.getDate())).
+                    append("' \nORDER BY d.LogTime ASC");
         }
-        return channelQuery;
-    }
-
-    private static String substringMachine(Object[] list) {
-        String values = "";
-        for (Object list1 : list) {
-            values += "\'" + ConnectDB.firstLetterCapital(list1.toString()) + "\',";
-        }
-        values = values.substring(0, values.length() - 1);
-        return values;
+        return channelQuery.toString();
     }
 
     private void loadMachine() throws SQLException {
         ArrayList<String> data = new ArrayList<>();
-        try (PreparedStatement ps = ConnectDB.con.prepareStatement("SELECT Machine "
-                + "FROM hardware WHERE HwNo > ?")) {
+        data.add(0, CheckBoxList.ALL);
+        try (PreparedStatement ps = ConnectDB.con.prepareStatement(Queries.GET_HARDWARE)) {
             ps.setInt(1, 0);
             ConnectDB.res = ps.executeQuery();
-            data.add(0, CheckBoxList.ALL);
             while (ConnectDB.res.next()) {
-                data.add(ConnectDB.res.getString(1));
+                data.add(ConnectDB.res.getString(2));
             }
             cmbMachine.setModel(new DefaultComboBoxModel(data.toArray()));
             data.clear();
-            if ("".equals(this.machineTitle)) {
+            if ("".equals(this._machineTitle)) {
                 cmbMachine.setSelectedIndex(-1);
             } else {
-                cmbMachine.setSelectedItem(this.machineTitle);
+                cmbMachine.setSelectedItem(this._machineTitle);
             }
         }
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JScrollPane _topPane;
     private com.jidesoft.swing.JideButton btnClose;
     private javax.swing.JButton btnRefresh;
     public static javax.swing.JCheckBox chkFrom;
@@ -770,25 +719,18 @@ public class ViewHistory extends javax.swing.JDialog {
     private static com.jidesoft.combobox.CheckBoxListComboBox cmbMachine;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
-    private javax.swing.JScrollPane jScrollPane1;
     private com.jidesoft.swing.JideLabel jideLabel1;
     // End of variables declaration//GEN-END:variables
-    String machineTitle = "";
+    private String _machineTitle = "";
     private static String[][] tabFill = null;
 
-    public static Set<String> setMachine = new TreeSet<>();
-    static String[] DESCRIPTION_COLUMNS = new String[]{"Machine Name", "Machine History Information"};
-//    static String[] DETAIL_COLUMNS = new String[]{"Time", "EventTime", "UntilTime",
-//        "Value", "Hours", "Minutes", "Seconds"};
-    static Vector vectConfigNo = new Vector();
-//    protected static final Color BG1 = new Color(232, 237, 230);
-    protected static final Color BG2 = new Color(243, 234, 217);
-    protected static final Color BG3 = new Color(214, 231, 247);
-    protected static final Color BG4 = new Color(255, 255, 255);
+    private static Set<String> setMachine = null;
+    private static final String[] DESCRIPTION_COLUMNS = new String[]{"Machine Name", "Machine History Information"};
 
     private HierarchicalTable _table;
-    private DefaultTableModel _historyTableModel;
+//    private DefaultTableModel _historyTableModel;
     private int _destroyedCount = 0;
 
     private ListSelectionModelGroup _group = new ListSelectionModelGroup();
+    private List _subTablesList = new ArrayList();
 }

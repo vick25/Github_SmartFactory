@@ -1,10 +1,9 @@
 package collapsibleDashboard;
-/*
- * @(#)Target.java 7/20/2007
- *
- * Copyright 2002 - 2007 JIDE Software Inc. All rights reserved.
- */
 
+/**
+ *
+ * @author Victor Kadiata
+ */
 import com.jidesoft.dashboard.Dashboard;
 import com.jidesoft.dashboard.Gadget;
 import com.jidesoft.dashboard.GadgetComponent;
@@ -39,7 +38,7 @@ public class CollapsiblePaneGadget extends CollapsiblePane implements GadgetComp
 
     public CollapsiblePaneGadget(Gadget gadget) {
         super(gadget.getName());
-        _gadget = gadget;
+        this._gadget = gadget;
         setTitleIcon(gadget.getIcon());
         setFocusable(true);
         setRequestFocusEnabled(true);
@@ -84,14 +83,14 @@ public class CollapsiblePaneGadget extends CollapsiblePane implements GadgetComp
         });
         _titlePane.addButton(expandButton);
         _maximizeButton = new CollapsiblePaneTitleButton(this,
-                IconsFactory.getImageIcon(CollapsiblePaneDashboard.class, "/icons/gadget_maximize.png"));
+                IconsFactory.getImageIcon(CollapsiblePaneGadget.class, "/icons/gadget_maximize.png"));
         _titlePane.addButton(_maximizeButton);
         _restoreButton = new CollapsiblePaneTitleButton(this,
-                IconsFactory.getImageIcon(CollapsiblePaneDashboard.class, "/icons/gadget_restore.png"));
+                IconsFactory.getImageIcon(CollapsiblePaneGadget.class, "/icons/gadget_restore.png"));
         _restoreButton.setVisible(false);
         _titlePane.addButton(_restoreButton);
         CollapsiblePaneTitleButton closeButton = new CollapsiblePaneTitleButton(this,
-                IconsFactory.getImageIcon(CollapsiblePaneDashboard.class, "/icons/gadget_close.png"));
+                IconsFactory.getImageIcon(CollapsiblePaneGadget.class, "/icons/gadget_close.png"));
         closeButton.addActionListener(new AbstractAction() {
             private static final long serialVersionUID = 7214349428761246735L;
 
@@ -105,7 +104,7 @@ public class CollapsiblePaneGadget extends CollapsiblePane implements GadgetComp
         setTitleComponent(_titlePane);
     }
 
-    static void repaintAncestors(Component component) {
+    protected static void repaintAncestors(Component component) {
         Container parent = component.getParent();
         parent.invalidate();
         parent.validate();

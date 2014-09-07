@@ -11,14 +11,14 @@ public class Flag extends javax.swing.JDialog {
 
     public Flag(java.awt.Frame parent, boolean modal, ArrayList<String> alFlag) {
         super(parent, modal);
+        listModel = new DefaultListModel();
         initComponents();
-        this.listModel.clear();
         if (alFlag.size() > 0) {
             lblText.setText("The integrity of this data may be compromised between the range of dates displayed "
                     + "below:");
         } else {
             lblText.setText("No flag(s) raised.");
-            listModel.clear();
+//            listModel.clear();
         }
         String[] fileNames = new String[alFlag.toArray().length];
         for (int i = 0; i < alFlag.toArray().length; i++) {
@@ -26,7 +26,7 @@ public class Flag extends javax.swing.JDialog {
             this.listModel.add(i, fileNames[i]);
         }
         this.setIconImage(parent.getIconImage());
-        this.setTitle(alFlag.size() + " Flag(s) of time raised");
+        this.setTitle(new StringBuilder(alFlag.size()).append(" Flag(s) of time raised").toString());
         this.setLocationRelativeTo(parent);
     }
 
@@ -107,5 +107,5 @@ public class Flag extends javax.swing.JDialog {
     private javax.swing.JLabel lblText;
     private com.jidesoft.navigation.NavigationList nvlFlag;
     // End of variables declaration//GEN-END:variables
-    private final DefaultListModel listModel = new DefaultListModel();
+    private final DefaultListModel listModel;
 }

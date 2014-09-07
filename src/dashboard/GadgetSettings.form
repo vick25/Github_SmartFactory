@@ -226,7 +226,7 @@
                           <Group type="103" rootIndex="1" groupAlignment="0" attributes="0">
                               <Group type="102" alignment="0" attributes="0">
                                   <EmptySpace max="-2" attributes="0"/>
-                                  <Component id="jScrollPane3" min="-2" pref="247" max="-2" attributes="0"/>
+                                  <Component id="timeShiftPane" min="-2" pref="247" max="-2" attributes="0"/>
                                   <EmptySpace max="32767" attributes="0"/>
                               </Group>
                           </Group>
@@ -237,7 +237,7 @@
                           <EmptySpace min="0" pref="83" max="32767" attributes="0"/>
                           <Group type="103" rootIndex="1" groupAlignment="0" attributes="0">
                               <Group type="102" alignment="0" attributes="0">
-                                  <Component id="jScrollPane3" min="-2" pref="74" max="-2" attributes="0"/>
+                                  <Component id="timeShiftPane" min="-2" pref="74" max="-2" attributes="0"/>
                                   <EmptySpace min="0" pref="9" max="32767" attributes="0"/>
                               </Group>
                           </Group>
@@ -245,7 +245,7 @@
                     </DimensionLayout>
                   </Layout>
                   <SubComponents>
-                    <Container class="javax.swing.JScrollPane" name="jScrollPane3">
+                    <Container class="javax.swing.JScrollPane" name="timeShiftPane">
                       <Properties>
                         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
                           <Color blue="ff" green="ff" red="ff" type="rgb"/>

@@ -147,13 +147,30 @@
                 </Component>
                 <Component class="javax.swing.JToolBar$Separator" name="jSeparator3">
                 </Component>
+                <Component class="javax.swing.JButton" name="btnViewEvents">
+                  <Properties>
+                    <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+                      <Color blue="ff" green="ff" red="ff" type="rgb"/>
+                    </Property>
+                    <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
+                      <Image iconType="3" name="/images/icons/event_time_2.png"/>
+                    </Property>
+                    <Property name="text" type="java.lang.String" value="View Events"/>
+                    <Property name="focusable" type="boolean" value="false"/>
+                    <Property name="horizontalTextPosition" type="int" value="0"/>
+                    <Property name="verticalTextPosition" type="int" value="3"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnViewEventsActionPerformed"/>
+                  </Events>
+                </Component>
                 <Component class="javax.swing.JButton" name="btnSettings">
                   <Properties>
                     <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
                       <Color blue="ff" green="ff" red="ff" type="rgb"/>
                     </Property>
                     <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-                      <Image iconType="3" name="/images/icons/advancedsettings(4).png"/>
+                      <Image iconType="3" name="/images/icons/settings.png"/>
                     </Property>
                     <Property name="text" type="java.lang.String" value="Settings"/>
                     <Property name="focusable" type="boolean" value="false"/>
@@ -209,7 +226,7 @@
                       <Color blue="ff" green="ff" red="ff" type="rgb"/>
                     </Property>
                     <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-                      <Image iconType="3" name="/images/icons/1_folder2.png"/>
+                      <Image iconType="3" name="/images/icons/clipperboard.png"/>
                     </Property>
                     <Property name="text" type="java.lang.String" value="Copy to clipboard"/>
                     <Property name="toolTipText" type="java.lang.String" value="Copy the chart to clipboard"/>
@@ -229,7 +246,7 @@
                     <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
                       <Image iconType="3" name="/images/icons/view_icon.png"/>
                     </Property>
-                    <Property name="text" type="java.lang.String" value="View Data"/>
+                    <Property name="text" type="java.lang.String" value="Show chart data"/>
                     <Property name="toolTipText" type="java.lang.String" value="View the generated charts data values in a table"/>
                     <Property name="focusable" type="boolean" value="false"/>
                     <Property name="horizontalTextPosition" type="int" value="0"/>
@@ -819,7 +836,7 @@
                               <Group type="103" rootIndex="1" groupAlignment="0" attributes="0">
                                   <Group type="102" alignment="0" attributes="0">
                                       <EmptySpace max="-2" attributes="0"/>
-                                      <Component id="jScrollPane1" min="-2" pref="247" max="-2" attributes="0"/>
+                                      <Component id="shiftPane" min="-2" pref="247" max="-2" attributes="0"/>
                                       <EmptySpace max="32767" attributes="0"/>
                                   </Group>
                               </Group>
@@ -830,7 +847,7 @@
                               <EmptySpace min="0" pref="83" max="32767" attributes="0"/>
                               <Group type="103" rootIndex="1" groupAlignment="0" attributes="0">
                                   <Group type="102" alignment="0" attributes="0">
-                                      <Component id="jScrollPane1" min="-2" pref="74" max="-2" attributes="0"/>
+                                      <Component id="shiftPane" min="-2" pref="74" max="-2" attributes="0"/>
                                       <EmptySpace min="0" pref="9" max="32767" attributes="0"/>
                                   </Group>
                               </Group>
@@ -838,7 +855,7 @@
                         </DimensionLayout>
                       </Layout>
                       <SubComponents>
-                        <Container class="javax.swing.JScrollPane" name="jScrollPane1">
+                        <Container class="javax.swing.JScrollPane" name="shiftPane">
                           <Properties>
                             <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
                               <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -1085,17 +1102,17 @@
                           <Layout>
                             <DimensionLayout dim="0">
                               <Group type="103" groupAlignment="0" attributes="0">
-                                  <Component id="jScrollPane2" alignment="0" max="32767" attributes="0"/>
+                                  <Component id="logDataPane" alignment="0" max="32767" attributes="0"/>
                               </Group>
                             </DimensionLayout>
                             <DimensionLayout dim="1">
                               <Group type="103" groupAlignment="0" attributes="0">
-                                  <Component id="jScrollPane2" alignment="0" max="32767" attributes="0"/>
+                                  <Component id="logDataPane" alignment="0" max="32767" attributes="0"/>
                               </Group>
                             </DimensionLayout>
                           </Layout>
                           <SubComponents>
-                            <Container class="javax.swing.JScrollPane" name="jScrollPane2">
+                            <Container class="javax.swing.JScrollPane" name="logDataPane">
 
                               <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
                             </Container>

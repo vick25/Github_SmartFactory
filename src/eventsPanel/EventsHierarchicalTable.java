@@ -1,6 +1,8 @@
 package eventsPanel;
 
 import com.jidesoft.grid.AutoFilterTableHeader;
+import com.jidesoft.grid.CellStyle;
+import com.jidesoft.grid.HeaderStyleModel;
 import com.jidesoft.grid.HierarchicalTable;
 import com.jidesoft.grid.HierarchicalTableComponentFactory;
 import com.jidesoft.grid.HierarchicalTableModel;
@@ -12,20 +14,19 @@ import com.jidesoft.swing.InfiniteProgressPanel;
 import com.jidesoft.swing.JideSwingUtilities;
 import com.jidesoft.swing.Overlayable;
 import com.jidesoft.swing.OverlayableUtils;
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
-import java.awt.event.MouseWheelListener;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
@@ -34,12 +35,17 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JViewport;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
+import mainFrame.MainFrame;
 import smartfactoryV2.ConnectDB;
+import tableModel.FitScrollPane;
 
 /**
  *
@@ -52,17 +58,34 @@ public class EventsHierarchicalTable extends JFrame {
         this.setSize(720, 400);
         this.setResizable(false);
         this.setIconImage(new ImageIcon(getClass().getResource("/images/smart_factory_logo_icon.png")).getImage());
-        this.getContentPane().setBackground(BG4);
+        this.getContentPane().setBackground(ConnectDB.BG4);
         this.getContentPane().add(getDemoPanel());
-        this.setLocationRelativeTo(null);
+        this.setLocationRelativeTo(MainFrame.getFrame());
         this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
     }
 
     private Component getDemoPanel() {
         _table = createTable();
-        JScrollPane scrollPane = new JScrollPane(_table);
-        scrollPane.getViewport().putClientProperty("HierarchicalTable.mainViewport", Boolean.TRUE);
-        return scrollPane;
+        _topPane = new JScrollPane(_table);
+        _topPane.getViewport().putClientProperty("HierarchicalTable.mainViewport", Boolean.TRUE);
+        _topPane.getViewport().addChangeListener(new ChangeListener() {
+
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                Point point = ((JViewport) e.getSource()).getViewPosition();
+                int rowIndex = _table.rowAtPoint(point);
+                try {
+                    // according to the value of rowIndex and if the row is expanded, you could now choose to
+                    //switch the column header view as you wish
+                    _topPane.setColumnHeaderView(((JTable) _subTablesList.get(rowIndex)).getTableHeader());
+                } catch (Exception ex) {
+                    if (_subTablesList.size() > 0) {
+                        _topPane.setColumnHeaderView(((JTable) _subTablesList.get(rowIndex - rowIndex)).getTableHeader());
+                    }
+                }
+            }
+        });
+        return _topPane;
     }
 
     // create property table
@@ -71,7 +94,7 @@ public class EventsHierarchicalTable extends JFrame {
         final HierarchicalTable table = new HierarchicalTable();
         table.setAutoRefreshOnRowUpdate(false);
         table.setModel(_eventsTableModel);
-        table.setBackground(BG4);
+        table.setBackground(ConnectDB.BG4);
         table.setName("Events Table");
         table.getColumnModel().getColumn(0).setPreferredWidth(100);
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -89,10 +112,10 @@ public class EventsHierarchicalTable extends JFrame {
                     HierarchicalTable childTable = new HierarchicalTable(model) {
                         @Override
                         public void scrollRectToVisible(Rectangle aRect) {
-                            EventsHierarchicalTable.scrollRectToVisible(this, aRect);
+                            ConnectDB.scrollRectToVisible(this, aRect);
                         }
                     };
-                    childTable.setBackground(BG2);
+                    childTable.setBackground(ConnectDB.BG2);
                     childTable.setOpaque(true);
                     childTable.setName("Detail Table");
                     childTable.setComponentFactory(new HierarchicalTableComponentFactory() {
@@ -103,11 +126,11 @@ public class EventsHierarchicalTable extends JFrame {
                                 SortableTable sortableTable = new SortableTable(model) {
                                     @Override
                                     public void scrollRectToVisible(Rectangle aRect) {
-                                        EventsHierarchicalTable.scrollRectToVisible(this, aRect);
+                                        ConnectDB.scrollRectToVisible(this, aRect);
                                     }
                                 };
                                 FitScrollPane pane = new FitScrollPane(sortableTable);
-                                sortableTable.setBackground(BG3);
+                                sortableTable.setBackground(ConnectDB.BG3);
                                 _group.add(sortableTable.getSelectionModel());
                                 TreeLikeHierarchicalPanel treeLikeHierarchicalPanel = new TreeLikeHierarchicalPanel(pane);
                                 treeLikeHierarchicalPanel.setBackground(sortableTable.getMarginBackground());
@@ -183,10 +206,13 @@ public class EventsHierarchicalTable extends JFrame {
                 SortableTable sortableTable = new SortableTable(emptyTableModel) {
                     @Override
                     public void scrollRectToVisible(Rectangle aRect) {
-                        EventsHierarchicalTable.scrollRectToVisible(this, aRect);
+                        ConnectDB.scrollRectToVisible(this, aRect);
                     }
                 };
-                sortableTable.setBackground(BG2);
+                if (!_subTablesList.contains(sortableTable)) {
+                    _subTablesList.add(sortableTable);//add the subtables to a list
+                }
+                sortableTable.setBackground(ConnectDB.BG2);
                 _group.add(sortableTable.getSelectionModel());
                 TreeLikeHierarchicalPanel treeLikeHierarchicalPanel = new TreeLikeHierarchicalPanel(new FitScrollPane(sortableTable));
                 treeLikeHierarchicalPanel.setBackground(sortableTable.getMarginBackground());
@@ -248,6 +274,8 @@ public class EventsHierarchicalTable extends JFrame {
                 if (t instanceof JTable) {
                     _group.remove(((JTable) t).getSelectionModel());
                 }
+                _subTablesList.clear();
+                _topPane.setColumnHeaderView(_table.getTableHeader());
                 _destroyedCount++;
             }
         });
@@ -290,7 +318,7 @@ public class EventsHierarchicalTable extends JFrame {
     }
 
     private static String[][] getListOfDescription() {
-        int i = EventsStatistic.getDescriptionSet().size(), y = 0;
+        short i = (short) EventsStatistic.getDescriptionSet().size(), y = 0;
         String[][] tabDescription = new String[i][2];
         for (String descriptionSet : EventsStatistic.getDescriptionSet()) {
             if (y < i) {
@@ -306,16 +334,14 @@ public class EventsHierarchicalTable extends JFrame {
         String[][] tab = null;
         int row = 0;
         if (!rowNameDesc.isEmpty()) {
-            String eventQuery = "SELECT e.`EventNo`, e.`EventTime`, e.`UntilTime`, e.`Value`, c.`Description`\n"
-                    + "FROM eventlog e, customlist c\n"
+            String eventQuery = "SELECT e.`EventNo`, e.`EventTime`, e.`UntilTime`, e.`Value`, c.`Description` \n"
+                    + "FROM eventlog e, customlist c \n"
                     + "WHERE e.HwNo =?  AND e.CustomCode = c.Code \n"
-                    + "AND e.Value <> '(null)'\n"
-                    + "AND (e.EventTime BETWEEN ? AND ?)\n"
-                    + "AND c.`Description` IN (?)\n"
+                    + "AND e.Value <> '(null)' \n"
+                    + "AND (e.EventTime BETWEEN ? AND ?) \n"
+                    + "AND c.`Description` IN (?) \n"
                     + "ORDER BY c.Description ASC, e.`Value` ASC, e.`EventTime` ASC";
-            PreparedStatement ps;
-            try {
-                ps = ConnectDB.con.prepareStatement(eventQuery);
+            try (PreparedStatement ps = ConnectDB.con.prepareStatement(eventQuery)) {
                 ps.setInt(1, EventsStatistic.getMachineID());
                 ps.setString(2, EventsStatistic.getMinLogTime());
                 ps.setString(3, EventsStatistic.getMaxLogTime());
@@ -339,7 +365,6 @@ public class EventsHierarchicalTable extends JFrame {
                     tab[row][6] = diffs[3] + "s";//Secondes
                     row++;
                 }
-                ps.close();
             } catch (ParseException ex) {
                 ex.printStackTrace();
             }
@@ -347,7 +372,15 @@ public class EventsHierarchicalTable extends JFrame {
         return tab;
     }
 
-    static class EventsTableModel extends DefaultTableModel implements HierarchicalTableModel {
+    static private class EventsTableModel extends DefaultTableModel implements HierarchicalTableModel,
+            HeaderStyleModel {
+
+        private static final CellStyle PERIOD_STYLE = new CellStyle();
+
+        static {
+            PERIOD_STYLE.setFontStyle(Font.BOLD);
+            PERIOD_STYLE.setHorizontalAlignment(SwingConstants.CENTER);
+        }
 
         EventsTableModel() {
             super(getListOfDescription(), DESCRIPTION_COLUMNS);
@@ -395,107 +428,25 @@ public class EventsHierarchicalTable extends JFrame {
             }
             return model;
         }
-    }
 
-    static class FitScrollPane extends JScrollPane implements ComponentListener {
-
-        FitScrollPane() {
-            initScrollPane();
-        }
-
-        FitScrollPane(Component view) {
-            super(view);
-            initScrollPane();
-        }
-
-        FitScrollPane(Component view, int vsbPolicy, int hsbPolicy) {
-            super(view, vsbPolicy, hsbPolicy);
-            initScrollPane();
-        }
-
-        FitScrollPane(int vsbPolicy, int hsbPolicy) {
-            super(vsbPolicy, hsbPolicy);
-            initScrollPane();
-        }
-
-        private void initScrollPane() {
-            setBorder(BorderFactory.createLineBorder(Color.GRAY));
-            setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-            setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
-            getViewport().getView().addComponentListener(this);
-            removeMouseWheelListeners();
-        }
-
-        // remove MouseWheelListener as there is no need for it in FitScrollPane.
-        private void removeMouseWheelListeners() {
-            MouseWheelListener[] listeners = getMouseWheelListeners();
-            for (MouseWheelListener listener : listeners) {
-                removeMouseWheelListener(listener);
-            }
+        @Override
+        public CellStyle getHeaderStyleAt(int i, int i1) {
+            return PERIOD_STYLE;
         }
 
         @Override
-        public void updateUI() {
-            super.updateUI();
-            removeMouseWheelListeners();
-        }
-
-        @Override
-        public void componentResized(ComponentEvent e) {
-            setSize(getSize().width, getPreferredSize().height);
-        }
-
-        @Override
-        public void componentMoved(ComponentEvent e) {
-        }
-
-        @Override
-        public void componentShown(ComponentEvent e) {
-        }
-
-        @Override
-        public void componentHidden(ComponentEvent e) {
-        }
-
-        @Override
-        public Dimension getPreferredSize() {
-            getViewport().setPreferredSize(getViewport().getView().getPreferredSize());
-            return super.getPreferredSize();
+        public boolean isHeaderStyleOn() {
+            return true;
         }
     }
 
-    public static void scrollRectToVisible(Component component, Rectangle aRect) {
-        Container parent;
-        int dx = component.getX(), dy = component.getY();
-
-        for (parent = component.getParent();
-                parent != null && (!(parent instanceof JViewport) || (((JViewport) parent).getClientProperty("HierarchicalTable.mainViewport") == null));
-                parent = parent.getParent()) {
-            Rectangle bounds = parent.getBounds();
-
-            dx += bounds.x;
-            dy += bounds.y;
-        }
-
-        if (parent != null) {
-            aRect.x += dx;
-            aRect.y += dy;
-
-            ((JComponent) parent).scrollRectToVisible(aRect);
-            aRect.x -= dx;
-            aRect.y -= dy;
-        }
-    }
-
-    private static String[] DESCRIPTION_COLUMNS = new String[]{"Description Name", "Information"};
-    private static String[] DETAIL_COLUMNS = new String[]{"EventNo", "EventTime", "UntilTime", "Value", "Hours", 
-        "Minutes", "Seconds"};
-//    protected static final Color BG1 = new Color(232, 237, 230);
-    protected static final Color BG2 = new Color(243, 234, 217);
-    protected static final Color BG3 = new Color(214, 231, 247);
-    protected static final Color BG4 = new Color(255, 255, 255);
+    private int _destroyedCount = 0;
+    private static JScrollPane _topPane;
+    private static final String[] DESCRIPTION_COLUMNS = new String[]{"Description Name", "Information"},
+            DETAIL_COLUMNS = new String[]{"EventNo", "EventTime", "UntilTime", "Value", "Hours",
+                "Minutes", "Seconds"};
 
     private HierarchicalTable _table = null;
-    private int _destroyedCount = 0;
-    private ListSelectionModelGroup _group = new ListSelectionModelGroup();
+    private final List _subTablesList = new ArrayList();
+    private final ListSelectionModelGroup _group = new ListSelectionModelGroup();
 }

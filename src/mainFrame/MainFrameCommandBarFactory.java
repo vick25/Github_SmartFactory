@@ -116,7 +116,7 @@ public class MainFrameCommandBarFactory extends CommandBarFactory {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                MainFrame.actionTheme(LookAndFeelFactory.OFFICE2003_STYLE);
+                MainFrame.actionTheme(LookAndFeelFactory.XERTO_STYLE);
             }
         });
         ThemeMenu.add(MIVsnet);

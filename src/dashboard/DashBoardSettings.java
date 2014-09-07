@@ -287,8 +287,9 @@ public class DashBoardSettings extends javax.swing.JDialog {
                     setSettingsInPropertieFile(value + "m");
                     //Read the file
                     ReadPropertiesFile.readConfig();
-                    DashBoard.bslTime.setText("Scheduler of " + Constants.timetoquery + " is running "
-                            + "to refresh the chart(s) if any is shown...");
+                    DashBoard.bslTime.setText(new StringBuilder().append("Scheduler of ").
+                            append(Constants.timetoquery).append(" is running to refresh the chart(s) if any "
+                                    + "is shown...").toString());
                     timeUpdated = true;
                     MainFrame.setDashBoardDate(DashBoard.dtSpinner.getDate());
                 } catch (Exception ex) {
