@@ -26,16 +26,21 @@ import java.awt.GridLayout;
 import java.awt.HeadlessException;
 import java.awt.event.ActionEvent;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TimerTask;
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
+import javax.swing.JComponent;
 import javax.swing.JOptionPane;
 import javax.swing.SwingConstants;
 import resources.Constants;
@@ -48,12 +53,24 @@ import smartfactoryV2.Queries;
  */
 public class CollapsiblePaneDashboard extends TimerTask {
 
+    public boolean isVertical() {
+        return _vertical;
+    }
+
+    public void setVertical(boolean _vertical) {
+        this._vertical = _vertical;
+    }
+
     public Map<String, CollapsiblePaneGadget> getMapMach() {
         return Collections.unmodifiableMap(mapMach);
     }
 
     public void setMapMach(Map<String, CollapsiblePaneGadget> mapMach) {
         this.mapMach = mapMach;
+    }
+
+    public List<AbstractGadget> getGadgetList() {
+        return Collections.unmodifiableList(gadgetList);
     }
 
     public DashboardTabbedPane getTabbedPane() {
@@ -75,10 +92,15 @@ public class CollapsiblePaneDashboard extends TimerTask {
         /*Get the machine and call the createGadget method the create 
          it by adding to the dashboard palette*/
         Enumeration e = Collections.enumeration(_machines);
+        gadgetList = new ArrayList<>();
+        byte i = 0;
         while (e.hasMoreElements()) {
             Machine machName = (Machine) e.nextElement();
             StringBuilder builder = new StringBuilder("<html><font color=darkblue size=4><strong>");
-            manager.addGadget(createGadget(builder.append(machName.getMachineName()).append("</strong></font>").toString()));
+            gadgetList.add(createGadget(builder.append(machName.getMachineName()).append("</strong></font>").toString()));
+            manager.addGadget(gadgetList.get(i));
+            i++;
+//            manager.showGadget(createGadget(builder.append(machName.getMachineName()).append("</strong></font>").toString()));
         }
         manager.setColumnResizable(true);
 
@@ -168,7 +190,8 @@ public class CollapsiblePaneDashboard extends TimerTask {
             }
         });
 
-        final Dashboard dashBoard = _tabbedPane.createDashboard("Machines DashBoard (click show palette)");
+        final Dashboard dashBoard = _tabbedPane.createDashboard("<html><font size=3><strong>Machines DashBoard</strong> "
+                + "(click show palette)</font>");
         dashBoard.setColumnCount(3);
         dashBoard.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
@@ -278,21 +301,22 @@ public class CollapsiblePaneDashboard extends TimerTask {
     }
 
     private int[] getMachineConfigNo(String machineName) throws SQLException {
+        ResultSet resultSet;
         int[] configNum = new int[2];
         try (PreparedStatement ps = ConnectDB.con.prepareStatement(Queries.GET_CONFIGNO)) {
             ps.setString(1, "Cumulative");
             ps.setString(2, removeHtmlTag(machineName));
-            ConnectDB.res = ps.executeQuery();
-            while (ConnectDB.res.next()) {
-                configNum[0] = ConnectDB.res.getInt(1);//Cumalative configNo
+            resultSet = ps.executeQuery();
+            while (resultSet.next()) {
+                configNum[0] = resultSet.getInt(1);//Cumalative configNo
             }
         }
         try (PreparedStatement ps = ConnectDB.con.prepareStatement(Queries.GET_CONFIGNO)) {
             ps.setString(1, "Rate");
             ps.setString(2, removeHtmlTag(machineName));
-            ConnectDB.res = ps.executeQuery();
-            while (ConnectDB.res.next()) {
-                configNum[1] = ConnectDB.res.getInt(1);//Rate configNo
+            resultSet = ps.executeQuery();
+            while (resultSet.next()) {
+                configNum[1] = resultSet.getInt(1);//Rate configNo
             }
         }
         return configNum;
@@ -302,21 +326,22 @@ public class CollapsiblePaneDashboard extends TimerTask {
         return s.replaceAll("\\<.*?>", "");
     }
 
-    /*Main method setGadgetComponenPane to create gadget corresponding chart by calling the static method
-     createChart of the GadgetFactory class*/
+    /* Main method setGadgetComponenPane to create gadget corresponding chart by calling the static method
+     createChart of the GadgetFactory class */
     public void setGadgetComponentPane(int[] configNo, String keyMachineName, CollapsiblePaneGadget gadget)
             throws SQLException, ParseException {
-        gadget.getContentPane().removeAll();
-        gadget.getContentPane().setPreferredSize(new Dimension(200, 300));
-        gadget.getContentPane().setLayout(new BorderLayout());
-        gadget.getContentPane().setBorder(BorderFactory.createEmptyBorder(6, 6, 6, 6));
+        JComponent gadgetComponentPane = gadget.getContentPane();
+        gadgetComponentPane.removeAll();
+        gadgetComponentPane.setPreferredSize(new Dimension(200, 300));
+        gadgetComponentPane.setLayout(new BorderLayout());
+        gadgetComponentPane.setBorder(BorderFactory.createEmptyBorder(6, 6, 6, 6));
         /* Create the chart for the selection of each machine */
         Component chart = GadgetFactory.createChart(configNo, keyMachineName, DashBoard.getDate());
         if (keyMachineName.startsWith("Machine")) {
-            gadget.getContentPane().add(chart);
+            gadgetComponentPane.add(chart);
         } else {
 //            gadget.getContentPane().setPreferredSize(new Dimension(200, 100 + (int) (Math.random() * 200)));
-            gadget.getContentPane().add(chart);
+            gadgetComponentPane.add(chart);
             gadget.revalidate();
             gadget.repaint();
             mapMach.put(removeHtmlTag(keyMachineName), gadget);
@@ -326,7 +351,12 @@ public class CollapsiblePaneDashboard extends TimerTask {
     @Override
     public void run() {
         if (mapMach.size() > 0) {
-            for (String key : mapMach.keySet()) {// "for each key in the map's key set"
+            Set<String> keySet = mapMach.keySet();
+            Iterator<String> keySetIterator = keySet.iterator();
+            while (keySetIterator.hasNext()) {
+                String key = keySetIterator.next();
+//            }
+//            for (String key : mapMach.keySet()) {// "for each key in the map's key set"
                 try {
                     int[] configNo = getMachineConfigNo(key);
                     CollapsiblePaneGadget value = mapMach.get(key);
@@ -343,15 +373,16 @@ public class CollapsiblePaneDashboard extends TimerTask {
                 } catch (ParseException ex) {
                     ex.printStackTrace();
                 }
+                DashBoard.bslTime.setText(new StringBuilder().append("Scheduler of ").append(Constants.timetoquery).
+                        append(" is running to refresh the chart(s) if any is shown...").toString());
             }
-            DashBoard.bslTime.setText(new StringBuilder().append("Scheduler of ").append(Constants.timetoquery).
-                    append(" is running to refresh the chart(s) if any is shown...").toString());
         }
     }
 
     private DashboardTabbedPane _tabbedPane;
-    public boolean _vertical = false;
+    private boolean _vertical = false;
     private final ArrayList<Machine> _machines;
     private GadgetManager manager;
+    private List<AbstractGadget> gadgetList;
     private Map<String, CollapsiblePaneGadget> mapMach = new HashMap<>();
 }

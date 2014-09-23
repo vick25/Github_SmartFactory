@@ -169,7 +169,7 @@ public class ServerConnectionMessage extends javax.swing.JDialog {
     private javax.swing.JPanel jPanel1;
     private javax.swing.JLabel lblMessage;
     // End of variables declaration//GEN-END:variables
-    Timer time, time2, time3;
-    int height, width, step, delay;
-    static boolean close;
+    private Timer time, time2, time3;
+    private int height, width, step;
+    private static boolean close;
 }

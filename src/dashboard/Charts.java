@@ -30,6 +30,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.Calendar;
@@ -69,7 +70,7 @@ public class Charts extends Chart {
         }
     }
 
-    private void updateModelsTotal() throws SQLException, ParseException {
+    synchronized private void updateModelsTotal() throws SQLException, ParseException {
         chartTotal.removeModels();
         chartTotal.removeDrawables();
 
@@ -258,20 +259,21 @@ public class Charts extends Chart {
 
     private double calculateCurrentTarget(double target, String lastHourValue) throws SQLException, ParseException {
         String PStart = "", Tcurrent = "";
+        ResultSet resultSet;
         try (PreparedStatement ps = ConnectDB.con.prepareStatement(
                 "(SELECT Logtime FROM datalog WHERE Logtime LIKE ? ORDER BY Logtime ASC LIMIT 1)\n"
                 + "UNION \n"
                 + "(SELECT Logtime FROM datalog WHERE Logtime LIKE ? ORDER BY Logtime DESC LIMIT 1)")) {
             ps.setString(1, lastHourValue + "%");
             ps.setString(2, lastHourValue + "%");
-            ConnectDB.res = ps.executeQuery();
+            resultSet = ps.executeQuery();
             boolean getFristValue = true;
-            while (ConnectDB.res.next()) {
+            while (resultSet.next()) {
                 if (getFristValue) {
-                    PStart = ConnectDB.res.getString(1);
+                    PStart = resultSet.getString(1);
                     getFristValue = false;
                 }
-                Tcurrent = ConnectDB.res.getString(1);
+                Tcurrent = resultSet.getString(1);
             }
         }
 

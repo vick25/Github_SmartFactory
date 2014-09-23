@@ -345,6 +345,12 @@ public class ConnectDB {
         return targetValue;
     }
 
+    public static boolean isLeapYear(int year) {
+        return (year % 400 == 0) || ((year % 4 == 0) && (year % 100 != 0));
+//        GregorianCalendar cal = (GregorianCalendar) working;
+//        System.out.println(cal.isLeapYear(Calendar.YEAR));
+    }
+
     public static double[] getTimeDifference(Date d1, Date d2) {
 //        System.out.println(d1 + "   " + d2);
         double[] result = new double[4];

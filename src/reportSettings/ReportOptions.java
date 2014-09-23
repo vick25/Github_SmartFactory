@@ -26,7 +26,7 @@ import javax.swing.text.StyleConstants;
 public class ReportOptions extends javax.swing.JDialog {
 
     public boolean isWindowClosed() {
-        return WindowClosed;
+        return windowClosed;
     }
 
     public Image getPhoto() {
@@ -119,7 +119,7 @@ public class ReportOptions extends javax.swing.JDialog {
 
             @Override
             public void windowClosing(WindowEvent e) {
-                WindowClosed = false;
+                windowClosed = false;
             }
         });
         txtAddress.addKeyListener(new KeyAdapter() {
@@ -432,7 +432,7 @@ public class ReportOptions extends javax.swing.JDialog {
             setAddress(txtAddress.getText().trim());
             prefs.put("address", getAddress());
         }
-        WindowClosed = true;
+        windowClosed = true;
         this.dispose();
     }//GEN-LAST:event_btnPrintReportActionPerformed
 
@@ -470,7 +470,7 @@ public class ReportOptions extends javax.swing.JDialog {
     private void txtAddressFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_txtAddressFocusGained
         if (txtAddress.getText().equals("---   Company physical address   ---")) {
             txtAddress.setText("");
-            txtAddress.setForeground(Color.black);
+            txtAddress.setForeground(Color.BLACK);
             txtAddress.setFont(new java.awt.Font("Tahoma", 0, 11));
             StyleConstants.setAlignment(attribs, StyleConstants.ALIGN_LEFT);
             txtAddress.setParagraphAttributes(attribs, false);
@@ -507,7 +507,7 @@ public class ReportOptions extends javax.swing.JDialog {
 
     private void cursorIn(JTextField txtField, String text) {
         if (txtField.getText().equals(text)) {
-            txtField.setForeground(Color.black);
+            txtField.setForeground(Color.BLACK);
             txtField.setText("");
             txtField.setHorizontalAlignment(javax.swing.JTextField.LEADING);
         }
@@ -537,7 +537,7 @@ public class ReportOptions extends javax.swing.JDialog {
 
     private void setTextFieldNormal(JTextField txtField, String text) {
         if (!txtField.getText().equals(text)) {
-            txtField.setForeground(Color.black);
+            txtField.setForeground(Color.BLACK);
             txtField.setHorizontalAlignment(javax.swing.JTextField.LEADING);
             txtField.setFont(new java.awt.Font("Tahoma", 0, 11));
         }
@@ -545,7 +545,7 @@ public class ReportOptions extends javax.swing.JDialog {
 
     private void setTextAreaNormal(JTextPane txtPane, String text) {
         if (!txtPane.getText().equals(text)) {
-            txtPane.setForeground(Color.black);
+            txtPane.setForeground(Color.BLACK);
             txtPane.setFont(new java.awt.Font("Tahoma", 0, 11));
             StyleConstants.setAlignment(attribs, StyleConstants.ALIGN_LEFT);
             txtPane.setParagraphAttributes(attribs, false);
@@ -573,9 +573,8 @@ public class ReportOptions extends javax.swing.JDialog {
     public static javax.swing.JTextField txtReportTitle;
     private org.jdesktop.swingx.JXTextField txtWebSite;
     // End of variables declaration//GEN-END:variables
-    private boolean addTable, addChart;
+    private boolean addTable, addChart, windowClosed;
     private String companyTitle, reportTitle, email, website, address;
-    private boolean WindowClosed;
     private Image photo;
     private final SimpleAttributeSet attribs;
     Preferences prefs = Preferences.userNodeForPackage(ReportOptions.class);

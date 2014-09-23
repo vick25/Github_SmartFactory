@@ -62,8 +62,7 @@ public class ViewHistory extends javax.swing.JDialog {
     public ViewHistory(java.awt.Frame parent, boolean modal, String myMachineTitle, Date myDateFrom) throws SQLException {
         super(parent, modal);
         initComponents();
-        this._machineTitle = myMachineTitle;
-        this.loadMachine();
+        this.loadMachine(myMachineTitle);
         if (myDateFrom != null) {
             cmbHFrom.setDate(myDateFrom);
         } else {
@@ -103,7 +102,7 @@ public class ViewHistory extends javax.swing.JDialog {
         jideLabel1.setText("Machine:");
 
         chkFrom.setBackground(new java.awt.Color(255, 255, 255));
-        chkFrom.setText("From:");
+        chkFrom.setText("Show history from:");
         chkFrom.setFocusable(false);
         chkFrom.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
@@ -127,7 +126,7 @@ public class ViewHistory extends javax.swing.JDialog {
 
         btnRefresh.setBackground(new java.awt.Color(255, 255, 255));
         btnRefresh.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/icons/repeat.png"))); // NOI18N
-        btnRefresh.setToolTipText("Reset Date");
+        btnRefresh.setToolTipText("Reset date to current");
         btnRefresh.setEnabled(false);
         btnRefresh.setFocusable(false);
         btnRefresh.addActionListener(new java.awt.event.ActionListener() {
@@ -147,7 +146,7 @@ public class ViewHistory extends javax.swing.JDialog {
                     .addComponent(chkFrom))
                 .addGap(4, 4, 4)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(cmbMachine, javax.swing.GroupLayout.DEFAULT_SIZE, 530, Short.MAX_VALUE)
+                    .addComponent(cmbMachine, javax.swing.GroupLayout.DEFAULT_SIZE, 466, Short.MAX_VALUE)
                     .addGroup(jPanel2Layout.createSequentialGroup()
                         .addComponent(cmbHFrom, javax.swing.GroupLayout.PREFERRED_SIZE, 240, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -237,19 +236,18 @@ public class ViewHistory extends javax.swing.JDialog {
         if (cmbMachine.getSelectedObjects().length != 0) {
             _topPane.setViewportView(null);
             setMachine = new TreeSet<>();
-            StringBuilder query = new StringBuilder("SELECT h.Machine \n").append("FROM configuration c, hardware h \n"
-                    + "WHERE h.HwNo = c.HwNo \nAND c.HwNo IN (SELECT HwNo FROM hardware WHERE Machine IN (").
-                    append(ConnectDB.retrieveCateria(cmbMachine.getSelectedObjects())).append(")) \n"
-                            + "ORDER BY c.HwNo ASC, c.AvMinMax DESC");
             try (Statement stat = ConnectDB.con.createStatement()) {//for the channel
-                ConnectDB.res = stat.executeQuery(query.toString());
+                ConnectDB.res = stat.executeQuery(new StringBuilder("SELECT h.Machine FROM configuration c, hardware h \n").
+                        append("WHERE h.HwNo = c.HwNo \nAND c.HwNo IN (SELECT HwNo FROM hardware \nWHERE h.Machine IN (").
+                        append(ConnectDB.retrieveCateria(cmbMachine.getSelectedObjects())).append(")) \n"
+                                + "ORDER BY c.HwNo ASC, c.AvMinMax DESC").toString());
                 while (ConnectDB.res.next()) {
                     setMachine.add(ConnectDB.res.getString(1));
                 }
             } catch (SQLException ex) {
                 ConnectDB.catchSQLException(ex);
             }
-            getDemoPanel();//create everything
+            this.getDemoPanel();//create everything
         } else {
             _topPane.setViewportView(null);
         }
@@ -260,7 +258,7 @@ public class ViewHistory extends javax.swing.JDialog {
     }//GEN-LAST:event_btnCloseActionPerformed
 
     private void btnRefreshActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRefreshActionPerformed
-        Calendar working = ((Calendar) Calendar.getInstance().clone());
+        Calendar working = (Calendar) Calendar.getInstance().clone();
         working.add(Calendar.DAY_OF_YEAR, -1);
         cmbHFrom.setDate(working.getTime());
     }//GEN-LAST:event_btnRefreshActionPerformed
@@ -269,7 +267,6 @@ public class ViewHistory extends javax.swing.JDialog {
         _table = createTable();
         _topPane.setViewportView(_table);
 
-//        JScrollPane scrollPane = new JScrollPane(_table);
         _topPane.getViewport().putClientProperty("HierarchicalTable.mainViewport", Boolean.TRUE);
         _topPane.getViewport().addChangeListener(new ChangeListener() {
 
@@ -278,7 +275,7 @@ public class ViewHistory extends javax.swing.JDialog {
                 Point point = ((JViewport) e.getSource()).getViewPosition();
                 int rowIndex = _table.rowAtPoint(point);
                 try {
-                    // according to the value of rowIndex and if the row is expanded, you could now choose to
+                    //according to the value of rowIndex and if the row is expanded, you could now choose to
                     //switch the column header view as you wish
                     _topPane.setColumnHeaderView(((JTable) _subTablesList.get(rowIndex)).getTableHeader());
                 } catch (Exception ex) {
@@ -298,7 +295,6 @@ public class ViewHistory extends javax.swing.JDialog {
         table.setModel(new HistoryTableModel());//set the table from the data collected in the database
         table.setBackground(ConnectDB.BG4);
         table.setName("History Table");
-//        table.getTableHeader().setDefaultRenderer(new ConnectDB.HeaderRenderer(table));
         table.getColumnModel().getColumn(0).setPreferredWidth(100);
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         table.setComponentFactory(new HierarchicalTableComponentFactory() {
@@ -390,12 +386,7 @@ public class ViewHistory extends javax.swing.JDialog {
                 Thread thread = new Thread() {
                     @Override
                     public void run() {
-                        super.run();
-                        try {
-                            Thread.sleep(1000); // you could use this thread to calculate your table model.
-                        } catch (InterruptedException e) {
-                            // null
-                        }
+//                        super.run();
                         SwingUtilities.invokeLater(new Runnable() {
 
                             @Override
@@ -450,7 +441,7 @@ public class ViewHistory extends javax.swing.JDialog {
         return _destroyedCount;
     }
 
-    static private class ChildTableModel extends DefaultTableModel implements HeaderStyleModel {
+    private static class ChildTableModel extends DefaultTableModel implements HeaderStyleModel {
 
         private static final CellStyle CENTER_STYLE = new CellStyle();
         private final TableModel model;
@@ -515,7 +506,6 @@ public class ViewHistory extends javax.swing.JDialog {
         public boolean isHeaderStyleOn() {
             return true;
         }
-
     }
 
     static private class HistoryTableModel extends DefaultTableModel implements HierarchicalTableModel,
@@ -624,7 +614,7 @@ public class ViewHistory extends javax.swing.JDialog {
         try (PreparedStatement ps = ConnectDB.con.prepareStatement(Queries.HISTORY_MACHINE_CHANNELID)) {
             ps.setString(1, name);
             ConnectDB.res = ps.executeQuery();
-            channelID.add("Time");
+            channelID.add("LogTime");
             while (ConnectDB.res.next()) {
                 channelID.add(ConnectDB.res.getString(1));
             }
@@ -660,7 +650,7 @@ public class ViewHistory extends javax.swing.JDialog {
 
     private static String[][] fillTable(int col, int item) throws SQLException {
         int row = 0;
-        try (PreparedStatement ps = ConnectDB.con.prepareStatement(runQuery(Queries.HISTORY_LOGDATA))) {
+        try (PreparedStatement ps = ConnectDB.con.prepareStatement(runExtraQuery(Queries.HISTORY_LOGDATA))) {
             ps.setInt(1, item);
             ConnectDB.res = ps.executeQuery();
             while (ConnectDB.res.next()) {
@@ -673,7 +663,7 @@ public class ViewHistory extends javax.swing.JDialog {
     }
 
     private static int getRowNum(int row) throws SQLException {
-        try (PreparedStatement ps = ConnectDB.con.prepareStatement(runQuery(Queries.HISTORY_LOGDATA))) {
+        try (PreparedStatement ps = ConnectDB.con.prepareStatement(runExtraQuery(Queries.HISTORY_LOGDATA))) {
             ps.setInt(1, row);
             ConnectDB.res = ps.executeQuery();
             ConnectDB.res.last();
@@ -681,7 +671,7 @@ public class ViewHistory extends javax.swing.JDialog {
         }
     }
 
-    private static String runQuery(String channel) {
+    private static String runExtraQuery(String channel) {
         StringBuilder channelQuery = new StringBuilder(channel);
         if (chkFrom.isSelected()) {
             channelQuery = new StringBuilder(channel.substring(0, channel.lastIndexOf("ORDER")).trim()).
@@ -691,7 +681,7 @@ public class ViewHistory extends javax.swing.JDialog {
         return channelQuery.toString();
     }
 
-    private void loadMachine() throws SQLException {
+    private void loadMachine(String machineTitle) throws SQLException {
         ArrayList<String> data = new ArrayList<>();
         data.add(0, CheckBoxList.ALL);
         try (PreparedStatement ps = ConnectDB.con.prepareStatement(Queries.GET_HARDWARE)) {
@@ -701,11 +691,10 @@ public class ViewHistory extends javax.swing.JDialog {
                 data.add(ConnectDB.res.getString(2));
             }
             cmbMachine.setModel(new DefaultComboBoxModel(data.toArray()));
+            cmbMachine.setSelectedIndex(-1);
             data.clear();
-            if ("".equals(this._machineTitle)) {
-                cmbMachine.setSelectedIndex(-1);
-            } else {
-                cmbMachine.setSelectedItem(this._machineTitle);
+            if (!machineTitle.isEmpty()) {
+                cmbMachine.setSelectedItem(machineTitle);
             }
         }
     }
@@ -721,7 +710,6 @@ public class ViewHistory extends javax.swing.JDialog {
     private javax.swing.JPanel jPanel2;
     private com.jidesoft.swing.JideLabel jideLabel1;
     // End of variables declaration//GEN-END:variables
-    private String _machineTitle = "";
     private static String[][] tabFill = null;
 
     private static Set<String> setMachine = null;

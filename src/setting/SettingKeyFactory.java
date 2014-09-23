@@ -23,6 +23,9 @@ public class SettingKeyFactory {
         public static final String TABPLACEMENT = "SMF.SettingKeyFactory.General.TABPLACEMENT";
         public static final String CONFIRMCLOSETAB = "SMF.SettingKeyFactory.General.CONFIRMCLOSETAB";
         public static final String CONFIRMCLOSEMAINFRAME = "SMF.SettingKeyFactory.General.CONFIRMCLOSEMAINFRAME";
+        public static final String DASHBOARD_FOLDER = "SMF.SettingKeyFactory.General.DASHBOARD_FOLDER";
+        public static final String YEAR_START = "SMF.SettingKeyFactory.General.YEAR_START";
+        public static final String DAY_OF_WEEK = "SMF.SettingKeyFactory.General.DAY_OF_WEEK";
     }
 
     public static class Privacy {

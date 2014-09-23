@@ -401,91 +401,97 @@ public class Identification extends javax.swing.JDialog {
     }//GEN-LAST:event_btnEffacerActionPerformed
 
     private void btnConnexionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnConnexionActionPerformed
-//        dialog = this;
-        ConnectDB.getConnectionInstance();
-        try {
-            //Add the userlist table
-            createUserTableInDatabase();
-            //         
-            boolean userFound = false;
-            String login = txtLogin.getText(),
-                    password = String.copyValueOf(txtPassword.getPassword());
-            try (PreparedStatement ps = ConnectDB.con.prepareStatement("SELECT * FROM userlist")) {
-                resultSet = ps.executeQuery();
-                ResultSetMetaData rsmd = resultSet.getMetaData();
-                byte nbCols = (byte) rsmd.getColumnCount();
-                while (resultSet.next()) {
-                    for (byte i = 1; i <= nbCols; i++) {
-                        if ((login.equalsIgnoreCase(resultSet.getString(i)))
-                                && (password.equalsIgnoreCase(ConnectDB.decrypter(resultSet.getString(i + 1))))) {
-                            userFound = true;
-                            if (!okID) {
-                                ConnectDB.serverIP = hlIPServer.getText();
-                                String status = resultSet.getString("status");
-                                userID = resultSet.getInt("IDuser");
-                                if (chkSaveLoginDetails.isSelected()) {
-                                    this.saveLoginCredentials();//save the login credentials
-                                } else {
-                                    if (!status.isEmpty()) {
-                                        try {
-                                            pref.clear();
-                                        } catch (BackingStoreException ex) {
-                                            ex.printStackTrace();
-                                        }
-                                    }
-                                }
-                                this.dispose();
-                                createTablesInDatabase();//Creating the TargetInsert table in the database
-//                                ConnectDB.saveIP(ConnectDB.serverIP);
-                                if ("root".equals(login)) {
-                                    new CreateUser(_mainFrame, true).setVisible(true);
-                                    new Identification(_mainFrame, true).setVisible(true);
-                                } else {
-                                    if (frameSaved) {
-                                        _showMainFrame.setVisible(true);
-                                        if (quickViewFrame != null) {
-                                            quickViewFrame.setVisible(true);
-                                        }
-                                        _showMainFrame.revalidate();
-                                    } else {
-                                        _mainFrame = new MainFrame(userID);
-                                        _mainFrame.showFrame();
-                                        if (ConnectDB.pref.getBoolean(SettingKeyFactory.DefaultProperties.SHOWPRODUCTIONQVIEW, false)) {
-                                            quickViewFrame = new JFrame("Production Quick View");
-                                            quickViewFrame.setSize(915, 570);
-                                            productionQuickView = new ProductionQuickView(quickViewFrame);
-                                            quickViewFrame.setContentPane(productionQuickView);
-                                            quickViewFrame.setIconImage(new ImageIcon(getClass().getResource("/images/smart_factory_logo_icon.png")).getImage());
-                                            quickViewFrame.setLocationRelativeTo(_mainFrame);
-                                            quickViewFrame.setVisible(true);
-                                            quickViewFrame.addWindowListener(new WindowAdapter() {
-
-                                                @Override
-                                                public void windowClosing(WindowEvent e) {
-                                                    quickViewFrame = null;
+        Thread worker = new Thread() {
+            @Override
+            public void run() {
+                ConnectDB.getConnectionInstance();
+                try {
+                    //Add the userlist table
+                    createUserTableInDatabase();
+                    //         
+                    boolean userFound = false;
+                    String login = txtLogin.getText(),
+                            password = String.copyValueOf(txtPassword.getPassword());
+                    try (PreparedStatement ps = ConnectDB.con.prepareStatement("SELECT * FROM userlist")) {
+                        ResultSet resultSet = ps.executeQuery();
+                        ResultSetMetaData rsmd = resultSet.getMetaData();
+                        byte nbCols = (byte) rsmd.getColumnCount();
+                        while (resultSet.next()) {
+                            for (byte i = 1; i <= nbCols; i++) {
+                                if ((login.equalsIgnoreCase(resultSet.getString(i)))
+                                        && (password.equalsIgnoreCase(ConnectDB.decrypter(resultSet.getString(i + 1))))) {
+                                    userFound = true;
+                                    if (!okID) {
+                                        ConnectDB.serverIP = hlIPServer.getText();
+                                        String status = resultSet.getString("status");
+                                        userID = resultSet.getInt("IDuser");
+                                        if (chkSaveLoginDetails.isSelected()) {
+                                            saveLoginCredentials();//save the login credentials
+                                        } else {
+                                            if (!status.isEmpty()) {
+                                                try {
+                                                    pref.clear();
+                                                } catch (BackingStoreException ex) {
+                                                    ex.printStackTrace();
                                                 }
-                                            });
-                                            if (!TargetInsert.isTargetFound()) {
-                                                new TargetInsert(quickViewFrame, true).setVisible(true);
+                                            }
+                                        }
+                                        dispose();
+                                        createTablesInDatabase();//Creating the TargetInsert table in the database
+//                                ConnectDB.saveIP(ConnectDB.serverIP);
+                                        if ("root".equals(login)) {
+                                            new CreateUser(_mainFrame, true).setVisible(true);
+                                            new Identification(_mainFrame, true).setVisible(true);
+                                        } else {
+                                            if (frameSaved) {
+                                                _showMainFrame.setVisible(true);
+                                                if (quickViewFrame != null) {
+                                                    quickViewFrame.setVisible(true);
+                                                }
+                                                _showMainFrame.revalidate();
+                                            } else {
+                                                _mainFrame = new MainFrame(userID);
+                                                _mainFrame.showFrame();
+                                                if (ConnectDB.pref.getBoolean(SettingKeyFactory.DefaultProperties.SHOWPRODUCTIONQVIEW, false)) {
+                                                    quickViewFrame = new JFrame("Production Quick View");
+                                                    quickViewFrame.setSize(950, 570);
+                                                    productionQuickView = new ProductionQuickView(quickViewFrame);
+                                                    quickViewFrame.setContentPane(productionQuickView);
+                                                    quickViewFrame.setIconImage(new ImageIcon(getClass().
+                                                            getClassLoader().getResource("images/smart_factory_logo_icon.png")).getImage());
+                                                    quickViewFrame.setLocationRelativeTo(_mainFrame);
+                                                    quickViewFrame.setVisible(true);
+                                                    quickViewFrame.addWindowListener(new WindowAdapter() {
+
+                                                        @Override
+                                                        public void windowClosing(WindowEvent e) {
+                                                            quickViewFrame = null;
+                                                        }
+                                                    });
+                                                    if (!TargetInsert.isTargetFound()) {
+                                                        new TargetInsert(quickViewFrame, true).setVisible(true);
+                                                    }
+                                                }
                                             }
                                         }
                                     }
+                                    okID = true;
                                 }
                             }
-                            okID = true;
                         }
+                        if (!userFound) {
+                            JOptionPane.showMessageDialog(Identification.this, "Please check your connection settings :\n"
+                                    + "Login and/or Password... ", "Login & Server Connection", JOptionPane.ERROR_MESSAGE);
+                        }
+                    } catch (SQLException ex) {
+                        ConnectDB.catchSQLException(ex);
                     }
+                } catch (HeadlessException ex) {
+                    ex.printStackTrace();
                 }
-                if (!userFound) {
-                    JOptionPane.showMessageDialog(this, "Please check your connection settings :\n"
-                            + "Login and/or Password... ", "Login & Server Connection", JOptionPane.ERROR_MESSAGE);
-                }
-            } catch (SQLException ex) {
-                ConnectDB.catchSQLException(ex);
             }
-        } catch (HeadlessException ex) {
-            ex.printStackTrace();
-        }
+        };
+        worker.start();
     }//GEN-LAST:event_btnConnexionActionPerformed
 
     private void hlChangePasswrdActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_hlChangePasswrdActionPerformed
@@ -521,23 +527,23 @@ public class Identification extends javax.swing.JDialog {
     }
 
     private void createUserTableInDatabase() {
-        StringBuilder query = new StringBuilder(1024).append("USE smartfactory; \n" 
-                + "CREATE TABLE IF NOT EXISTS `userlist` ( \n" 
-                + " `IDuser` smallint(6) NOT NULL AUTO_INCREMENT, \n" 
-                + " `firstname` varchar(50) NOT NULL, \n" 
-                + " `lastname` varchar(50) NOT NULL, \n" 
-                + " `othername` varchar(50) NOT NULL, \n" 
-                + " `email` text NOT NULL, \n" 
-                + " `login` varchar(20) NOT NULL, \n" 
-                + " `password` varchar(15) NOT NULL, \n" 
-                + " `question` text NOT NULL, \n" 
-                + " `answer` text NOT NULL, \n" 
-                + " `privilege` varchar(20) NOT NULL, \n" 
-                + " `status` varchar(20) NOT NULL, \n" 
-                + " PRIMARY KEY (`IDuser`)) \n" 
-                + " ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1; \n" 
-                + "INSERT INTO `userlist` \n(`IDuser`, `firstname`,`lastname`,`othername`,`email`," 
-                + "`login`,`password`,`question`,`answer`,`privilege`,`status`) VALUES \n" 
+        StringBuilder query = new StringBuilder(1024).append("USE smartfactory; \n"
+                + "CREATE TABLE IF NOT EXISTS `userlist` ( \n"
+                + " `IDuser` smallint(6) NOT NULL AUTO_INCREMENT, \n"
+                + " `firstname` varchar(50) NOT NULL, \n"
+                + " `lastname` varchar(50) NOT NULL, \n"
+                + " `othername` varchar(50) NOT NULL, \n"
+                + " `email` text NOT NULL, \n"
+                + " `login` varchar(20) NOT NULL, \n"
+                + " `password` varchar(15) NOT NULL, \n"
+                + " `question` text NOT NULL, \n"
+                + " `answer` text NOT NULL, \n"
+                + " `privilege` varchar(20) NOT NULL, \n"
+                + " `status` varchar(20) NOT NULL, \n"
+                + " PRIMARY KEY (`IDuser`)) \n"
+                + " ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1; \n"
+                + "INSERT INTO `userlist` \n(`IDuser`, `firstname`,`lastname`,`othername`,`email`,"
+                + "`login`,`password`,`question`,`answer`,`privilege`,`status`) VALUES \n"
                 + "(1,'root','root','mf','smartfactory','root','").append(ConnectDB.crypter("root123")).
                 append("','ideax'," + "'").append(ConnectDB.crypter("smartfactory")).append("','Admin','mainUser');");
         try (Statement stmt = ConnectDB.con.createStatement()) {
@@ -555,7 +561,7 @@ public class Identification extends javax.swing.JDialog {
             }
         }
     }
-//
+
     public static void main(String args[]) {
         java.awt.EventQueue.invokeLater(new Runnable() {
 
@@ -591,8 +597,5 @@ public class Identification extends javax.swing.JDialog {
     public static JFrame quickViewFrame;
     private static JFrame _showMainFrame = null;
     public static ProductionQuickView productionQuickView = null;
-//    public static Identification dialog;
-//    private final JDialog parent;
-    private ResultSet resultSet = null;
     private final Preferences pref = Preferences.userNodeForPackage(Identification.class);
 }

@@ -54,11 +54,11 @@ public class LanguageCombobox extends JPanel {
         }
     }
 
-    class ComboBoxRenderer extends JLabel implements ListCellRenderer {
+    private class ComboBoxRenderer extends JLabel implements ListCellRenderer {
 
         private Font uhOhFont;
 
-        public ComboBoxRenderer() {
+        ComboBoxRenderer() {
             setOpaque(true);
             setHorizontalAlignment(SwingConstants.LEADING);
             setVerticalAlignment(CENTER);

@@ -43,10 +43,10 @@ public class SplashScreen extends javax.swing.JFrame {
                     try {
                         lblSplash.setText("Initialization ...");
                         Thread.sleep(2000);
-                        lblSplash.setText("Executing queries ...");
                     } catch (InterruptedException ex) {
                         ex.printStackTrace();
                     }
+                    lblSplash.setText("Executing queries ...");
 //                System.out.println(workingDir + File.separator + "src\\sqldump\\smartNewDump.sql");
 //                System.out.println(getClass().getResourceAsStream("/sqldump/smartNewDump.sql").toString());
                     //Run the restore database in a thread

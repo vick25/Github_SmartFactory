@@ -61,7 +61,7 @@ public class ViewHistory extends javax.swing.JPanel {
 
     public ViewHistory(String myMachineTitle, Date myDateFrom) throws SQLException {
         initComponents();
-        this._machineTitle = myMachineTitle;
+//        this._machineTitle = myMachineTitle;
         this.loadMachine();
         if (myDateFrom != null) {
             cmbHFrom.setDate(myDateFrom);
@@ -173,7 +173,7 @@ public class ViewHistory extends javax.swing.JPanel {
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        lblLastData.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        lblLastData.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         lblLastData.setForeground(new java.awt.Color(204, 0, 0));
         lblLastData.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
 
@@ -233,14 +233,12 @@ public class ViewHistory extends javax.swing.JPanel {
         if (cmbMachine.getSelectedObjects().length != 0) {
             _topPane.setViewportView(null);
             setMachine = new TreeSet<>();
-            String query = "SELECT h.Machine, c.ConfigNo, c.ChannelID\n"
-                    + "FROM configuration c, hardware h\n"
-                    + "WHERE h.HwNo = c.HwNo\n"
-                    + "AND c.HwNo IN (SELECT HwNo FROM hardware WHERE Machine IN ("
-                    + ConnectDB.retrieveCateria(cmbMachine.getSelectedObjects()) + "))\n"
-                    + "ORDER BY c.HwNo ASC, c.AvMinMax DESC";
             try (Statement stat = ConnectDB.con.createStatement()) {//for the channel
-                ConnectDB.res = stat.executeQuery(query);
+                ConnectDB.res = stat.executeQuery(new StringBuilder("SELECT h.Machine, c.ConfigNo, c.ChannelID \n").
+                        append("FROM configuration c, hardware h \nWHERE h.HwNo = c.HwNo "
+                                + "\nAND c.HwNo IN (SELECT HwNo FROM hardware WHERE Machine IN (").
+                        append(ConnectDB.retrieveCateria(cmbMachine.getSelectedObjects())).
+                        append(")) \nORDER BY c.HwNo ASC, c.AvMinMax DESC").toString());
                 while (ConnectDB.res.next()) {
                     setMachine.add(ConnectDB.res.getString(1));
                 }
@@ -446,9 +444,8 @@ public class ViewHistory extends javax.swing.JPanel {
                     public void run() {
                         super.run();
                         try {
-                            Thread.sleep(1000); // you could use this thread to calculate your table model.
+                            Thread.sleep(500); // you could use this thread to calculate your table model.
                         } catch (InterruptedException e) {
-                            // null
                         }
                         SwingUtilities.invokeLater(new Runnable() {
 
@@ -603,7 +600,7 @@ public class ViewHistory extends javax.swing.JPanel {
         for (String sMachine : setMachine) {
             if (y < i) {
                 tabDescription[y][0] = sMachine;
-                tabDescription[y][1] = sMachine + " channels";
+                tabDescription[y][1] = new StringBuilder(sMachine).append(" channels").toString();
             }
             y++;
         }
@@ -685,18 +682,18 @@ public class ViewHistory extends javax.swing.JPanel {
     }
 
     private static String addExtraQuery(String channel) {
-        String channelQuery = channel;
+        StringBuilder channelQuery = new StringBuilder(channel);
         if (chkFrom.isSelected()) {
-            channelQuery = channel.substring(0, channel.lastIndexOf("ORDER")).trim() + " \n"
-                    + "AND d.LogTime >= '" + ConnectDB.SDATE_FORMAT_HOUR.format(cmbHFrom.getDate()) + "' \n"
-                    + "ORDER BY d.LogTime ASC";
+            channelQuery = new StringBuilder(channel.substring(0, channel.lastIndexOf("ORDER")).trim()).
+                    append(" \nAND d.LogTime >= '").append(ConnectDB.SDATE_FORMAT_HOUR.format(cmbHFrom.getDate())).
+                    append("' \nORDER BY d.LogTime ASC");
         }
-        return channelQuery;
+        return channelQuery.toString();
     }
 
     private void loadMachine() throws SQLException {
         ArrayList<String> data = new ArrayList<>();
-        try (PreparedStatement ps = ConnectDB.con.prepareStatement("SELECT Machine\n"
+        try (PreparedStatement ps = ConnectDB.con.prepareStatement("SELECT Machine \n"
                 + "FROM hardware WHERE HwNo > ?")) {
             ps.setInt(1, 0);
             ConnectDB.res = ps.executeQuery();
@@ -706,17 +703,18 @@ public class ViewHistory extends javax.swing.JPanel {
             }
             cmbMachine.setModel(new DefaultComboBoxModel(data.toArray()));
             data.clear();
-            if ("".equals(this._machineTitle)) {
-                cmbMachine.setSelectedIndex(-1);
-            } else {
-                cmbMachine.setSelectedItem(this._machineTitle);
-            }
+//            if ("".equals(this._machineTitle)) {
+            cmbMachine.setSelectedIndex(-1);
+//            } 
+//            else {
+//                cmbMachine.setSelectedItem(this._machineTitle);
+//            }
         }
-        try (PreparedStatement ps = ConnectDB.con.prepareStatement("SELECT LogTime FROM datalog\n"
-                + "ORDER BY LogTime DESC LIMIT 1;")) {
+        try (PreparedStatement ps = ConnectDB.con.prepareStatement(Queries.GET_LAST_DATA_TIME)) {
             ConnectDB.res = ps.executeQuery();
             while (ConnectDB.res.next()) {
-                lblLastData.setText("Last recorded data: " + ConnectDB.res.getString(1).substring(0, 19));
+                lblLastData.setText(new StringBuilder("Last recorded data: ").
+                        append(ConnectDB.res.getString(1).substring(0, 19)).toString());
             }
         }
     }
@@ -734,7 +732,7 @@ public class ViewHistory extends javax.swing.JPanel {
     private com.jidesoft.swing.JideLabel jideLabel1;
     private javax.swing.JLabel lblLastData;
     // End of variables declaration//GEN-END:variables
-    private String _machineTitle = "";
+//    private String _machineTitle = "";
     private static String[][] tabFill = null;
     private static Set<String> setMachine = null;
     private static final String[] DESCRIPTION_COLUMNS = new String[]{"Machine Name", "Machine History Information"};
@@ -745,6 +743,6 @@ public class ViewHistory extends javax.swing.JPanel {
     private static TableModel model = null;
     private int _destroyedCount = 0;
 
-    private List _subTablesList = new ArrayList();
-    private ListSelectionModelGroup _group = new ListSelectionModelGroup();
+    private final List _subTablesList = new ArrayList();
+    private final ListSelectionModelGroup _group = new ListSelectionModelGroup();
 }

@@ -4,7 +4,7 @@ package target;
  *
  * @author Victor Kadiata
  */
-enum ProductionType {
+enum ProductionTypeEnum {
 
     RATE, CUMULATIVE
 

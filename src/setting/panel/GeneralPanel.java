@@ -4,24 +4,32 @@ import com.jidesoft.dialog.AbstractDialogPage;
 import com.jidesoft.dialog.ButtonEvent;
 import com.jidesoft.dialog.ButtonNames;
 import com.jidesoft.pane.CollapsiblePane;
-import com.jidesoft.swing.JideSwingUtilities;
-import java.awt.Color;
-import javax.swing.BorderFactory;
-import javax.swing.JComponent;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JTabbedPane;
 import setting.SettingKeyFactory;
 import smartfactoryV2.ConnectDB;
 
 public class GeneralPanel extends javax.swing.JPanel {
 
+    public static String getYearStart() {
+        return yearStart;
+    }
+
     public GeneralPanel(AbstractDialogPage page) {
         this.page = page;
         initComponents();
-        CollapsiblePaneProperties(collapsiblePane3);
-        CollapsiblePaneProperties(collapsiblePane4);
-        CollapsiblePaneProperties(collapsiblePane5);
-        CollapsiblePaneProperties(collapsiblePane6);
-        initValues();
+        ConnectDB.collapsiblePaneProperties(collapsiblePane3);
+        ConnectDB.collapsiblePaneProperties(collapsiblePane4);
+        ConnectDB.collapsiblePaneProperties(collapsiblePane5);
+        ConnectDB.collapsiblePaneProperties(collapsiblePane6);
+        try {
+            initValues();
+        } catch (ParseException ex) {
+            Logger.getLogger(GeneralPanel.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -48,6 +56,11 @@ public class GeneralPanel extends javax.swing.JPanel {
         chkConfirmCloseMainFrame = new javax.swing.JCheckBox();
         chkConfirmCloseTab = new javax.swing.JCheckBox();
         chkProdQuickView = new javax.swing.JCheckBox();
+        collapsiblePane1 = new com.jidesoft.pane.CollapsiblePane();
+        jLabel1 = new javax.swing.JLabel();
+        cmbYear = new com.jidesoft.combobox.DateExComboBox();
+        jLabel2 = new javax.swing.JLabel();
+        cmbDayOfWeek = new com.alee.laf.combobox.WebComboBox();
 
         jScrollPane1.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
 
@@ -87,7 +100,7 @@ public class GeneralPanel extends javax.swing.JPanel {
                 .addComponent(chkCenterTableHead)
                 .addGap(74, 74, 74)
                 .addComponent(chkBoldTableHead)
-                .addContainerGap(129, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         collapsiblePane3Layout.setVerticalGroup(
             collapsiblePane3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -126,7 +139,7 @@ public class GeneralPanel extends javax.swing.JPanel {
                 .addComponent(jLabel12)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(chkDateFormat, javax.swing.GroupLayout.PREFERRED_SIZE, 168, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(177, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         collapsiblePane4Layout.setVerticalGroup(
             collapsiblePane4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -221,7 +234,7 @@ public class GeneralPanel extends javax.swing.JPanel {
                     .addComponent(chkProdQuickView)
                     .addComponent(chkConfirmCloseTab)
                     .addComponent(chkConfirmCloseMainFrame))
-                .addContainerGap(167, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         collapsiblePane6Layout.setVerticalGroup(
             collapsiblePane6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -234,14 +247,70 @@ public class GeneralPanel extends javax.swing.JPanel {
                 .addContainerGap(11, Short.MAX_VALUE))
         );
 
+        collapsiblePane1.setStyle(CollapsiblePane.PLAIN_STYLE);
+        collapsiblePane1.setTitle("Production Working Calendar");
+        collapsiblePane1.setFocusable(false);
+
+        jLabel1.setText("Year starts at:");
+
+        cmbYear.setShowNoneButton(false);
+        cmbYear.setShowTodayButton(false);
+        cmbYear.setShowWeekNumbers(false);
+        cmbYear.setFocusable(false);
+        cmbYear.setFormat(new SimpleDateFormat("dd MMMM"));
+        cmbYear.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                cmbYearItemStateChanged(evt);
+            }
+        });
+
+        jLabel2.setText("Day of Week:");
+
+        cmbDayOfWeek.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday" }));
+        cmbDayOfWeek.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                cmbDayOfWeekItemStateChanged(evt);
+            }
+        });
+
+        javax.swing.GroupLayout collapsiblePane1Layout = new javax.swing.GroupLayout(collapsiblePane1.getContentPane());
+        collapsiblePane1.getContentPane().setLayout(collapsiblePane1Layout);
+        collapsiblePane1Layout.setHorizontalGroup(
+            collapsiblePane1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(collapsiblePane1Layout.createSequentialGroup()
+                .addGap(40, 40, 40)
+                .addGroup(collapsiblePane1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel2)
+                    .addComponent(jLabel1))
+                .addGap(18, 18, 18)
+                .addGroup(collapsiblePane1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(cmbDayOfWeek, javax.swing.GroupLayout.PREFERRED_SIZE, 192, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(cmbYear, javax.swing.GroupLayout.PREFERRED_SIZE, 192, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        collapsiblePane1Layout.setVerticalGroup(
+            collapsiblePane1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(collapsiblePane1Layout.createSequentialGroup()
+                .addGap(3, 3, 3)
+                .addGroup(collapsiblePane1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
+                    .addComponent(jLabel1)
+                    .addComponent(cmbYear, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(5, 5, 5)
+                .addGroup(collapsiblePane1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
+                    .addComponent(jLabel2)
+                    .addComponent(cmbDayOfWeek, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(19, Short.MAX_VALUE))
+        );
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(collapsiblePane4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-            .addComponent(collapsiblePane3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-            .addComponent(collapsiblePane5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-            .addComponent(collapsiblePane6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addComponent(collapsiblePane4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(collapsiblePane3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(collapsiblePane5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(collapsiblePane6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(collapsiblePane1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -253,7 +322,9 @@ public class GeneralPanel extends javax.swing.JPanel {
                 .addComponent(collapsiblePane5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(collapsiblePane6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 346, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(collapsiblePane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 248, Short.MAX_VALUE))
         );
 
         jScrollPane1.setViewportView(jPanel1);
@@ -266,7 +337,9 @@ public class GeneralPanel extends javax.swing.JPanel {
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 275, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 371, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -302,7 +375,26 @@ public class GeneralPanel extends javax.swing.JPanel {
         page.fireButtonEvent(ButtonEvent.ENABLE_BUTTON, ButtonNames.APPLY);
     }//GEN-LAST:event_chkProdQuickViewItemStateChanged
 
-    private void initValues() {
+    private void cmbYearItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_cmbYearItemStateChanged
+        page.fireButtonEvent(ButtonEvent.ENABLE_BUTTON, ButtonNames.APPLY);
+//        if (evt.getStateChange() == ItemEvent.SELECTED) {
+//            try {
+//                System.out.println(ObjectConverterManager.toString(evt.getItem()));
+//                System.out.println(dateFormat.parse(ObjectConverterManager.toString(evt.getItem())));
+//                yearStart = dateFormat.format(dateFormat.parse(ObjectConverterManager.toString(evt.getItem())));
+//                System.out.println("Date selected: " + yearStart);
+//            } catch (ParseException ex) {
+//                Logger.getLogger(GeneralPanel.class.getName()).log(Level.SEVERE, null, ex);
+//            }
+//        }
+    }//GEN-LAST:event_cmbYearItemStateChanged
+
+    private void cmbDayOfWeekItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_cmbDayOfWeekItemStateChanged
+        page.fireButtonEvent(ButtonEvent.ENABLE_BUTTON, ButtonNames.APPLY);
+    }//GEN-LAST:event_cmbDayOfWeekItemStateChanged
+
+    private void initValues() throws ParseException {
+//        System.out.println(ConnectDB.pref.get(SettingKeyFactory.General.YEAR_START, ""));
         chkCenterTableHead.setSelected(ConnectDB.pref.getBoolean(SettingKeyFactory.General.CENTERTABLEHEAD, true));
         chkBoldTableHead.setSelected(ConnectDB.pref.getBoolean(SettingKeyFactory.General.BOLDTABLEHEAD, true));
         chkDateFormat.setSelectedItem(ConnectDB.pref.get(SettingKeyFactory.General.DATEFORMAT, "MMMM dd, yyyy"));
@@ -311,17 +403,12 @@ public class GeneralPanel extends javax.swing.JPanel {
         chkConfirmCloseMainFrame.setSelected(ConnectDB.pref.getBoolean(SettingKeyFactory.General.CONFIRMCLOSEMAINFRAME, false));
         chkConfirmCloseTab.setSelected(ConnectDB.pref.getBoolean(SettingKeyFactory.General.CONFIRMCLOSETAB, false));
         chkProdQuickView.setSelected(ConnectDB.pref.getBoolean(SettingKeyFactory.DefaultProperties.SHOWPRODUCTIONQVIEW, false));
+//        Calendar cal = Calendar.getInstance();
+//        cal.setTime(dateFormat.parse(ConnectDB.pref.get(SettingKeyFactory.General.YEAR_START, yearStart)));
+//        cmbYear.setCalendar(cal);
+        cmbDayOfWeek.setSelectedItem(ConnectDB.pref.get(SettingKeyFactory.General.DAY_OF_WEEK, "Monday"));
     }
 
-    private static void CollapsiblePaneProperties(CollapsiblePane pane) {
-        pane.setBackground(Color.WHITE);
-        pane.getContentPane().setBorder(BorderFactory.createEmptyBorder(0, 16, 0, 0));
-        pane.getContentPane().setOpaque(false);
-        pane.getActualComponent().setBackground(Color.WHITE);
-        JComponent actualComponent = pane.getActualComponent();
-        JideSwingUtilities.setOpaqueRecursively(actualComponent, false);
-    }
-    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.ButtonGroup buttonGroup2;
@@ -334,15 +421,22 @@ public class GeneralPanel extends javax.swing.JPanel {
     public static javax.swing.JCheckBox chkConfirmCloseTab;
     public static javax.swing.JComboBox chkDateFormat;
     public static javax.swing.JCheckBox chkProdQuickView;
+    public static com.alee.laf.combobox.WebComboBox cmbDayOfWeek;
     public static javax.swing.JComboBox cmbTabPlacement;
+    private com.jidesoft.combobox.DateExComboBox cmbYear;
+    private com.jidesoft.pane.CollapsiblePane collapsiblePane1;
     private com.jidesoft.pane.CollapsiblePane collapsiblePane3;
     private com.jidesoft.pane.CollapsiblePane collapsiblePane4;
     private com.jidesoft.pane.CollapsiblePane collapsiblePane5;
     private com.jidesoft.pane.CollapsiblePane collapsiblePane6;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
+    private javax.swing.JLabel jLabel2;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     // End of variables declaration//GEN-END:variables
-    AbstractDialogPage page;
+    private final AbstractDialogPage page;
+    private static String yearStart;
+    private SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMMM");
 }

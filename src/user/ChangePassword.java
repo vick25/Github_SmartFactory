@@ -218,8 +218,8 @@ private void btnValidateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
                         JOptionPane.showMessageDialog(this, "The password can not be less than 6 characters ..."
                                 + "", "Warning", JOptionPane.WARNING_MESSAGE);
                     } else {
-                        try (PreparedStatement ps = ConnectDB.con.prepareStatement("UPDATE userlist SET password =?"
-                                + " WHERE IDuser =?")) {
+                        try (PreparedStatement ps = ConnectDB.con.prepareStatement("UPDATE userlist SET password =? \n"
+                                + "WHERE IDuser =?")) {
                             ps.setString(1, ConnectDB.crypter(String.copyValueOf(txtNewPassword.getPassword())));
                             ps.setInt(2, Integer.parseInt(userID));
                             int res1 = ps.executeUpdate();
@@ -241,8 +241,7 @@ private void btnValidateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
 }//GEN-LAST:event_btnValidateActionPerformed
 
     private boolean checkOldPasswordValidity() throws SQLException {
-        boolean unique = true;
-        try (PreparedStatement ps = ConnectDB.con.prepareStatement("SELECT IDuser, login, password\n"
+        try (PreparedStatement ps = ConnectDB.con.prepareStatement("SELECT IDuser, login, password \n"
                 + "FROM userlist WHERE login =?")) {
             ps.setString(1, txtLoginID.getText());
             ConnectDB.res = ps.executeQuery();
@@ -251,13 +250,13 @@ private void btnValidateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
                         String.copyValueOf(txtOldPassword.getPassword()))) {
                     JOptionPane.showMessageDialog(this, "The old password entered is not valid ...", ""
                             + "Warning", JOptionPane.WARNING_MESSAGE);
-                    unique = false;
+                    return false;
                 } else {
                     userID = ConnectDB.res.getString("IDuser");
                 }
             }
         }
-        return unique;
+        return true;
     }
 
     private boolean checkLoginValidity() throws SQLException {
@@ -272,9 +271,8 @@ private void btnValidateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
             }
         }
         if (!find) {
-            JOptionPane.showMessageDialog(this, "The user \"" + txtLoginID.getText() + ""
-                    + "\" doesn't exist in the database", ""
-                    + "Warning", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(this, new StringBuilder("The user \"").append(txtLoginID.getText()).
+                    append("\" does not exists in the database.").toString(), "Warning", JOptionPane.WARNING_MESSAGE);
         }
         return find;
     }

@@ -8,8 +8,7 @@ public class LanguagePanel extends javax.swing.JPanel {
     public LanguagePanel(AbstractDialogPage page) {
         this.page = page;
         initComponents();
-        languageCombo = new LanguageCombobox();
-        pan.add(languageCombo);
+        pan.add(new LanguageCombobox());
     }
 
     @SuppressWarnings("unchecked")
@@ -87,6 +86,5 @@ public class LanguagePanel extends javax.swing.JPanel {
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JPanel pan;
     // End of variables declaration//GEN-END:variables
-    AbstractDialogPage page;
-    LanguageCombobox languageCombo;
+    private final AbstractDialogPage page;
 }

@@ -4,10 +4,6 @@ import com.jidesoft.dialog.AbstractDialogPage;
 import com.jidesoft.dialog.ButtonEvent;
 import com.jidesoft.dialog.ButtonNames;
 import com.jidesoft.pane.CollapsiblePane;
-import com.jidesoft.swing.JideSwingUtilities;
-import java.awt.Color;
-import javax.swing.BorderFactory;
-import javax.swing.JComponent;
 import javax.swing.JOptionPane;
 import setting.SettingKeyFactory;
 import smartfactoryV2.ConnectDB;
@@ -18,7 +14,7 @@ public class FontColorPanel extends javax.swing.JPanel {
         this.page = page;
         initComponents();
         initValues();
-        CollapsiblePaneProperties(collapsiblePane2);
+        ConnectDB.collapsiblePaneProperties(collapsiblePane2);
     }
 
     @SuppressWarnings("unchecked")
@@ -293,51 +289,33 @@ private void RStripe3Color3ItemStateChanged(java.awt.event.ItemEvent evt) {//GEN
 }//GEN-LAST:event_RStripe3Color3ItemStateChanged
 
     private void BDefaultActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BDefaultActionPerformed
-        if (JOptionPane.showConfirmDialog(this, "Would you like to restore default font and color?", "Confirm", 0) == 0) {
-                        RStripe21Color1.setSelectedColor(getColorFromKey("253, 253, 244"));
-            RStripe21Color2.setSelectedColor(getColorFromKey("230, 230, 255"));
-            RStripe22Color1.setSelectedColor(getColorFromKey("217, 234, 248"));
-            RStripe22Color2.setSelectedColor(getColorFromKey("227, 248, 210"));
-            RStripe3Color1.setSelectedColor(getColorFromKey("253, 253, 244"));
-            RStripe3Color2.setSelectedColor(getColorFromKey("230, 230, 255"));
-            RStripe3Color3.setSelectedColor(getColorFromKey("210, 255, 210"));
+        if (JOptionPane.showConfirmDialog(this, "Would you like to restore default font and color ?", "Confirm", 0) == 0) {
+                        RStripe21Color1.setSelectedColor(ConnectDB.getColorFromKey("253, 253, 244"));
+            RStripe21Color2.setSelectedColor(ConnectDB.getColorFromKey("230, 230, 255"));
+            RStripe22Color1.setSelectedColor(ConnectDB.getColorFromKey("217, 234, 248"));
+            RStripe22Color2.setSelectedColor(ConnectDB.getColorFromKey("227, 248, 210"));
+            RStripe3Color1.setSelectedColor(ConnectDB.getColorFromKey("253, 253, 244"));
+            RStripe3Color2.setSelectedColor(ConnectDB.getColorFromKey("230, 230, 255"));
+            RStripe3Color3.setSelectedColor(ConnectDB.getColorFromKey("210, 255, 210"));
 
-            setColorFromKey(RStripe21Color1.getSelectedColor(), SettingKeyFactory.FontColor.RSTRIPE21COLOR1);
-            setColorFromKey(RStripe21Color2.getSelectedColor(), SettingKeyFactory.FontColor.RSTRIPE21COLOR2);
-            setColorFromKey(RStripe22Color1.getSelectedColor(), SettingKeyFactory.FontColor.RSTRIPE22COLOR1);
-            setColorFromKey(RStripe22Color2.getSelectedColor(), SettingKeyFactory.FontColor.RSTRIPE22COLOR2);
-            setColorFromKey(RStripe3Color1.getSelectedColor(), SettingKeyFactory.FontColor.RSTRIPE3COLOR1);
-            setColorFromKey(RStripe3Color2.getSelectedColor(), SettingKeyFactory.FontColor.RSTRIPE3COLOR2);
-            setColorFromKey(RStripe3Color3.getSelectedColor(), SettingKeyFactory.FontColor.RSTRIPE3COLOR3);
+            ConnectDB.setColorFromKey(RStripe21Color1.getSelectedColor(), SettingKeyFactory.FontColor.RSTRIPE21COLOR1);
+            ConnectDB.setColorFromKey(RStripe21Color2.getSelectedColor(), SettingKeyFactory.FontColor.RSTRIPE21COLOR2);
+            ConnectDB.setColorFromKey(RStripe22Color1.getSelectedColor(), SettingKeyFactory.FontColor.RSTRIPE22COLOR1);
+            ConnectDB.setColorFromKey(RStripe22Color2.getSelectedColor(), SettingKeyFactory.FontColor.RSTRIPE22COLOR2);
+            ConnectDB.setColorFromKey(RStripe3Color1.getSelectedColor(), SettingKeyFactory.FontColor.RSTRIPE3COLOR1);
+            ConnectDB.setColorFromKey(RStripe3Color2.getSelectedColor(), SettingKeyFactory.FontColor.RSTRIPE3COLOR2);
+            ConnectDB.setColorFromKey(RStripe3Color3.getSelectedColor(), SettingKeyFactory.FontColor.RSTRIPE3COLOR3);
         }
     }//GEN-LAST:event_BDefaultActionPerformed
 
     private void initValues() {
-        RStripe21Color1.setSelectedColor(getColorFromKey(ConnectDB.pref.get(SettingKeyFactory.FontColor.RSTRIPE21COLOR1, "253, 253, 244")));
-        RStripe21Color2.setSelectedColor(getColorFromKey(ConnectDB.pref.get(SettingKeyFactory.FontColor.RSTRIPE21COLOR2, "230, 230, 255")));
-        RStripe22Color1.setSelectedColor(getColorFromKey(ConnectDB.pref.get(SettingKeyFactory.FontColor.RSTRIPE22COLOR1, "217, 234, 248")));
-        RStripe22Color2.setSelectedColor(getColorFromKey(ConnectDB.pref.get(SettingKeyFactory.FontColor.RSTRIPE22COLOR2, "227, 248, 210")));
-        RStripe3Color1.setSelectedColor(getColorFromKey(ConnectDB.pref.get(SettingKeyFactory.FontColor.RSTRIPE3COLOR1, "253, 253, 244")));
-        RStripe3Color2.setSelectedColor(getColorFromKey(ConnectDB.pref.get(SettingKeyFactory.FontColor.RSTRIPE3COLOR2, "230, 230, 255")));
-        RStripe3Color3.setSelectedColor(getColorFromKey(ConnectDB.pref.get(SettingKeyFactory.FontColor.RSTRIPE3COLOR3, "210, 255, 210")));
-    }
-
-    private Color getColorFromKey(String value) {
-        String tab[] = value.split(", ");
-        return new Color(Integer.parseInt(tab[0]), Integer.parseInt(tab[1]), Integer.parseInt(tab[2]));
-    }
-
-    private void setColorFromKey(Color color, String key) {
-        ConnectDB.pref.put(key, color.getRed() + ", " + color.getGreen() + ", " + color.getBlue());
-    }
-
-    private static void CollapsiblePaneProperties(CollapsiblePane pane) {
-        pane.setBackground(Color.white);
-        pane.getContentPane().setBorder(BorderFactory.createEmptyBorder(0, 16, 0, 0));
-        pane.getContentPane().setOpaque(false);
-        pane.getActualComponent().setBackground(Color.white);
-        JComponent actualComponent = pane.getActualComponent();
-        JideSwingUtilities.setOpaqueRecursively(actualComponent, false);
+        RStripe21Color1.setSelectedColor(ConnectDB.getColorFromKey(ConnectDB.pref.get(SettingKeyFactory.FontColor.RSTRIPE21COLOR1, "253, 253, 244")));
+        RStripe21Color2.setSelectedColor(ConnectDB.getColorFromKey(ConnectDB.pref.get(SettingKeyFactory.FontColor.RSTRIPE21COLOR2, "230, 230, 255")));
+        RStripe22Color1.setSelectedColor(ConnectDB.getColorFromKey(ConnectDB.pref.get(SettingKeyFactory.FontColor.RSTRIPE22COLOR1, "217, 234, 248")));
+        RStripe22Color2.setSelectedColor(ConnectDB.getColorFromKey(ConnectDB.pref.get(SettingKeyFactory.FontColor.RSTRIPE22COLOR2, "227, 248, 210")));
+        RStripe3Color1.setSelectedColor(ConnectDB.getColorFromKey(ConnectDB.pref.get(SettingKeyFactory.FontColor.RSTRIPE3COLOR1, "253, 253, 244")));
+        RStripe3Color2.setSelectedColor(ConnectDB.getColorFromKey(ConnectDB.pref.get(SettingKeyFactory.FontColor.RSTRIPE3COLOR2, "230, 230, 255")));
+        RStripe3Color3.setSelectedColor(ConnectDB.getColorFromKey(ConnectDB.pref.get(SettingKeyFactory.FontColor.RSTRIPE3COLOR3, "210, 255, 210")));
     }
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -365,5 +343,5 @@ private void RStripe3Color3ItemStateChanged(java.awt.event.ItemEvent evt) {//GEN
     private javax.swing.JSeparator jSeparator3;
     private javax.swing.JSeparator jSeparator4;
     // End of variables declaration//GEN-END:variables
-    AbstractDialogPage page;
+    private final AbstractDialogPage page;
 }

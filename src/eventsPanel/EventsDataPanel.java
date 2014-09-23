@@ -26,6 +26,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import javax.swing.BorderFactory;
@@ -34,9 +35,11 @@ import javax.swing.JOptionPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.Timer;
 import javax.swing.border.TitledBorder;
-import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.filechooser.FileFilter;
 import setting.SettingKeyFactory;
 import smartfactoryV2.ConnectDB;
+import smartfactoryV2.ExtensionFilter;
+import smartfactoryV2.Queries;
 import tableModel.TableModelEventData;
 
 /**
@@ -180,7 +183,7 @@ public class EventsDataPanel extends javax.swing.JPanel {
 
         btnExport.setButtonStyle(com.jidesoft.swing.JideButton.TOOLBOX_STYLE);
         btnExport.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/icons/excel_csv_2.png"))); // NOI18N
-        btnExport.setText("Excel / CSV");
+        btnExport.setText("Excel / CSV ...");
         btnExport.setFocusable(false);
         btnExport.setOpaque(true);
         btnExport.addActionListener(new java.awt.event.ActionListener() {
@@ -233,7 +236,7 @@ public class EventsDataPanel extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnCleanTableActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCleanTableActionPerformed
-        if (JOptionPane.showConfirmDialog(this, "Would you like to remove all the lines in the table?",
+        if (JOptionPane.showConfirmDialog(this, "Would you like to remove all the lines in the table ?",
                 "Data Events", 0) == 0) {
             cleanTable();
             tableRow = 0;
@@ -247,26 +250,28 @@ public class EventsDataPanel extends javax.swing.JPanel {
 
             @Override
             public void run() {
+                JFileChooser jfc = new JFileChooser(ConnectDB.getDefaultDirectory());
+                FileFilter typeExcel = new ExtensionFilter("Excel files", ".xls"),
+                        typeCsv = new ExtensionFilter("CSV files", ".csv");
+                jfc.addChoosableFileFilter(typeExcel);
+                jfc.addChoosableFileFilter(typeCsv);
+                jfc.setFileFilter(typeExcel); //Initial filter setting                
                 File fichier;
-                JFileChooser jfc = new JFileChooser(ConnectDB.fsv.getRoots()[0]);
-                jfc.addChoosableFileFilter(new FileNameExtensionFilter("Excel Documents (*.xls)", "xls"));
-                jfc.addChoosableFileFilter(new FileNameExtensionFilter("Csv Documents (*.csv)", "csv"));
                 try {
-                    fichier = new File(ConnectDB.fsv.getRoots()[0] + new StringBuilder(File.separator).
-                            append("data_").append(ConnectDB.correctBarreFileName(ConnectDB.SDATE_FORMAT_HOUR.
-                                            format(Calendar.getInstance().getTime()))).toString());
+                    fichier = new File(ConnectDB.getDefaultDirectory() + new StringBuilder(File.separator).append("data_").
+                            append(new SimpleDateFormat("yyMMdd_HHmmss").format(Calendar.getInstance().getTime())).toString());
                 } catch (Exception e) {
                     JOptionPane.showMessageDialog(EventsDataPanel.this, new StringBuilder(jfc.getSelectedFile().getName()).
                             append("\n The file name is not valid.").toString(), "Export", JOptionPane.WARNING_MESSAGE);
                     return;
                 }
-                short fileType = 0;
+                byte fileType = 0;
                 jfc.setAcceptAllFileFilterUsed(false);
                 jfc.setSelectedFile(fichier);
                 int result = jfc.showSaveDialog(EventsDataPanel.this);
                 if (result == JFileChooser.APPROVE_OPTION) {
                     if (!jfc.getSelectedFile().exists()) {
-                        if (jfc.getFileFilter().getDescription().equalsIgnoreCase("Excel Documents (*.xls)")) {
+                        if (jfc.getFileFilter().getDescription().equalsIgnoreCase("Excel files")) {
                             table.putClientProperty(HssfTableUtils.CLIENT_PROPERTY_EXCEL_OUTPUT_FORMAT,
                                     HssfTableUtils.EXCEL_OUTPUT_FORMAT_2003);
                             ConnectDB.outputToExcel(table, jfc.getSelectedFile());
@@ -297,7 +302,6 @@ public class EventsDataPanel extends javax.swing.JPanel {
                     } else {
                         JOptionPane.showMessageDialog(EventsDataPanel.this, jfc.getSelectedFile().getName()
                                 + " already exists...", "Export", JOptionPane.WARNING_MESSAGE);
-//                        return;
                     }
                 }
             }
@@ -321,6 +325,7 @@ public class EventsDataPanel extends javax.swing.JPanel {
 
     private void chkGroupDataActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chkGroupDataActionPerformed
         dataGrouped = chkGroupData.isSelected();
+        EventsStatistic.btnRefresh.doClick();
     }//GEN-LAST:event_chkGroupDataActionPerformed
 
     private void setScrollPaneBorder() {
@@ -330,7 +335,7 @@ public class EventsDataPanel extends javax.swing.JPanel {
         scrlPanTable.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder(
                 new PartialGradientLineBorder(new Color[]{new Color(0, 0, 128),
                     UIDefaultsLookup.getColor("control")}, 2, PartialSide.NORTH),
-                new StringBuilder("Events of data [").append(tableRow).append("]").toString(),
+                new StringBuilder("Events of data table [").append(tableRow).append(" row(s)]").toString(),
                 TitledBorder.CENTER, TitledBorder.ABOVE_TOP), BorderFactory.createEmptyBorder(6, 4, 4, 4)));
     }
 
@@ -338,14 +343,19 @@ public class EventsDataPanel extends javax.swing.JPanel {
 
         @Override
         public void run() {
-            try {
-                fillTable();
-                tableRow = table.getModel().getRowCount();
-                setScrollPaneBorder();
-//                runOverlayable = false;
-            } catch (SQLException ex) {
-                ConnectDB.catchSQLException(ex);
-            }
+//            SwingUtilities.invokeLater(new Runnable() {
+//
+//                @Override
+//                public void run() {
+                    try {
+                        fillTable();
+                        tableRow = table.getModel().getRowCount();
+                        setScrollPaneBorder();
+                    } catch (SQLException ex) {
+                        ConnectDB.catchSQLException(ex);
+                    }
+//                }
+//            });
         }
     };
 
@@ -355,22 +365,25 @@ public class EventsDataPanel extends javax.swing.JPanel {
             return;
         }
         try (Statement stat = ConnectDB.con.createStatement()) {
-            ConnectDB.res = stat.executeQuery(_query);
-            while (ConnectDB.res.next()) {
+            ResultSet resultSet = stat.executeQuery(_query);
+            while (resultSet.next()) {
+//                try {
                 /** Get the data from the runDataLogQuery method for the total production from the datalog
                  table with the parameters as starttime and endtime
                  */
-                runDataLogQuery(ConnectDB.res.getString(1), ConnectDB.res.getString(3));
+                runDataLogQuery(resultSet.getString(1), resultSet.getString(3));
 //                runOverlayable = false;
                 if (nbRow > table.getModel().getRowCount()) {
                     model.addNewRow();
                 }
                 table.setValueAt(nbRow, nbRow - 1, 0);
-                table.setValueAt(ConnectDB.res.getString(1), nbRow - 1, 1);
-                table.setValueAt(ConnectDB.res.getString(3), nbRow - 1, 2);
-                table.setValueAt(ConnectDB.res.getString(2), nbRow - 1, 3);
-                table.setValueAt(totalSum, nbRow - 1, 4);
+                table.setValueAt(resultSet.getString(1), nbRow - 1, 1);
+                table.setValueAt(resultSet.getString(3), nbRow - 1, 2);
+                table.setValueAt(resultSet.getString(2), nbRow - 1, 3);
+                table.setValueAt(totalSum.intValue(), nbRow - 1, 4);
                 nbRow++;
+//                } catch (IndexOutOfBoundsException e) {
+//                }
             }
         }
     }
@@ -383,19 +396,18 @@ public class EventsDataPanel extends javax.swing.JPanel {
     synchronized private void runDataLogQuery(String startTime, String endTime) throws SQLException {
         ArrayList<Double> alValue = new ArrayList<>();
         totalSum = 0d;
-        String query = "SELECT d.LogData FROM datalog d\n"
-                + "WHERE d.ConfigNo = (SELECT DISTINCT c.ConfigNo\n"
-                + "FROM configuration c, hardware h\n"
-                + "WHERE h.HwNo = c.HwNo\n"
-                + "AND c.AvMinMax = 'Cumulative'\n"
-                + "AND h.Machine =? AND c.Active = 1 ORDER BY h.HwNo ASC)\n"
-                + "AND d.LogTime >=? AND d.LogTime <=?\n"
+        String query = "SELECT d.LogData FROM datalog d \n"
+                + "WHERE d.ConfigNo = (SELECT DISTINCT c.ConfigNo \n"
+                + "FROM configuration c, hardware h \n"
+                + "WHERE h.HwNo = c.HwNo \n"
+                + "AND c.AvMinMax = 'Cumulative' \n"
+                + "AND h.Machine =? AND c.Active = 1 ORDER BY h.HwNo ASC) \n"
+                + "AND d.LogTime >=? AND d.LogTime <=? \n"
                 + "ORDER BY d.LogTime ASC";
         try (PreparedStatement ps = ConnectDB.con.prepareStatement(query)) {
             ps.setString(1, this._machineTitle);
             ps.setString(2, startTime);
             ps.setString(3, endTime);
-//            System.out.println(ps.toString());
             this.res = ps.executeQuery();
             while (this.res.next()) {
                 alValue.add(res.getDouble(1));
@@ -404,19 +416,58 @@ public class EventsDataPanel extends javax.swing.JPanel {
         totalSum = getSubtractedValues(alValue);
     }
 
-    synchronized private double getSubtractedValues(ArrayList alValue) {
+    synchronized private double getSubtractedValues(ArrayList<Double> alValue) throws SQLException {
+        ArrayList<String> prodRateArrayList = getProductionRate();
         double addTotalSum = 0d;
         for (int i = 0; i < alValue.size(); i++) {
             double xDiff;
             if (i == 0) {
-                xDiff = Double.valueOf(alValue.get(i).toString()) - Double.valueOf(alValue.get(i).toString());
+                xDiff = alValue.get(i) - alValue.get(i);
                 addTotalSum += xDiff;
                 continue;
             }
-            xDiff = Double.valueOf(alValue.get(i).toString()) - Double.valueOf(alValue.get(i - 1).toString());
+            xDiff = alValue.get(i) - alValue.get(i - 1);
+            if (xDiff < 0) {
+                xDiff = 1000000 - alValue.get(i - 1) + alValue.get(i);
+            }
+            try {
+                double totVal = alValue.get(i),
+                        totValNext = alValue.get(i + 1),
+                        rateVal = Double.parseDouble(prodRateArrayList.get(i));
+                //Case where the cumulative values are not consecutive by the addition of the production rate number
+                if ((totVal + rateVal != totValNext) || (totVal + rateVal + 1 != totValNext)) {
+                    // Not sequential
+                    xDiff = rateVal;
+                }
+            } catch (IndexOutOfBoundsException e) {
+                xDiff = Double.parseDouble(prodRateArrayList.get(i - 1));
+            }
             addTotalSum += xDiff;
         }
         return addTotalSum;
+    }
+
+    synchronized private ArrayList<String> getProductionRate() throws SQLException {
+        int configNo = -1;
+        try (PreparedStatement ps = ConnectDB.con.prepareStatement(Queries.GET_CONFIGNO)) {
+            ps.setString(1, "rate");
+            ps.setString(2, this._machineTitle);
+            ResultSet result_Set = ps.executeQuery();
+            while (result_Set.next()) {
+                configNo = result_Set.getInt(1);
+            }
+        }
+        ArrayList<String> listProductionRate = new ArrayList<>();
+        try (PreparedStatement ps = ConnectDB.con.prepareStatement(Queries.DATALOG_PRODUCTION)) {
+            ps.setInt(1, configNo);
+            ps.setString(2, EventsStatistic.getMinLogTime());
+            ps.setString(3, EventsStatistic.getMaxLogTime());
+            ResultSet result_Set = ps.executeQuery();
+            while (result_Set.next()) {
+                listProductionRate.add(result_Set.getString(2)); //Values
+            }
+        }
+        return listProductionRate;
     }
 
     public static void cleanTable() {

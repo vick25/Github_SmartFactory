@@ -1,6 +1,7 @@
 package dashboard;
 
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -25,10 +26,10 @@ public class DynamicTarget {
         try (PreparedStatement ps = ConnectDB.con.prepareStatement("SELECT StartTime, EndTime FROM startendtime\n"
                 + "WHERE HwNo =?")) {
             ps.setInt(1, machineID);
-            ConnectDB.res = ps.executeQuery();
-            while (ConnectDB.res.next()) {
-                prodStartTime = ConnectDB.res.getString(1).substring(0, 5);
-                prodEndTime = ConnectDB.res.getString(2).substring(0, 5);
+            ResultSet resultSet = ps.executeQuery();
+            while (resultSet.next()) {
+                prodStartTime = resultSet.getString(1).substring(0, 5);
+                prodEndTime = resultSet.getString(2).substring(0, 5);
             }
         }
 //        System.out.println("");
@@ -58,7 +59,7 @@ public class DynamicTarget {
                         fraction = Double.parseDouble(String.format("%.6f", s / 60d)) / 60;//second to min
                         break;
                     default:
-                        fraction = Double.parseDouble(String.format("%.6f", s)) / 60;//second only 
+                        fraction = Double.parseDouble(String.format("%.6f", s / 1d)) / 60;//second only 
                         break;
                 }
             }
@@ -112,11 +113,10 @@ public class DynamicTarget {
         }
     }
 
-    public static void main(String[] args) throws SQLException, ParseException {
-        ConnectDB.getConnectionInstance();
-        new DynamicTarget("Balconi");
-    }
-
+//    public static void main(String[] args) throws SQLException, ParseException {
+//        ConnectDB.getConnectionInstance();
+//        new DynamicTarget("Balconi");
+//    }
     private final String _machineName;
     private double targetValue, dynamicTargetValue;
     private String prodStartTime, prodEndTime;

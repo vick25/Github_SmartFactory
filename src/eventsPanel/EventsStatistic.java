@@ -16,6 +16,7 @@ import com.jidesoft.chart.model.ChartPoint;
 import com.jidesoft.chart.model.Chartable;
 import com.jidesoft.chart.model.DefaultChartModel;
 import com.jidesoft.chart.model.Highlight;
+import com.jidesoft.chart.render.AbstractPieLabelRenderer;
 import com.jidesoft.chart.render.AbstractPieSegmentRenderer;
 import com.jidesoft.chart.render.Axis3DRenderer;
 import com.jidesoft.chart.render.CylinderBarRenderer;
@@ -53,8 +54,6 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.FileInputStream;
@@ -80,6 +79,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 import javax.swing.JTree;
+import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.TreeSelectionEvent;
@@ -88,7 +88,6 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
-import mainFrame.MainFrame;
 import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JasperFillManager;
 import net.sf.jasperreports.engine.JasperPrint;
@@ -166,7 +165,7 @@ public class EventsStatistic extends javax.swing.JPanel {
                         }
                     }
                     if (catMachine) {
-                        if (!cmbMachineTitle.getSelectedItem().equals("") && cmbMachineTitle.getSelectedIndex() > 0) {
+                        if (cmbMachineTitle.getSelectedItem() != null && cmbMachineTitle.getSelectedIndex() > 0) {
                             radHour.setEnabled(true);
                             radMinute.setEnabled(true);
                             radSecond.setEnabled(true);
@@ -244,7 +243,6 @@ public class EventsStatistic extends javax.swing.JPanel {
         jToolBar7 = new javax.swing.JToolBar();
         btnPrintChart = new javax.swing.JButton();
         btnReset = new javax.swing.JButton();
-        btnClose = new javax.swing.JButton();
         jToolBar8 = new javax.swing.JToolBar();
         btnPieChart = new javax.swing.JButton();
         btnBarChart = new javax.swing.JButton();
@@ -266,8 +264,11 @@ public class EventsStatistic extends javax.swing.JPanel {
                 TreeUtils.expandAll(_tree);
             }
         };
-        sclPaneTree = new javax.swing.JScrollPane();
+        scrlPaneTree = new javax.swing.JScrollPane();
         lblTimeSum = new javax.swing.JLabel();
+        jLabel6 = new javax.swing.JLabel();
+
+        setBackground(new java.awt.Color(255, 255, 255));
 
         jPanel5.setBackground(new java.awt.Color(255, 255, 255));
 
@@ -286,6 +287,7 @@ public class EventsStatistic extends javax.swing.JPanel {
         jPanel3.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Production Period", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 12), new java.awt.Color(0, 102, 255))); // NOI18N
 
         chkFrom.setBackground(new java.awt.Color(255, 255, 255));
+        chkFrom.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
         chkFrom.setSelected(true);
         chkFrom.setText("From:");
         chkFrom.setFocusable(false);
@@ -296,6 +298,7 @@ public class EventsStatistic extends javax.swing.JPanel {
         });
 
         chkTo.setBackground(new java.awt.Color(255, 255, 255));
+        chkTo.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
         chkTo.setSelected(true);
         chkTo.setText("To:");
         chkTo.setFocusable(false);
@@ -330,7 +333,7 @@ public class EventsStatistic extends javax.swing.JPanel {
         });
 
         lblProductionRate.setBackground(new java.awt.Color(204, 204, 204));
-        lblProductionRate.setFont(new java.awt.Font("Tahoma", 1, 10)); // NOI18N
+        lblProductionRate.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
         lblProductionRate.setForeground(new java.awt.Color(204, 0, 51));
         lblProductionRate.setText("Production Rate");
 
@@ -340,13 +343,11 @@ public class EventsStatistic extends javax.swing.JPanel {
         spProductionRate.setModel(new javax.swing.SpinnerNumberModel(Integer.valueOf(0), Integer.valueOf(0), null, Integer.valueOf(1)));
         spProductionRate.setFocusable(false);
 
-        jLabel3.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        jLabel3.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         jLabel3.setText("Events Time:");
         jLabel3.setEnabled(false);
 
         jPanel6.setBackground(new java.awt.Color(255, 255, 255));
-
-        lblFrom.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
 
         jLabel5.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabel5.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
@@ -360,11 +361,11 @@ public class EventsStatistic extends javax.swing.JPanel {
             jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel6Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(lblFrom, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(lblFrom, javax.swing.GroupLayout.DEFAULT_SIZE, 114, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(lblTo, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addComponent(lblTo, javax.swing.GroupLayout.DEFAULT_SIZE, 115, Short.MAX_VALUE))
         );
         jPanel6Layout.setVerticalGroup(
             jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -399,11 +400,11 @@ public class EventsStatistic extends javax.swing.JPanel {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jPanel6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addComponent(lblProductionRate, javax.swing.GroupLayout.PREFERRED_SIZE, 83, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(lblProductionRate, javax.swing.GroupLayout.PREFERRED_SIZE, 102, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(cmbProductionType, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(cmbProductionType, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(spProductionRate, javax.swing.GroupLayout.DEFAULT_SIZE, 126, Short.MAX_VALUE)
+                        .addComponent(spProductionRate, javax.swing.GroupLayout.DEFAULT_SIZE, 142, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jLabel4)))
                 .addContainerGap())
@@ -434,12 +435,15 @@ public class EventsStatistic extends javax.swing.JPanel {
         jPanel3Layout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {cmbProductionType, lblProductionRate, spProductionRate});
 
         jPanel4.setBackground(new java.awt.Color(255, 255, 255));
-        jPanel4.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Options", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 12), new java.awt.Color(0, 102, 255))); // NOI18N
+        jPanel4.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Events Options", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 12), new java.awt.Color(0, 102, 255))); // NOI18N
 
+        jLabel2.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
         jLabel2.setText("Category");
 
+        jLabel13.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
         jLabel13.setText("Machine");
 
+        jLabel14.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
         jLabel14.setText("Value");
 
         cmbValue.setEnabled(false);
@@ -463,10 +467,12 @@ public class EventsStatistic extends javax.swing.JPanel {
 
         btnDataEvent.setBackground(new java.awt.Color(255, 255, 255));
         buttonGroup2.add(btnDataEvent);
-        btnDataEvent.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        btnDataEvent.setFont(new java.awt.Font("Times New Roman", 1, 14)); // NOI18N
+        btnDataEvent.setForeground(new java.awt.Color(204, 0, 0));
         btnDataEvent.setSelected(true);
         btnDataEvent.setText("Data");
         btnDataEvent.setFocusable(false);
+        btnDataEvent.setOpaque(true);
         btnDataEvent.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnDataEventActionPerformed(evt);
@@ -475,9 +481,11 @@ public class EventsStatistic extends javax.swing.JPanel {
 
         btnTimeEvent.setBackground(new java.awt.Color(255, 255, 255));
         buttonGroup2.add(btnTimeEvent);
-        btnTimeEvent.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        btnTimeEvent.setFont(new java.awt.Font("Times New Roman", 1, 14)); // NOI18N
+        btnTimeEvent.setForeground(new java.awt.Color(204, 0, 0));
         btnTimeEvent.setText("Time");
         btnTimeEvent.setFocusable(false);
+        btnTimeEvent.setOpaque(true);
         btnTimeEvent.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnTimeEventActionPerformed(evt);
@@ -486,7 +494,6 @@ public class EventsStatistic extends javax.swing.JPanel {
 
         radHour.setBackground(new java.awt.Color(255, 255, 255));
         buttonGroup1.add(radHour);
-        radHour.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
         radHour.setSelected(true);
         radHour.setText("Hour");
         radHour.setFocusable(false);
@@ -498,8 +505,7 @@ public class EventsStatistic extends javax.swing.JPanel {
 
         radMinute.setBackground(new java.awt.Color(255, 255, 255));
         buttonGroup1.add(radMinute);
-        radMinute.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
-        radMinute.setText("Minute");
+        radMinute.setText("Minutes");
         radMinute.setFocusable(false);
         radMinute.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -509,8 +515,7 @@ public class EventsStatistic extends javax.swing.JPanel {
 
         radSecond.setBackground(new java.awt.Color(255, 255, 255));
         buttonGroup1.add(radSecond);
-        radSecond.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
-        radSecond.setText("Second");
+        radSecond.setText("Seconds");
         radSecond.setFocusable(false);
         radSecond.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -526,9 +531,9 @@ public class EventsStatistic extends javax.swing.JPanel {
                 .addContainerGap()
                 .addComponent(radHour, javax.swing.GroupLayout.DEFAULT_SIZE, 53, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(radMinute, javax.swing.GroupLayout.PREFERRED_SIZE, 60, Short.MAX_VALUE)
+                .addComponent(radMinute, javax.swing.GroupLayout.PREFERRED_SIZE, 61, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(radSecond, javax.swing.GroupLayout.PREFERRED_SIZE, 64, Short.MAX_VALUE)
+                .addComponent(radSecond, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addContainerGap())
         );
         jPanel8Layout.setVerticalGroup(
@@ -632,11 +637,11 @@ public class EventsStatistic extends javax.swing.JPanel {
         jToolBar2.setRollover(true);
 
         jToolBar7.setBackground(new java.awt.Color(255, 255, 255));
-        jToolBar7.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Events Statistics", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.TOP, new java.awt.Font("Tahoma", 0, 9), new java.awt.Color(0, 102, 255))); // NOI18N
+        jToolBar7.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Options", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.TOP, new java.awt.Font("Tahoma", 0, 10), new java.awt.Color(0, 102, 255))); // NOI18N
         jToolBar7.setRollover(true);
 
         btnPrintChart.setBackground(new java.awt.Color(255, 255, 255));
-        btnPrintChart.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/icons/fileprint(23).png"))); // NOI18N
+        btnPrintChart.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/icons/printer_1.png"))); // NOI18N
         btnPrintChart.setText("Print report");
         btnPrintChart.setEnabled(false);
         btnPrintChart.setFocusable(false);
@@ -651,8 +656,8 @@ public class EventsStatistic extends javax.swing.JPanel {
         jToolBar7.add(btnPrintChart);
 
         btnReset.setBackground(new java.awt.Color(255, 255, 255));
-        btnReset.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/icons/icon-48-clear.png"))); // NOI18N
-        btnReset.setText("Reset");
+        btnReset.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/icons/clear.png"))); // NOI18N
+        btnReset.setText("Clean");
         btnReset.setEnabled(false);
         btnReset.setFocusable(false);
         btnReset.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
@@ -665,24 +670,10 @@ public class EventsStatistic extends javax.swing.JPanel {
         });
         jToolBar7.add(btnReset);
 
-        btnClose.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/icons/exit32.png"))); // NOI18N
-        btnClose.setText("Close");
-        btnClose.setEnabled(false);
-        btnClose.setFocusable(false);
-        btnClose.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        btnClose.setOpaque(false);
-        btnClose.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        btnClose.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnCloseActionPerformed(evt);
-            }
-        });
-        jToolBar7.add(btnClose);
-
         jToolBar2.add(jToolBar7);
 
         jToolBar8.setBackground(new java.awt.Color(255, 255, 255));
-        jToolBar8.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Charts", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.TOP, new java.awt.Font("Tahoma", 0, 9), new java.awt.Color(0, 102, 255))); // NOI18N
+        jToolBar8.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Charts", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.TOP, new java.awt.Font("Tahoma", 0, 10), new java.awt.Color(0, 102, 255))); // NOI18N
         jToolBar8.setRollover(true);
 
         btnPieChart.setBackground(new java.awt.Color(255, 255, 255));
@@ -774,7 +765,7 @@ public class EventsStatistic extends javax.swing.JPanel {
         jToolBar2.add(jToolBar8);
 
         jToolBar9.setBackground(new java.awt.Color(255, 255, 255));
-        jToolBar9.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Options", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.TOP, new java.awt.Font("Tahoma", 0, 9), new java.awt.Color(0, 102, 255))); // NOI18N
+        jToolBar9.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Events Data", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.TOP, new java.awt.Font("Tahoma", 0, 10), new java.awt.Color(0, 102, 255))); // NOI18N
         jToolBar9.setRollover(true);
 
         btnViewData.setBackground(new java.awt.Color(255, 255, 255));
@@ -818,7 +809,7 @@ public class EventsStatistic extends javax.swing.JPanel {
             .addGroup(jPanel5Layout.createSequentialGroup()
                 .addComponent(jToolBar2, javax.swing.GroupLayout.PREFERRED_SIZE, 64, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jSplitPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 426, Short.MAX_VALUE))
+                .addComponent(jSplitPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 433, Short.MAX_VALUE))
         );
 
         jPanel1.setBackground(new java.awt.Color(255, 255, 255));
@@ -829,6 +820,8 @@ public class EventsStatistic extends javax.swing.JPanel {
         javax.swing.tree.DefaultMutableTreeNode treeNode1 = new javax.swing.tree.DefaultMutableTreeNode("***NO EVENT RETREIVED***");
         _field.setTreeModel(new javax.swing.tree.DefaultTreeModel(treeNode1));
 
+        scrlPaneTree.setForeground(new java.awt.Color(51, 51, 255));
+
         lblTimeSum.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
@@ -836,7 +829,7 @@ public class EventsStatistic extends javax.swing.JPanel {
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(_field, javax.swing.GroupLayout.DEFAULT_SIZE, 203, Short.MAX_VALUE)
-            .addComponent(sclPaneTree)
+            .addComponent(scrlPaneTree)
             .addComponent(lblTimeSum, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         jPanel1Layout.setVerticalGroup(
@@ -844,10 +837,15 @@ public class EventsStatistic extends javax.swing.JPanel {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addComponent(_field, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(sclPaneTree)
+                .addComponent(scrlPaneTree)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(lblTimeSum, javax.swing.GroupLayout.PREFERRED_SIZE, 11, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
+
+        jLabel6.setFont(new java.awt.Font("Tahoma", 1, 13)); // NOI18N
+        jLabel6.setForeground(new java.awt.Color(204, 0, 0));
+        jLabel6.setText("Events are shown as a tree view on the right side whenever a machine and correct period range are selected.");
+        jLabel6.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -857,31 +855,47 @@ public class EventsStatistic extends javax.swing.JPanel {
                 .addComponent(jPanel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGap(0, 0, 0)
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addComponent(jLabel6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jPanel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabel6))
         );
     }// </editor-fold>//GEN-END:initComponents
 
 private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnResetActionPerformed
-    catMachine = false;
-    cmbDescription.setSelectedIndex(-1);
-    cmbMachineTitle.setSelectedIndex(1);
-    cmbValue.setSelectedIndex(-1);
-    panChart.removeAll();
-    panChart.repaint();
-    _tree.setSelectionRow(-1);
-    _field.setText(null);
-    lblTimeSum.setText("");
-    btnPieChartActionPerformed(evt);
-    catMachine = true;
+    try {
+        catMachine = false;
+        cmbDescription.setSelectedIndex(-1);
+        cmbMachineTitle.setSelectedIndex(-1);
+        cmbValue.setSelectedIndex(-1);
+        totalSum = 0d;
+        max = 0;
+        chart = null;
+        model = null;
+        descriptionSet.clear();
+//        setDescOrValue.clear();
+        runThread = null;
+        panChart.removeAll();
+        panChart.repaint();
+        _tree = null;
+        scrlPaneTree.setViewportView(null);
+        _field.setText(null);
+        lblTimeSum.setText("");
+        btnPieChartActionPerformed(evt);
+        catMachine = true;
+        colorsCategoryRange.reset();
+        HL.clear();
+        System.gc();
+    } catch (NullPointerException e) {
+        scrlPaneTree.setViewportView(null);
+    }
 }//GEN-LAST:event_btnResetActionPerformed
-
-    private void btnCloseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCloseActionPerformed
-        MainFrame.getDocumentPane().closeDocument("Statistic");
-    }//GEN-LAST:event_btnCloseActionPerformed
 
     private void btnLineChartActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLineChartActionPerformed
         btnBarChart.setEnabled(true);
@@ -924,14 +938,13 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
     private void btnRefreshActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRefreshActionPerformed
         catMachine = true;
         try {
-            TreePath[] paths = _tree.getSelectionPaths();
-            short count = 0;
-            for (TreePath path : paths) {
-                count++;
-            }
+            int[] rows = _tree.getSelectionRows();
+            TreePath path = _tree.getSelectionPath();
             cmbMachineTitleItemStateChanged(null);
-            _tree.setSelectionPath(paths[count - 1]);
-        } catch (java.util.NoSuchElementException | NullPointerException e) {
+            _tree.setSelectionPath(path);
+            _tree.setSelectionRow(rows[0]);
+            _tree.repaint();
+        } catch (java.util.NoSuchElementException | NullPointerException | ArrayIndexOutOfBoundsException e) {
         }
     }//GEN-LAST:event_btnRefreshActionPerformed
 
@@ -948,7 +961,7 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
     }//GEN-LAST:event_btnViewDataActionPerformed
 
     private void btnPrintChartActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPrintChartActionPerformed
-        reportOptions = new ReportOptions(_parent, true);
+        final ReportOptions reportOptions = new ReportOptions(_parent, true);
         reportOptions.chkPrintChart.setSelected(true);
         reportOptions.chkPrintTable.setSelected(false);
         reportOptions.chkPrintTable.setEnabled(false);
@@ -1019,8 +1032,8 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
             if (cmbEFrom.getDate().getTime() > cmbETo.getDate().getTime()) {
                 skipFirstMessage = true;
                 if (skipFirstMessage) {
-                    JOptionPane.showMessageDialog(this, "End date of production can't come "
-                            + "before the begining date...", "Dates", JOptionPane.WARNING_MESSAGE);
+                    JOptionPane.showMessageDialog(this, "End date of production can not come "
+                            + "before the start date...", "Dates", JOptionPane.WARNING_MESSAGE);
                     skipFirstMessage = false;
                 }
             }
@@ -1051,7 +1064,7 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
                 }
                 panChart.removeAll();
                 panChart.repaint();
-                sclPaneTree.setViewportView(null);//clearing the scrollpanel of the jtree
+                scrlPaneTree.setViewportView(null);//clearing the scrollpanel of the jtree
                 boolean find = false;
                 ArrayList<String> data = new ArrayList<>();
                 try (PreparedStatement ps = ConnectDB.con.prepareStatement("SELECT DISTINCT(c.Description) "
@@ -1060,7 +1073,6 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
                         + "ORDER BY Description ASC")) {
                     ps.setInt(1, machineID);
                     ConnectDB.res = ps.executeQuery();
-                    find = false;
                     while (ConnectDB.res.next()) {
                         find = true;
                         data.add(ConnectDB.res.getString(1));//adding the description
@@ -1084,17 +1096,16 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
                 } else {
                     catMachine = false;
                     JOptionPane.showMessageDialog(this, new StringBuilder("No description/category exists for the \"").
-                            append(machineTitle).append("\" machine").toString(),
-                            "Events", JOptionPane.INFORMATION_MESSAGE);
+                            append(machineTitle).append("\" machine").toString(), "Events", JOptionPane.WARNING_MESSAGE);
                     lblFrom.setText("");
                     lblTo.setText("");
                     _field.setTreeModel(new DefaultTreeModel(new DefaultMutableTreeNode(EMPTYEVENTS)));
-                    sclPaneTree.setViewportView(null);
+                    scrlPaneTree.setViewportView(null);
                 }
             } else {
                 panChart.removeAll();
                 panChart.repaint();
-                sclPaneTree.setViewportView(null);
+                scrlPaneTree.setViewportView(null);
                 cmbDescription.setModel(new DefaultComboBoxModel());
                 cmbDescription.setSelectedIndex(-1);
                 cmbValue.setModel(new DefaultComboBoxModel());
@@ -1245,7 +1256,7 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
             while (ConnectDB.res.next()) {
                 loopQueryFound = true;
                 descriptionSet.add(ConnectDB.res.getString(4).toLowerCase());//get only the description
-                setDescriptionValue.add(new StringBuilder(ConnectDB.res.getString(4)).append(",").
+                setDescriptionValue.add(new StringBuilder(ConnectDB.res.getString(4)).append(";").
                         append(ConnectDB.res.getString(3)).toString().toLowerCase());//get the description and Value
             }
             ps.close();
@@ -1255,7 +1266,7 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
                 for (String sDesc : descriptionSet) {
                     DefaultMutableTreeNode m_descNode = new DefaultMutableTreeNode(ConnectDB.firstLetterCapital(sDesc));
                     for (Enumeration enumData = data.elements(); enumData.hasMoreElements();) {
-                        Machine machData = (Machine) (enumData.nextElement());//machData == Value
+                        Machine machData = (Machine) enumData.nextElement();//machData == Value
                         if (machData.getMachDomain().equals(sDesc)) {//check for a value description
                             m_descNode.add(new DefaultMutableTreeNode(ConnectDB.firstLetterCapital(machData.toString())));//add value to a description node
                         }
@@ -1267,24 +1278,25 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
                 _field.setTreeModel(new DefaultTreeModel(new DefaultMutableTreeNode(EMPTYEVENTS)));
                 JOptionPane.showMessageDialog(_parent, "No data found and retrieved. Please check "
                         + "the period provided", "Events", JOptionPane.WARNING_MESSAGE);
-                sclPaneTree.setViewportView(null);
+                scrlPaneTree.setViewportView(null);
                 lblTimeSum.setText("");
+                catMachine = false;
             }
         } else {
             _field.setTreeModel(new DefaultTreeModel(new DefaultMutableTreeNode(EMPTYEVENTS)));
             JOptionPane.showMessageDialog(this, new StringBuilder("No events registered during the periods "
                     + "specified for the \"").append(machineTitle).append("\"."), "Events", JOptionPane.WARNING_MESSAGE);
-            sclPaneTree.setViewportView(null);
+            scrlPaneTree.setViewportView(null);
             lblFrom.setText("");
             lblTo.setText("");
             lblTimeSum.setText("");
         }
     }
 
-    private Vector getDummyData(Set<String> set) {
+    public static Vector getDummyData(Set<String> set) {
         Vector dummyPartData = new Vector();
         for (Object object : set) {
-            StringTokenizer tokenizer = new StringTokenizer(object.toString(), ",");
+            StringTokenizer tokenizer = new StringTokenizer(object.toString(), ";");
             String treeDescription = tokenizer.nextToken(),
                     treeValue = tokenizer.nextToken();
             dummyPartData.addElement(new Machine(treeValue, treeDescription));
@@ -1335,7 +1347,7 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
             TreeUtils.expandAll(_tree, true);
             _tree.setRootVisible(true);
             _tree.setShowsRootHandles(true);
-            sclPaneTree.setViewportView(_tree);//adding the tree to the scrollpanel
+            scrlPaneTree.setViewportView(_tree);//adding the tree to the scrollpanel
         } catch (java.lang.NullPointerException e) {
         }
     }
@@ -1451,9 +1463,9 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
 
     private void drawChart(String query) throws SQLException {
         lblTimeSum.setText("");
-        model.clearPoints();
+        model = new DefaultChartModel();
         colorsCategoryRange = new CategoryRange<>();
-        HL.clear();
+        HL = new ArrayList();
         if (!query.isEmpty()) {
             if (btnDataEvent.isSelected()) {
                 panChart.removeAll();
@@ -1463,10 +1475,9 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
                 ArrayList<String> allDatas = new ArrayList<>();//listarray to get only the date from the database
                 Statement stat = ConnectDB.con.createStatement();
                 ConnectDB.res = stat.executeQuery(query);
-                int i = 0;
                 double sum;
                 max = 0;
-                setDescOrValue.clear();
+                Set<String> setDescOrValue = new TreeSet<>();
                 timeFormat = "fictitious value";
                 while (ConnectDB.res.next()) {
                     String eventTime = ConnectDB.res.getString(1),//EventTime
@@ -1480,15 +1491,15 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
                         //and the Description or Value
                         if (radHour.isSelected()) {
                             timeFormat = "hour";//Time + The Description or Value
-                            allDatas.add(new StringBuilder().append(diffs[1]).append(",").
+                            allDatas.add(new StringBuilder().append(diffs[1]).append(";").
                                     append(ConnectDB.res.getString(3)).toString().toLowerCase());
                         } else if (radMinute.isSelected()) {
                             timeFormat = "min";
-                            allDatas.add(new StringBuilder().append(diffs[2]).append(",").
+                            allDatas.add(new StringBuilder().append(diffs[2]).append(";").
                                     append(ConnectDB.res.getString(3)).toString().toLowerCase());
                         } else {
                             timeFormat = "sec";
-                            allDatas.add(new StringBuilder().append(diffs[3]).append(",").
+                            allDatas.add(new StringBuilder().append(diffs[3]).append(";").
                                     append(ConnectDB.res.getString(3)).toString().toLowerCase());
                         }
                     } catch (ParseException ex) {
@@ -1502,10 +1513,11 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
                     setData = setDescOrValue; //set for only the value
                 }
                 totalSum = 0d;
+                short i = 0;
                 for (String setLine : setData) {
                     sum = 0d;
                     for (int j = 0; j < allDatas.size(); j++) {
-                        StringTokenizer st = new StringTokenizer(allDatas.get(j), ",");
+                        StringTokenizer st = new StringTokenizer(allDatas.get(j), ";");
                         String time = st.nextToken();//0==
                         String val = st.nextToken();//1==
 //                            String[] ses = allDatas.get(j).split(",");
@@ -1524,7 +1536,7 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
                     totalSum += sum;
                 }
                 //Create the charts
-                lblTimeSum.setText(new StringBuilder("<html>Total ").append(timeFormat).
+                lblTimeSum.setText(new StringBuilder("<html>Total parts ").append(timeFormat).
                         append(": <font color=red>").append(ConnectDB.DECIMALFORMAT.format(totalSum)).
                         append("</font>").toString());
                 if (!btnBarChart.isEnabled()) {
@@ -1694,28 +1706,41 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
 
                         @Override
                         public void run() {
-                            chart.getPieSegmentRenderer().setPointLabeler(new PointLabeler() {
-
+                            SwingUtilities.invokeLater(new Runnable() {
                                 @Override
-                                public String getDisplayText(Chartable p) {
-                                    Category text = (Category) p.getX();
-                                    double value = p.getY().position();
-                                    return String.format("%s (%.2f %s)", text.getName(), (value / totalSum) * 100, "%");
+                                public void run() {
+                                    chart.getPieSegmentRenderer().setPointLabeler(new PointLabeler() {
+
+                                        @Override
+                                        public String getDisplayText(Chartable p) {
+                                            Category text = (Category) p.getX();
+                                            double value = p.getY().position();
+                                            return String.format("%s (%.2f %s)", text.getName(),
+                                                    (value / totalSum) * 100, "%");
+                                        }
+                                    });
                                 }
                             });
                         }
                     }.start();
                 } else if (e.getStateChange() == ItemEvent.DESELECTED) {
-                    AbstractPieSegmentRenderer renderer = (AbstractPieSegmentRenderer) chart.getPieSegmentRenderer();
-                    PieLabelRenderer labelRenderer;
-                    if (ConnectDB.pref.getBoolean(StatKeyFactory.ChartFeatures.RBLineLabel, true)) {
-                        labelRenderer = new LinePieLabelRenderer();
-                    } else if (ConnectDB.pref.getBoolean(StatKeyFactory.ChartFeatures.RBSimpleLabel, false)) {
-                        labelRenderer = new SimplePieLabelRenderer();
-                    } else {
-                        labelRenderer = null;
-                    }
-                    renderer.setPieLabelRenderer(labelRenderer);
+                    new Thread() {
+
+                        @Override
+                        public void run() {
+                            AbstractPieSegmentRenderer renderer = (AbstractPieSegmentRenderer) chart.getPieSegmentRenderer();
+                            PieLabelRenderer labelRenderer;
+                            if (ConnectDB.pref.getBoolean(StatKeyFactory.ChartFeatures.RBLineLabel, true)) {
+                                labelRenderer = new LinePieLabelRenderer();
+                                ((AbstractPieLabelRenderer) labelRenderer).setLabelFont(new Font("Cooper Black", Font.PLAIN, 12));
+                            } else if (ConnectDB.pref.getBoolean(StatKeyFactory.ChartFeatures.RBSimpleLabel, false)) {
+                                labelRenderer = new SimplePieLabelRenderer();
+                            } else {
+                                labelRenderer = null;
+                            }
+                            renderer.setPieLabelRenderer(labelRenderer);
+                        }
+                    }.start();
                 }
             }
         });
@@ -1840,7 +1865,7 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
         return configNo;
     }
 
-    private class Machine {
+    public static class Machine {
 
         private String m_machName;
         private final String m_machDomain;
@@ -1870,19 +1895,20 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
             final JFrame frame = new JFrame("Smartfactory Events & Downtime Statistics Report 1.0");
             frame.setSize(1000, 700);
             frame.setContentPane(new EventsStatistic(null));
-            frame.addWindowListener(new WindowAdapter() {
-
-                @Override
-                public void windowClosing(WindowEvent e) {
-                    if (JOptionPane.showConfirmDialog(frame, "Please make sure to save any data before closing.\n"
-                            + "Do you want to close ?",
-                            "Exit", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE) == 0) {
-                        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-                    } else {
-                        frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-                    }
-                }
-            });
+//            frame.addWindowListener(new WindowAdapter() {
+//
+//                @Override
+//                public void windowClosing(WindowEvent e) {
+//                    if (JOptionPane.showConfirmDialog(frame, "Please make sure to save any data before closing.\n"
+//                            + "Do you want to close ?",
+//                            "Exit", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE) == 0) {
+//                        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//                    } else {
+//                        frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+//                    }
+//                }
+//            });
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             frame.setLocationRelativeTo(null);
             frame.setVisible(true);
         } catch (SQLException ex) {
@@ -1894,7 +1920,6 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
     private com.jidesoft.tree.QuickTreeFilterField _field;
     public static javax.swing.JButton btnBarChart;
     private javax.swing.JButton btnClipboard;
-    private javax.swing.JButton btnClose;
     private javax.swing.JToggleButton btnDataEvent;
     public static javax.swing.JButton btnLineChart;
     private javax.swing.JButton btnOEECalculation;
@@ -1921,6 +1946,7 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
@@ -1945,7 +1971,7 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
     private javax.swing.JRadioButton radHour;
     private javax.swing.JRadioButton radMinute;
     private javax.swing.JRadioButton radSecond;
-    private javax.swing.JScrollPane sclPaneTree;
+    private javax.swing.JScrollPane scrlPaneTree;
     private javax.swing.JSpinner spProductionRate;
     // End of variables declaration//GEN-END:variables
     private static int machineID = -1;
@@ -1954,21 +1980,19 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
     private boolean skipFirstMessage = true,//variables for the dates;
             catMachine, catDescription;//check if all the machineTitle title are loaded
     private static int max = 0;
-    private static ChartStyle stylePieChart = null;
-    private static final ArrayList HL = new ArrayList();
     private static final RandomColor randomColor = new RandomColor();
-    private static final DefaultChartModel model = new DefaultChartModel();
+    private static ChartStyle stylePieChart = null;
+    private static ArrayList HL = null;
+    private static DefaultChartModel model = null;
     private static Chart chart;
-    private static String minLogTime = null, maxLogTime = null;//also used in the EventsHierarchicalTable
-    private static CategoryRange<ChartCategory> colorsCategoryRange = new CategoryRange<>();
-    private static String timeFormat = null, reportTitle = "", chartTitle = "";
+    private static CategoryRange<ChartCategory> colorsCategoryRange = null;
+    private static String minLogTime = null, maxLogTime = null,//also used in the EventsHierarchicalTable
+            timeFormat = null, reportTitle = "", chartTitle = "", machineTitle = null, customCodeValue = "";
     private static MouseDragPanner panner;
     private static JTree _tree;
-    private static String machineTitle = null, customCodeValue = "";
-    private static final Set<String> descriptionSet = new TreeSet<>(), setDescOrValue = new TreeSet<>();
+    private static final Set<String> descriptionSet = new TreeSet<>();
     private EventsHierarchicalTable eht = null;
     private final JFrame _parent;
     private Thread runThread;
-    private ReportOptions reportOptions = null;
     private final String EMPTYEVENTS = "***NO EVENT RETRIEVED***";
 }

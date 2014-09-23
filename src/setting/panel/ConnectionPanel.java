@@ -4,10 +4,6 @@ import com.jidesoft.dialog.AbstractDialogPage;
 import com.jidesoft.dialog.ButtonEvent;
 import com.jidesoft.dialog.ButtonNames;
 import com.jidesoft.pane.CollapsiblePane;
-import com.jidesoft.swing.JideSwingUtilities;
-import java.awt.Color;
-import javax.swing.BorderFactory;
-import javax.swing.JComponent;
 import setting.SettingKeyFactory;
 import smartfactoryV2.ConnectDB;
 
@@ -16,7 +12,7 @@ public class ConnectionPanel extends javax.swing.JPanel {
     public ConnectionPanel(AbstractDialogPage page) {
         this.page = page;
         initComponents();
-        CollapsiblePaneProperties(collapsiblePane1);
+        ConnectDB.collapsiblePaneProperties(collapsiblePane1);
         initValues();
     }
 
@@ -96,21 +92,12 @@ public class ConnectionPanel extends javax.swing.JPanel {
         initValues = true;
     }
 
-    private static void CollapsiblePaneProperties(CollapsiblePane pane) {
-        pane.setBackground(Color.WHITE);
-        pane.getContentPane().setBorder(BorderFactory.createEmptyBorder(0, 16, 0, 0));
-        pane.getContentPane().setOpaque(false);
-        pane.getActualComponent().setBackground(Color.WHITE);
-        JComponent actualComponent = pane.getActualComponent();
-        JideSwingUtilities.setOpaqueRecursively(actualComponent, false);
-    }
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private com.jidesoft.pane.CollapsiblePane collapsiblePane1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     public static com.jidesoft.field.IPTextField serverIPAddress;
     // End of variables declaration//GEN-END:variables
-    AbstractDialogPage page;
-    boolean initValues;
+    private AbstractDialogPage page;
+    private boolean initValues;
 }

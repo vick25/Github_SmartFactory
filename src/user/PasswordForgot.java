@@ -207,7 +207,7 @@ public class PasswordForgot extends javax.swing.JFrame {
     private void btnValidateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnValidateActionPerformed
         boolean answer = false;
         String pwd = "";
-        try (PreparedStatement ps = ConnectDB.con.prepareStatement("SELECT password, answer\n"
+        try (PreparedStatement ps = ConnectDB.con.prepareStatement("SELECT password, answer \n"
                 + "FROM userlist WHERE login =?")) {
             ps.setString(1, txtLoginID.getText());
             ConnectDB.res = ps.executeQuery();
@@ -221,15 +221,15 @@ public class PasswordForgot extends javax.swing.JFrame {
             ConnectDB.catchSQLException(ex);
         }
         if (answer) {
-            JOptionPane.showMessageDialog(this, "Your password is "
-                    + "" + pwd, "Confirmation", JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(this, new StringBuilder("Your password is ").append(pwd).toString(),
+                    "Confirmation", JOptionPane.INFORMATION_MESSAGE);
             this.dispose();
             this._parent.setVisible(true);
             Identification.txtLogin.setText(txtLoginID.getText());
             Identification.txtPassword.setText(pwd);
         } else {
-            JOptionPane.showMessageDialog(this, "Your answer is not correct ..."
-                    + "" + pwd, "Fatal error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, new StringBuilder("Your answer is not correct: ...").append(pwd).toString(),
+                    "Fatal error", JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_btnValidateActionPerformed
 
@@ -259,8 +259,8 @@ public class PasswordForgot extends javax.swing.JFrame {
         if (!find) {
             txtQuestion.setText("");
             lblMessage.setForeground(Color.BLACK);
-            lblMessage.setText("<html>The user <FONT color=#FF0000>"
-                    + txtLoginID.getText() + "</FONT> does not exist in the database ...</html>");
+            lblMessage.setText(new StringBuilder("<html>The user <FONT color=#FF0000>").
+                    append(txtLoginID.getText()).append("</FONT> does not exist in the database ...</html>").toString());
         }
         return find;
     }

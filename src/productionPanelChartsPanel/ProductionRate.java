@@ -10,6 +10,7 @@ import com.jidesoft.chart.model.Highlightable;
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
@@ -21,6 +22,8 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.awt.geom.Point2D;
+import javax.swing.JFrame;
+import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import javax.swing.UIManager;
 import smartfactoryV2.ConnectDB;
@@ -44,6 +47,11 @@ public class ProductionRate extends javax.swing.JPanel {
 
             @Override
             public void mouseMoved(MouseEvent e) {
+                Component component = (Component) e.getSource();
+                //
+                // Returns the root component for the current component tree
+                //
+                JFrame frame = (JFrame) SwingUtilities.getRoot(component);
                 try {
                     Point p = e.getPoint();
                     PointSelection ps = chartPanel.nearestPoint(p, chartModel);

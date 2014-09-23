@@ -252,7 +252,7 @@ public class SettingsOptionsDialog extends MultiplePageDialog {
 //        }
 //    }
     private String getPassword(int idUser) throws SQLException {
-        try (PreparedStatement ps = ConnectDB.con.prepareStatement("SELECT password FROM userlist\n"
+        try (PreparedStatement ps = ConnectDB.con.prepareStatement("SELECT password FROM userlist \n"
                 + "WHERE IDuser =?")) {
             ps.setInt(1, idUser);
             ConnectDB.res = ps.executeQuery();
@@ -265,7 +265,7 @@ public class SettingsOptionsDialog extends MultiplePageDialog {
     }
 
     private String getUserLogin(int idUser) throws SQLException {
-        try (PreparedStatement ps = ConnectDB.con.prepareStatement("SELECT login FROM userlist\n"
+        try (PreparedStatement ps = ConnectDB.con.prepareStatement("SELECT login FROM userlist \n"
                 + "WHERE IDuser =?")) {
             ps.setInt(1, idUser);
             ConnectDB.res = ps.executeQuery();
@@ -287,6 +287,8 @@ public class SettingsOptionsDialog extends MultiplePageDialog {
         ConnectDB.pref.putBoolean(SettingKeyFactory.General.CONFIRMCLOSEMAINFRAME, GeneralPanel.chkConfirmCloseMainFrame.isSelected());
         ConnectDB.pref.putBoolean(SettingKeyFactory.General.CONFIRMCLOSETAB, GeneralPanel.chkConfirmCloseTab.isSelected());
         ConnectDB.pref.putBoolean(SettingKeyFactory.DefaultProperties.SHOWPRODUCTIONQVIEW, GeneralPanel.chkProdQuickView.isSelected());
+//        ConnectDB.pref.put(SettingKeyFactory.General.YEAR_START, GeneralPanel.getYearStart());
+        ConnectDB.pref.put(SettingKeyFactory.General.DAY_OF_WEEK, GeneralPanel.cmbDayOfWeek.getSelectedItem().toString());
     }
 
     private void applyPrivacy() throws SQLException {

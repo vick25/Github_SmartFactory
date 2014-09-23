@@ -43,7 +43,7 @@ public class Main {
             Socket clientSocket = new Socket(ConnectDB.serverIP, ConnectDB.PORTMAINSERVER);
             JOptionPane.showMessageDialog(null, "An instance of this application is already running.",
                     "SmartFactory Report Tool", JOptionPane.ERROR_MESSAGE);
-            System.out.println("*** Already running! ***");
+//            System.out.println("*** Already running! ***");
             System.exit(0);
         } catch (IOException | HeadlessException e) {
             new JustOneServer().start();

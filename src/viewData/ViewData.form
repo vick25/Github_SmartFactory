@@ -54,7 +54,7 @@
               <Group type="102" alignment="1" attributes="0">
                   <EmptySpace min="-2" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="1" attributes="0">
-                      <Component id="Scrll" pref="296" max="32767" attributes="0"/>
+                      <Component id="scrlPaneTable" pref="296" max="32767" attributes="0"/>
                       <Group type="102" attributes="0">
                           <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                           <Component id="btnExcel" min="-2" max="-2" attributes="0"/>
@@ -70,7 +70,7 @@
           <Group type="103" groupAlignment="0" attributes="0">
               <Group type="102" alignment="0" attributes="0">
                   <EmptySpace min="-2" max="-2" attributes="0"/>
-                  <Component id="Scrll" pref="381" max="32767" attributes="0"/>
+                  <Component id="scrlPaneTable" pref="381" max="32767" attributes="0"/>
                   <EmptySpace min="-2" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Component id="btnClose" min="-2" max="-2" attributes="0"/>
@@ -82,7 +82,7 @@
         </DimensionLayout>
       </Layout>
       <SubComponents>
-        <Container class="javax.swing.JScrollPane" name="Scrll">
+        <Container class="javax.swing.JScrollPane" name="scrlPaneTable">
 
           <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
         </Container>

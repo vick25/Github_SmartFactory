@@ -44,8 +44,8 @@ public class ViewData extends javax.swing.JDialog {
 //                }
 //            });
 //            timer.start();
-            Scrll.getViewport().setBackground(Color.WHITE);
-            Scrll.setViewportView(this.table);
+            scrlPaneTable.getViewport().setBackground(Color.WHITE);
+            scrlPaneTable.setViewportView(this.table);
         }
         btnExcel.setVisible(false);
         this.setTitle(myTableName);
@@ -59,7 +59,7 @@ public class ViewData extends javax.swing.JDialog {
     private void initComponents() {
 
         jPanel1 = new javax.swing.JPanel();
-        Scrll = new javax.swing.JScrollPane();
+        scrlPaneTable = new javax.swing.JScrollPane();
         btnExcel = new com.jidesoft.swing.JideButton();
         btnClose = new com.jidesoft.swing.JideButton();
 
@@ -94,7 +94,7 @@ public class ViewData extends javax.swing.JDialog {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(Scrll, javax.swing.GroupLayout.DEFAULT_SIZE, 296, Short.MAX_VALUE)
+                    .addComponent(scrlPaneTable, javax.swing.GroupLayout.DEFAULT_SIZE, 296, Short.MAX_VALUE)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGap(0, 0, Short.MAX_VALUE)
                         .addComponent(btnExcel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -106,7 +106,7 @@ public class ViewData extends javax.swing.JDialog {
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(Scrll, javax.swing.GroupLayout.DEFAULT_SIZE, 381, Short.MAX_VALUE)
+                .addComponent(scrlPaneTable, javax.swing.GroupLayout.DEFAULT_SIZE, 381, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(btnClose, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -142,16 +142,16 @@ public class ViewData extends javax.swing.JDialog {
             if (!fc.getSelectedFile().exists()) {
                 try {
                     if (!fc.getSelectedFile().getAbsolutePath().contains(".")) {
-                        CreerExcel(new File(fc.getSelectedFile().getAbsolutePath() + ".xls"));
+                        createExcelFile(new File(fc.getSelectedFile().getAbsolutePath() + ".xls"));
                     } else {
-                        CreerExcel(fc.getSelectedFile());
+                        createExcelFile(fc.getSelectedFile());
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             } else {
-                JOptionPane.showMessageDialog(this, fc.getSelectedFile().getName() + " already exists ..."
-                        + "", "Warning", JOptionPane.WARNING_MESSAGE);
+                JOptionPane.showMessageDialog(this, fc.getSelectedFile().getName() + " already exists ...",
+                        "Warning", JOptionPane.WARNING_MESSAGE);
             }
         }
     }//GEN-LAST:event_btnExcelActionPerformed
@@ -160,7 +160,7 @@ public class ViewData extends javax.swing.JDialog {
         this.dispose();
     }//GEN-LAST:event_btnCloseActionPerformed
 
-    private void CreerExcel(File file) {
+    private void createExcelFile(File file) {
         try {
             WritableWorkbook wbb;
             WritableSheet sheet;
@@ -196,10 +196,10 @@ public class ViewData extends javax.swing.JDialog {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JScrollPane Scrll;
     private com.jidesoft.swing.JideButton btnClose;
     private com.jidesoft.swing.JideButton btnExcel;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JScrollPane scrlPaneTable;
     // End of variables declaration//GEN-END:variables
     private SortableTable table;
 }

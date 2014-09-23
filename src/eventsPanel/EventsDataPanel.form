@@ -121,7 +121,7 @@
         <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
           <Image iconType="3" name="/images/icons/excel_csv_2.png"/>
         </Property>
-        <Property name="text" type="java.lang.String" value="Excel / CSV"/>
+        <Property name="text" type="java.lang.String" value="Excel / CSV ..."/>
         <Property name="focusable" type="boolean" value="false"/>
         <Property name="opaque" type="boolean" value="true"/>
       </Properties>

@@ -4,10 +4,6 @@ import com.jidesoft.dialog.AbstractDialogPage;
 import com.jidesoft.dialog.ButtonEvent;
 import com.jidesoft.dialog.ButtonNames;
 import com.jidesoft.pane.CollapsiblePane;
-import com.jidesoft.swing.JideSwingUtilities;
-import java.awt.Color;
-import javax.swing.BorderFactory;
-import javax.swing.JComponent;
 import setting.SettingKeyFactory;
 import smartfactoryV2.ConnectDB;
 
@@ -16,7 +12,7 @@ public class PrivacyPanel extends javax.swing.JPanel {
     public PrivacyPanel(AbstractDialogPage page) {
         this.page = page;
         initComponents();
-        collapsiblePaneProperties(collapsiblePane1);
+        ConnectDB.collapsiblePaneProperties(collapsiblePane1);
         initValues();
     }
 
@@ -86,7 +82,7 @@ public class PrivacyPanel extends javax.swing.JPanel {
                         .addComponent(chkRememberLogin))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, collapsiblePane1Layout.createSequentialGroup()
                         .addContainerGap()
-                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 345, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, 345, Short.MAX_VALUE)))
                 .addGap(125, 125, 125))
         );
         collapsiblePane1Layout.setVerticalGroup(
@@ -107,8 +103,8 @@ public class PrivacyPanel extends javax.swing.JPanel {
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addComponent(collapsiblePane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, Short.MAX_VALUE))
+                .addComponent(collapsiblePane1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGap(0, 0, 0))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -155,14 +151,6 @@ private void radRememberUserNamePasswordItemStateChanged(java.awt.event.ItemEven
         chkRememberLogin.setSelected(ConnectDB.pref.getBoolean(SettingKeyFactory.Privacy.SAVELOGININFO, false));
     }
 
-    private static void collapsiblePaneProperties(CollapsiblePane pane) {
-        pane.setBackground(Color.white);
-        pane.getContentPane().setBorder(BorderFactory.createEmptyBorder(0, 16, 0, 0));
-        pane.getContentPane().setOpaque(false);
-        pane.getActualComponent().setBackground(Color.white);
-        JComponent actualComponent = pane.getActualComponent();
-        JideSwingUtilities.setOpaqueRecursively(actualComponent, false);
-    }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.ButtonGroup buttonGroup1;
     public static javax.swing.JCheckBox chkRememberLogin;
@@ -172,5 +160,5 @@ private void radRememberUserNamePasswordItemStateChanged(java.awt.event.ItemEven
     public static javax.swing.JRadioButton radRememberUserName;
     public static javax.swing.JRadioButton radRememberUserNamePassword;
     // End of variables declaration//GEN-END:variables
-    AbstractDialogPage page;
+    private final AbstractDialogPage page;
 }

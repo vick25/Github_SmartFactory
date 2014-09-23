@@ -90,7 +90,7 @@
                       </Group>
                       <EmptySpace min="-2" pref="4" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="cmbMachine" pref="530" max="32767" attributes="0"/>
+                          <Component id="cmbMachine" pref="466" max="32767" attributes="0"/>
                           <Group type="102" attributes="0">
                               <Component id="cmbHFrom" min="-2" pref="240" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
@@ -140,7 +140,7 @@
                 <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
                   <Color blue="ff" green="ff" red="ff" type="rgb"/>
                 </Property>
-                <Property name="text" type="java.lang.String" value="From:"/>
+                <Property name="text" type="java.lang.String" value="Show history from:"/>
                 <Property name="focusable" type="boolean" value="false"/>
               </Properties>
               <Events>
@@ -182,7 +182,7 @@
                 <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
                   <Image iconType="3" name="/images/icons/repeat.png"/>
                 </Property>
-                <Property name="toolTipText" type="java.lang.String" value="Reset Date"/>
+                <Property name="toolTipText" type="java.lang.String" value="Reset date to current"/>
                 <Property name="enabled" type="boolean" value="false"/>
                 <Property name="focusable" type="boolean" value="false"/>
               </Properties>

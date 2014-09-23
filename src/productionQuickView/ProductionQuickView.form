@@ -29,28 +29,28 @@
               <EmptySpace min="-2" pref="8" max="-2" attributes="0"/>
               <Component id="panColor" min="-2" max="-2" attributes="0"/>
               <EmptySpace min="-2" pref="2" max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="0" attributes="0">
+              <Group type="103" groupAlignment="0" max="-2" attributes="0">
                   <Group type="102" alignment="0" attributes="0">
-                      <Component id="lblMachine" min="-2" pref="117" max="-2" attributes="0"/>
+                      <Component id="lblMachine" pref="117" max="32767" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="btnRefreshMachine" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
+                      <Component id="lblTargetTime" min="-2" pref="56" max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
                       <Component id="jPanel1" min="-2" max="-2" attributes="0"/>
                       <EmptySpace min="-2" pref="5" max="-2" attributes="0"/>
-                      <Component id="panTarget" min="-2" max="-2" attributes="0"/>
+                      <Component id="panTarget" max="32767" attributes="0"/>
                   </Group>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="tbpPanDetails" max="32767" attributes="0"/>
-                  <Component id="panProductionsOptions" max="32767" attributes="0"/>
+                  <Component id="tbpPanDetails" alignment="0" max="32767" attributes="0"/>
+                  <Component id="panProductionsOptions" alignment="0" max="32767" attributes="0"/>
               </Group>
               <EmptySpace min="-2" pref="10" max="-2" attributes="0"/>
           </Group>
-          <Component id="jToolBar1" pref="884" max="32767" attributes="0"/>
+          <Component id="jToolBar1" pref="791" max="32767" attributes="0"/>
       </Group>
     </DimensionLayout>
     <DimensionLayout dim="1">
@@ -65,19 +65,16 @@
                       <Component id="panProductionsOptions" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" attributes="0">
-                      <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                          <Component id="btnRefreshMachine" alignment="1" max="32767" attributes="0"/>
-                          <Component id="lblMachine" alignment="1" max="32767" attributes="0"/>
-                          <Component id="jLabel1" alignment="1" max="32767" attributes="0"/>
+                      <Group type="103" groupAlignment="2" attributes="0">
+                          <Component id="lblMachine" alignment="2" min="-2" pref="22" max="-2" attributes="0"/>
+                          <Component id="btnRefreshMachine" alignment="2" min="-2" max="-2" attributes="0"/>
+                          <Component id="lblTargetTime" alignment="2" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace min="-2" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="jPanel1" max="32767" attributes="0"/>
-                          <Group type="102" attributes="0">
-                              <Component id="panColor" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
-                          </Group>
                           <Component id="panTarget" max="32767" attributes="0"/>
+                          <Component id="jPanel1" max="32767" attributes="0"/>
+                          <Component id="panColor" min="-2" max="-2" attributes="0"/>
                       </Group>
                   </Group>
               </Group>
@@ -111,10 +108,14 @@
             <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
               <Color blue="ff" green="ff" red="ff" type="rgb"/>
             </Property>
+            <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+              <Font name="Tahoma" size="12" style="0"/>
+            </Property>
             <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
               <Image iconType="3" name="/images/icons/machine16x16_1.png"/>
             </Property>
-            <Property name="text" type="java.lang.String" value="Load Machines"/>
+            <Property name="text" type="java.lang.String" value="Load Machine &amp; Target"/>
+            <Property name="toolTipText" type="java.lang.String" value="Show list of machine and their targets"/>
             <Property name="focusable" type="boolean" value="false"/>
             <Property name="horizontalTextPosition" type="int" value="0"/>
             <Property name="verticalTextPosition" type="int" value="3"/>
@@ -128,10 +129,14 @@
             <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
               <Color blue="ff" green="ff" red="ff" type="rgb"/>
             </Property>
+            <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+              <Font name="Tahoma" size="12" style="0"/>
+            </Property>
             <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
               <Image iconType="3" name="/images/icons/target_3.png"/>
             </Property>
             <Property name="text" type="java.lang.String" value="Add Target"/>
+            <Property name="toolTipText" type="java.lang.String" value="Modify/Add target to a particular machine "/>
             <Property name="enabled" type="boolean" value="false"/>
             <Property name="focusable" type="boolean" value="false"/>
             <Property name="horizontalTextPosition" type="int" value="0"/>
@@ -148,10 +153,14 @@
             <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
               <Color blue="ff" green="ff" red="ff" type="rgb"/>
             </Property>
+            <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+              <Font name="Tahoma" size="12" style="0"/>
+            </Property>
             <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
               <Image iconType="3" name="/images/icons/rate_4.png"/>
             </Property>
             <Property name="text" type="java.lang.String" value="Production Rate"/>
+            <Property name="toolTipText" type="java.lang.String" value="Show production rate data"/>
             <Property name="focusable" type="boolean" value="false"/>
             <Property name="horizontalTextPosition" type="int" value="0"/>
             <Property name="verticalTextPosition" type="int" value="3"/>
@@ -165,10 +174,14 @@
             <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
               <Color blue="ff" green="ff" red="ff" type="rgb"/>
             </Property>
+            <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+              <Font name="Tahoma" size="12" style="0"/>
+            </Property>
             <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
               <Image iconType="3" name="/images/icons/rate_1.png"/>
             </Property>
             <Property name="text" type="java.lang.String" value="Total Production"/>
+            <Property name="toolTipText" type="java.lang.String" value="Show cumulative production data"/>
             <Property name="focusable" type="boolean" value="false"/>
             <Property name="horizontalTextPosition" type="int" value="0"/>
             <Property name="verticalTextPosition" type="int" value="3"/>
@@ -184,10 +197,14 @@
             <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
               <Color blue="ff" green="ff" red="ff" type="rgb"/>
             </Property>
+            <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+              <Font name="Tahoma" size="12" style="0"/>
+            </Property>
             <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
               <Image iconType="3" name="/images/icons/excel_csv_1.png"/>
             </Property>
-            <Property name="text" type="java.lang.String" value="Excel/CSV"/>
+            <Property name="text" type="java.lang.String" value="Excel / CSV"/>
+            <Property name="toolTipText" type="java.lang.String" value="Export to excel/csv file"/>
             <Property name="focusable" type="boolean" value="false"/>
             <Property name="horizontalTextPosition" type="int" value="0"/>
             <Property name="verticalTextPosition" type="int" value="3"/>
@@ -196,21 +213,25 @@
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnExportExcelCsvActionPerformed"/>
           </Events>
         </Component>
-        <Component class="javax.swing.JButton" name="btnRefresh">
+        <Component class="javax.swing.JButton" name="btnRefreshTable">
           <Properties>
             <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
               <Color blue="ff" green="ff" red="ff" type="rgb"/>
+            </Property>
+            <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+              <Font name="Tahoma" size="12" style="0"/>
             </Property>
             <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
               <Image iconType="3" name="/images/icons/gnome_view_refresh16.png"/>
             </Property>
             <Property name="text" type="java.lang.String" value="Refresh"/>
+            <Property name="toolTipText" type="java.lang.String" value="Refresh the table"/>
             <Property name="focusable" type="boolean" value="false"/>
             <Property name="horizontalTextPosition" type="int" value="0"/>
             <Property name="verticalTextPosition" type="int" value="3"/>
           </Properties>
           <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnRefreshActionPerformed"/>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnRefreshTableActionPerformed"/>
           </Events>
         </Component>
       </SubComponents>
@@ -220,7 +241,7 @@
       <Layout>
         <DimensionLayout dim="0">
           <Group type="103" groupAlignment="0" attributes="0">
-              <Component id="jScrollPane1" alignment="0" pref="145" max="32767" attributes="0"/>
+              <Component id="jScrollPane1" alignment="0" min="-2" pref="145" max="-2" attributes="0"/>
           </Group>
         </DimensionLayout>
         <DimensionLayout dim="1">
@@ -243,6 +264,9 @@
                   <StringArray count="0"/>
                 </Property>
                 <Property name="focusable" type="boolean" value="false"/>
+                <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                  <Font name="Tahoma" size="13" style="0"/>
+                </Property>
               </Properties>
               <Events>
                 <EventHandler event="valueChanged" listener="javax.swing.event.ListSelectionListener" parameters="javax.swing.event.ListSelectionEvent" handler="cblMachineValueChanged"/>
@@ -254,6 +278,9 @@
     </Container>
     <Component class="javax.swing.JLabel" name="lblMachine">
       <Properties>
+        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+          <Font name="Tahoma" size="12" style="0"/>
+        </Property>
         <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="0" green="cc" red="0" type="rgb"/>
         </Property>
@@ -266,7 +293,7 @@
         <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
           <Image iconType="3" name="/images/icons/refresh16.png"/>
         </Property>
-        <Property name="toolTipText" type="java.lang.String" value="Refresh the machine list"/>
+        <Property name="toolTipText" type="java.lang.String" value="Refresh the machine list and target"/>
         <Property name="focusable" type="boolean" value="false"/>
         <Property name="opaque" type="boolean" value="true"/>
       </Properties>
@@ -298,7 +325,7 @@
                       <Group type="102" alignment="0" attributes="0">
                           <Component id="chkDay" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="cmbDay" min="-2" pref="148" max="-2" attributes="0"/>
+                          <Component id="cmbDay" min="-2" pref="172" max="-2" attributes="0"/>
                       </Group>
                       <Group type="102" alignment="0" attributes="0">
                           <Component id="lblProduction" min="-2" max="-2" attributes="0"/>
@@ -324,19 +351,19 @@
         </DimensionLayout>
         <DimensionLayout dim="1">
           <Group type="103" groupAlignment="0" attributes="0">
-              <Group type="102" alignment="0" attributes="0">
+              <Group type="102" attributes="0">
                   <EmptySpace min="-2" pref="2" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="2" attributes="0">
+                      <Component id="lblProduction" alignment="2" min="-2" max="-2" attributes="0"/>
                       <Component id="btnPerMin" alignment="2" min="-2" max="-2" attributes="0"/>
                       <Component id="btnPerHour" alignment="2" min="-2" max="-2" attributes="0"/>
-                      <Component id="lblProduction" alignment="2" min="-2" max="-2" attributes="0"/>
                       <Component id="bslQuickView" alignment="2" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace type="unrelated" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="2" attributes="0">
-                      <Component id="chkDay" alignment="2" min="-2" max="-2" attributes="0"/>
-                      <Component id="cmbDay" linkSize="1" alignment="2" min="-2" max="-2" attributes="0"/>
                       <Component id="lblMessage" linkSize="1" alignment="2" min="-2" max="-2" attributes="0"/>
+                      <Component id="cmbDay" linkSize="1" alignment="2" min="-2" max="-2" attributes="0"/>
+                      <Component id="chkDay" alignment="2" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace max="32767" attributes="0"/>
               </Group>
@@ -352,12 +379,18 @@
               <Connection code="Calendar.getInstance().getTime()" type="code"/>
             </Property>
             <Property name="focusable" type="boolean" value="false"/>
+            <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+              <Font name="Tahoma" size="12" style="0"/>
+            </Property>
             <Property name="requestFocusEnabled" type="boolean" value="false"/>
             <Property name="timeDisplayed" type="boolean" value="true"/>
             <Property name="timeFormat" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
               <Connection code="&quot;HH:mm:ss&quot;" type="code"/>
             </Property>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="cmbDayActionPerformed"/>
+          </Events>
         </Component>
         <Component class="javax.swing.JLabel" name="lblProduction">
           <Properties>
@@ -373,7 +406,7 @@
               <Color blue="ff" green="ff" red="ff" type="rgb"/>
             </Property>
             <Property name="selected" type="boolean" value="true"/>
-            <Property name="text" type="java.lang.String" value="Day:"/>
+            <Property name="text" type="java.lang.String" value="End Time:"/>
             <Property name="focusable" type="boolean" value="false"/>
           </Properties>
           <Events>
@@ -383,7 +416,7 @@
         <Component class="javax.swing.JLabel" name="lblMessage">
           <Properties>
             <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-              <Font name="Tahoma" size="12" style="1"/>
+              <Font name="Tahoma" size="14" style="1"/>
             </Property>
             <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
               <Color blue="0" green="0" red="cc" type="rgb"/>
@@ -412,7 +445,7 @@
               <ComponentRef name="buttonGroup1"/>
             </Property>
             <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-              <Font name="Tahoma" size="11" style="1"/>
+              <Font name="Tahoma" size="12" style="1"/>
             </Property>
             <Property name="selected" type="boolean" value="true"/>
             <Property name="text" type="java.lang.String" value="p/min"/>
@@ -431,7 +464,7 @@
               <ComponentRef name="buttonGroup1"/>
             </Property>
             <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-              <Font name="Tahoma" size="11" style="1"/>
+              <Font name="Tahoma" size="12" style="1"/>
             </Property>
             <Property name="text" type="java.lang.String" value="p/hr"/>
             <Property name="focusable" type="boolean" value="false"/>
@@ -482,24 +515,42 @@
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
         </Property>
       </Properties>
-      <AuxValues>
-        <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new javax.swing.JPanel(new BorderLayout())"/>
-      </AuxValues>
 
       <Layout>
         <DimensionLayout dim="0">
           <Group type="103" groupAlignment="0" attributes="0">
-              <EmptySpace min="0" pref="71" max="32767" attributes="0"/>
+              <Component id="jScrollPane2" alignment="0" pref="0" max="32767" attributes="0"/>
           </Group>
         </DimensionLayout>
         <DimensionLayout dim="1">
           <Group type="103" groupAlignment="0" attributes="0">
-              <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
+              <Component id="jScrollPane2" alignment="0" max="32767" attributes="0"/>
           </Group>
         </DimensionLayout>
       </Layout>
+      <SubComponents>
+        <Container class="javax.swing.JScrollPane" name="jScrollPane2">
+          <AuxValues>
+            <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
+          </AuxValues>
+
+          <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
+          <SubComponents>
+            <Component class="com.jidesoft.navigation.NavigationList" name="_listTarget">
+              <Properties>
+                <Property name="model" type="javax.swing.ListModel" editor="org.netbeans.modules.form.editors2.ListModelEditor">
+                  <StringArray count="0"/>
+                </Property>
+              </Properties>
+              <AuxValues>
+                <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new com.jidesoft.navigation.NavigationList(listModelTarget)"/>
+              </AuxValues>
+            </Component>
+          </SubComponents>
+        </Container>
+      </SubComponents>
     </Container>
-    <Component class="javax.swing.JLabel" name="jLabel1">
+    <Component class="javax.swing.JLabel" name="lblTargetTime">
       <Properties>
         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
           <Font name="Tahoma" size="9" style="0"/>

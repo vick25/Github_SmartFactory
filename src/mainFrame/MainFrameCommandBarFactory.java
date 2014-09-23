@@ -34,6 +34,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JPopupMenu.Separator;
 import javax.swing.JRadioButtonMenuItem;
+import javax.swing.KeyStroke;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -220,7 +221,7 @@ public class MainFrameCommandBarFactory extends CommandBarFactory {
         fileMenu.add(MIExit);
         return fileMenu;
     }
-   
+
     private static JideMenu createToolsMenu() {
         JideMenu menu = new JideMenu("Tools");
         JMenuItem MICreateUser = new JMenuItem();
@@ -251,6 +252,8 @@ public class MainFrameCommandBarFactory extends CommandBarFactory {
         menu.add(separator);
         MISettings.setIcon(MainFrameIconsFactory.getImageIcon(MainFrameIconsFactory.Standard.SETTING)); // NOI18N
         MISettings.setText("Settings...");
+        KeyStroke ctrlXKeyStroke = KeyStroke.getKeyStroke("control X");
+        MISettings.setAccelerator(ctrlXKeyStroke);
         MISettings.addActionListener(new ActionListener() {
 
             @Override

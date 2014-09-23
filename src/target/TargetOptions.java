@@ -79,7 +79,7 @@ public class TargetOptions extends javax.swing.JPanel {
         scrlBreakTime.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder(
                 new PartialGradientLineBorder(new Color[]{new Color(0, 0, 128),
                     UIDefaultsLookup.getColor("control")}, 2, PartialSide.NORTH),
-                _machine + " Break Times", TitledBorder.CENTER, TitledBorder.ABOVE_TOP),
+                new StringBuilder(_machine).append(" Break Times").toString(), TitledBorder.CENTER, TitledBorder.ABOVE_TOP),
                 BorderFactory.createEmptyBorder(6, 4, 4, 4)));
         this.setTable();
         this.loadMachineBreakTime(_machine);
@@ -272,7 +272,7 @@ public class TargetOptions extends javax.swing.JPanel {
 
     private String[] getBreakName() throws SQLException {
         ArrayList<String> list = new ArrayList<>();
-        try (PreparedStatement ps = ConnectDB.con.prepareStatement("SELECT DISTINCT BreaksName FROM breaks\n"
+        try (PreparedStatement ps = ConnectDB.con.prepareStatement("SELECT DISTINCT BreaksName FROM breaks \n"
                 + "WHERE BreaksName <> '' ORDER BY BreaksName")) {
             ConnectDB.res = ps.executeQuery();
             list.add(" ");
@@ -311,9 +311,9 @@ public class TargetOptions extends javax.swing.JPanel {
 
     private void loadMachineBreakTime(String machine) throws SQLException {
         nbLine = 1;
-        try (PreparedStatement ps = ConnectDB.con.prepareStatement("SELECT StartTime, EndTime, BreaksName\n"
-                + "FROM breaks, timebreaks\n"
-                + "WHERE breaks.BreaksNo = timebreaks.BreaksNo\n"
+        try (PreparedStatement ps = ConnectDB.con.prepareStatement("SELECT StartTime, EndTime, BreaksName \n"
+                + "FROM breaks, timebreaks \n"
+                + "WHERE breaks.BreaksNo = timebreaks.BreaksNo \n"
                 + "AND HwNo=? ORDER BY TimeBreaksNo ASC")) {
             ps.setInt(1, ConnectDB.getIDMachine(machine));
             ConnectDB.res = ps.executeQuery();

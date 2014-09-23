@@ -9,7 +9,6 @@ import com.jidesoft.grid.TableColumnGroup;
 import com.jidesoft.grid.TableHeaderPopupMenuInstaller;
 import com.jidesoft.grid.TableUtils;
 import com.jidesoft.hssf.HssfTableUtils;
-import com.jidesoft.navigation.NavigationList;
 import com.jidesoft.plaf.UIDefaultsLookup;
 import com.jidesoft.swing.CheckBoxList;
 import com.jidesoft.swing.PartialGradientLineBorder;
@@ -29,8 +28,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
 import java.sql.PreparedStatement;
@@ -65,8 +62,10 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import setting.SettingKeyFactory;
 import smartfactoryV2.ConnectDB;
+import smartfactoryV2.Queries;
 import tableModel.TableModelRate;
 import tableModel.TableModelTotal;
 import target.TargetInsert;
@@ -89,8 +88,8 @@ public class ProductionQuickView extends javax.swing.JPanel {
         this._parent = parent;
         ball = new Ball(this);
         initComponents();
-        panTarget.setLayout(new BorderLayout());
-        panTarget.revalidate();
+        this.autoFill("cumulative");//Fill the checkboxlist with machines
+        this.setDateComponent();
         bslQuickView.setHorizontalAlignment(javax.swing.SwingConstants.LEADING);
         bslQuickView.setForeground(Color.GRAY);
         bslQuickView.setFont(new Font("Tahoma", Font.PLAIN, 10));
@@ -117,7 +116,7 @@ public class ProductionQuickView extends javax.swing.JPanel {
                                 btnPerHour.setText("p/hr");
                                 btnPerMin.setText("p/min");
                                 btnPerMin.setSelected(true);
-                                btnProductionRateActionPerformed(null);
+//                                btnProductionRateActionPerformed(null);
                                 break;
                             case "Total Production":
                                 showActualTotalValues = true;
@@ -128,10 +127,12 @@ public class ProductionQuickView extends javax.swing.JPanel {
                                 btnPerMin.setText("Average parts");
                                 btnPerHour.setText("Actual parts");
                                 btnPerHour.setSelected(true);
-                                btnTotalProductionActionPerformed(null);
+//                                btnTotalProductionActionPerformed(null);
                                 totProdSelected = true;
                                 break;
                         }
+                        skipRunListSelection = false;
+                        btnRefreshTableActionPerformed(null);
                     }
 //                    System.out.println("Tab changed to: " + tbpPanDetails.getTitleAt(index));
                 } catch (java.lang.ArrayIndexOutOfBoundsException ex) {
@@ -143,7 +144,6 @@ public class ProductionQuickView extends javax.swing.JPanel {
                 }
             }
         });
-        autoFill("Rate");//Fill the checkboxlist with machines
         cblMachine.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseReleased(MouseEvent e) {
@@ -156,20 +156,27 @@ public class ProductionQuickView extends javax.swing.JPanel {
         cblMachine.getCheckBoxListSelectionModel().addListSelectionListener(new ListSelectionListener() {
 
             @Override
-            public void valueChanged(ListSelectionEvent e) {
+            public void valueChanged(final ListSelectionEvent e) {
                 if (!e.getValueIsAdjusting()) {
-//                    terminate = true;
-                    SwingUtilities.invokeLater(new Runnable() {
-
+                    Thread worker = new Thread() {
                         @Override
                         public void run() {
-                            try {
-                                runListSelection();
-                            } catch (SQLException ex) {
-                                ConnectDB.catchSQLException(ex);
+                            if (catCreateTab) {
+                                SwingUtilities.invokeLater(new Runnable() {
+
+                                    @Override
+                                    public void run() {
+                                        try {
+                                            runListSelection();
+                                        } catch (SQLException ex) {
+                                            ConnectDB.catchSQLException(ex);
+                                        }
+                                    }
+                                });
                             }
                         }
-                    });
+                    };
+                    worker.start();
                 }
             }
         });
@@ -197,10 +204,7 @@ public class ProductionQuickView extends javax.swing.JPanel {
             }
         });
         time.start();
-        cmbDay.setFormat(ConnectDB.SDATE_FORMAT_HOUR);
-        cmbDay.setDate(Calendar.getInstance().getTime());
-        cmbDay.getEditor().getEditorComponent().setFocusable(false);
-        createTabbedPanel(new JPanel(), "Production Rate");
+        this.createTabbedPanel(new JPanel(), "Total Production");
     }
 
     @SuppressWarnings("unchecked")
@@ -216,7 +220,7 @@ public class ProductionQuickView extends javax.swing.JPanel {
         btnTotalProduction = new javax.swing.JButton();
         jSeparator2 = new javax.swing.JToolBar.Separator();
         btnExportExcelCsv = new javax.swing.JButton();
-        btnRefresh = new javax.swing.JButton();
+        btnRefreshTable = new javax.swing.JButton();
         jPanel1 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         cblMachine = new com.jidesoft.swing.CheckBoxList();
@@ -240,8 +244,10 @@ public class ProductionQuickView extends javax.swing.JPanel {
                 ball.paint(gd);
             }
         };
-        panTarget = new javax.swing.JPanel(new BorderLayout());
-        jLabel1 = new javax.swing.JLabel();
+        panTarget = new javax.swing.JPanel();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        _listTarget = new com.jidesoft.navigation.NavigationList(listModelTarget);
+        lblTargetTime = new javax.swing.JLabel();
 
         setBackground(new java.awt.Color(255, 255, 255));
 
@@ -251,8 +257,10 @@ public class ProductionQuickView extends javax.swing.JPanel {
         jToolBar1.setRollover(true);
 
         btnLoadMachines.setBackground(new java.awt.Color(255, 255, 255));
+        btnLoadMachines.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
         btnLoadMachines.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/icons/machine16x16_1.png"))); // NOI18N
-        btnLoadMachines.setText("Load Machines");
+        btnLoadMachines.setText("Load Machine & Target");
+        btnLoadMachines.setToolTipText("Show list of machine and their targets");
         btnLoadMachines.setFocusable(false);
         btnLoadMachines.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         btnLoadMachines.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
@@ -264,8 +272,10 @@ public class ProductionQuickView extends javax.swing.JPanel {
         jToolBar1.add(btnLoadMachines);
 
         btnTarget.setBackground(new java.awt.Color(255, 255, 255));
+        btnTarget.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
         btnTarget.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/icons/target_3.png"))); // NOI18N
         btnTarget.setText("Add Target");
+        btnTarget.setToolTipText("Modify/Add target to a particular machine ");
         btnTarget.setEnabled(false);
         btnTarget.setFocusable(false);
         btnTarget.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
@@ -279,8 +289,10 @@ public class ProductionQuickView extends javax.swing.JPanel {
         jToolBar1.add(jSeparator1);
 
         btnProductionRate.setBackground(new java.awt.Color(255, 255, 255));
+        btnProductionRate.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
         btnProductionRate.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/icons/rate_4.png"))); // NOI18N
         btnProductionRate.setText("Production Rate");
+        btnProductionRate.setToolTipText("Show production rate data");
         btnProductionRate.setFocusable(false);
         btnProductionRate.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         btnProductionRate.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
@@ -292,8 +304,10 @@ public class ProductionQuickView extends javax.swing.JPanel {
         jToolBar1.add(btnProductionRate);
 
         btnTotalProduction.setBackground(new java.awt.Color(255, 255, 255));
+        btnTotalProduction.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
         btnTotalProduction.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/icons/rate_1.png"))); // NOI18N
         btnTotalProduction.setText("Total Production");
+        btnTotalProduction.setToolTipText("Show cumulative production data");
         btnTotalProduction.setFocusable(false);
         btnTotalProduction.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         btnTotalProduction.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
@@ -306,8 +320,10 @@ public class ProductionQuickView extends javax.swing.JPanel {
         jToolBar1.add(jSeparator2);
 
         btnExportExcelCsv.setBackground(new java.awt.Color(255, 255, 255));
+        btnExportExcelCsv.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
         btnExportExcelCsv.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/icons/excel_csv_1.png"))); // NOI18N
-        btnExportExcelCsv.setText("Excel/CSV");
+        btnExportExcelCsv.setText("Excel / CSV");
+        btnExportExcelCsv.setToolTipText("Export to excel/csv file");
         btnExportExcelCsv.setFocusable(false);
         btnExportExcelCsv.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         btnExportExcelCsv.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
@@ -318,20 +334,23 @@ public class ProductionQuickView extends javax.swing.JPanel {
         });
         jToolBar1.add(btnExportExcelCsv);
 
-        btnRefresh.setBackground(new java.awt.Color(255, 255, 255));
-        btnRefresh.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/icons/gnome_view_refresh16.png"))); // NOI18N
-        btnRefresh.setText("Refresh");
-        btnRefresh.setFocusable(false);
-        btnRefresh.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        btnRefresh.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        btnRefresh.addActionListener(new java.awt.event.ActionListener() {
+        btnRefreshTable.setBackground(new java.awt.Color(255, 255, 255));
+        btnRefreshTable.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        btnRefreshTable.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/icons/gnome_view_refresh16.png"))); // NOI18N
+        btnRefreshTable.setText("Refresh");
+        btnRefreshTable.setToolTipText("Refresh the table");
+        btnRefreshTable.setFocusable(false);
+        btnRefreshTable.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        btnRefreshTable.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        btnRefreshTable.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnRefreshActionPerformed(evt);
+                btnRefreshTableActionPerformed(evt);
             }
         });
-        jToolBar1.add(btnRefresh);
+        jToolBar1.add(btnRefreshTable);
 
         cblMachine.setFocusable(false);
+        cblMachine.setFont(new java.awt.Font("Tahoma", 0, 13)); // NOI18N
         cblMachine.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
             public void valueChanged(javax.swing.event.ListSelectionEvent evt) {
                 cblMachineValueChanged(evt);
@@ -343,19 +362,20 @@ public class ProductionQuickView extends javax.swing.JPanel {
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 145, Short.MAX_VALUE)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE)
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING)
         );
 
+        lblMachine.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
         lblMachine.setForeground(new java.awt.Color(0, 204, 0));
         lblMachine.setText("List of machines (0)");
 
         btnRefreshMachine.setButtonStyle(com.jidesoft.swing.JideButton.TOOLBOX_STYLE);
         btnRefreshMachine.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/icons/refresh16.png"))); // NOI18N
-        btnRefreshMachine.setToolTipText("Refresh the machine list");
+        btnRefreshMachine.setToolTipText("Refresh the machine list and target");
         btnRefreshMachine.setFocusable(false);
         btnRefreshMachine.setOpaque(true);
         btnRefreshMachine.addActionListener(new java.awt.event.ActionListener() {
@@ -371,16 +391,22 @@ public class ProductionQuickView extends javax.swing.JPanel {
         cmbDay.setShowOKButton(true);
         cmbDay.setDate(Calendar.getInstance().getTime());
         cmbDay.setFocusable(false);
+        cmbDay.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
         cmbDay.setRequestFocusEnabled(false);
         cmbDay.setTimeDisplayed(true);
         cmbDay.setTimeFormat("HH:mm:ss");
+        cmbDay.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cmbDayActionPerformed(evt);
+            }
+        });
 
         lblProduction.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         lblProduction.setText("Production Rate:");
 
         chkDay.setBackground(new java.awt.Color(255, 255, 255));
         chkDay.setSelected(true);
-        chkDay.setText("Day:");
+        chkDay.setText("End Time:");
         chkDay.setFocusable(false);
         chkDay.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
@@ -388,7 +414,7 @@ public class ProductionQuickView extends javax.swing.JPanel {
             }
         });
 
-        lblMessage.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        lblMessage.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         lblMessage.setForeground(new java.awt.Color(204, 0, 0));
         lblMessage.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
 
@@ -399,7 +425,7 @@ public class ProductionQuickView extends javax.swing.JPanel {
 
         btnPerMin.setBackground(new java.awt.Color(255, 255, 255));
         buttonGroup1.add(btnPerMin);
-        btnPerMin.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        btnPerMin.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         btnPerMin.setSelected(true);
         btnPerMin.setText("p/min");
         btnPerMin.setFocusable(false);
@@ -411,7 +437,7 @@ public class ProductionQuickView extends javax.swing.JPanel {
 
         btnPerHour.setBackground(new java.awt.Color(255, 255, 255));
         buttonGroup1.add(btnPerHour);
-        btnPerHour.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        btnPerHour.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         btnPerHour.setText("p/hr");
         btnPerHour.setFocusable(false);
         btnPerHour.addActionListener(new java.awt.event.ActionListener() {
@@ -430,7 +456,7 @@ public class ProductionQuickView extends javax.swing.JPanel {
                     .addGroup(panProductionsOptionsLayout.createSequentialGroup()
                         .addComponent(chkDay)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(cmbDay, javax.swing.GroupLayout.PREFERRED_SIZE, 148, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(cmbDay, javax.swing.GroupLayout.PREFERRED_SIZE, 172, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(panProductionsOptionsLayout.createSequentialGroup()
                         .addComponent(lblProduction)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -454,15 +480,15 @@ public class ProductionQuickView extends javax.swing.JPanel {
             .addGroup(panProductionsOptionsLayout.createSequentialGroup()
                 .addGap(2, 2, 2)
                 .addGroup(panProductionsOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
+                    .addComponent(lblProduction)
                     .addComponent(btnPerMin)
                     .addComponent(btnPerHour)
-                    .addComponent(lblProduction)
                     .addComponent(bslQuickView, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(panProductionsOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
-                    .addComponent(chkDay)
+                    .addComponent(lblMessage)
                     .addComponent(cmbDay, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(lblMessage))
+                    .addComponent(chkDay))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -489,19 +515,21 @@ public class ProductionQuickView extends javax.swing.JPanel {
 
         panTarget.setBackground(new java.awt.Color(255, 255, 255));
 
+        jScrollPane2.setViewportView(_listTarget);
+
         javax.swing.GroupLayout panTargetLayout = new javax.swing.GroupLayout(panTarget);
         panTarget.setLayout(panTargetLayout);
         panTargetLayout.setHorizontalGroup(
             panTargetLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 71, Short.MAX_VALUE)
+            .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
         );
         panTargetLayout.setVerticalGroup(
             panTargetLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 0, Short.MAX_VALUE)
+            .addComponent(jScrollPane2)
         );
 
-        jLabel1.setFont(new java.awt.Font("Tahoma", 0, 9)); // NOI18N
-        jLabel1.setText("<html>Production<br> Target (/hr)");
+        lblTargetTime.setFont(new java.awt.Font("Tahoma", 0, 9)); // NOI18N
+        lblTargetTime.setText("<html>Production<br> Target (/hr)");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -511,23 +539,23 @@ public class ProductionQuickView extends javax.swing.JPanel {
                 .addGap(8, 8, 8)
                 .addComponent(panColor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(2, 2, 2)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(lblMachine, javax.swing.GroupLayout.PREFERRED_SIZE, 117, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(lblMachine, javax.swing.GroupLayout.DEFAULT_SIZE, 117, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(btnRefreshMachine, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(lblTargetTime, javax.swing.GroupLayout.PREFERRED_SIZE, 56, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(5, 5, 5)
-                        .addComponent(panTarget, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(panTarget, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(tbpPanDetails, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(panProductionsOptions, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addGap(10, 10, 10))
-            .addComponent(jToolBar1, javax.swing.GroupLayout.DEFAULT_SIZE, 884, Short.MAX_VALUE)
+            .addComponent(jToolBar1, javax.swing.GroupLayout.DEFAULT_SIZE, 791, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -540,24 +568,23 @@ public class ProductionQuickView extends javax.swing.JPanel {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(panProductionsOptions, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(btnRefreshMachine, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(lblMachine, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jLabel1, javax.swing.GroupLayout.Alignment.TRAILING))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
+                            .addComponent(lblMachine, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(btnRefreshMachine, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(lblTargetTime, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(panTarget, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(panColor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(0, 0, Short.MAX_VALUE))
-                            .addComponent(panTarget, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                            .addComponent(panColor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnRefreshMachineActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRefreshMachineActionPerformed
         try {
-            refresh();
+            skipRunListSelection = true;
+            refreshMachine_Targets();
             chkDayItemStateChanged(null);
         } catch (SQLException ex) {
             ConnectDB.catchSQLException(ex);
@@ -574,73 +601,115 @@ public class ProductionQuickView extends javax.swing.JPanel {
     }//GEN-LAST:event_chkDayItemStateChanged
 
     private void btnProductionRateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnProductionRateActionPerformed
-        try {
-            if (!skipRefresh) {
-                refresh();
+        Thread rateThread = new Thread() {
+
+            @Override
+            public void run() {
+                try {
+                    skipRunListSelection = true;
+                    btnProductionRate.setEnabled(false);
+                    if (!skipRefresh) {
+                        btnTotalProduction.setEnabled(true);
+                        refreshMachine_Targets();
+                    }
+                    createTabbedPanel(new JPanel(), "Production Rate");
+                    skipRefresh = false;
+                } catch (SQLException ex) {
+                    ConnectDB.catchSQLException(ex);
+                }
             }
-            createTabbedPanel(new JPanel(), "Production Rate");
-            if (cblMachine.getCheckBoxListSelectedValues().length > 0) {
-                runListSelection();
-            }
-            skipRefresh = false;
-        } catch (SQLException ex) {
-            ConnectDB.catchSQLException(ex);
-        }
+        };
+        rateThread.start();
     }//GEN-LAST:event_btnProductionRateActionPerformed
 
     private void btnTotalProductionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnTotalProductionActionPerformed
-        try {
-            if (!skipRefresh) {
-                refresh();
+        Thread totalThread = new Thread() {
+
+            @Override
+            public void run() {
+                try {
+                    skipRunListSelection = true;
+                    btnTotalProduction.setEnabled(false);
+                    if (!skipRefresh) {
+                        btnProductionRate.setEnabled(true);
+                        refreshMachine_Targets();
+                    }
+                    createTabbedPanel(new JPanel(), "Total Production");
+                    skipRefresh = false;
+                } catch (SQLException ex) {
+                    ConnectDB.catchSQLException(ex);
+                }
             }
-            createTabbedPanel(new JPanel(), "Total Production");
-            if (cblMachine.getCheckBoxListSelectedValues().length > 0) {
-                runListSelection();
-            }
-            skipRefresh = false;
-        } catch (SQLException ex) {
-            ConnectDB.catchSQLException(ex);
-        }
+        };
+        totalThread.start();
     }//GEN-LAST:event_btnTotalProductionActionPerformed
 
     private void btnTargetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnTargetActionPerformed
         new TargetSingle(_parent, true).setVisible(true);
     }//GEN-LAST:event_btnTargetActionPerformed
 
-    private void btnRefreshActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRefreshActionPerformed
+    private void btnRefreshTableActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRefreshTableActionPerformed
         if (cblMachine.getCheckBoxListSelectedValues().length > 0) {
             try {
-                runListSelection();
+                if (!skipRunListSelection) {
+                    runListSelection();
+                }
+                skipRunListSelection = true;
+            } catch (SQLException ex) {
+                ConnectDB.catchSQLException(ex);
+            }
+        } else {
+            try {
+                refreshMachine_Targets();
             } catch (SQLException ex) {
                 ConnectDB.catchSQLException(ex);
             }
         }
-    }//GEN-LAST:event_btnRefreshActionPerformed
+    }//GEN-LAST:event_btnRefreshTableActionPerformed
 
     private void btnLoadMachinesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLoadMachinesActionPerformed
-        try {
-            new TargetInsert(_parent, true).setVisible(true);
-        } catch (SQLException ex) {
-            ConnectDB.catchSQLException(ex);
-        }
-        if (TargetInsert.isAnyChangeOccured()) {
-            SwingUtilities.invokeLater(new Runnable() {
+        Thread threadLoadMachine = new Thread() {
 
-                @Override
-                public void run() {
-                    try {
-                        refresh();
-                    } catch (SQLException ex) {
-                        ConnectDB.catchSQLException(ex);
+            @Override
+            public void run() {
+                try {
+                    new TargetInsert(_parent, true).setVisible(true);
+                    String targetTime = ConnectDB.pref.get(SettingKeyFactory.DefaultProperties.TARGET_TIME_UNIT, "hour");
+                    switch (targetTime) {
+                        case "second":
+                            lblTargetTime.setText("<html>Production<br> Target (/sec)");
+                            break;
+                        case "minute":
+                            lblTargetTime.setText("<html>Production<br> Target (/min)");
+                            break;
+                        default:
+                            lblTargetTime.setText("<html>Production<br> Target (/hr)");
+                            break;
                     }
+                } catch (SQLException ex) {
+                    ConnectDB.catchSQLException(ex);
                 }
-            });
-        }
+                if (TargetInsert.isAnyChangeOccured()) {
+                    SwingUtilities.invokeLater(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            try {
+                                refreshMachine_Targets();
+                            } catch (SQLException ex) {
+                                ConnectDB.catchSQLException(ex);
+                            }
+                        }
+                    });
+                }
+            }
+        };
+        threadLoadMachine.start();
     }//GEN-LAST:event_btnLoadMachinesActionPerformed
 
     private void cblMachineValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_cblMachineValueChanged
         String s = String.valueOf(cblMachine.getSelectedValue());
-        if ("null".equals(s) || "(All)".equals(s)) {
+        if (s.isEmpty() || "(All)".equals(s)) {
             btnTarget.setEnabled(false);
         } else {
             btnTarget.setEnabled(true);
@@ -662,7 +731,8 @@ public class ProductionQuickView extends javax.swing.JPanel {
                         + "because POI-HSSF jar is missing in the classpath.");
                 return;
             }
-            outputToExcel(evt, _sortableTable);
+            //Method to write in excel file
+            this.outputToExcel(evt, _sortableTable);
         } catch (HeadlessException e) {
         }
     }//GEN-LAST:event_btnExportExcelCsvActionPerformed
@@ -677,6 +747,13 @@ public class ProductionQuickView extends javax.swing.JPanel {
             btnTotalProductionActionPerformed(evt);
             tableTotal.revalidate();
         }
+        if (cblMachine.getCheckBoxListSelectedValues().length > 0) {
+            try {
+                runListSelection();
+            } catch (SQLException ex) {
+                ConnectDB.catchSQLException(ex);
+            }
+        }
     }//GEN-LAST:event_btnPerMinActionPerformed
 
     private void btnPerHourActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPerHourActionPerformed
@@ -689,9 +766,24 @@ public class ProductionQuickView extends javax.swing.JPanel {
             btnTotalProductionActionPerformed(evt);
             tableTotal.revalidate();
         }
+        if (cblMachine.getCheckBoxListSelectedValues().length > 0) {
+            try {
+                runListSelection();
+            } catch (SQLException ex) {
+                ConnectDB.catchSQLException(ex);
+            }
+        }
     }//GEN-LAST:event_btnPerHourActionPerformed
 
-    synchronized public void refresh() throws SQLException {
+    private void cmbDayActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmbDayActionPerformed
+        if (catDate) {
+            skipRunListSelection = false;
+            cmbDay.setPopupVisible(false);
+            btnRefreshTableActionPerformed(evt);
+        }
+    }//GEN-LAST:event_cmbDayActionPerformed
+
+    synchronized private void refreshMachine_Targets() throws SQLException {
         catProdTab = false;
         int[] selected = cblMachine.getCheckBoxListSelectedIndices();
         if (!btnProductionRate.isEnabled()) {
@@ -704,7 +796,6 @@ public class ProductionQuickView extends javax.swing.JPanel {
     }
 
     private void runListSelection() throws SQLException {
-//        terminate = false;
         if (fillTableThread != null) {
             while (fillTableThread.isAlive()) {
                 try {
@@ -719,7 +810,6 @@ public class ProductionQuickView extends javax.swing.JPanel {
             }
         }
         panProductionsOptions.requestFocus();
-        String query = "";
         SortableTable _sortableTable = null;
         if (!btnProductionRate.isEnabled()) {
             showActualTotalValues = false;
@@ -727,92 +817,61 @@ public class ProductionQuickView extends javax.swing.JPanel {
         } else if (!btnTotalProduction.isEnabled()) {
             if (showActualTotalValues) {
                 showActualTotalValues = true;
-            } else {
-                showActualTotalValues = false;
             }
             _sortableTable = ProductionQuickView.tableTotal;
         }
         if (cblMachine.getCheckBoxListSelectedValues().length <= 0) {
-//            System.out.println("zero selected" + " " + cblMachine.getCheckBoxListSelectedValue());
             cleanTable(_sortableTable);
         } else {
             if (cblMachine.getCheckBoxListSelectedValues().length > 0) {
-//                for (int i = 0; i < selected.length; i++) {
-//                    int select = selected[i];
-//                    Object obj = cblMachine.getCheckBoxListSelectionModel().getModel().getElementAt(select);
-////                    System.out.print(select + " " + obj + " \n");
-//                }
                 if (!btnProductionRate.isEnabled()) {
                     prodType = "rate";
-                    query = "SELECT DISTINCT h.Machine, c.ConfigNo\n"
-                            + "FROM configuration c, hardware h\n"
-                            + "WHERE h.HwNo = c.HwNo\n"
-                            + "AND c.AvMinMax = 'Rate'\n"
-                            + "" + criteriaSearch() + " AND c.Active = 1 ORDER BY h.HwNo ASC";
                 } else if (!btnTotalProduction.isEnabled()) {
-                    prodType = "total";
-                    query = "SELECT DISTINCT h.Machine, c.ConfigNo\n"
-                            + "FROM configuration c, hardware h\n"
-                            + "WHERE h.HwNo = c.HwNo\n"
-                            + "AND c.AvMinMax = 'Cumulative'\n"
-                            + "" + criteriaSearch() + " AND c.Active = 1 ORDER BY h.HwNo ASC";
+                    prodType = "cumulative";
                 }
-                final ArrayList<String> list = new ArrayList();
-                try (PreparedStatement ps = ConnectDB.con.prepareStatement(query)) {
-                    ConnectDB.res = ps.executeQuery();
-                    while (ConnectDB.res.next()) {
-                        list.add(ConnectDB.res.getString(1) + "," + ConnectDB.res.getString(2));
+                final ArrayList<String> listMachine_ConfigNo = new ArrayList();
+                try (PreparedStatement ps = ConnectDB.con.prepareStatement(new StringBuilder("SELECT DISTINCT "
+                        + "h.Machine, c.ConfigNo \n").append("FROM configuration c, hardware h \n"
+                                + "WHERE h.HwNo = c.HwNo \n"
+                                + "AND c.AvMinMax =? \n").append(criteriaSearch()).
+                        append(" AND c.Active =1 ORDER BY h.HwNo ASC").toString())) {
+                    ps.setString(1, prodType);
+                    ResultSet result_Set = ps.executeQuery();
+                    while (result_Set.next()) {
+                        listMachine_ConfigNo.add(new StringBuilder(result_Set.getString(1)).append(";").
+                                append(result_Set.getString(2)).toString());
                     }
                 }
-                fillTableThread = new Thread(new Runnable() {
+                fillTableThread = new Thread() {
 
                     @Override
                     public void run() {
                         try {
-                            fillTable(list, prodType);
-                        } catch (Exception e) {
+                            fillTable(listMachine_ConfigNo, prodType);
+                        } catch (SQLException ex) {
+                            ConnectDB.catchSQLException(ex);
                         }
                     }
-                });
-//                try {
-//                    fillTableThread.setPriority(Thread.currentThread().getPriority() - 1);
-//                } catch (Exception e) {
-//                }
+                };
                 fillTableThread.start();
             }
         }
     }
 
     private String criteriaSearch() {
-        String machines;
+        StringBuilder machines = new StringBuilder("");
         if (cblMachine.getCheckBoxListSelectedValues().length != 0) {
-            machines = " AND (h.Machine IN (" + manyCriteria(cblMachine.getCheckBoxListSelectedValues()) + "))";
-        } else {
-            machines = "";
+            machines = new StringBuilder(" AND (h.Machine IN (").
+                    append(ConnectDB.retrieveCateria(cblMachine.getCheckBoxListSelectedValues())).append("))");
         }
-        return machines;
-    }
-
-    private String manyCriteria(Object[] list) {
-        String values = "";
-        for (Object list1 : list) {
-            String value = list1.toString();
-            values += "\'" + value + "\',";
-        }
-        values = values.substring(0, values.length() - 1);
-        return values;
+        return machines.toString();
     }
 
     synchronized private void fillTable(final ArrayList<String> listMachines, String configurationType)
             throws SQLException {
         this.requestFocus();
-        alTimeValue.clear();
-//        (AbstractComboBox) cmbDay.getEditor();
-//        if (cmbDay.getEditor().getEditorComponent().hasFocus()) {
-//            System.out.println("hasfocus");
-//        }
+        log_TimeData_List = new ArrayList<>();
         today = cmbDay.getDate();
-        String query;
         nbRow = 1;
         if (!btnProductionRate.isEnabled()) {
             cleanTable(ProductionQuickView.tableRate);
@@ -821,35 +880,32 @@ public class ProductionQuickView extends javax.swing.JPanel {
         }
         try {
             for (String machine : listMachines) {
+                String query = "SELECT d.LogTime AS 'Time', d.LogData \n"
+                        + "FROM datalog d \n"
+                        + "WHERE d.ConfigNo =? \n"
+                        + "AND d.LogTime <=? \n"
+                        + "ORDER BY 'Time' ASC";
                 bslQuickView.setVisible(true);
                 bslQuickView.setBusy(true);
-                StringTokenizer stringTokenizer = new StringTokenizer(machine, ",");
-                String oneMachine = stringTokenizer.nextToken();//The Machine name
+
+                StringTokenizer stringTokenizer = new StringTokenizer(machine, ";");
+                String machineTitle = stringTokenizer.nextToken();//The Machine name
                 int configNo = Integer.parseInt(stringTokenizer.nextToken());//The ConfigNo
 
-                bslQuickView.setText("Processing " + oneMachine + " ... ");
+                bslQuickView.setText(new StringBuilder("Processing ").append(machineTitle).append(" ... ").toString());
                 if (configurationType.equals("rate")) {
                     if (btnPerHour.isSelected()) {
-                        query = "SELECT d.LogTime AS 'Time', (d.LogData * 60)\n"
-                                + "FROM datalog d\n"
-                                + "WHERE d.ConfigNo =?\n"
-                                + "AND d.LogTime <=?\n"
-                                + "ORDER BY 'Time' ASC";
-                    } else {
-                        query = "SELECT d.LogTime AS 'Time', d.LogData\n"
-                                + "FROM datalog d\n"
-                                + "WHERE d.ConfigNo =?\n"
-                                + "AND d.LogTime <=?\n"
+                        query = "SELECT d.LogTime AS 'Time', (d.LogData * 60) \n"
+                                + "FROM datalog d \n"
+                                + "WHERE d.ConfigNo =? \n"
+                                + "AND d.LogTime <=? \n"
                                 + "ORDER BY 'Time' ASC";
                     }
-                    runQuery(query, tableRate, oneMachine, configNo, 0);
+                    //Rate query (0)
+                    runQuery(query, tableRate, machineTitle, configNo, 0);
                 } else {
-                    query = "SELECT d.LogTime AS 'Time', d.LogData\n"
-                            + "FROM datalog d\n"
-                            + "WHERE d.ConfigNo =?\n"
-                            + "AND d.LogTime <=?\n"
-                            + "ORDER BY 'Time' ASC";
-                    runQuery(query, tableTotal, oneMachine, configNo, 1);
+                    //Cumulative query (1)
+                    runQuery(query, tableTotal, machineTitle, configNo, 1);
                 }
 //                Thread.sleep(500);
             }
@@ -858,50 +914,52 @@ public class ProductionQuickView extends javax.swing.JPanel {
         }
     }
 
-    synchronized private void runQuery(String query, SortableTable st, String machineName, int configNo, int pan)
+    synchronized private void runQuery(String query, SortableTable table, String machineName, int configNo, int pan)
             throws SQLException {
-        alTimeValue.clear();
-        alTime.clear();
-        alValue.clear();
+        logTimeList = new ArrayList<>();
+        logDataList = new ArrayList<>();
         try {
             try (PreparedStatement ps = ConnectDB.con.prepareStatement(query)) {
                 ps.setInt(1, configNo);
                 ps.setString(2, ConnectDB.SDATE_FORMAT_HOUR.format(today));
                 resultSet = ps.executeQuery();
                 while (resultSet.next()) {
-                    if (pan == 1) {//Pane for the total production
-                        alTime.add(resultSet.getString(1));
-                        alValue.add(resultSet.getString(2));
-                    } else {
-                        alTimeValue.add(resultSet.getString(1) + ";" + resultSet.getString(2));//LogTime and LogData
+                    if (pan == 1) {//Pane case for the total production
+                        logTimeList.add(resultSet.getString(1));
+                        logDataList.add(resultSet.getInt(2));
+                    } else {//Pane case for the rate production
+                        log_TimeData_List.add(new StringBuilder(resultSet.getString(1)).append(";").
+                                append(resultSet.getDouble(2)).toString());//LogTime and LogData
                     }
                 }
             }
-            if (pan == 1) {
-                alTimeValue = getSubtractedValues(alValue);
+            if (pan == 1) {//Total production case
+                log_TimeData_List = getSubtractedValues(logDataList, query, machineName);
             }
-            if (nbRow > st.getModel().getRowCount()) {
-                if (pan == 0) {
-                    _modelRate.addNewRow();
-                } else {
-                    _modelTotal.addNewRow();
+            if (table != null) {
+                if (nbRow > table.getModel().getRowCount()) {
+                    if (pan == 0) {
+                        _modelRate.addNewRow();
+                    } else {
+                        _modelTotal.addNewRow();
+                    }
                 }
             }
-            int listSize = alTimeValue.size();
+            int listSize = log_TimeData_List.size();
             if (listSize > 0) {
-                st.setValueAt(machineName, nbRow - 1, 0);
+                table.setValueAt(machineName, nbRow - 1, 0);
 //                String current = alTimeValue.get(listSize - 1).split(";")[1];
-                st.setValueAt(calculateLogData(alTimeValue, "current"), nbRow - 1, 1);
+                table.setValueAt(calculateLogData(log_TimeData_List, "current"), nbRow - 1, 1);
 //                st.setValueAt(Double.valueOf(ConnectDB.DECIMALFORMAT.format(Double.parseDouble(current))), nbRow - 1, 1);
-                st.setValueAt(calculateLogData(alTimeValue, "lasthour"), nbRow - 1, 2);
-                st.setValueAt(calculateLogData(alTimeValue, "daily"), nbRow - 1, 3);
-                st.setValueAt(calculateLogData(alTimeValue, "weekly"), nbRow - 1, 4);
-                st.setValueAt(calculateLogData(alTimeValue, "mtd"), nbRow - 1, 5);
-                st.setValueAt(calculateLogData(alTimeValue, "ytd"), nbRow - 1, 6);
+                table.setValueAt(calculateLogData(log_TimeData_List, "lasthour"), nbRow - 1, 2);
+                table.setValueAt(calculateLogData(log_TimeData_List, "daily"), nbRow - 1, 3);
+                table.setValueAt(calculateLogData(log_TimeData_List, "weekly"), nbRow - 1, 4);
+                table.setValueAt(calculateLogData(log_TimeData_List, "mtd"), nbRow - 1, 5);
+                table.setValueAt(calculateLogData(log_TimeData_List, "ytd"), nbRow - 1, 6);
                 nbRow++;
             }
         } catch (NumberFormatException | ParseException ex) {
-//            ex.printStackTrace();
+            ex.printStackTrace();
         }
     }
 
@@ -912,12 +970,13 @@ public class ProductionQuickView extends javax.swing.JPanel {
         switch (type) {
             case "current":
                 int listSize = list.size();
-                String[] data = alTimeValue.get(listSize - 1).split(";");
+//                System.out.println(listSize);
+                String[] data = log_TimeData_List.get(listSize - 1).split(";");
                 working = (Calendar) now.clone();
-                String currentData = data[1];
+                double currentData = Double.parseDouble(data[1]);
                 if (ConnectDB.SDATE_FORMAT_HOUR.parse(ConnectDB.correctToBarreDate(lastDayDBData)).compareTo(working.getTime()) > 0
                         || ConnectDB.SDATE_FORMAT_HOUR.parse(ConnectDB.correctToBarreDate(lastDayDBData)).compareTo(working.getTime()) == 0) {
-                    averageSum = Double.parseDouble(currentData);
+                    averageSum = currentData;
                 }
                 break;
             case "lasthour":
@@ -933,62 +992,138 @@ public class ProductionQuickView extends javax.swing.JPanel {
                 break;
             case "weekly":
                 working = (Calendar) now.clone();
-                working.add(Calendar.DAY_OF_YEAR, -7);
+                if (working.get(Calendar.DAY_OF_WEEK) > Calendar.MONDAY) {
+                    working.add(Calendar.DAY_OF_WEEK, -working.get(Calendar.DAY_OF_WEEK) + 2);
+                } else if (working.get(Calendar.DAY_OF_WEEK) == Calendar.MONDAY) {
+                    working.add(Calendar.DAY_OF_WEEK, 0);
+                } else {
+                    working.add(Calendar.DAY_OF_WEEK, -working.get(Calendar.DAY_OF_WEEK) + 1);
+                }
+//                working.add(Calendar.DAY_OF_YEAR, -working.get(Calendar.MONDAY));
+//                System.out.println(new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(working.getTime()));
+//                working.add(Calendar.DAY_OF_YEAR, -7);
                 averageSum = calculateAverage(list, working);
                 break;
             case "mtd":
                 working = (Calendar) now.clone();
-                working.add(Calendar.DAY_OF_YEAR, -30);
+                working.add(Calendar.DAY_OF_YEAR, -working.get(Calendar.DAY_OF_MONTH) + 1);
+//                working.add(Calendar.DAY_OF_YEAR, -getMonthTypeValue((byte) working.get(Calendar.MONTH)));
                 averageSum = calculateAverage(list, working);
                 break;
             default:
                 working = (Calendar) now.clone();
-                working.add(Calendar.DAY_OF_YEAR, - 365);
+                if (working.get(Calendar.MONTH) > Calendar.JULY) {
+                    working.add(Calendar.MONTH, -working.get(Calendar.MONTH) + 6);
+                } else if (working.get(Calendar.MONTH) == Calendar.JULY) {
+                    working.add(Calendar.MONTH, 0);
+                } else {
+                    working.add(Calendar.MONTH, -working.get(Calendar.MONTH) + 6);
+                    working.add(Calendar.YEAR, -1);
+                }
+                //Set the working date to start at the 1 day of the month
+                working.add(Calendar.DAY_OF_YEAR, -working.get(Calendar.DAY_OF_MONTH) + 1);
+//                working.add(Calendar.DAY_OF_YEAR, -365);
+//                System.out.println(working.get(Calendar.DAY_OF_MONTH));
                 averageSum = calculateAverage(list, working);
                 break;
         }
+//        System.out.println(type + ": " + Calendar.DAY_OF_YEAR + "; " + ConnectDB.SDATE_FORMAT_HOUR.format(working.getTime()));
+//        System.out.println(ConnectDB.isLeapYear(Calendar.YEAR));
         return Double.isNaN(averageSum) ? 0d : ConnectDB.DECIMALFORMAT.parse(ConnectDB.DECIMALFORMAT.format(averageSum)).doubleValue();
     }
 
+    synchronized private byte getMonthTypeValue(byte month) {
+        switch (month + 1) {
+            case 4:
+            case 6:
+            case 9:
+            case 11:
+                return 30;
+        }
+        return 31;
+    }
+
     synchronized private Double calculateAverage(ArrayList<String> _list, Calendar calDaySet) throws ParseException {
-        Double averageSum = 0d;
+        Double totalSum = 0d;
         Date date = calDaySet.getTime();//the time set in the form
         int count = 0;
         for (String list : _list) {
             StringTokenizer stringTokenizer = new StringTokenizer(list, ";");
             String logTime = stringTokenizer.nextToken();//LogTime
-            String logData = stringTokenizer.nextToken();
+            double logData = Double.parseDouble(stringTokenizer.nextToken());
             if (Double.valueOf(logData) > 0d) {
-                if (ConnectDB.SDATE_FORMAT_HOUR.parse(ConnectDB.correctToBarreDate(logTime)).compareTo(date) > 0
-                        || ConnectDB.SDATE_FORMAT_HOUR.parse(ConnectDB.correctToBarreDate(logTime)).compareTo(date) == 0) {
-                    averageSum += Double.parseDouble(logData);//LogData value
+                Date logTimeParsed = ConnectDB.SDATE_FORMAT_HOUR.parse(ConnectDB.correctToBarreDate(logTime));
+                if (logTimeParsed.compareTo(date) > 0
+                        || logTimeParsed.compareTo(date) == 0) {
+                    totalSum += logData;//LogData value
                     count++;
                 }
             }
         }
         if (!showActualTotalValues) {
-            return averageSum / count;
+            return totalSum / count;
         } else {
-            return averageSum;
+            return totalSum;
         }
     }
 
-    synchronized private ArrayList<String> getSubtractedValues(ArrayList alValue) {
-        ArrayList<String> subtractValues = new ArrayList<>();
-        for (int i = 0; i < alValue.size(); i++) {
+    synchronized private ArrayList<String> getSubtractedValues(ArrayList<Integer> alValues, String query, String machineTitle)
+            throws SQLException {
+        ArrayList<String> subtractValues = new ArrayList<>(),
+                prodRateArrayList = getProductionRate(query, machineTitle);
+        for (int i = 0; i < alValues.size(); i++) {
             int xDiff;
             if (i == 0) {
-                xDiff = Integer.parseInt(alValue.get(i).toString()) - Integer.parseInt(alValue.get(i).toString());
-                subtractValues.add(alTime.get(i) + ";" + xDiff);
+                xDiff = alValues.get(i) - alValues.get(i);
+                subtractValues.add(new StringBuilder(logTimeList.get(i)).append(";").append(xDiff).toString());
                 continue;
             }
-            xDiff = Integer.parseInt(alValue.get(i).toString()) - Integer.parseInt(alValue.get(i - 1).toString());
-            subtractValues.add(alTime.get(i) + ";" + xDiff);
+            xDiff = alValues.get(i) - alValues.get(i - 1);
+            if (xDiff < 0) {
+                xDiff = 1000000 - alValues.get(i - 1) + alValues.get(i);
+            }
+
+            try {
+                int totVal = alValues.get(i),
+                        totValNext = alValues.get(i + 1),
+                        rateVal = (int) Double.parseDouble(prodRateArrayList.get(i));
+                //Case where the cumulative values are not consecutive by the addition of the production rate number
+                if ((totVal + rateVal != totValNext) || (totVal + rateVal + 1 != totValNext)) {
+                    // Not sequential
+                    xDiff = rateVal;
+                }
+            } catch (IndexOutOfBoundsException e) {
+                xDiff = (int) Double.parseDouble(prodRateArrayList.get(i - 1));
+            }
+            subtractValues.add(new StringBuilder(logTimeList.get(i)).append(";").append(xDiff).toString());
         }
         return subtractValues;
     }
 
+    private ArrayList<String> getProductionRate(String query, String machineTitle) throws SQLException {
+        int configNo = -1;
+        try (PreparedStatement ps = ConnectDB.con.prepareStatement(Queries.GET_CONFIGNO)) {
+            ps.setString(1, "rate");
+            ps.setString(2, machineTitle);
+            ConnectDB.res = ps.executeQuery();
+            while (ConnectDB.res.next()) {
+                configNo = ConnectDB.res.getInt(1);
+            }
+        }
+        ArrayList<String> listProductionRate = new ArrayList<>();
+        try (PreparedStatement ps = ConnectDB.con.prepareStatement(query)) {
+            ps.setInt(1, configNo);
+            ps.setString(2, ConnectDB.SDATE_FORMAT_HOUR.format(today));
+            ResultSet result_Set = ps.executeQuery();
+            while (result_Set.next()) {
+                listProductionRate.add(result_Set.getString(2)); //Values
+            }
+        }
+        return listProductionRate;
+    }
+
     private void createTabbedPanel(JPanel jPanel, String panelName) {
+        catCreateTab = false;
         short i = 0;
         if (tbpPanDetails.getTabCount() == 0) {
             i = 0;
@@ -1003,62 +1138,40 @@ public class ProductionQuickView extends javax.swing.JPanel {
                         if (btnPerHour.isSelected()) {
                             rateType = "(p/hr)";
                         }
-//                        jPanel.removeAll();
-//                        jPanel.invalidate();
-//                        System.out.println(jPanel);
-////                 frame.invalidate();
-////                 frame.validate();
-////                 frame.repaint();
-////                        tbpPanDetails.getSelectedComponent().rem
-//                       createTable(rateType);
-////                       tableRate.getTableHeader().g
-//                        tableRate.invalidate();
-////                        createTab(panelName, jPanel, -1);
-////                        jPanel.setLayout(new BorderLayout());
-////                        JScrollPane pane = new JScrollPane();
-////                        pane.setViewportView(createTable(rateType));
-////                        jPanel.add(pane);
                     }
                     tbpPanDetails.setSelectedIndex(i);
                     tbpPanDetails.getSelectedComponent().validate();
                     break;
                 }
-//                continue;
             }
             if (!find) {
                 createTab(panelName, jPanel, i);
                 tbpPanDetails.setSelectedIndex(i);
             }
         }
+        catCreateTab = true;
     }
 
     private void createTab(String tabName, JPanel jpanel, short i) {
         ImageIcon icon = null;
         jpanel.setLayout(new BorderLayout());
         JScrollPane pane = new JScrollPane();
+        String titlePane = "";
         try {
             switch (tabName) {
-                case "Total Production"://Total Production
-                    pane.setViewportView(createTable());//create and set the table in the viewport
-                    icon = new ImageIcon(getClass().getResource("/images/icons/rate_1.png"));
-                    pane.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder(
-                            new PartialGradientLineBorder(new Color[]{new Color(0, 0, 128),
-                                UIDefaultsLookup.getColor("control")}, 2, PartialSide.NORTH),
-                            "Machine(s) quick view for the total of production",
-                            TitledBorder.CENTER, TitledBorder.ABOVE_TOP), BorderFactory.createEmptyBorder(6, 4, 4, 4)));
-                    break;
-                case "Production Rate"://Production rate 
+                case "Production Rate"://Production rate
                     rateType = "(p/min)";
                     if (btnPerHour.isSelected()) {
                         rateType = "(p/hr)";
                     }
-                    pane.setViewportView(createTable(rateType));//create and set the table in the viewport
+                    pane.setViewportView(createTable(tabName));//create and set the table in the viewport
                     icon = new ImageIcon(getClass().getResource("/images/icons/rate_4.png"));
-                    pane.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder(
-                            new PartialGradientLineBorder(new Color[]{new Color(0, 0, 128),
-                                UIDefaultsLookup.getColor("control")}, 2, PartialSide.NORTH),
-                            "Machine(s) average for the production rate",
-                            TitledBorder.CENTER, TitledBorder.ABOVE_TOP), BorderFactory.createEmptyBorder(6, 4, 4, 4)));
+                    titlePane = "Machine(s) average for the production rate";
+                    break;
+                default://Total Production
+                    pane.setViewportView(createTable(tabName));//create and set the table in the viewport
+                    icon = new ImageIcon(getClass().getResource("/images/icons/rate_1.png"));
+                    titlePane = "Machine(s) quick view for the total of production";
                     break;
             }
             tbpPanDetails.insertTab(tabName, icon, jpanel, tabName, i);
@@ -1066,79 +1179,68 @@ public class ProductionQuickView extends javax.swing.JPanel {
         } catch (NullPointerException e) {
             tbpPanDetails.insertTab(tabName, icon, jpanel, tabName, i);
             jpanel.add(pane);
+            jpanel.revalidate();
+        }
+        pane.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder(
+                new PartialGradientLineBorder(new Color[]{new Color(0, 0, 128),
+                    UIDefaultsLookup.getColor("control")}, 2, PartialSide.NORTH), titlePane,
+                TitledBorder.CENTER, TitledBorder.ABOVE_TOP, new Font("Tahoma", Font.PLAIN, 13)),
+                BorderFactory.createEmptyBorder(6, 4, 4, 4)));
+    }
+
+    private SortableTable createTable(String prodType) {
+        switch (prodType) {
+            case "Production Rate":
+                _modelRate = new TableModelRate();
+                tableRate = new SortableTable(_modelRate);
+                return setTableProperty(tableRate);
+            default:
+                _modelTotal = new TableModelTotal();
+                tableTotal = new SortableTable(_modelTotal);
+                return setTableProperty(tableTotal);
         }
     }
 
-    private SortableTable createTable(String rateType) {
-        _modelRate = new TableModelRate();
-        tableRate = new SortableTable(_modelRate);
-        tableRate.setAutoResizeMode(JideTable.AUTO_RESIZE_ALL_COLUMNS);
-        tableRate.setNestedTableHeader(true);
-        tableRate.setFillsGrids(false);
-        tableRate.getTableHeader();
-        tableRate.setTableStyleProvider(new RowStripeTableStyleProvider(new Color[]{ConnectDB.getColorFromKey(
+    private SortableTable setTableProperty(SortableTable table) {
+        table.setAutoResizeMode(JideTable.AUTO_RESIZE_ALL_COLUMNS);
+        table.setNestedTableHeader(true);
+        table.setFillsGrids(false);
+        table.getTableHeader();
+        table.setTableStyleProvider(new RowStripeTableStyleProvider(new Color[]{ConnectDB.getColorFromKey(
             ConnectDB.pref.get(SettingKeyFactory.FontColor.RSTRIPE21COLOR1, "253, 253, 244")),
             ConnectDB.getColorFromKey(ConnectDB.pref.get(SettingKeyFactory.FontColor.RSTRIPE21COLOR2, "230, 230, 255"))}));
-        TableColumnGroup period = new TableColumnGroup("Periods " + rateType);
-        period.add(tableRate.getColumnModel().getColumn(1));
-        period.add(tableRate.getColumnModel().getColumn(2));
-        period.add(tableRate.getColumnModel().getColumn(3));
-        period.add(tableRate.getColumnModel().getColumn(4));
-        period.add(tableRate.getColumnModel().getColumn(5));
-        period.add(tableRate.getColumnModel().getColumn(6));
-        if (tableRate.getTableHeader() instanceof NestedTableHeader) {
-            NestedTableHeader header = (NestedTableHeader) tableRate.getTableHeader();
+        TableColumnGroup period = new TableColumnGroup("Evaluation Periods");
+        period.add(table.getColumnModel().getColumn(1));
+        period.add(table.getColumnModel().getColumn(2));
+        period.add(table.getColumnModel().getColumn(3));
+        period.add(table.getColumnModel().getColumn(4));
+        period.add(table.getColumnModel().getColumn(5));
+        period.add(table.getColumnModel().getColumn(6));
+        if (table.getTableHeader() instanceof NestedTableHeader) {
+            NestedTableHeader header = (NestedTableHeader) table.getTableHeader();
             header.addColumnGroup(period);
         }
-        TableHeaderPopupMenuInstaller installer = new TableHeaderPopupMenuInstaller(tableRate);
+        TableHeaderPopupMenuInstaller installer = new TableHeaderPopupMenuInstaller(table);
         installer.addTableHeaderPopupMenuCustomizer(new TableColumnChooserPopupMenuCustomizer());
-        TableUtils.autoResizeAllColumns(tableRate);
-        return tableRate;
-    }
-
-    private SortableTable createTable() {
-        _modelTotal = new TableModelTotal();
-        tableTotal = new SortableTable(_modelTotal);
-        tableTotal.setAutoResizeMode(JideTable.AUTO_RESIZE_ALL_COLUMNS);
-        tableTotal.setNestedTableHeader(true);
-        tableTotal.setFillsGrids(false);
-        tableTotal.setTableStyleProvider(new RowStripeTableStyleProvider(new Color[]{ConnectDB.getColorFromKey(
-            ConnectDB.pref.get(SettingKeyFactory.FontColor.RSTRIPE21COLOR1, "253, 253, 244")),
-            ConnectDB.getColorFromKey(ConnectDB.pref.get(SettingKeyFactory.FontColor.RSTRIPE21COLOR2, "230, 230, 255"))}));
-        TableColumnGroup period = new TableColumnGroup("Periods");
-        period.add(tableTotal.getColumnModel().getColumn(1));
-        period.add(tableTotal.getColumnModel().getColumn(2));
-        period.add(tableTotal.getColumnModel().getColumn(3));
-        period.add(tableTotal.getColumnModel().getColumn(4));
-        period.add(tableTotal.getColumnModel().getColumn(5));
-        period.add(tableTotal.getColumnModel().getColumn(6));
-        if (tableTotal.getTableHeader() instanceof NestedTableHeader) {
-            NestedTableHeader header = (NestedTableHeader) tableTotal.getTableHeader();
-            header.addColumnGroup(period);
-        }
-        TableHeaderPopupMenuInstaller installer = new TableHeaderPopupMenuInstaller(tableTotal);
-        installer.addTableHeaderPopupMenuCustomizer(new TableColumnChooserPopupMenuCustomizer());
-//        setTableColumn();
-//        setSortableTable(_sortableTable);
-        TableUtils.autoResizeAllColumns(tableTotal);
-//        jScrollPane2.setViewportView(_sortableTable);
-        return tableTotal;
+        TableUtils.autoResizeAllColumns(table);
+        return table;
     }
 
     private void cleanTable(SortableTable sortableTable) {
-        int nbTable = sortableTable.getModel().getRowCount();
-        while (nbTable > 0) {
-            if (!btnProductionRate.isEnabled()) {
-                _modelRate.removeNewRow(--nbTable);
-            } else if (!btnTotalProduction.isEnabled()) {
-                _modelTotal.removeNewRow(--nbTable);
+        if (sortableTable != null) {
+            byte nbTable = (byte) sortableTable.getModel().getRowCount();
+            while (nbTable > 0) {
+                if (!btnProductionRate.isEnabled()) {
+                    _modelRate.removeNewRow(--nbTable);
+                } else if (!btnTotalProduction.isEnabled()) {
+                    _modelTotal.removeNewRow(--nbTable);
+                }
             }
         }
     }
 
     private void firePopup(MouseEvent evt) {
-        int rowIndex = cblMachine.getSelectedIndex();
-        if (rowIndex <= 0) {
+        if (cblMachine.getSelectedIndex() <= 0) {
             return;
         }
         if (evt.getModifiers() == InputEvent.BUTTON1_MASK) {
@@ -1153,16 +1255,14 @@ public class ProductionQuickView extends javax.swing.JPanel {
         jpm = new JPopupMenu();
         menu1 = new JMenuItem("Add/Edit Target");
         jpm.add(menu1);
-        menu1.setIcon(new ImageIcon(getClass().getResource("/images/icons/target_3.png")));
+        menu1.setIcon(new ImageIcon(this.getClass().getClassLoader().getResource("images/icons/target_3.png")));
         menu1.addActionListener(new java.awt.event.ActionListener() {
 
             @Override
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 String s = cblMachine.getSelectedValue().toString();
-                System.out.println("s" + s);
                 if (s != null) {
                     final int getPos = cblMachine.getSelectedIndex();
-                    System.out.println(getPos);
                     if (getPos > -1) {
                         new TargetSingle(_parent, true).setVisible(true);
                     }
@@ -1188,10 +1288,10 @@ public class ProductionQuickView extends javax.swing.JPanel {
             }
         };
         chooser.setCurrentDirectory(new File(ConnectDB.DEFAULT_DIRECTORY));
+        chooser.setFileFilter(new FileNameExtensionFilter("Excel files", ".xls", ".xlsx"));
         int result = chooser.showDialog(((JComponent) e.getSource()).getTopLevelAncestor(), "Export");
         if (result == JFileChooser.APPROVE_OPTION) {
             try {
-//                System.out.println("Exporting to " + _lastDirectory);
                 HssfTableUtils.export(table, chooser.getSelectedFile().getAbsolutePath() + ".xls", "SortableTable",
                         false, true, new HssfTableUtils.DefaultCellValueConverter() {
 
@@ -1205,12 +1305,10 @@ public class ProductionQuickView extends javax.swing.JPanel {
                                 return super.getDataFormat(table, value, rowIndex, columnIndex);
                             }
                         });
-//                System.out.println("Exported");
                 if (JOptionPane.showConfirmDialog(_parent, "The file was saved sucessfully. "
-                        + "Do you want to open the file?", "Export",
+                        + "Do you want to open the file ?", "Export",
                         JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE) == 0) {
                     File file = new File(chooser.getSelectedFile().getAbsolutePath() + ".xls");
-//                    System.out.println(file.getAbsolutePath());
                     if (Desktop.isDesktopSupported()) {
                         Desktop.getDesktop().open(file);
                     } else {
@@ -1219,7 +1317,7 @@ public class ProductionQuickView extends javax.swing.JPanel {
                     }
                 }
             } catch (IOException e1) {
-                JOptionPane.showMessageDialog(_parent, "Not very well implemented. Sorry",
+                JOptionPane.showMessageDialog(_parent, "Not very well implemented. Sorry !!!",
                         "Production Quick View", JOptionPane.ERROR_MESSAGE);
                 e1.printStackTrace();
             }
@@ -1227,27 +1325,25 @@ public class ProductionQuickView extends javax.swing.JPanel {
     }
 
     synchronized private void autoFill(String type) throws SQLException {
-//        catMachine = false;
         short countMachine = 0;
-        final DefaultListModel listModelMachine = new DefaultListModel(), listModelTarget = new DefaultListModel();
+        final DefaultListModel listModelMachine = new DefaultListModel();
         cblMachine.setModel(listModelMachine);
-        _listTarget.setModel(listModelTarget);
-//        SELECT Machine\nFROM hardware WHERE HwNo > ? ORDER BY HwNo ASC
-        try (PreparedStatement ps = ConnectDB.con.prepareStatement("SELECT DISTINCT t.targetValue, t.Machine\n"
-                + "FROM configuration c, hardware h, target t\n"
-                + "WHERE h.HwNo = c.HwNo\n"
-                + "AND c.AvMinMax =?\n"
-                + "AND h.Machine = t.Machine\n"
-                + "AND c.ConfigNo = t.ConfigNo\n"
+        try (PreparedStatement ps = ConnectDB.con.prepareStatement("SELECT DISTINCT t.targetValue, t.Machine \n"
+                + "FROM configuration c, hardware h, target t \n"
+                + "WHERE h.HwNo = c.HwNo \n"
+                + "AND h.Machine = t.Machine \n"
+                + "AND c.ConfigNo = t.ConfigNo \n"
+                + "AND c.AvMinMax =? \n"
                 + "AND c.Active = 1 ORDER BY h.HwNo ASC")) {
             ps.setString(1, type);
             ConnectDB.res = ps.executeQuery();
             boolean find = false;
+            listModelTarget.clear();
             listModelTarget.addElement(" ");
             while (ConnectDB.res.next()) {
                 find = true;
                 listModelMachine.addElement(ConnectDB.res.getString(2));
-                listModelTarget.addElement("[" + ConnectDB.res.getInt(1) + "]");
+                listModelTarget.addElement(new StringBuilder("[").append(ConnectDB.res.getInt(1)).append("]").toString());
                 countMachine++;
             }
             if (!find) {
@@ -1256,110 +1352,95 @@ public class ProductionQuickView extends javax.swing.JPanel {
                 return;
             }
             if (find) {
-                lblMachine.setText("List of machines (" + countMachine + ")");
+                lblMachine.setText(new StringBuilder("List of machines (").append(countMachine).append(")").toString());
                 listModelMachine.insertElementAt(CheckBoxList.ALL, 0);
                 cblMachine.setModel(listModelMachine);
                 cblMachine.getCheckBoxListSelectionModel().setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
                 SearchableUtils.installSearchable(cblMachine);
 //            cblMachine.getCheckBoxListSelectionModel().addSelectionInterval(0, cblMachine.getModel().getSize() - 1);
                 //Add the target in the list
-                SwingUtilities.invokeLater(new Runnable() {
+                _listTarget.setFont(new Font("Tahoma", Font.PLAIN, 13));
+                _listTarget.setFocusable(false);
+                _listTarget.setExpandedTip(true);
+                _listTarget.setModel(listModelTarget);
+            }
+        }
+        try (PreparedStatement ps = ConnectDB.con.prepareStatement(Queries.GET_LAST_DATA_TIME)) {
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                lastDayDBData = rs.getString(1).substring(0, 19);
+                lblMessage.setText(new StringBuilder("Last recorded data: ").append(lastDayDBData).toString());
+            }
+        }
+    }
 
-                    @Override
-                    public void run() {
-                        _listTarget.setModel(listModelTarget);
-//            _listTarget = new NavigationList(listModelTarget);
-                        _listTarget.setFont(new Font("Tahoma", Font.PLAIN, 11));
-                        _listTarget.setFocusable(false);
-                        _listTarget.setExpandedTip(true);
-                        panTarget.add(new JScrollPane(_listTarget), BorderLayout.CENTER);
-                        panTarget.setBackground(new Color(255, 255, 255));
-//                        panTarget.revalidate();
-                    }
-                });
-            }
-        }
-        try (PreparedStatement ps1 = ConnectDB.con.prepareStatement("SELECT LogTime FROM datalog\n"
-                + "ORDER BY LogTime DESC LIMIT 1;")) {
-            ConnectDB.res = ps1.executeQuery();
-            while (ConnectDB.res.next()) {
-                lastDayDBData = ConnectDB.res.getString(1).substring(0, 19);
-                lblMessage.setText("Last recorded data: " + lastDayDBData);
-            }
-        }
-//        catMachine = true;
+    private void setDateComponent() {
+        catDate = false;
+        cmbDay.setFormat(ConnectDB.SDATE_FORMAT_HOUR);
+        cmbDay.setDate(Calendar.getInstance().getTime());
+        cmbDay.getEditor().getEditorComponent().setFocusable(false);
+        catDate = true;
     }
 
     public static void main(String[] agrs) throws SQLException {
         ConnectDB.getConnectionInstance();
         final JFrame frame = new JFrame("Smartfactory Production Quick View 1.0");
-        frame.setSize(915, 570);
+        frame.setSize(950, 570);
         frame.setContentPane(new ProductionQuickView(null));
-        frame.addWindowListener(new WindowAdapter() {
-
-            @Override
-            public void windowClosing(WindowEvent e) {
-                if (JOptionPane.showConfirmDialog(frame, "Please make sure to save any data before closing.\n"
-                        + "Do you want to close ?",
-                        "Exit", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE) == 0) {
-                    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-                } else {
-                    frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-                }
-            }
-        });
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private com.jidesoft.navigation.NavigationList _listTarget;
     private org.jdesktop.swingx.JXBusyLabel bslQuickView;
     private javax.swing.JButton btnExportExcelCsv;
     private javax.swing.JButton btnLoadMachines;
     private javax.swing.JToggleButton btnPerHour;
     private javax.swing.JToggleButton btnPerMin;
     private javax.swing.JButton btnProductionRate;
-    private javax.swing.JButton btnRefresh;
     private com.jidesoft.swing.JideButton btnRefreshMachine;
+    private javax.swing.JButton btnRefreshTable;
     private javax.swing.JButton btnTarget;
     private javax.swing.JButton btnTotalProduction;
     private javax.swing.ButtonGroup buttonGroup1;
     private com.jidesoft.swing.CheckBoxList cblMachine;
     private javax.swing.JCheckBox chkDay;
     private com.jidesoft.combobox.DateSpinnerComboBox cmbDay;
-    private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JToolBar.Separator jSeparator1;
     private javax.swing.JToolBar.Separator jSeparator2;
     private javax.swing.JToolBar jToolBar1;
     private javax.swing.JLabel lblMachine;
     private javax.swing.JLabel lblMessage;
     private javax.swing.JLabel lblProduction;
+    private javax.swing.JLabel lblTargetTime;
     private javax.swing.JPanel panColor;
     private javax.swing.JPanel panProductionsOptions;
     private javax.swing.JPanel panTarget;
     private com.jidesoft.swing.JideTabbedPane tbpPanDetails;
     // End of variables declaration//GEN-END:variables
-    private boolean catProdTab = true, showActualTotalValues = true, skipRefresh;
+    private boolean catProdTab = true, showActualTotalValues = true, skipRefresh, skipRunListSelection = false,
+            catDate;
+    private volatile boolean catCreateTab = false;
     private int nbRow = 1;
     private static SortableTable tableRate, tableTotal;
     private static boolean totProdSelected = false;
-    private String rateType = "(p/min)", lastDayDBData;
+    private String rateType = "(p/min)", lastDayDBData, prodType = null;
     private static Date today = null;
-    private static ArrayList<String> alTimeValue = new ArrayList<>();
-    private static final ArrayList<String> alTime = new ArrayList<>(), alValue = new ArrayList<>();
-    private String prodType = "";
+    private ArrayList<String> log_TimeData_List, logTimeList;
+    private ArrayList<Integer> logDataList;
     private ResultSet resultSet = null;
-    TableModelRate _modelRate;
-    TableModelTotal _modelTotal;
-    JFrame _parent;
-    NavigationList _listTarget = new NavigationList();
-//    Thread[] machinesThread;
-    JPopupMenu jpm;
-    JMenuItem menu1;
-    Ball ball = null;
-    Thread fillTableThread;
-    Color ballColor = Color.RED;
-//    volatile boolean terminate = false;
+    private TableModelRate _modelRate = null;
+    private TableModelTotal _modelTotal = null;
+    private final JFrame _parent;
+    private final DefaultListModel listModelTarget = new DefaultListModel();
+    private JPopupMenu jpm;
+    private JMenuItem menu1;
+    private Ball ball = null;
+    private Thread fillTableThread = null;
+    public Color ballColor = Color.RED;
 }

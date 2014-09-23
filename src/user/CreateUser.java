@@ -384,12 +384,12 @@ public class CreateUser extends javax.swing.JDialog {
                     if (!String.copyValueOf(txtPassword.getPassword()).equals(
                             String.copyValueOf(txtRetypePassword.getPassword()))) {
                         JOptionPane.showMessageDialog(this, "The entered password and the repeated one are not "
-                                + "identical", "Error", JOptionPane.ERROR_MESSAGE);
+                                + "identical.", "Error", JOptionPane.ERROR_MESSAGE);
                         txtPassword.requestFocus();
                     } else {
                         if (String.valueOf(txtPassword.getPassword()).length() < 6) {
-                            JOptionPane.showMessageDialog(this, "The password can not be less than 6 characters ..."
-                                    + "", "Warning", JOptionPane.WARNING_MESSAGE);
+                            JOptionPane.showMessageDialog(this, "The password can not be less than 6 characters ...",
+                                    "Warning", JOptionPane.WARNING_MESSAGE);
                         } else {
                             String typeUser, statusUser = "newUser";
                             if (radUser.isSelected()) {
@@ -412,7 +412,7 @@ public class CreateUser extends javax.swing.JDialog {
 }//GEN-LAST:event_btnCreateUserActionPerformed
 
     private void insertData(String question, String typeUser, String statusUser) throws SQLException {
-        try (PreparedStatement ps = ConnectDB.con.prepareStatement("INSERT INTO `userlist` VALUES\n"
+        try (PreparedStatement ps = ConnectDB.con.prepareStatement("INSERT INTO `userlist` VALUES \n"
                 + "(?,?,?,?,?,?,?,?,?,?,?)")) {
             ps.setString(1, null);
             ps.setString(2, txtFirstName.getText());
@@ -426,10 +426,9 @@ public class CreateUser extends javax.swing.JDialog {
             ps.setString(10, typeUser);
             ps.setString(11, statusUser);
             //
-            int res1 = ps.executeUpdate();
-            if (res1 == 1) {
-                JOptionPane.showMessageDialog(this, "The user " + txtFirstName.getText() + ""
-                        + " " + txtSurname.getText() + " has been successfully added.",
+            if (ps.executeUpdate() == 1) {
+                JOptionPane.showMessageDialog(this, new StringBuilder("The user ").append(txtFirstName.getText()).
+                        append(" ").append(txtSurname.getText()).append(" has been successfully added.").toString(),
                         "Confirmation", JOptionPane.INFORMATION_MESSAGE);
                 this.dispose();
             }
@@ -437,18 +436,17 @@ public class CreateUser extends javax.swing.JDialog {
     }
 
     private boolean uniqueID() throws SQLException {
-        boolean unique = true;
         try (PreparedStatement ps = ConnectDB.con.prepareStatement("SELECT login FROM userlist")) {
             ConnectDB.res = ps.executeQuery();
             while (ConnectDB.res.next()) {
                 if (ConnectDB.res.getString("login").equalsIgnoreCase(txtLoginID.getText())) {
-                    JOptionPane.showMessageDialog(this, "The user \"" + txtLoginID.getText() + ""
-                            + "\" already exits in the database ", "Warning", JOptionPane.WARNING_MESSAGE);
-                    unique = false;
+                    JOptionPane.showMessageDialog(this, new StringBuilder("The user \"").append(txtLoginID.getText()).
+                            append("\" already exits in the database.").toString(), "Warning", JOptionPane.WARNING_MESSAGE);
+                    return false;
                 }
             }
         }
-        return unique;
+        return true;
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

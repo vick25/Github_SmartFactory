@@ -7,8 +7,8 @@ import java.util.Date;
 import javax.swing.JComponent;
 
 /*
- * @author Victor Kadiata
  *
+ * @author Victor Kadiata
  */
 public class GadgetFactory {
 

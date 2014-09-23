@@ -12,6 +12,7 @@ import com.jidesoft.grid.SortableTable;
 import com.jidesoft.plaf.UIDefaultsLookup;
 import com.jidesoft.swing.PartialGradientLineBorder;
 import com.jidesoft.swing.PartialSide;
+import com.jidesoft.tree.TreeUtils;
 import eventsPanel.EventsStatistic;
 import irepport.view.Print;
 import java.awt.BorderLayout;
@@ -23,6 +24,7 @@ import java.awt.HeadlessException;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
@@ -30,15 +32,21 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.StringTokenizer;
+import java.util.TreeSet;
+import java.util.Vector;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
@@ -46,6 +54,7 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
+import javax.swing.JTree;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.Timer;
@@ -53,7 +62,8 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.tree.DefaultMutableTreeNode;
 import jxl.Workbook;
 import jxl.WorkbookSettings;
 import jxl.write.Label;
@@ -71,6 +81,7 @@ import productionPanelChartsPanel.TotalProduction;
 import reportSettings.ReportOptions;
 import setting.SettingKeyFactory;
 import smartfactoryV2.ConnectDB;
+import smartfactoryV2.ExtensionFilter;
 import smartfactoryV2.Queries;
 import tableModel.TableModelProductionData;
 import tableModel.TableModelShiftTime;
@@ -192,7 +203,8 @@ public class ProductionPane extends javax.swing.JPanel {
                         if (viewData != null) {
                             viewData.dispose();
                         }
-                        viewData = new ViewData(_parent, false, modelData, viewDateTableName + " Table");
+                        viewData = new ViewData(_parent, false, modelData,
+                                new StringBuilder(viewDateTableName).append(" Table").toString());
                         viewData.setVisible(true);
                     }
                 } catch (Exception ex) {
@@ -203,7 +215,7 @@ public class ProductionPane extends javax.swing.JPanel {
             @Override
             public void mouseEntered(MouseEvent e) {
                 if (tableLogData.getModel().getRowCount() > 0) {
-                    tableLogData.setToolTipText("Double-click the table for a better viewing of values");
+                    tableLogData.setToolTipText("Double-click on the table values for a much broader viewing.");
                 }
             }
         });
@@ -271,6 +283,8 @@ public class ProductionPane extends javax.swing.JPanel {
 //            }
 //        };
 //        th.start();
+//        cmbPFrom.getEditor().getEditorComponent().setFocusable(false);
+//        cmbPTo.getEditor().getEditorComponent().setFocusable(false);
     }
 
     /**
@@ -353,6 +367,7 @@ public class ProductionPane extends javax.swing.JPanel {
         lblShiftSum2 = new javax.swing.JLabel();
         jSeparator7 = new javax.swing.JSeparator();
         btnCleanTable = new com.jidesoft.swing.JideButton();
+        btnShowEvents = new com.jidesoft.swing.JideButton();
 
         setBackground(new java.awt.Color(102, 102, 255));
 
@@ -368,7 +383,7 @@ public class ProductionPane extends javax.swing.JPanel {
         jToolBar3.setRollover(true);
 
         btnReset.setBackground(new java.awt.Color(255, 255, 255));
-        btnReset.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/icons/icon-48-clear.png"))); // NOI18N
+        btnReset.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/icons/clear.png"))); // NOI18N
         btnReset.setText("Clean");
         btnReset.setToolTipText("Clean interface to orginal state");
         btnReset.setFocusable(false);
@@ -383,7 +398,7 @@ public class ProductionPane extends javax.swing.JPanel {
         jToolBar3.add(btnReset);
 
         btnEmail.setBackground(new java.awt.Color(255, 255, 255));
-        btnEmail.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/icons/mail_message_new_22x22.png"))); // NOI18N
+        btnEmail.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/icons/mail_1.png"))); // NOI18N
         btnEmail.setText("Email");
         btnEmail.setEnabled(false);
         btnEmail.setFocusable(false);
@@ -409,6 +424,7 @@ public class ProductionPane extends javax.swing.JPanel {
         btnViewEvents.setBackground(new java.awt.Color(255, 255, 255));
         btnViewEvents.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/icons/event_time_2.png"))); // NOI18N
         btnViewEvents.setText("View Events");
+        btnViewEvents.setToolTipText("Show the events interface of the current machine with the periods");
         btnViewEvents.setFocusable(false);
         btnViewEvents.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         btnViewEvents.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
@@ -422,6 +438,7 @@ public class ProductionPane extends javax.swing.JPanel {
         btnSettings.setBackground(new java.awt.Color(255, 255, 255));
         btnSettings.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/icons/settings.png"))); // NOI18N
         btnSettings.setText("Settings");
+        btnSettings.setToolTipText("Production settings");
         btnSettings.setFocusable(false);
         btnSettings.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         btnSettings.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
@@ -440,7 +457,7 @@ public class ProductionPane extends javax.swing.JPanel {
         jToolBar2.setRollover(true);
 
         btnPrintChart.setBackground(new java.awt.Color(255, 255, 255));
-        btnPrintChart.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/icons/fileprint(23).png"))); // NOI18N
+        btnPrintChart.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/icons/printer_1.png"))); // NOI18N
         btnPrintChart.setText("Print report");
         btnPrintChart.setToolTipText("View the chart in a printable format");
         btnPrintChart.setFocusable(false);
@@ -470,7 +487,7 @@ public class ProductionPane extends javax.swing.JPanel {
         btnViewData.setBackground(new java.awt.Color(255, 255, 255));
         btnViewData.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/icons/view_icon.png"))); // NOI18N
         btnViewData.setText("Show chart data");
-        btnViewData.setToolTipText("View the generated charts data values in a table");
+        btnViewData.setToolTipText("View the current chart values in a table");
         btnViewData.setFocusable(false);
         btnViewData.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         btnViewData.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
@@ -484,7 +501,8 @@ public class ProductionPane extends javax.swing.JPanel {
 
         btnViewHistory.setBackground(new java.awt.Color(255, 255, 255));
         btnViewHistory.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/icons/time.png"))); // NOI18N
-        btnViewHistory.setText("History");
+        btnViewHistory.setText("Database History");
+        btnViewHistory.setToolTipText("Show raw database records");
         btnViewHistory.setFocusable(false);
         btnViewHistory.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         btnViewHistory.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
@@ -514,7 +532,7 @@ public class ProductionPane extends javax.swing.JPanel {
 
         jPanel12.setBackground(new java.awt.Color(255, 255, 255));
 
-        lblMessage.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
+        lblMessage.setFont(new java.awt.Font("Tahoma", 1, 16)); // NOI18N
         lblMessage.setForeground(new java.awt.Color(204, 0, 0));
         lblMessage.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
 
@@ -564,7 +582,7 @@ public class ProductionPane extends javax.swing.JPanel {
 
         jPanel2.setBackground(new java.awt.Color(153, 153, 153));
 
-        jLabel1.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        jLabel1.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         jLabel1.setForeground(new java.awt.Color(255, 255, 0));
         jLabel1.setText("<html>Machine:<font color=red>*</font></html>");
 
@@ -584,14 +602,16 @@ public class ProductionPane extends javax.swing.JPanel {
             }
         });
 
+        jLabel3.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
         jLabel3.setText("Channel:");
 
         lblActive.setHorizontalTextPosition(javax.swing.SwingConstants.RIGHT);
 
         btnPlotChart.setButtonStyle(com.jidesoft.swing.JideButton.TOOLBOX_STYLE);
         btnPlotChart.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/icons/frame_chart.png"))); // NOI18N
+        btnPlotChart.setMnemonic(KeyEvent.VK_P);
         btnPlotChart.setText("Plot Chart");
-        btnPlotChart.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        btnPlotChart.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         btnPlotChart.setOpaque(true);
         btnPlotChart.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -599,6 +619,7 @@ public class ProductionPane extends javax.swing.JPanel {
             }
         });
 
+        jLabel15.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
         jLabel15.setText("Options:");
 
         cmbOptions.addItemListener(new java.awt.event.ItemListener() {
@@ -621,6 +642,7 @@ public class ProductionPane extends javax.swing.JPanel {
 
         radPerHour.setBackground(new java.awt.Color(255, 255, 255));
         buttonGroup1.add(radPerHour);
+        radPerHour.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
         radPerHour.setSelected(true);
         radPerHour.setText("per/Hr");
         radPerHour.setEnabled(false);
@@ -633,6 +655,7 @@ public class ProductionPane extends javax.swing.JPanel {
 
         radPerMin.setBackground(new java.awt.Color(255, 255, 255));
         buttonGroup1.add(radPerMin);
+        radPerMin.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
         radPerMin.setText("per/Min");
         radPerMin.setEnabled(false);
         radPerMin.setFocusable(false);
@@ -713,6 +736,7 @@ public class ProductionPane extends javax.swing.JPanel {
         jPanel6.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Period", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 12), new java.awt.Color(0, 0, 204))); // NOI18N
 
         chkPerShift.setBackground(new java.awt.Color(255, 255, 255));
+        chkPerShift.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
         chkPerShift.setSelected(true);
         chkPerShift.setText("Per Shift");
         chkPerShift.setFocusable(false);
@@ -725,6 +749,7 @@ public class ProductionPane extends javax.swing.JPanel {
         cmbPFrom.setShowWeekNumbers(false);
         cmbPFrom.setDate(Calendar.getInstance().getTime());
         cmbPFrom.setFocusable(false);
+        cmbPFrom.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
         cmbPFrom.setFormat(ConnectDB.SDATE_FORMAT_HOUR);
         cmbPFrom.setRequestFocusEnabled(false);
         cmbPFrom.setTimeDisplayed(true);
@@ -738,6 +763,7 @@ public class ProductionPane extends javax.swing.JPanel {
         cmbPTo.setShowWeekNumbers(false);
         cmbPTo.setDate(Calendar.getInstance().getTime());
         cmbPTo.setFocusable(false);
+        cmbPTo.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
         cmbPTo.setFormat(ConnectDB.SDATE_FORMAT_HOUR);
         cmbPTo.setRequestFocusEnabled(false);
         cmbPTo.setTimeDisplayed(true);
@@ -773,6 +799,7 @@ public class ProductionPane extends javax.swing.JPanel {
         );
 
         chkFrom.setBackground(new java.awt.Color(255, 255, 255));
+        chkFrom.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
         chkFrom.setSelected(true);
         chkFrom.setText("From:");
         chkFrom.setFocusable(false);
@@ -783,6 +810,7 @@ public class ProductionPane extends javax.swing.JPanel {
         });
 
         chkTo.setBackground(new java.awt.Color(255, 255, 255));
+        chkTo.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
         chkTo.setSelected(true);
         chkTo.setText("To:");
         chkTo.setFocusable(false);
@@ -827,7 +855,7 @@ public class ProductionPane extends javax.swing.JPanel {
                         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGroup(jPanel6Layout.createSequentialGroup()
                         .addComponent(panShiftTime, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap(17, Short.MAX_VALUE))))
+                        .addContainerGap(21, Short.MAX_VALUE))))
         );
         jPanel6Layout.setVerticalGroup(
             jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -850,6 +878,7 @@ public class ProductionPane extends javax.swing.JPanel {
 
         chkActiveChannel.setBackground(new java.awt.Color(255, 255, 255));
         chkActiveChannel.setFont(new java.awt.Font("Tahoma", 0, 9)); // NOI18N
+        chkActiveChannel.setForeground(new java.awt.Color(255, 255, 0));
         chkActiveChannel.setSelected(true);
         chkActiveChannel.setText("Active Channels");
         chkActiveChannel.setToolTipText("Show only active channels for a specified machine");
@@ -876,16 +905,16 @@ public class ProductionPane extends javax.swing.JPanel {
                 .addContainerGap()
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                     .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel2Layout.createSequentialGroup()
-                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 61, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 69, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(cmbMachineTitle, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(cmbMachineTitle, javax.swing.GroupLayout.PREFERRED_SIZE, 146, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(chkActiveChannel))
                     .addComponent(jSeparator1, javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jPanel4, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jPanel6, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(lblSpace, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap(24, Short.MAX_VALUE))
+                .addGap(18, 18, 18))
         );
 
         jPanel2Layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {jPanel4, jPanel6});
@@ -935,7 +964,7 @@ public class ProductionPane extends javax.swing.JPanel {
         jPanel7.setLayout(jPanel7Layout);
         jPanel7Layout.setHorizontalGroup(
             jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(tbpPanDetails, javax.swing.GroupLayout.DEFAULT_SIZE, 728, Short.MAX_VALUE)
+            .addComponent(tbpPanDetails, javax.swing.GroupLayout.DEFAULT_SIZE, 750, Short.MAX_VALUE)
         );
         jPanel7Layout.setVerticalGroup(
             jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1003,7 +1032,7 @@ public class ProductionPane extends javax.swing.JPanel {
                     .addComponent(lblShiftSum1, javax.swing.GroupLayout.PREFERRED_SIZE, 117, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(lblShiftSum2)
                     .addComponent(lblShiftSum3, javax.swing.GroupLayout.PREFERRED_SIZE, 121, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(28, 86, Short.MAX_VALUE))
+                .addGap(28, 97, Short.MAX_VALUE))
         );
 
         panPerShiftTotalsLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {lblShiftSum1, lblShiftSum2, lblShiftSum3});
@@ -1062,6 +1091,16 @@ public class ProductionPane extends javax.swing.JPanel {
             }
         });
 
+        btnShowEvents.setButtonStyle(com.jidesoft.swing.JideButton.HYPERLINK_STYLE);
+        btnShowEvents.setForeground(new java.awt.Color(51, 51, 255));
+        btnShowEvents.setText("Events >>");
+        btnShowEvents.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        btnShowEvents.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnShowEventsActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel8Layout = new javax.swing.GroupLayout(jPanel8);
         jPanel8.setLayout(jPanel8Layout);
         jPanel8Layout.setHorizontalGroup(
@@ -1072,7 +1111,9 @@ public class ProductionPane extends javax.swing.JPanel {
                     .addComponent(panTable, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(jPanel8Layout.createSequentialGroup()
                         .addComponent(btnCleanTable, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 198, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnShowEvents, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 131, Short.MAX_VALUE)
                         .addComponent(btnExportExcelCsv, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jSeparator7, javax.swing.GroupLayout.PREFERRED_SIZE, 2, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -1093,10 +1134,11 @@ public class ProductionPane extends javax.swing.JPanel {
                             .addComponent(panShiftTotals, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(panTable, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(btnExportExcelCsv, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(btnCleanTable, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(16, 16, 16))))
+                        .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
+                            .addComponent(btnCleanTable, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(btnShowEvents, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(btnExportExcelCsv, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(18, 18, 18))))
         );
 
         jSplitPane2.setRightComponent(jPanel8);
@@ -1119,7 +1161,7 @@ public class ProductionPane extends javax.swing.JPanel {
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jToolBar1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-            .addComponent(jSplitPane1)
+            .addComponent(jSplitPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 1106, Short.MAX_VALUE)
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1190,7 +1232,8 @@ public class ProductionPane extends javax.swing.JPanel {
                         ConnectDB.getMainDir().mkdirs();
                     }
 
-                    String dirIcon = ConnectDB.getMainDir().getAbsolutePath() + File.separator + "chart.png";
+                    String dirIcon = new StringBuilder(ConnectDB.getMainDir().getAbsolutePath()).
+                            append(File.separator).append("chart.png").toString();
                     JPanel panChart = (JPanel) tbpPanDetails.getSelectedComponent();
                     ChartUtils.writePngToFile(panChart, new File(dirIcon));
 
@@ -1210,7 +1253,7 @@ public class ProductionPane extends javax.swing.JPanel {
                     hm.put("SUBREPORT_DIR", getClass().getResourceAsStream("/jasper/tableExample.jasper"));
                     if (reportOptions.isAddTable()) {
                         if (tableLogData.getModel().getRowCount() > 0) {
-                            hm.put("tableName", viewDateTableName + " Table");
+                            hm.put("tableName", new StringBuilder(viewDateTableName).append(" Table").toString());
                             hm.put("MyTableModel", tableLogData.getModel());
                         } else {
                             hm.put("tableName", "");
@@ -1308,7 +1351,7 @@ public class ProductionPane extends javax.swing.JPanel {
                 }
                 if (!cmbOptions.getSelectedItem().toString().isEmpty() && cmbOptions.getSelectedIndex() > 0) {
                     String module = getModuleOption(cmbOptions.getSelectedItem().toString());
-                    strBuild.append("\nAND c.AvMinMax = '").append(module).append("'");
+                    strBuild.append(" \nAND c.AvMinMax = '").append(module).append("'");
                 }
                 try (PreparedStatement ps = ConnectDB.con.prepareStatement(strBuild.toString())) {
                     ps.setInt(1, machineID);
@@ -1316,11 +1359,12 @@ public class ProductionPane extends javax.swing.JPanel {
                     while (ConnectDB.res.next()) {
                         cmbChannel.addItem(ConnectDB.res.getString(1));
                     }
+                    if (!cmbOptions.getSelectedItem().equals("") && cmbOptions.getSelectedIndex() > 0) {
+                        catChannel = true;
+                        cmbChannel.setSelectedIndex(1);
+                        catChannel = false;
+                    }
                 } catch (Exception ex) {
-//                    serverConnectionLabel = "<html><font color=red><strong>Lost Connection @ "
-//                            + ConnectDB.pref.get("IPServerAddress", serverIP) + "</strong></font></html>";
-//                    labelServer.setFont(f);
-//                    labelServer.setText(serverConnectionLabel);
                 }
             } else {
                 cmbChannel.removeAllItems();
@@ -1338,20 +1382,20 @@ public class ProductionPane extends javax.swing.JPanel {
         if (catChannel) {
             if (!cmbChannel.getSelectedItem().toString().isEmpty() && cmbChannel.getSelectedIndex() > 0) {
                 channelTitle = cmbChannel.getSelectedItem().toString();
-                try (PreparedStatement ps = ConnectDB.con.prepareStatement("SELECT Active FROM `configuration` "
+                try (PreparedStatement ps = ConnectDB.con.prepareStatement("SELECT Active FROM `configuration` \n"
                         + "WHERE ChannelID =? ORDER BY ACTIVE")) {
                     ps.setString(1, channelTitle);
                     ConnectDB.res = ps.executeQuery();
                     while (ConnectDB.res.next()) {
                         if (ConnectDB.res.getInt(1) == 1) {
                             lblActive.setIcon(new ImageIcon(getClass().getResource("/images/icons/tick.png")));
-                            lblActive.setToolTipText("\"" + channelTitle + "\" channel recent activity");
                             lblActive.setText("Active");
                         } else {
                             lblActive.setIcon(new ImageIcon(getClass().getResource("/images/icons/stop.png")));
-                            lblActive.setToolTipText("\"" + channelTitle + "\" channel recent activity");
                             lblActive.setText("Not Active");
                         }
+                        lblActive.setToolTipText(new StringBuilder("\"").append(channelTitle).
+                                append("\" channel recent activity").toString());
                     }
                 } catch (SQLException ex) {
                     ConnectDB.catchSQLException(ex);
@@ -1364,7 +1408,7 @@ public class ProductionPane extends javax.swing.JPanel {
                     ConnectDB.res = ps.executeQuery();
                     while (ConnectDB.res.next()) {
                         lblMessage.setText(new StringBuilder().append("Last data recorded on: ").
-                                append(ConnectDB.res.getString(1)).toString());
+                                append(ConnectDB.res.getString(1).substring(0, 19)).toString());
                     }
                 } catch (SQLException ex) {
                     ConnectDB.catchSQLException(ex);
@@ -1425,7 +1469,8 @@ public class ProductionPane extends javax.swing.JPanel {
                                     }
                                     if (lineChart.getChart() != null) {
                                         createTabbedPanel(alProdRate.get(0), "Production Rate");
-                                        rateTab = cmbOptions.getSelectedItem().toString() + ";" + channelTitle;
+                                        rateTab = new StringBuilder().append(cmbOptions.getSelectedItem()).
+                                                append(";").append(channelTitle).toString();
                                         catTabbedChange = true;
                                     }
                                 }
@@ -1469,7 +1514,8 @@ public class ProductionPane extends javax.swing.JPanel {
                                     }
                                     if (barChart.getChart() != null) {
                                         createTabbedPanel(alTotalProd.get(0), "Total Production");
-                                        totTab = cmbOptions.getSelectedItem().toString() + ";" + channelTitle;
+                                        totTab = new StringBuilder().append(cmbOptions.getSelectedItem()).
+                                                append(";").append(channelTitle).toString();
                                         catTabbedChange = true;
                                     }
                                 }
@@ -1488,7 +1534,8 @@ public class ProductionPane extends javax.swing.JPanel {
 //                                    else {
 //                                        alMachineRun.clear();
 //                                    }
-                                    runTab = cmbOptions.getSelectedItem().toString() + ";" + channelTitle;
+                                    runTab = new StringBuilder().append(cmbOptions.getSelectedItem()).
+                                            append(";").append(channelTitle).toString();
                                     catTabbedChange = true;
                                 }
                             }
@@ -1560,11 +1607,19 @@ public class ProductionPane extends javax.swing.JPanel {
                         ps.setString(1, module);
                         ps.setInt(2, machineID);
                         ConnectDB.res = ps.executeQuery();
+                        boolean channelFound = false;
                         while (ConnectDB.res.next()) {
+                            channelFound = true;
                             cmbChannel.addItem(ConnectDB.res.getString(1));
                         }
-                        if (!"".equals(channelTitle)) {
-                            cmbChannel.setSelectedItem(channelTitle);
+                        if (channelFound) {
+                            if (!cmbMachineTitle.getSelectedItem().equals("") && cmbMachineTitle.getSelectedIndex() > 0) {
+                                catChannel = true;
+                                cmbChannel.setSelectedIndex(1);
+                                catChannel = false;
+                            }
+                        } else {
+                            lblMessage.setText("No channel found for the machine option");
                         }
                     } catch (SQLException ex) {
                         ConnectDB.catchSQLException(ex);
@@ -1577,10 +1632,8 @@ public class ProductionPane extends javax.swing.JPanel {
                 panProductionRate.setVisible(false);
                 chkPerShift.setEnabled(true);
                 chkPerShift.setSelected(ConnectDB.pref.getBoolean(ProdStatKeyFactory.ProdFeatures.CHKSHIFTON, false));
-                cmbChannel.removeAllItems();
-                cmbChannel.addItem(" ");
                 clearLabelActive();
-//                cmbMachineTitleItemStateChanged(evt);
+                cmbMachineTitleItemStateChanged(evt);
                 catChannel = true;
                 if (tbpPanDetails.getTabCount() == 0) {
                     btnShiftTable.setVisible(true);
@@ -1635,16 +1688,21 @@ public class ProductionPane extends javax.swing.JPanel {
 
     private void cmbPFromActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmbPFromActionPerformed
         cmbPToActionPerformed(evt);
+        if (catDates) {
+            btnRefreshActionPerformed(evt);
+        }
     }//GEN-LAST:event_cmbPFromActionPerformed
 
     private void cmbPToActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmbPToActionPerformed
-        if (cmbPFrom.getDate() != null && cmbPTo.getDate() != null) {
-            if (saved) {
-                if (cmbPFrom.getDate().getTime() > cmbPTo.getDate().getTime()) {
-                    if (skipFirstMessage) {
-                        JOptionPane.showMessageDialog(this, "End date of production can't come "
-                                + "before the begining date...", "Dates", JOptionPane.WARNING_MESSAGE);
-                        skipFirstMessage = false;
+        if (catDates) {
+            if (cmbPFrom.getDate() != null && cmbPTo.getDate() != null) {
+                if (saved) {
+                    if (cmbPFrom.getDate().getTime() > cmbPTo.getDate().getTime()) {
+                        if (skipFirstMessage) {
+                            JOptionPane.showMessageDialog(this, "End date of production cannot come "
+                                    + "before start date...", "Dates", JOptionPane.ERROR_MESSAGE);
+                            skipFirstMessage = false;
+                        }
                     }
                 }
             }
@@ -1682,51 +1740,51 @@ public class ProductionPane extends javax.swing.JPanel {
 
             @Override
             public void run() {
+                JFileChooser jfc = new JFileChooser(ConnectDB.getDefaultDirectory());
+                FileFilter typeExcel = new ExtensionFilter("Excel files", ".xls"),
+                        typeCsv = new ExtensionFilter("CSV files", ".csv");
+                jfc.addChoosableFileFilter(typeExcel);
+                jfc.addChoosableFileFilter(typeCsv);
+                jfc.setFileFilter(typeExcel); //Initial filter setting
+
                 File fichier;
-                JFileChooser jfc = new JFileChooser(ConnectDB.fsv.getRoots()[0]);
-                jfc.addChoosableFileFilter(new FileNameExtensionFilter("Excel Documents (*.xls)", "xls"));
-                jfc.addChoosableFileFilter(new FileNameExtensionFilter("Csv Documents (*.csv)", "csv"));
                 try {
-                    fichier = new File(ConnectDB.fsv.getRoots()[0] + File.separator + "data_"
-                            + ConnectDB.correctBarreFileName(ConnectDB.SDATE_FORMAT_HOUR.format(Calendar.getInstance().getTime())));
+                    fichier = new File(ConnectDB.getDefaultDirectory() + new StringBuilder(File.separator).append("data_").
+                            append(new SimpleDateFormat("yyMMdd_HHmmss").format(Calendar.getInstance().getTime())).toString());
                 } catch (Exception e) {
-                    JOptionPane.showMessageDialog(_parent, jfc.getSelectedFile().getName()
-                            + "\n The file name is not valid.", "Export", JOptionPane.WARNING_MESSAGE);
+                    JOptionPane.showMessageDialog(_parent, new StringBuilder(jfc.getSelectedFile().getName()).
+                            append("\n The file name is not valid.").toString(), "Export", JOptionPane.WARNING_MESSAGE);
                     return;
                 }
-                short fileType = 0;//0==CSV and 1==Excel
-                jfc.setAcceptAllFileFilterUsed(false);
+                byte fileType = 0;//0==CSV and 1==Excel
                 jfc.setSelectedFile(fichier);
-                int result = jfc.showSaveDialog(_parent);
-                if (result == JFileChooser.APPROVE_OPTION) {
+                if (jfc.showSaveDialog(_parent) == JFileChooser.APPROVE_OPTION) {
                     if (!jfc.getSelectedFile().exists()) {
                         try {
-                            if (jfc.getFileFilter().getDescription().equalsIgnoreCase("Excel Documents (*.xls)")) {
-                                try {
-                                    if (!jfc.getSelectedFile().getAbsolutePath().contains(".")) {
-                                        createExcel(new File(jfc.getSelectedFile().getAbsolutePath() + ".xls"));
-                                    } else {
-                                        createExcel(jfc.getSelectedFile());
-                                    }
-                                    fileType = 1;
-                                } catch (Exception e) {
-                                    e.printStackTrace();
+                            if (jfc.getFileFilter().getDescription().equalsIgnoreCase("Excel files")) {
+                                if (!jfc.getSelectedFile().getAbsolutePath().contains(".")) {
+                                    createExcel(new File(new StringBuilder(jfc.getSelectedFile().getAbsolutePath()).
+                                            append(".xls").toString()));
+                                } else {
+                                    createExcel(jfc.getSelectedFile());
                                 }
-                            } else {//Output to Csv
+                                fileType = 1;
+                            } else if (jfc.getFileFilter().getDescription().equalsIgnoreCase("CSV files")) {//Output to Csv
                                 ConnectDB.outputToCsv(tableLogData, jfc.getSelectedFile());
                             }
                         } catch (Exception e) {
-                            JOptionPane.showMessageDialog(_parent, "The file could not be saved. Choose the "
+                            JOptionPane.showMessageDialog(_parent, "The file could not be saved. Please choose a "
                                     + "file type (.xls or .csv).", "Export", JOptionPane.ERROR_MESSAGE);
+                            return;
                         }
                         if (JOptionPane.showConfirmDialog(_parent, "The file was saved sucessfully. "
                                 + "Do you want to open the file?", "Export",
                                 JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE) == 0) {
                             File f;
                             if (fileType == 1) {
-                                f = new File(jfc.getSelectedFile().getAbsolutePath() + ".xls");
+                                f = new File(new StringBuilder(jfc.getSelectedFile().getAbsolutePath()).append(".xls").toString());
                             } else {
-                                f = new File(jfc.getSelectedFile().getAbsolutePath() + ".csv");
+                                f = new File(new StringBuilder(jfc.getSelectedFile().getAbsolutePath()).append(".csv").toString());
                             }
                             if (Desktop.isDesktopSupported()) {
                                 try {
@@ -1740,8 +1798,8 @@ public class ProductionPane extends javax.swing.JPanel {
                             }
                         }
                     } else {
-                        JOptionPane.showMessageDialog(_parent, jfc.getSelectedFile().getName() + " already exists...",
-                                "Export", JOptionPane.WARNING_MESSAGE);
+                        JOptionPane.showMessageDialog(_parent, new StringBuilder(jfc.getSelectedFile().getName()).
+                                append(" already exists...").toString(), "Export", JOptionPane.WARNING_MESSAGE);
                     }
                 }
             }
@@ -1797,8 +1855,69 @@ public class ProductionPane extends javax.swing.JPanel {
             }
         }
         _documentPane.setActiveDocument("Events");
+        EventsStatistic.cmbEFrom.setDate(cmbPFrom.getDate());
+        EventsStatistic.cmbETo.setDate(cmbPTo.getDate());
+        if (machineTitle != null && !machineTitle.isEmpty()) {
+            EventsStatistic.cmbMachineTitle.setSelectedItem(machineTitle);
+        }
         this.repaint();
     }//GEN-LAST:event_btnViewEventsActionPerformed
+
+    private void btnShowEventsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnShowEventsActionPerformed
+        if (evt.getActionCommand().equals("<< Chart Data")) {
+            btnShowEvents.setText("Events >>");
+            logDataPane.setViewportView(tableLogData);
+        } else {
+            try {
+                Set<String> setDescriptionValue = new TreeSet<>(),
+                        descriptionSet = new TreeSet<>();
+                String q = "SELECT c.Description, e.Value FROM eventlog e, customlist c \n"
+                        + "WHERE e.`CustomCode` = c.`Code` \n"
+                        + "AND e.`EventTime` >=? AND e.`UntilTime` <=? \n"
+                        + "AND e.`HwNo` =? \n"
+                        + "ORDER BY e.`EventNo` ASC";
+                try (PreparedStatement ps = ConnectDB.con.prepareStatement(q)) {
+                    ps.setString(1, ConnectDB.SDATE_FORMAT_HOUR.format(dt_startP));
+                    ps.setString(2, ConnectDB.SDATE_FORMAT_HOUR.format(dt_endP));
+                    ps.setInt(3, ConnectDB.getIDMachine(machineTitle));
+                    ResultSet resultSet = ps.executeQuery();
+                    while (resultSet.next()) {
+                        descriptionSet.add(resultSet.getString(1));
+                        setDescriptionValue.add(new StringBuilder(resultSet.getString(1)).append(";").append(
+                                resultSet.getString(2)).toString());
+                    }
+                } catch (SQLException ex) {
+                    ConnectDB.catchSQLException(ex);
+                }
+                DefaultMutableTreeNode m_rootNode = new DefaultMutableTreeNode(machineTitle);
+                Vector data = EventsStatistic.getDummyData(setDescriptionValue);//method to create the tree of description and value
+                for (String sDesc : descriptionSet) {
+                    DefaultMutableTreeNode m_descNode = new DefaultMutableTreeNode(ConnectDB.firstLetterCapital(sDesc));
+                    for (Enumeration enumData = data.elements(); enumData.hasMoreElements();) {
+                        EventsStatistic.Machine machData = (EventsStatistic.Machine) enumData.nextElement();//machData == Value
+                        if (machData.getMachDomain().equals(sDesc)) {//check for a value description
+                            m_descNode.add(new DefaultMutableTreeNode(ConnectDB.firstLetterCapital(machData.toString())));//add value to a description node
+                        }
+                    }
+                    m_rootNode.add(m_descNode);//add a description to the machine main node
+                }
+                final JTree tree = new JTree(m_rootNode);
+                TreeUtils.expandAll(tree, true);
+                tree.setRootVisible(true);
+                tree.setShowsRootHandles(true);
+                logDataPane.setViewportView(tree);
+                btnShowEvents.setText("<< Chart Data");
+//                panTable.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder(
+//                        new PartialGradientLineBorder(new Color[]{new Color(0, 0, 128),
+//                            UIDefaultsLookup.getColor("control")}, 2, PartialSide.NORTH),
+//                        new StringBuilder().append(" Events occurred within the period").toString(),
+//                        TitledBorder.CENTER, TitledBorder.ABOVE_TOP), BorderFactory.createEmptyBorder(6, 4, 4, 4)));
+            } catch (NullPointerException e) {
+                BalloonTipDemo balloonTip = new BalloonTipDemo(btnPlotChart, "Please click the plot chart button.");
+                balloonTip.toggleToolTip();
+            }
+        }
+    }//GEN-LAST:event_btnShowEventsActionPerformed
 
     private boolean balloonTip() {
         BalloonTipDemo balloonTip;
@@ -1842,7 +1961,9 @@ public class ProductionPane extends javax.swing.JPanel {
                     ArrayList text = new ArrayList();//Get the dates and add it with shifts
                     for (Object tableDateWithShift : barChart.getDateWithShiftsList()) {
                         for (int j = 0; j < tableOfTime.getRowCount(); j++) {
-                            text.add(tableDateWithShift + " " + tableOfTime.getValueAt(j, 1).toString() + "-" + tableOfTime.getValueAt(j, 2).toString());
+                            text.add(new StringBuilder().append(tableDateWithShift).append(" ").
+                                    append(tableOfTime.getValueAt(j, 1)).append("-").
+                                    append(tableOfTime.getValueAt(j, 2)).toString());
                         }
                     }
                     for (int i = 0; i < text.size(); i++) {
@@ -1891,21 +2012,22 @@ public class ProductionPane extends javax.swing.JPanel {
                             refTableValues.addNewRow();
                         }
                         tableLogData.setValueAt(nRow, i, 0);
-                        tableLogData.setValueAt(timeValue.nextToken() + " "
-                                + (Integer.parseInt(timeValue.nextToken()) + 1) + "h:00", i, 1);
+                        tableLogData.setValueAt(new StringBuilder(timeValue.nextToken()).append(" ").
+                                append(Integer.parseInt(timeValue.nextToken()) + 1).append("h:00").toString(), i, 1);
                         tableLogData.setValueAt(BarChart.getMaxValue().get(i), i, 2);
                         totalProductionSum += BarChart.getMaxValue().get(i);
                         nRow++;
                     }
                 }
-                this.setTableNameOfValues("<html><font color=blue><strong>" + viewDateTableName
-                        + "</strong></font><html>");
+//                this.setTableNameOfValues("<html><font color=blue><strong>" + viewDateTableName
+//                        + "</strong></font><html>");
                 lblShiftSum1.setText(t1Sum + " parts");
                 lblShiftSum2.setText(t2Sum + " parts");
                 lblShiftSum3.setText(t3Sum + " parts");
                 lblTotalProductionSum.setText(totalProductionSum + " parts");
             } else if (getModuleOption(cmbOptions.getSelectedItem().toString()).equalsIgnoreCase("Rate")
                     && tbpPanDetails.getTitleAt(tbpPanDetails.getSelectedIndex()).equals("Production Rate")) {
+                clearLabelOfSums();
                 viewDateTableName = "Production Rate";
                 tableType = "rates/hr";
                 for (int i = 0; i < lineChart.getLogTimeList().size(); i++) {
@@ -1919,14 +2041,11 @@ public class ProductionPane extends javax.swing.JPanel {
                     tableLogData.setValueAt(Math.round(Float.valueOf(lineChart.getLogDataList().get(i))), i, 2);
                     nRow++;
                 }
-                this.setTableNameOfValues("<html><font color=blue><strong>" + viewDateTableName
-                        + "</strong></font><html>");
-                lblShiftSum1.setText("");
-                lblShiftSum2.setText("");
-                lblShiftSum3.setText("");
-                lblTotalProductionSum.setText("");
+//                this.setTableNameOfValues("<html><font color=blue><strong>" + viewDateTableName
+//                        + "</strong></font><html>");
             } else if (getModuleOption(cmbOptions.getSelectedItem().toString()).equalsIgnoreCase("Average")
                     && tbpPanDetails.getTitleAt(tbpPanDetails.getSelectedIndex()).equals("Machine Run (ON/OFF)")) {
+                clearLabelOfSums();
                 viewDateTableName = "Machine Run";
                 for (int i = 0; i < MachineRun.getLogTimeList().size(); i++) {
                     if (nRow > tableLogData.getModel().getRowCount()) {
@@ -1939,15 +2058,11 @@ public class ProductionPane extends javax.swing.JPanel {
                     tableLogData.setValueAt(MachineRun.getLogDataList().get(i), i, 2);
                     nRow++;
                 }
-                this.setTableNameOfValues("<html><font color=blue><strong>" + viewDateTableName
-                        + "</strong></font><html>");
-                lblShiftSum1.setText("");
-                lblShiftSum2.setText("");
-                lblShiftSum3.setText("");
-                lblTotalProductionSum.setText("");
             } else {
                 return;
             }
+            this.setTableNameOfValues(new StringBuilder("<html><font color=blue><strong>").append(viewDateTableName).
+                    append("</strong></font><html>").toString());
             tableLogData.getColumnModel().getColumn(0).setMinWidth(35);
             tableLogData.getColumnModel().getColumn(0).setMaxWidth(35);
             tableLogData.getColumnModel().getColumn(0).setResizable(false);
@@ -1961,13 +2076,14 @@ public class ProductionPane extends javax.swing.JPanel {
             panTable.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder(
                     new PartialGradientLineBorder(new Color[]{new Color(0, 0, 128),
                         UIDefaultsLookup.getColor("control")}, 2, PartialSide.NORTH),
-                    name + " Table [" + tableLogData.getModel().getRowCount() + "]", TitledBorder.CENTER, TitledBorder.ABOVE_TOP),
+                    new StringBuilder(name).append(" Table [").append(tableLogData.getModel().getRowCount()).
+                    append(" row(s)]").toString(), TitledBorder.CENTER, TitledBorder.ABOVE_TOP),
                     BorderFactory.createEmptyBorder(6, 4, 4, 4)));
         } catch (Exception e) {
             panTable.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder(
                     new PartialGradientLineBorder(new Color[]{new Color(0, 0, 128),
                         UIDefaultsLookup.getColor("control")}, 2, PartialSide.NORTH),
-                    name + " Table [0]", TitledBorder.CENTER, TitledBorder.ABOVE_TOP),
+                    new StringBuilder(name).append(" Table [0 row(s)]").toString(), TitledBorder.CENTER, TitledBorder.ABOVE_TOP),
                     BorderFactory.createEmptyBorder(6, 4, 4, 4)));
         }
     }
@@ -1977,7 +2093,8 @@ public class ProductionPane extends javax.swing.JPanel {
             byte i = 0;
             if (tbpPanDetails.getTabCount() == 0) {
                 i = 0;
-                tbpPanDetails.insertTab(panelName, null, optionPanel, channelTitle + " " + panelName, i);
+                tbpPanDetails.insertTab(panelName, null, optionPanel, new StringBuilder(channelTitle).
+                        append(" ").append(panelName).toString(), i);
             } else {
                 boolean find = false;
                 for (; i < tbpPanDetails.getTabCount(); i++) {
@@ -2013,7 +2130,8 @@ public class ProductionPane extends javax.swing.JPanel {
                     }
                 }
                 if (!find) {
-                    tbpPanDetails.insertTab(panelName, null, optionPanel, channelTitle + " " + panelName, i);
+                    tbpPanDetails.insertTab(panelName, null, optionPanel, new StringBuilder(channelTitle).
+                            append(" ").append(panelName).toString(), i);
                     tbpPanDetails.setSelectedIndex(i);
                 }
             }
@@ -2030,14 +2148,17 @@ public class ProductionPane extends javax.swing.JPanel {
             WritableWorkbook wbb = Workbook.createWorkbook(file);
             WritableSheet sheet = wbb.createSheet(viewDateTableName, 0);
             Label label;
-            int p;
+            byte p;
+            //Excel Files headings
+            sheet.addCell(new Label(0, 0, new StringBuilder(machineTitle).append(" Analysis Results").toString()));
+            sheet.addCell(new Label(0, 1, ""));
             //get the table headings
-            for (int gh = 0; gh < tableLogData.getColumnCount(); gh++) {
+            for (byte gh = 0; gh < tableLogData.getColumnCount(); gh++) {
                 p = gh;
                 if (p < tableLogData.getColumnCount()) {
-                    label = new Label(gh, 0, tableLogData.getColumnName(p));
+                    label = new Label(gh, 2, tableLogData.getColumnName(p));
                     if (p == tableLogData.getColumnCount() - 1) {//the value column
-                        label = new Label(gh, 0, tableLogData.getColumnName(p));
+                        label = new Label(gh, 2, tableLogData.getColumnName(p));
                     }
                     sheet.addCell(label);
                     p++;
@@ -2049,7 +2170,7 @@ public class ProductionPane extends javax.swing.JPanel {
                 int b = 0;
                 for (int j = 0; j < tableLogData.getRowCount(); j++) {
                     if (a < tableLogData.getColumnCount()) {
-                        label = new Label(i, j + 1, tableLogData.getValueAt(b, a).toString());
+                        label = new Label(i, j + 3, tableLogData.getValueAt(b, a).toString());
                         sheet.addCell(label);
                         b++;
                     }
@@ -2136,6 +2257,7 @@ public class ProductionPane extends javax.swing.JPanel {
     }
 
     private void setPropertiesTimeSaved(String values) {
+        catDates = false;
         boolean error = false;
         try {
             propertiesToSave = values;
@@ -2173,6 +2295,7 @@ public class ProductionPane extends javax.swing.JPanel {
                 setTableTime(3);
             }
             setSettings();
+            catDates = true;
         }
     }
 
@@ -2194,18 +2317,23 @@ public class ProductionPane extends javax.swing.JPanel {
     }
 
     private String getModuleOption(String options) {
-        String opString = "";
         try {
             String[] rowValues = addModule.getSavedProperties().split("\r\n");
             for (String string : rowValues) {
                 if (string.split("\t")[0].trim().equals(options)) {
-                    opString = string.split("\t")[1];
-                    break;
+                    return string.split("\t")[1];
                 }
             }
         } catch (Exception e) {
         }
-        return opString;
+        return "";
+    }
+
+    private void clearLabelOfSums() {
+        lblShiftSum1.setText("");
+        lblShiftSum2.setText("");
+        lblShiftSum3.setText("");
+        lblTotalProductionSum.setText("");
     }
 
     private void clearLabelActive() {
@@ -2283,6 +2411,7 @@ public class ProductionPane extends javax.swing.JPanel {
     private javax.swing.JButton btnReset;
     private javax.swing.JButton btnSettings;
     private com.jidesoft.swing.JideButton btnShiftTable;
+    private com.jidesoft.swing.JideButton btnShowEvents;
     private javax.swing.JButton btnStop;
     private javax.swing.JButton btnViewData;
     private javax.swing.JButton btnViewEvents;
@@ -2345,8 +2474,8 @@ public class ProductionPane extends javax.swing.JPanel {
     // End of variables declaration//GEN-END:variables
     private int optionsIndex = -1, machineID;
     private boolean skipFirstMessage = true, //variables for the dates
-            clearTabbedPane, catMachine, catChannel, catTabbedChange;
-    private static String channelTitle, viewDateTableName = "", tableType = "",
+            clearTabbedPane, catMachine, catChannel, catTabbedChange, catDates;
+    private static String channelTitle = "", viewDateTableName = "", tableType = "",
             machineTitle = "", chartTitle, propertiesToSave = "";
     private static boolean catOptions,//check if all the machineTitle title are loaded
             saved = true;

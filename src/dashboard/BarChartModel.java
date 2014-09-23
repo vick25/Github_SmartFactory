@@ -7,6 +7,7 @@ import com.jidesoft.grid.SortableTable;
 import com.jidesoft.range.Category;
 import com.jidesoft.range.CategoryRange;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -17,6 +18,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.TreeSet;
 import smartfactoryV2.ConnectDB;
+import smartfactoryV2.Queries;
 
 /**
  *
@@ -45,12 +47,13 @@ public class BarChartModel extends DefaultChartModel implements CumulativeSubrac
     }
 
     public BarChartModel(final int myConfigNo, final String myQuery, final boolean withShifts,
-            final String machineTitle, Date start, Date end, SortableTable tableTime) throws SQLException {
+            final String myMachineTitle, Date start, Date end, SortableTable tableTime) throws SQLException {
         super();
         this._withShifts = withShifts;
         this._startD = start;
         this._endD = end;
         this._tableTime = tableTime;
+        this.machineTitle = myMachineTitle;
 
         categoryRange = new CategoryRange<>();
 //        findMaxValue.clear();
@@ -233,12 +236,17 @@ public class BarChartModel extends DefaultChartModel implements CumulativeSubrac
     }
 
     @Override
-    public void getSubtractedValues(byte x, ArrayList<String> alValues) {
+    public void getSubtractedValues(byte x, ArrayList<String> alValues) throws SQLException {
+        ArrayList<String> prodRateArrayList = getProductionRate();
+
         for (int i = 0; i < alValues.size(); i++) {
             int xDiff;
             if (i == 0) {
                 if (x == 1) {//Third shift and next day
                     xDiff = Integer.parseInt(alValues.get(i)) - lastValue;
+                    if (xDiff < 0) {//Case the difference is a negative value
+                        xDiff = 1000000 - lastValue + Integer.parseInt(alValues.get(i));
+                    }
                     subtractedDatalogValues.add(new StringBuilder().append(logDateHourList.get(++countAlValues)).append(";").append(xDiff).toString());
                 } else {//Same day
                     xDiff = Integer.parseInt(alValues.get(i)) - Integer.parseInt(alValues.get(i));
@@ -247,12 +255,31 @@ public class BarChartModel extends DefaultChartModel implements CumulativeSubrac
                 continue;
             }
             xDiff = Integer.parseInt(alValues.get(i)) - Integer.parseInt(alValues.get(i - 1));
+            if (xDiff < 0) {//Case the difference is a negative value
+                xDiff = 1000000 - Integer.parseInt(alValues.get(i - 1)) + Integer.parseInt(alValues.get(i));
+            }
+
+            try {
+                int totVal = Integer.parseInt(alValues.get(i)),
+                        totValNext = Integer.parseInt(alValues.get(i + 1)),
+                        rateVal = (int) Double.parseDouble(prodRateArrayList.get(i));
+                //Case where the cumulative values are not consecutive by the addition of the production rate number
+                if ((totVal + rateVal != totValNext) || (totVal + rateVal + 1 != totValNext)) {
+                    // Not sequential
+                    xDiff = rateVal;
+                }
+            } catch (IndexOutOfBoundsException e) {
+                xDiff = (int) Double.parseDouble(prodRateArrayList.get(i - 1));
+            }
+
             if (x == 1) {//Third shift and next day
                 subtractedDatalogValues.add(new StringBuilder().append(logDateHourList.get(++countAlValues)).append(";").append(xDiff).toString());
             } else {//Same day
                 subtractedDatalogValues.add(new StringBuilder().append(logDateHourList.get(i)).append(";").append(xDiff).toString());
             }
         }
+//        int[] test = new int[]{1, 2, 3};
+//        Arrays.sort(test);
     }
 
     private void runQueryShift(byte x, String query, int configNo) throws SQLException {
@@ -288,6 +315,29 @@ public class BarChartModel extends DefaultChartModel implements CumulativeSubrac
         return formatter.format(c.getTime());
     }
 
+    private ArrayList<String> getProductionRate() throws SQLException {
+        int configNo = -1;
+        try (PreparedStatement ps = ConnectDB.con.prepareStatement(Queries.GET_CONFIGNO)) {
+            ps.setString(1, "rate");
+            ps.setString(2, machineTitle);
+            ConnectDB.res = ps.executeQuery();
+            while (ConnectDB.res.next()) {
+                configNo = ConnectDB.res.getInt(1);
+            }
+        }
+        ArrayList<String> listProductionRate = new ArrayList<>();
+        try (PreparedStatement ps = ConnectDB.con.prepareStatement(Queries.DATALOG_PRODUCTION)) {
+            ps.setInt(1, configNo);
+            ps.setString(2, ConnectDB.SDATE_FORMAT_HOUR.format(_startD));
+            ps.setString(3, ConnectDB.SDATE_FORMAT_HOUR.format(_endD));
+            ResultSet resultSet = ps.executeQuery();
+            while (resultSet.next()) {
+                listProductionRate.add(resultSet.getString(2)); //Values
+            }
+        }
+        return listProductionRate;
+    }
+
 //    private class Interval {
 //
 //        private final double min, max;
@@ -302,7 +352,7 @@ public class BarChartModel extends DefaultChartModel implements CumulativeSubrac
 //            return String.format("[%.1f, %.1f]", min, max);
 //        }
 //    }
-    private String lastHourValue;
+    private String lastHourValue, machineTitle;
     private volatile boolean _loopQueryFound = false, _withShifts;
     private final ArrayList logDateHourList = new ArrayList(),
             datalogValuesList = new ArrayList();

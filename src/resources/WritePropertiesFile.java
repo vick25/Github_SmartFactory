@@ -9,7 +9,11 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import smartfactoryV2.ConnectDB;
 
 public class WritePropertiesFile {
@@ -22,7 +26,10 @@ public class WritePropertiesFile {
         OutputStream out = null;
         if (!"open".equalsIgnoreCase(running) && !"127.0.0.1".equals(ConnectDB.serverIP)) {
             try {
-                File f = new File(ConnectDB.WORKINGDIR + File.separator + "src\\resources\\smfProperties.properties");
+                URL resource = this.getClass().getClassLoader().getResource("resources/smfProperties.properties");
+                File f = new File(resource.toURI());
+//                FileInputStream input = new FileInputStream(file);
+//                File f = new File(ConnectDB.WORKINGDIR + File.separator + "src\\resources\\smfProperties.properties");
                 if (f.exists()) {
                     props.load(new FileReader(f));
                     //Change the values here
@@ -45,6 +52,8 @@ public class WritePropertiesFile {
 //                System.out.println(props.get("running"));
             } catch (IOException e) {
                 e.printStackTrace();
+            } catch (URISyntaxException ex) {
+                Logger.getLogger(WritePropertiesFile.class.getName()).log(Level.SEVERE, null, ex);
             } finally {
                 if (out != null) {
                     try {

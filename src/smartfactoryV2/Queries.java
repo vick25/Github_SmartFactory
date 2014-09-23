@@ -72,7 +72,8 @@ public class Queries {
             + "AND h.Machine =? \n"
             + "ORDER BY c.HwNo ASC, c.AvMinMax DESC";
 
-    public static final String GET_CONFIGNO = "SELECT DISTINCT c.ConfigNo FROM configuration c, hardware h \n"
+    public static final String GET_CONFIGNO = "SELECT DISTINCT c.ConfigNo \n"
+            + "FROM configuration c, hardware h \n"
             + "WHERE h.HwNo = c.HwNo \n"
             + "AND c.AvMinMax =? \n"
             + "AND h.Machine =? \n"
@@ -80,4 +81,7 @@ public class Queries {
 
     public static final String GET_HARDWARE = "SELECT HwNo, Machine FROM hardware\n"
             + "WHERE HwNo > ?";
+    
+    public static final String GET_LAST_DATA_TIME = "SELECT LogTime FROM datalog\n"
+                + "ORDER BY LogTime DESC LIMIT 1;";
 }

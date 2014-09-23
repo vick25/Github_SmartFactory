@@ -18,6 +18,7 @@ import com.jidesoft.status.MemoryStatusBarItem;
 import com.jidesoft.status.ProgressStatusBarItem;
 import com.jidesoft.status.StatusBar;
 import com.jidesoft.status.TimeStatusBarItem;
+import com.jidesoft.swing.ContentContainer;
 import com.jidesoft.swing.JideBoxLayout;
 import com.jidesoft.swing.JideTabbedPane;
 import com.jidesoft.utils.Lm;
@@ -25,6 +26,7 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Desktop;
 import java.awt.Font;
+import java.awt.Graphics;
 import java.awt.HeadlessException;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
@@ -123,6 +125,7 @@ public class MainFrame extends DefaultDockableBarDockableHolder {
 
             @Override
             public void customize(final JideTabbedPane tabbedPane) {
+                tabbedPane.setFocusable(false);
                 tabbedPane.setShowCloseButtonOnTab(true);
                 tabbedPane.setShowCloseButtonOnSelectedTab(true);
             }
@@ -325,28 +328,28 @@ public class MainFrame extends DefaultDockableBarDockableHolder {
         return documentPane;
     }
 
-//    @Override
-//    protected ContentContainer createContentContainer() {
-//        return new LogoContentContainer();
-//    }
+    @Override
+    protected ContentContainer createContentContainer() {
+        return new LogoContentContainer();
+    }
 
     public static void setDateFormat(String dateFormat) {
         timeStatusBar.setTextFormat(new SimpleDateFormat(dateFormat + "  HH:mm:ss"));
         ConnectDB.dateFormat = new SimpleDateFormat(dateFormat, new DateFormatSymbols());
     }
 
-//    private class LogoContentContainer extends ContentContainer {
-//
-//        @Override
-//        protected void paintComponent(Graphics g) {
-//            super.paintComponent(g);
-//            try {
-//                ImageIcon imageIcon = new ImageIcon(_frame.getClass().getResource("/images/smfLogo.png"));
-//                imageIcon.paintIcon(this, g, getWidth() - imageIcon.getIconWidth() - 2, -6);
-//            } catch (Exception e) {
-//            }
-//        }
-//    }
+    private class LogoContentContainer extends ContentContainer {
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            try {
+                ImageIcon imageIcon = new ImageIcon(_frame.getClass().getResource("/images/smfLogo.png"));
+                imageIcon.paintIcon(this, g, getWidth() - imageIcon.getIconWidth() - 2, -6);
+            } catch (Exception e) {
+            }
+        }
+    }
 
     public static void confirmCloseTab(final DocumentComponent document) {
         if (ConnectDB.pref.getBoolean(SettingKeyFactory.General.CONFIRMCLOSETAB, false)) {

@@ -5,6 +5,7 @@
  */
 package chartTypes;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 /**
@@ -13,5 +14,5 @@ import java.util.ArrayList;
  */
 public interface CumulativeSubractedValues {
 
-   public void getSubtractedValues(byte x, ArrayList<String> alValues);
+   public void getSubtractedValues(byte x, ArrayList<String> alValues) throws SQLException;
 }

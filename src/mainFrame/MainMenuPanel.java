@@ -5,6 +5,7 @@ import com.jidesoft.document.DocumentPane;
 import com.jidesoft.swing.JideSwingUtilities;
 import dashboard.DashBoard;
 import eventsPanel.EventsStatistic;
+import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
@@ -63,13 +64,16 @@ public class MainMenuPanel extends JPanel {
         collapsiblePane1.setContentPane(JideSwingUtilities.createTopPanel(jPanel2));
         collapsiblePane1.setEmphasized(true);
         collapsiblePane1.setFocusable(false);
+        collapsiblePane1.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
 
         jPanel2.setBorder(BorderFactory.createEmptyBorder(8, 10, 8, 10));
         jPanel2.setOpaque(false);
 
         btnProduction.setButtonStyle(com.jidesoft.swing.JideButton.HYPERLINK_STYLE);
         btnProduction.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/icons/first_year_production(24).png"))); // NOI18N
+        btnProduction.setMnemonic(KeyEvent.VK_D);
         btnProduction.setText("Production");
+        btnProduction.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
         btnProduction.setHorizontalAlignment(SwingConstants.LEADING);
         btnProduction.setRequestFocusEnabled(true);
         btnProduction.addActionListener(new java.awt.event.ActionListener() {
@@ -80,7 +84,9 @@ public class MainMenuPanel extends JPanel {
 
         btnEventsStattistic.setButtonStyle(com.jidesoft.swing.JideButton.HYPERLINK_STYLE);
         btnEventsStattistic.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/icons/event_time.png"))); // NOI18N
+        btnEventsStattistic.setMnemonic(KeyEvent.VK_E);
         btnEventsStattistic.setText("Events (HMI)");
+        btnEventsStattistic.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
         btnEventsStattistic.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnEventsStattisticActionPerformed(evt);
@@ -89,7 +95,9 @@ public class MainMenuPanel extends JPanel {
 
         btnProductionQuickView.setButtonStyle(com.jidesoft.swing.JideButton.HYPERLINK_STYLE);
         btnProductionQuickView.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/icons/stock_data_queries.png"))); // NOI18N
+        btnProductionQuickView.setMnemonic(KeyEvent.VK_Q);
         btnProductionQuickView.setText("Production Quick View");
+        btnProductionQuickView.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
         btnProductionQuickView.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnProductionQuickViewActionPerformed(evt);
@@ -98,7 +106,9 @@ public class MainMenuPanel extends JPanel {
 
         btnDashBoard.setButtonStyle(com.jidesoft.swing.JideButton.HYPERLINK_STYLE);
         btnDashBoard.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/icons/dashboard16x16.png"))); // NOI18N
+        btnDashBoard.setMnemonic(KeyEvent.VK_B);
         btnDashBoard.setText("DashBoard");
+        btnDashBoard.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
         btnDashBoard.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnDashBoardActionPerformed(evt);
@@ -115,7 +125,7 @@ public class MainMenuPanel extends JPanel {
                     .addComponent(btnProduction, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btnProductionQuickView, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btnDashBoard, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(34, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -145,13 +155,16 @@ public class MainMenuPanel extends JPanel {
         collapsiblePane2.setContentPane(JideSwingUtilities.createTopPanel(jPanel5));
         collapsiblePane2.setEmphasized(true);
         collapsiblePane2.setFocusable(false);
+        collapsiblePane2.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
 
         jPanel5.setBorder(BorderFactory.createEmptyBorder(8, 10, 8, 10));
         jPanel5.setOpaque(false);
 
         btnViewHistory.setButtonStyle(com.jidesoft.swing.JideButton.HYPERLINK_STYLE);
         btnViewHistory.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/icons/time16x16_2.png"))); // NOI18N
-        btnViewHistory.setText("View History");
+        btnViewHistory.setMnemonic(KeyEvent.VK_H);
+        btnViewHistory.setText("Database History");
+        btnViewHistory.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
         btnViewHistory.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnViewHistoryActionPerformed(evt);
@@ -161,6 +174,7 @@ public class MainMenuPanel extends JPanel {
         btnLogOut.setButtonStyle(com.jidesoft.swing.JideButton.HYPERLINK_STYLE);
         btnLogOut.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/icons/logout16x16.png"))); // NOI18N
         btnLogOut.setText("Log Out");
+        btnLogOut.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
         btnLogOut.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnLogOutActionPerformed(evt);
@@ -169,7 +183,9 @@ public class MainMenuPanel extends JPanel {
 
         btnCreateUser.setButtonStyle(com.jidesoft.swing.JideButton.HYPERLINK_STYLE);
         btnCreateUser.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/icons/add_user16x16_1.png"))); // NOI18N
+        btnCreateUser.setMnemonic(KeyEvent.VK_U);
         btnCreateUser.setText("Create User");
+        btnCreateUser.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
         btnCreateUser.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnCreateUserActionPerformed(evt);
@@ -183,9 +199,9 @@ public class MainMenuPanel extends JPanel {
             .addGroup(jPanel5Layout.createSequentialGroup()
                 .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(btnLogOut, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btnViewHistory, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btnCreateUser, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(0, 113, Short.MAX_VALUE))
+                    .addComponent(btnCreateUser, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnViewHistory, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(0, 0, Short.MAX_VALUE))
         );
         jPanel5Layout.setVerticalGroup(
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -203,7 +219,7 @@ public class MainMenuPanel extends JPanel {
         collapsiblePane2.getContentPane().setLayout(collapsiblePane2Layout);
         collapsiblePane2Layout.setHorizontalGroup(
             collapsiblePane2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addComponent(jPanel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         collapsiblePane2Layout.setVerticalGroup(
             collapsiblePane2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -214,11 +230,8 @@ public class MainMenuPanel extends JPanel {
         cpMainContainer.setLayout(cpMainContainerLayout);
         cpMainContainerLayout.setHorizontalGroup(
             cpMainContainerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(cpMainContainerLayout.createSequentialGroup()
-                .addGroup(cpMainContainerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                    .addComponent(collapsiblePane2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(collapsiblePane1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addGap(0, 0, Short.MAX_VALUE))
+            .addComponent(collapsiblePane1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(collapsiblePane2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         cpMainContainerLayout.setVerticalGroup(
             cpMainContainerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -277,11 +290,12 @@ public class MainMenuPanel extends JPanel {
         if (quickViewFrame == null) {
             try {
                 quickViewFrame = new JFrame("Production Quick View");
-                quickViewFrame.setSize(915, 570);
+                quickViewFrame.setSize(950, 570);
                 quickViewFrame.setContentPane(new ProductionQuickView(quickViewFrame));
                 quickViewFrame.setLocationRelativeTo(_parent);
                 quickViewFrame.setIconImage(new ImageIcon(_parent.getClass().getResource("/images/smart_factory_logo_icon.png")).getImage());
                 quickViewFrame.setVisible(true);
+                System.gc();
             } catch (SQLException ex) {
                 ConnectDB.catchSQLException(ex);
             }
@@ -332,8 +346,8 @@ public class MainMenuPanel extends JPanel {
 
     public static void showDashBoard() {
         try {
-            MainFrame.actionLogOut();
-            _dashBoardFrame = new JFrame("Smartfactory Machines DashBoard");
+//            MainFrame.actionLogOut();
+            _dashBoardFrame = new JFrame("Smartfactory Machines Dashboard");
             _dashBoardFrame.setSize(1125, 700);
             _dashBoardFrame.setIconImage(_parent.getIconImage());
             DashBoard _dashBoard = new DashBoard(_parent, MainFrame.getDashBoardDate());
@@ -342,7 +356,8 @@ public class MainMenuPanel extends JPanel {
 
                 @Override
                 public void windowClosing(WindowEvent e) {
-                    Identification.getShowMainFrame().setVisible(true);
+                    _parent.setVisible(true);
+//                    Identification.getShowMainFrame().setVisible(true);
 //                    Identification.getShowMainFrame().revalidate();
 //                    ((DockableBarHolder) Identification.getShowMainFrame()).getDockableBarManager().updateComponentTreeUI();
 //                    ((DockableHolder) Identification.getShowMainFrame()).getDockingManager().updateComponentTreeUI();
@@ -350,8 +365,9 @@ public class MainMenuPanel extends JPanel {
                 }
             });
             _dashBoardFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-            _dashBoardFrame.setLocationRelativeTo(null);
+            _dashBoardFrame.setLocationRelativeTo(_parent);
             _dashBoardFrame.setVisible(true);
+            _dashBoard.checkAndLoadDataOnCurrentDay();
         } catch (Exception ex) {
             FileOutputStream fos = null;
             try {
@@ -384,9 +400,9 @@ public class MainMenuPanel extends JPanel {
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel5;
     // End of variables declaration//GEN-END:variables
-    private Date date;
+    private Date date = null;
     private final DocumentPane _documentPane;
-    private static MainFrame _parent;
-    private static JFrame _dashBoardFrame;
+    private static MainFrame _parent = null;
+    private static JFrame _dashBoardFrame = null;
     private ProductionPane productionPane = null;
 }

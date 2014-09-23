@@ -5,6 +5,7 @@ import com.jidesoft.dialog.ButtonEvent;
 import com.jidesoft.dialog.ButtonNames;
 import com.jidesoft.plaf.LookAndFeelFactory;
 import javax.swing.JOptionPane;
+import org.jdesktop.swingx.autocomplete.AutoCompleteDecorator;
 import setting.SettingKeyFactory;
 import smartfactoryV2.ConnectDB;
 
@@ -13,7 +14,8 @@ public class ThemePanel extends javax.swing.JPanel {
     public ThemePanel(AbstractDialogPage page) {
         this.page = page;
         initComponents();
-        setItemTheme(ConnectDB.pref.getInt(SettingKeyFactory.Theme.LOOKANDFEEL, LookAndFeelFactory.OFFICE2003_STYLE));
+        AutoCompleteDecorator.decorate(cmbTheme);
+        setItemTheme(ConnectDB.pref.getInt(SettingKeyFactory.Theme.LOOKANDFEEL, LookAndFeelFactory.XERTO_STYLE));
     }
 
     private void setItemTheme(int value) {
@@ -120,19 +122,20 @@ public class ThemePanel extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
 private void btnRestoreDefaultActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRestoreDefaultActionPerformed
-    if (JOptionPane.showConfirmDialog(this, "Would you like to restore default theme?", "Confirm", 0) == 0) {
+    if (JOptionPane.showConfirmDialog(this, "Would you like to restore default theme ?", "Confirm", 0) == 0) {
 //        MainFrame.actionTheme(LookAndFeelFactory.OFFICE2003_STYLE);
         start = false;
-        cmbTheme.setSelectedItem("Office 2003 Style");
+        cmbTheme.setSelectedItem("Xerto Style");
         start = true;
     }
 }//GEN-LAST:event_btnRestoreDefaultActionPerformed
 
-private void cmbThemeItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_cmbThemeItemStateChanged
-    if (start) {
-        page.fireButtonEvent(ButtonEvent.ENABLE_BUTTON, ButtonNames.APPLY);
-    }
-}//GEN-LAST:event_cmbThemeItemStateChanged
+    private void cmbThemeItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_cmbThemeItemStateChanged
+        if (start) {
+            page.fireButtonEvent(ButtonEvent.ENABLE_BUTTON, ButtonNames.APPLY);
+        }
+    }//GEN-LAST:event_cmbThemeItemStateChanged
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnRestoreDefault;
     public static javax.swing.JComboBox cmbTheme;
@@ -141,6 +144,6 @@ private void cmbThemeItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST
     private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
     // End of variables declaration//GEN-END:variables
-    AbstractDialogPage page;
-    boolean start;
+    private final AbstractDialogPage page;
+    private boolean start;
 }

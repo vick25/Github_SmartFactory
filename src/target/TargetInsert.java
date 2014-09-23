@@ -10,6 +10,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -24,6 +25,7 @@ import javax.swing.event.TableModelListener;
 import javax.swing.table.TableColumn;
 import setting.SettingKeyFactory;
 import smartfactoryV2.ConnectDB;
+import smartfactoryV2.Queries;
 import tableModel.TableModelTarget;
 
 /**
@@ -50,7 +52,7 @@ public class TargetInsert extends javax.swing.JDialog {
         initComponents();
         setTableTarget();
         loadTargetTable();
-        addWindowListener(new java.awt.event.WindowAdapter() {
+        this.addWindowListener(new java.awt.event.WindowAdapter() {
             @Override
             public void windowClosing(java.awt.event.WindowEvent e) {
                 btnCloseActionPerformed(null);
@@ -142,7 +144,8 @@ public class TargetInsert extends javax.swing.JDialog {
                     break;
             }
         }
-        setLocationRelativeTo(parent);
+        this.setLocationRelativeTo(parent);
+        this.setTitle(new StringBuilder("Machines Target Value (").append(ConnectDB.pref.get(SettingKeyFactory.DefaultProperties.TARGET_TIME_UNIT, lastTargetUnit)).append(")").toString());
     }
 
     @SuppressWarnings("unchecked")
@@ -305,24 +308,23 @@ public class TargetInsert extends javax.swing.JDialog {
         try {
             if (checkEmptyTable()) {
                 int machineID = ConnectDB.getIDMachine(_machine);
-                try (PreparedStatement ps = ConnectDB.con.prepareStatement("DELETE FROM timebreaks\n"
-                        + "WHERE HwNo =?;\n"
-                        + "SET @num := 0;\n"
-                        + "UPDATE timebreaks SET TimeBreaksNo= @num := (@num+1);\n"
+                try (PreparedStatement ps = ConnectDB.con.prepareStatement("DELETE FROM timebreaks \n"
+                        + "WHERE HwNo =?; \n"
+                        + "SET @num := 0; \n"
+                        + "UPDATE timebreaks SET TimeBreaksNo= @num := (@num+1); \n"
                         + "ALTER TABLE timebreaks AUTO_INCREMENT =1;")) {
                     ps.setInt(1, machineID);
                     ps.executeUpdate();
                 }
                 for (int i = 0; i < _tableTargetOption.getRowCount(); i++) {
-                    try (PreparedStatement ps = ConnectDB.con.prepareStatement("INSERT INTO timebreaks\n"
+                    try (PreparedStatement ps = ConnectDB.con.prepareStatement("INSERT INTO timebreaks \n"
                             + "VALUE (?,?,?,?,?)")) {
                         ps.setObject(1, null);
                         ps.setInt(2, machineID);
                         ps.setInt(3, getBreaksNameNo(_tableTargetOption.getValueAt(i, 3).toString()));
                         ps.setTime(4, new java.sql.Time(sdf.parse(sdf.format(_tableTargetOption.getValueAt(i, 1))).getTime()));
                         ps.setTime(5, new java.sql.Time(sdf.parse(sdf.format(_tableTargetOption.getValueAt(i, 2))).getTime()));
-                        int res = ps.executeUpdate();
-                        if (res == 1) {
+                        if (ps.executeUpdate() == 1) {
                             scrlTargetOptions.setViewportView(null);
                             tableTarget.removeRowSelectionInterval(0, tableTarget.getRowCount() - 1);
                             tableTarget.repaint();
@@ -332,29 +334,29 @@ public class TargetInsert extends javax.swing.JDialog {
                 String startTime = sdf.format(targetOptions.getDsStartTime().getModel().getValue()),
                         endTime = sdf.format(targetOptions.getDsEndTime().getModel().getValue());
                 if (checkMachineStartEndTimeExist(machineID)) {
-                    try (PreparedStatement ps = ConnectDB.con.prepareStatement("UPDATE startendtime\n"
-                            + "SET StartTime =?,\n"
-                            + "EndTime =?\n"
+                    try (PreparedStatement ps = ConnectDB.con.prepareStatement("UPDATE startendtime \n"
+                            + "SET StartTime =?, \n"
+                            + "EndTime =? \n"
                             + "WHERE HwNo =?")) {
                         ps.setTime(1, new java.sql.Time(sdf.parse(startTime).getTime()));
                         ps.setTime(2, new java.sql.Time(sdf.parse(endTime).getTime()));
                         ps.setInt(3, machineID);
-                        int res = ps.executeUpdate();
-                        if (res == 1) {
-                            System.out.println("successful");
-                        }
+                        ps.executeUpdate();
+//                        if (res == 1) {
+//                            System.out.println("successful");
+//                        }
                     }
                 } else {
-                    try (PreparedStatement ps = ConnectDB.con.prepareStatement("INSERT INTO startendtime\n"
+                    try (PreparedStatement ps = ConnectDB.con.prepareStatement("INSERT INTO startendtime \n"
                             + "VALUES (?,?,?,?)")) {
                         ps.setObject(1, null);
                         ps.setInt(2, machineID);
                         ps.setTime(3, new java.sql.Time(sdf.parse(startTime).getTime()));
                         ps.setTime(4, new java.sql.Time(sdf.parse(endTime).getTime()));
-                        int res = ps.executeUpdate();
-                        if (res == 1) {
-                            System.out.println("successful");
-                        }
+                        ps.executeUpdate();
+//                        if (res == 1) {
+//                            System.out.println("successful");
+//                        }
                     }
                 }
                 for (int i = 0; i < tableTarget.getRowCount(); i++) {
@@ -382,19 +384,19 @@ public class TargetInsert extends javax.swing.JDialog {
             byte res = 0;
             for (int row = 0; row < tableRow; row++) {
                 String machine = tableTarget.getValueAt(row, 1).toString();
-                try (PreparedStatement ps = ConnectDB.con.prepareStatement("INSERT INTO target\n"
+                try (PreparedStatement ps = ConnectDB.con.prepareStatement("INSERT INTO target \n"
                         + "VALUES (?,?,?,?)")) {
                     byte col = 4;//column start at 4 for the production values
                     double targetValue = 0d;
-                    for (ProductionType type : ProductionType.values()) {
-                        String query = "SELECT DISTINCT c.ConfigNo\n"
-                                + "FROM configuration c, hardware h\n"
-                                + "WHERE h.HwNo = c.HwNo\n"
-                                + "AND c.AvMinMax = '" + type.toString() + "'\n"
-                                + "AND h.Machine = '" + tableTarget.getValueAt(row, 1) + "'"
-                                + "AND c.Active = 1 ORDER BY h.HwNo ASC";
+                    for (ProductionTypeEnum type : ProductionTypeEnum.values()) {
                         int configNo = -1;
-                        try (PreparedStatement ps1 = ConnectDB.con.prepareStatement(query)) {
+                        try (PreparedStatement ps1 = ConnectDB.con.prepareStatement(new StringBuilder("SELECT "
+                                + "DISTINCT c.ConfigNo \n").append("FROM configuration c, hardware h \n"
+                                        + "WHERE h.HwNo = c.HwNo \n"
+                                        + "AND c.AvMinMax =? \n").append("AND h.Machine =? \n").
+                                append("AND c.Active = 1 ORDER BY h.HwNo ASC").toString())) {
+                            ps1.setString(1, type.toString());
+                            ps1.setObject(2, tableTarget.getValueAt(row, 1));
                             ConnectDB.res = ps1.executeQuery();
                             while (ConnectDB.res.next()) {
                                 configNo = ConnectDB.res.getInt(1);
@@ -411,8 +413,8 @@ public class TargetInsert extends javax.swing.JDialog {
                             res = (byte) ps.executeUpdate();
                             col++;
                         } else {//update
-                            try (PreparedStatement psUpdate = ConnectDB.con.prepareStatement("UPDATE target\n"
-                                    + "SET TargetValue =?\n"
+                            try (PreparedStatement psUpdate = ConnectDB.con.prepareStatement("UPDATE target \n"
+                                    + "SET TargetValue =? \n"
                                     + "WHERE TargetNo =?")) {
                                 if (!tableTarget.getValueAt(row, col).toString().isEmpty()) {
                                     targetValue = Double.valueOf(tableTarget.getValueAt(row, col).toString());
@@ -470,8 +472,7 @@ public class TargetInsert extends javax.swing.JDialog {
         }
         nbLine = 1;
         short n = 0;
-        try (PreparedStatement ps = ConnectDB.con.prepareStatement("SELECT Machine\n"
-                + "FROM hardware WHERE HwNo > ? ORDER BY HwNo ASC")) {
+        try (PreparedStatement ps = ConnectDB.con.prepareStatement(Queries.GET_HARDWARE)) {
             ps.setInt(1, 0);
             ConnectDB.res = ps.executeQuery();
             while (ConnectDB.res.next()) {
@@ -479,7 +480,7 @@ public class TargetInsert extends javax.swing.JDialog {
                     refModel.addNewRow();
                 }
                 tableTarget.setValueAt(nbLine, n, 0);
-                tableTarget.setValueAt(ConnectDB.res.getString(1), n, 1);
+                tableTarget.setValueAt(ConnectDB.res.getString(2), n, 1);
                 n++;
                 nbLine++;
             }
@@ -488,22 +489,18 @@ public class TargetInsert extends javax.swing.JDialog {
             tableRow = tableTarget.getModel().getRowCount();
             for (int i = 0; i < tableRow; i++) {
                 String machineName = tableTarget.getValueAt(i, 1).toString();
-                for (ProductionType type : ProductionType.values()) {
+                for (ProductionTypeEnum type : ProductionTypeEnum.values()) {
                     String _type = type.toString();
-                    String query = "SELECT DISTINCT c.ConfigNo\n"
-                            + "FROM configuration c, hardware h\n"
-                            + "WHERE h.HwNo = c.HwNo\n"
-                            + "AND c.AvMinMax = '" + _type + "'\n"
-                            + "AND h.Machine = '" + machineName + "'"
-                            + "AND c.Active = 1 ORDER BY h.HwNo ASC";
                     int configNo = -1;
-                    try (PreparedStatement ps = ConnectDB.con.prepareStatement(query)) {
+                    try (PreparedStatement ps = ConnectDB.con.prepareStatement(Queries.GET_CONFIGNO)) {
+                        ps.setString(1, _type);
+                        ps.setString(2, machineName);
                         ConnectDB.res = ps.executeQuery();
                         while (ConnectDB.res.next()) {
                             configNo = ConnectDB.res.getInt(1);
                         }
                     }
-                    query = "SELECT TargetValue FROM target WHERE ConfigNo =?";
+                    String query = "SELECT TargetValue FROM target WHERE ConfigNo =?";
                     try (PreparedStatement ps = ConnectDB.con.prepareStatement(query)) {
                         ps.setInt(1, configNo);
                         ConnectDB.res = ps.executeQuery();
@@ -515,7 +512,7 @@ public class TargetInsert extends javax.swing.JDialog {
                             }
                         }
                     }
-                    query = "SELECT StartTime, EndTime FROM startendtime\n"
+                    query = "SELECT StartTime, EndTime FROM startendtime \n"
                             + "WHERE HwNo =?";
                     try (PreparedStatement ps = ConnectDB.con.prepareStatement(query)) {
                         ps.setInt(1, ConnectDB.getIDMachine(machineName));
@@ -700,7 +697,7 @@ public class TargetInsert extends javax.swing.JDialog {
     }
 
     private int getBreaksNameNo(String breaksName) throws SQLException {
-        try (PreparedStatement ps = ConnectDB.con.prepareStatement("SELECT BreaksNo FROM breaks\n"
+        try (PreparedStatement ps = ConnectDB.con.prepareStatement("SELECT BreaksNo FROM breaks \n"
                 + "WHERE BreaksName =?")) {
             ps.setString(1, breaksName);
             ConnectDB.res = ps.executeQuery();
@@ -747,6 +744,7 @@ public class TargetInsert extends javax.swing.JDialog {
     private TargetOptions targetOptions;
     private String _machine;
     private String lastTargetUnit = "hour";
+    private ResultSet resultSet = null;
     private double[] cumulTargetValues, rateTargetValues;
     private final SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
     private static boolean anyChangeOccured, targetFound = true;

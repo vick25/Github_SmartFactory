@@ -24,7 +24,7 @@ public class AddBreakName extends javax.swing.JDialog {
         DocumentFilter filter = new UppercaseDocumentFilter();
 
         ((AbstractDocument) txtAddBreakName.getDocument()).setDocumentFilter(filter);
-        setLocationRelativeTo(paneParent);
+        this.setLocationRelativeTo(paneParent);
     }
 
     @SuppressWarnings("unchecked")
@@ -88,12 +88,10 @@ public class AddBreakName extends javax.swing.JDialog {
         try {
             breakName = ConnectDB.capitalLetter(txtAddBreakName.getText());
             if (!checkBreakNameExist(breakName)) {
-                String query = "INSERT INTO breaks VALUE (?,?)";
-                try (PreparedStatement ps = ConnectDB.con.prepareStatement(query)) {
+                try (PreparedStatement ps = ConnectDB.con.prepareStatement("INSERT INTO breaks VALUE (?,?)")) {
                     ps.setObject(1, null);
                     ps.setString(2, breakName);
-                    int res = ps.executeUpdate();
-                    if (res == 1) {
+                    if (ps.executeUpdate() == 1) {
                         this.dispose();
                     }
                 }
@@ -117,7 +115,7 @@ public class AddBreakName extends javax.swing.JDialog {
         return false;
     }
 
-    class UppercaseDocumentFilter extends DocumentFilter {
+    private class UppercaseDocumentFilter extends DocumentFilter {
 
         //
         // Override insertString method of DocumentFilter to make the text format

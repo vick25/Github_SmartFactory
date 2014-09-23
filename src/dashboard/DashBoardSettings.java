@@ -26,6 +26,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.sql.SQLException;
 import java.util.Properties;
 import java.util.logging.Level;
@@ -188,23 +190,18 @@ public class DashBoardSettings extends javax.swing.JDialog {
             public void itemStateChanged(ItemEvent e) {
                 if (e.getStateChange() == ItemEvent.SELECTED) {
                     if ("SOUTH".equals(e.getItem())) {
-                        _vertical = false;
+                        DashBoard.getColDashBoard().setVertical(false);
                         _tabbedPane.setPaletteSide(SwingConstants.SOUTH);
                     } else if ("NORTH".equals(e.getItem())) {
-                        _vertical = false;
+                        DashBoard.getColDashBoard().setVertical(false);
                         _tabbedPane.setPaletteSide(SwingConstants.NORTH);
                     } else if ("EAST".equals(e.getItem())) {
-                        _vertical = true;
+                        DashBoard.getColDashBoard().setVertical(true);
                         _tabbedPane.setPaletteSide(SwingConstants.EAST);
                     } else if ("WEST".equals(e.getItem())) {
-                        _vertical = true;
+                        DashBoard.getColDashBoard().setVertical(true);
                         _tabbedPane.setPaletteSide(SwingConstants.WEST);
                     }
-//                    if (_vertical) {
-//                       _tabbedPane palette.setButtonLayout(new GridLayout(0, 1));
-//                    } else {
-//                        palette.setButtonLayout(new GridLayout(1, 0));
-//                    }
                 }
             }
         });
@@ -229,13 +226,15 @@ public class DashBoardSettings extends javax.swing.JDialog {
                         }
                     };
                     chooser.setFileView(new ExampleFileView());
-//                    chooser.setCurrentDirectory(new File(_lastDirectory));
+                    _lastDirectory = ConnectDB.pref.get(SettingKeyFactory.General.DASHBOARD_FOLDER, ConnectDB.DEFAULT_DIRECTORY);
+                    chooser.setCurrentDirectory(new File(_lastDirectory));
                     chooser.setFileFilter(new FileNameExtensionFilter("XML files", "xml"));
                     chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
                     int result = chooser.showDialog(((JComponent) e.getSource()).getTopLevelAncestor(), "Save");
                     if (result == JFileChooser.APPROVE_OPTION) {
-//                        _lastDirectory = chooser.getCurrentDirectory().getAbsolutePath();
-                        DashboardPersistenceUtils.save(_tabbedPane, chooser.getSelectedFile().getAbsolutePath() + ".xml");
+                        ConnectDB.pref.put(SettingKeyFactory.General.DASHBOARD_FOLDER, chooser.getSelectedFile().getAbsolutePath());
+                        _lastDirectory = ConnectDB.pref.get(SettingKeyFactory.General.DASHBOARD_FOLDER, ConnectDB.DEFAULT_DIRECTORY);
+                        DashboardPersistenceUtils.save(_tabbedPane, _lastDirectory + ".xml");
                     }
                 } catch (ParserConfigurationException | IOException e1) {
                     e1.printStackTrace();
@@ -258,7 +257,8 @@ public class DashBoardSettings extends javax.swing.JDialog {
                         }
                     };
                     chooser.setFileView(new ExampleFileView());
-//                    chooser.setCurrentDirectory(new File(_lastDirectory));
+                    _lastDirectory = ConnectDB.pref.get(SettingKeyFactory.General.DASHBOARD_FOLDER, ConnectDB.DEFAULT_DIRECTORY);
+                    chooser.setCurrentDirectory(new File(_lastDirectory));
                     chooser.setFileFilter(new FileNameExtensionFilter("XML files", "xml"));
                     chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
                     int result = chooser.showDialog(((JComponent) e.getSource()).getTopLevelAncestor(), "Open");
@@ -266,8 +266,8 @@ public class DashBoardSettings extends javax.swing.JDialog {
 //                        _lastDirectory = chooser.getCurrentDirectory().getAbsolutePath();
                         DashboardPersistenceUtils.load(_tabbedPane, chooser.getSelectedFile().getAbsolutePath());
                     }
-                } catch (SAXException | ParserConfigurationException | IOException e1) {
-                    e1.printStackTrace();
+                } catch (SAXException | ParserConfigurationException | IOException ex) {
+                    ex.printStackTrace();
                 }
             }
         }));
@@ -373,7 +373,9 @@ public class DashBoardSettings extends javax.swing.JDialog {
         OutputStream out = null;
         File file = null;
         try {
-            file = new File(ConnectDB.WORKINGDIR + File.separator + "src\\resources\\smfProperties.properties");
+            URL resource = this.getClass().getClassLoader().getResource("resources/smfProperties.properties");
+            file = new File(resource.toURI());
+//            file = new File(ConnectDB.WORKINGDIR + File.separator + "src\\resources\\smfProperties.properties");
 //            file = new File(new File(ConnectDB.WORKINGDIR).getParentFile() + File.separator + "src\\resources\\smfProperties.properties");
 //            System.out.println(file.getCanonicalPath());
             if (file.exists()) {
@@ -383,7 +385,7 @@ public class DashBoardSettings extends javax.swing.JDialog {
             } else {
                 //Set default values
                 props.setProperty("running", "open");
-                props.setProperty("timetoquery", "5m");
+                props.setProperty("timetoquery", "1m");
                 props.setProperty("delay", "2s");
                 props.setProperty("ipAddress", "127.0.0.1");
                 file.createNewFile();
@@ -410,6 +412,8 @@ public class DashBoardSettings extends javax.swing.JDialog {
                     Logger.getLogger(MainMenuPanel.class.getName()).log(Level.SEVERE, null, ex1);
                 }
             }
+        } catch (URISyntaxException ex) {
+            Logger.getLogger(DashBoardSettings.class.getName()).log(Level.SEVERE, null, ex);
         } finally {
             if (out != null) {
                 try {
@@ -423,10 +427,11 @@ public class DashBoardSettings extends javax.swing.JDialog {
     }
 
     private void close() {
+        File temp = null;
         try {
             if (timeUpdated) {
                 try {
-                    File temp = File.createTempFile("dashBoard", ".xml");
+                    temp = File.createTempFile("dashBoard", ".xml");
                     DashboardPersistenceUtils.save(_tabbedPane, temp.getAbsolutePath());
                     this._parent.dispose();
                     try {
@@ -444,6 +449,8 @@ public class DashBoardSettings extends javax.swing.JDialog {
             }
             this.dispose();
         } catch (NullPointerException e) {
+            timeUpdated = false;
+            temp.deleteOnExit();
             this.dispose();
         }
     }
@@ -477,6 +484,6 @@ public class DashBoardSettings extends javax.swing.JDialog {
     private final DashboardTabbedPane _tabbedPane;
     private boolean _vertical;
     private static boolean timeUpdated = false;
-//    private static String _lastDirectory = ".";
+    private static String _lastDirectory = ".";
     private final JFrame _parent;
 }
