@@ -3,27 +3,37 @@ package productionPanelChartsPanel;
 import chartTypes.LineChart;
 import com.jidesoft.chart.Chart;
 import com.jidesoft.chart.Drawable;
+import com.jidesoft.chart.axis.Axis;
+import com.jidesoft.chart.event.ChartSelectionEvent;
 import com.jidesoft.chart.event.PointSelection;
+import com.jidesoft.chart.event.PointSelectionEvent;
+import com.jidesoft.chart.event.RectangleSelectionEvent;
+import com.jidesoft.chart.event.RubberBandZoomer;
+import com.jidesoft.chart.event.ZoomFrame;
+import com.jidesoft.chart.event.ZoomListener;
+import com.jidesoft.chart.event.ZoomOrientation;
 import com.jidesoft.chart.model.Chartable;
 import com.jidesoft.chart.model.DefaultChartModel;
 import com.jidesoft.chart.model.Highlightable;
+import com.jidesoft.range.CategoryRange;
+import com.jidesoft.range.NumericRange;
+import com.jidesoft.range.Range;
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.MouseInfo;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.awt.geom.Point2D;
-import javax.swing.JFrame;
-import javax.swing.SwingUtilities;
+import java.util.Stack;
 import javax.swing.Timer;
 import javax.swing.UIManager;
 import smartfactoryV2.ConnectDB;
@@ -47,11 +57,6 @@ public class ProductionRate extends javax.swing.JPanel {
 
             @Override
             public void mouseMoved(MouseEvent e) {
-                Component component = (Component) e.getSource();
-                //
-                // Returns the root component for the current component tree
-                //
-                JFrame frame = (JFrame) SwingUtilities.getRoot(component);
                 try {
                     Point p = e.getPoint();
                     PointSelection ps = chartPanel.nearestPoint(p, chartModel);
@@ -90,15 +95,16 @@ public class ProductionRate extends javax.swing.JPanel {
 
         if (this.chartPanel != null) {
             this.chartPanel.addMouseMotionListener(listener);
-            this.chartPanel.addMouseListener(new MouseAdapter() {
-
-                @Override
-                public void mouseClicked(MouseEvent e) {
-                    if (e.getClickCount() == 2) {
-                        System.out.println("chart clicked");
-                    }
-                }
-            });
+            setupRubberBandZoomer(this.chartPanel, this.chartPanel.getXAxis(), this.chartPanel.getYAxis());
+//            this.chartPanel.addMouseListener(new MouseAdapter() {
+//
+//                @Override
+//                public void mouseClicked(MouseEvent e) {
+//                    if (e.getClickCount() == 2) {
+//                        System.out.println("chart clicked");
+//                    }
+//                }
+//            });
             this.add(this.chartPanel, BorderLayout.CENTER);
         }
     }
@@ -113,6 +119,69 @@ public class ProductionRate extends javax.swing.JPanel {
 
         setLayout(new java.awt.BorderLayout());
     }// </editor-fold>//GEN-END:initComponents
+
+    private boolean mouseIsOverDisplayPanel() {
+        if (MouseInfo.getPointerInfo().getLocation().x >= this.getLocationOnScreen().x
+                && MouseInfo.getPointerInfo().getLocation().x <= this.getLocationOnScreen().x + this.getWidth()
+                && MouseInfo.getPointerInfo().getLocation().y >= this.getLocationOnScreen().y
+                && MouseInfo.getPointerInfo().getLocation().y <= this.getLocationOnScreen().y + this.getHeight()) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    private void setupRubberBandZoomer(final Chart chartToZoom, final Axis xAxis, final Axis yAxis) {
+        zoomStack = new Stack<>();
+        RubberBandZoomer rubberBand = new RubberBandZoomer(this.chartPanel);
+        rubberBand.setZoomOrientation(ZoomOrientation.BOTH);
+        rubberBand.setOutlineColor(Color.green);
+        rubberBand.setOutlineStroke(new BasicStroke(2f));
+        rubberBand.setFill(new Color(100, 128, 100, 50));
+        rubberBand.setKeepWidthHeightRatio(true);
+
+        chartToZoom.addDrawable(rubberBand);
+        chartToZoom.addMouseListener(rubberBand);
+        chartToZoom.addMouseMotionListener(rubberBand);
+
+        rubberBand.addZoomListener(new ZoomListener() {
+            @Override
+            public void zoomChanged(ChartSelectionEvent event) {
+                if (event instanceof RectangleSelectionEvent) {
+                    Range<?> currentXRange = chartToZoom.getXAxis().getOutputRange();
+                    Range<?> currentYRange = chartToZoom.getYAxis().getOutputRange();
+                    ZoomFrame frame = new ZoomFrame(currentXRange, currentYRange);
+                    zoomStack.push(frame);
+                    Rectangle selection = (Rectangle) event.getLocation();
+                    Point topLeft = selection.getLocation();
+                    //Point bottomRight = new Point(topLeft.x + selection.width, topLeft.y + selection.height);
+                    // Always select down to the x axis
+                    Point bottomRight = new Point(topLeft.x + selection.width, chartToZoom.getYStart());
+                    assert bottomRight.x >= topLeft.x;
+                    Point2D rp1 = chartToZoom.calculateUserPoint(topLeft);
+                    Point2D rp2 = chartToZoom.calculateUserPoint(bottomRight);
+                    if (rp1 != null && rp2 != null) {
+                        assert rp2.getX() >= rp1.getX() : rp2.getX() + " must be greater than or equal to " + rp1.getX();
+                        CategoryRange xRange = new CategoryRange((CategoryRange) currentXRange);
+                        xRange.setMinimum(rp1.getX());
+                        xRange.setMaximum(rp2.getX());
+                        assert rp1.getY() >= rp2.getY() : rp1.getY() + " must be greater than or equal to " + rp2.getY();
+                        Range<?> yRange = new NumericRange(rp2.getY(), rp1.getY());
+                        xAxis.setRange(xRange);
+                        yAxis.setRange(yRange);
+                    }
+                } else if (event instanceof PointSelectionEvent) {
+                    if (zoomStack.size() > 0) {
+                        ZoomFrame frame = zoomStack.pop();
+                        Range<?> xRange = frame.getXRange();
+                        Range<?> yRange = frame.getYRange();
+                        xAxis.setRange(xRange);
+                        yAxis.setRange(yRange);
+                    }
+                }
+            }
+        });
+    }
 
     private void moveToolTipTo(final Point targetLocation) {
         if (toolTipTimer != null && toolTipTimer.isRunning()) {
@@ -274,4 +343,5 @@ public class ProductionRate extends javax.swing.JPanel {
             TOOL_TIP_HEIGHT = 50,
             TOOLTIPXOFFSET = 20,
             TOOLTIPYOFFSET = -25;
+    private Stack<ZoomFrame> zoomStack = null;
 }

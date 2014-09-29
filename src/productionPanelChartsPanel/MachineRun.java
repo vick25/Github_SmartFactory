@@ -14,6 +14,7 @@ import com.jidesoft.chart.event.RectangleSelectionEvent;
 import com.jidesoft.chart.event.RubberBandZoomer;
 import com.jidesoft.chart.event.ZoomFrame;
 import com.jidesoft.chart.event.ZoomListener;
+import com.jidesoft.chart.event.ZoomOrientation;
 import com.jidesoft.chart.model.ChartCategory;
 import com.jidesoft.chart.model.ChartModel;
 import com.jidesoft.chart.model.ChartPoint;
@@ -24,6 +25,7 @@ import com.jidesoft.range.Category;
 import com.jidesoft.range.CategoryRange;
 import com.jidesoft.range.NumericRange;
 import com.jidesoft.range.Range;
+import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -170,7 +172,7 @@ public class MachineRun extends javax.swing.JPanel {
                 }
 
 //                Range<?> xRange = new NumericRange(xStart, xEnd);
-                final CategoryAxis xAxis = new CategoryAxis(categoryRange, "Time");
+                final CategoryAxis xAxis = new CategoryAxis(categoryRange, "Time Range");
                 xAxis.setTickLabelRotation(Math.PI / 16);
 //                 Axis xAxis = new Axis(xRange, "Time");
                 final Axis yAxis = new Axis(yCatAxis.getRange());
@@ -201,9 +203,15 @@ public class MachineRun extends javax.swing.JPanel {
                         Color.LIGHT_GRAY));
                 innerChart.setLabelColor(Color.BLACK);
 
+//                innerChart.addMouseWheelListener(new MouseWheelZoomer(innerChart));
+//                MouseDragPanner panner = new MouseDragPanner(innerChart);
+//                innerChart.addMouseListener(panner);
+//                innerChart.addMouseMotionListener(panner);
+                 zoomStack = new Stack<>();
                 RubberBandZoomer rubberBand = new RubberBandZoomer(innerChart);
-//            rubberBand.setOutlineColor(null);
-//            rubberBand.setOutlineStroke(new BasicStroke(1f));
+                rubberBand.setOutlineColor(Color.GREEN);
+                rubberBand.setOutlineStroke(new BasicStroke(2f));
+                rubberBand.setZoomOrientation(ZoomOrientation.BOTH);
                 rubberBand.setFill(new Color(128, 128, 128, 50));
                 rubberBand.setKeepWidthHeightRatio(true);
                 innerChart.addDrawable(rubberBand);
@@ -232,8 +240,9 @@ public class MachineRun extends javax.swing.JPanel {
                                     return;
                                 }
                                 assert rp2.getX() >= rp1.getX() : rp2.getX() + " must be greater than or equal to " + rp1.getX();
-                                Range<?> xRange = new CategoryRange(rp1.getX(), rp2.getX());
-//                                Range<?> xRange = new NumericRange(rp1.getX(), rp2.getX());
+                                CategoryRange xRange = new CategoryRange((CategoryRange) currentXRange);
+                                xRange.setMinimum(rp1.getX());
+                                xRange.setMaximum(rp2.getX());
                                 assert rp1.getY() >= rp2.getY() : rp1.getY() + " must be greater than or equal to " + rp2.getY();
                                 Range<?> yRange = new NumericRange(rp2.getY(), rp1.getY());
                                 xAxis.setRange(xRange);
@@ -298,8 +307,8 @@ public class MachineRun extends javax.swing.JPanel {
                     + "AND dl0.LogTime >=? AND dl0.LogTime <=? "
                     + "ORDER BY 'Time' ASC";
             frame.setSize(800, 500);
-            frame.setContentPane(new MachineRun(22, query, "", ConnectDB.SDATE_FORMAT_HOUR.parse("2014/08/15 09:37:46"),
-                    ConnectDB.SDATE_FORMAT_HOUR.parse("2014/09/02 09:37:46")));
+            frame.setContentPane(new MachineRun(22, query, "", ConnectDB.SDATE_FORMAT_HOUR.parse("2014/09/02 09:37:46"),
+                    ConnectDB.SDATE_FORMAT_HOUR.parse("2014/09/09 09:37:46")));
             frame.addWindowListener(new WindowAdapter() {
 
                 @Override
@@ -329,6 +338,6 @@ public class MachineRun extends javax.swing.JPanel {
     private static ArrayList<String> logTimeList;
 //    private static MouseDragPanner panner;
     private static ArrayList<Integer> logDataList;
-    private static final Stack<ZoomFrame> zoomStack = new Stack<>();
+    private static Stack<ZoomFrame> zoomStack;
     private static final Logger logger = Logger.getLogger(MachineRun.class.getName());
 }
