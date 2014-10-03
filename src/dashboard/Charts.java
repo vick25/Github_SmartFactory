@@ -257,7 +257,7 @@ public class Charts extends Chart {
         }
     }
 
-    private double calculateCurrentTarget(double target, String lastHourValue) throws SQLException, ParseException {
+    synchronized private double calculateCurrentTarget(double target, String lastHourValue) throws SQLException, ParseException {
         String PStart = "", Tcurrent = "";
         ResultSet resultSet;
         try (PreparedStatement ps = ConnectDB.con.prepareStatement(

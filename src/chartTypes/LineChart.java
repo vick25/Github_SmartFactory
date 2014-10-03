@@ -24,6 +24,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import javax.swing.JOptionPane;
 import javax.swing.border.EmptyBorder;
 import mainFrame.MainFrame;
 import productionPanel.ProductionPane;
@@ -94,6 +95,11 @@ public class LineChart extends Chart {
             chart.getXAxis().setTicksVisible(true);
 
             int maxNumber = ConnectDB.maxNumber(logDataList);
+            if (maxNumber <= 0) {
+                JOptionPane.showMessageDialog(chart, "The maximum value on the y-Axis is less than or egal to zero!!!\n"
+                        + "Please adjust the time period selections.", "Line chart", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
             NumericAxis yAxis = new NumericAxis(0, maxNumber + (int) ((maxNumber < 100 ? 0.35 : 0.08) * maxNumber));
             yAxis.setLabel(new AutoPositionedLabel(unit, Color.BLACK));
             chart.setYAxis(yAxis);
@@ -115,7 +121,8 @@ public class LineChart extends Chart {
             MouseWheelZoomer zoomer = new MouseWheelZoomer(chart, true, false);
             zoomer.setZoomLocation(ZoomLocation.MOUSE_CURSOR);
             chart.addMouseWheelListener(zoomer);
-            //Creating the chart model
+
+            /*Creating the chart model*/
             chart.addModel(createModel(), style);
 //            chart.setPanelBackground(new Color(153, 153, 153));
             chart.setChartBackground(new GradientPaint(0f, 0f, Color.LIGHT_GRAY.brighter(), 300f, 300f,

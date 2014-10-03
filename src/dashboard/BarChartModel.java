@@ -189,7 +189,8 @@ public class BarChartModel extends DefaultChartModel implements CumulativeSubrac
              */
             while (ConnectDB.res.next()) {
                 _loopQueryFound = true;
-                logDateHourList.add(ConnectDB.res.getString(1).substring(0, 13));//LogTime only Date and Hour
+                String logDateHour = ConnectDB.res.getString(1);
+                logDateHourList.add(logDateHour.substring(0, 13));//LogTime only Date and Hour
                 datalogValuesList.add(ConnectDB.res.getString(2));//LogData
             }
             ps.close();
@@ -254,32 +255,50 @@ public class BarChartModel extends DefaultChartModel implements CumulativeSubrac
                 }
                 continue;
             }
+            int sum = 0;
             xDiff = Integer.parseInt(alValues.get(i)) - Integer.parseInt(alValues.get(i - 1));
-            if (xDiff < 0) {//Case the difference is a negative value
+            if (xDiff < 0) {//Case where the value is negative (rollover)
                 xDiff = 1000000 - Integer.parseInt(alValues.get(i - 1)) + Integer.parseInt(alValues.get(i));
-            }
-
-            try {
-                int totVal = Integer.parseInt(alValues.get(i)),
-                        totValNext = Integer.parseInt(alValues.get(i + 1)),
-                        rateVal = (int) Double.parseDouble(prodRateArrayList.get(i));
-                //Case where the cumulative values are not consecutive by the addition of the production rate number
-                if ((totVal + rateVal != totValNext) || (totVal + rateVal + 1 != totValNext)) {
-                    // Not sequential
-                    xDiff = rateVal;
+            } else if (xDiff > 500) {
+                byte rollback = 5;
+                int yr = i;
+                while (rollback > 5) {
+                    System.out.println("jump over value recorded");
+                    try {
+                        sum += (int) Double.parseDouble(prodRateArrayList.get(yr));
+                        yr--;
+                        rollback--;
+                    } catch (IndexOutOfBoundsException e) {
+                        break;
+                    }
                 }
-            } catch (IndexOutOfBoundsException e) {
-                xDiff = (int) Double.parseDouble(prodRateArrayList.get(i - 1));
+                xDiff = sum / rollback;
             }
 
+//            try {
+//                int cumulVal = Integer.parseInt(alValues.get(i - 1)),
+//                        nextCumulVal = Integer.parseInt(alValues.get(i)),
+//                        rateVal = (int) Double.parseDouble(prodRateArrayList.get(i + 1));
+//                //Case where the cumulative values are not sequential by adding the production rate number
+//                if ((cumulVal + rateVal + 1 == nextCumulVal) || (cumulVal + rateVal == nextCumulVal)
+//                        || (cumulVal + rateVal + 2 == nextCumulVal)) {
+//                    xDiff = Integer.parseInt(alValues.get(i)) - Integer.parseInt(alValues.get(i - 1));
+//                    if (xDiff < 0) {//Case where the value is negative
+//                        xDiff = 1000000 - Integer.parseInt(alValues.get(i - 1)) + Integer.parseInt(alValues.get(i));
+//                    }
+//                } else {// Not sequential
+//                    xDiff = rateVal;
+//                }
+////                System.out.println(cumulVal + " -- " + nextCumulVal + " -- " + rateVal + " --- " + xDiff);
+//            } catch (IndexOutOfBoundsException e) {
+//                xDiff = (int) Double.parseDouble(prodRateArrayList.get(i - 1));
+//            }
             if (x == 1) {//Third shift and next day
                 subtractedDatalogValues.add(new StringBuilder().append(logDateHourList.get(++countAlValues)).append(";").append(xDiff).toString());
             } else {//Same day
                 subtractedDatalogValues.add(new StringBuilder().append(logDateHourList.get(i)).append(";").append(xDiff).toString());
             }
         }
-//        int[] test = new int[]{1, 2, 3};
-//        Arrays.sort(test);
     }
 
     private void runQueryShift(byte x, String query, int configNo) throws SQLException {

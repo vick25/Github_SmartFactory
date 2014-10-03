@@ -4,11 +4,19 @@ import com.jidesoft.chart.BarResizePolicy;
 import com.jidesoft.chart.Chart;
 import com.jidesoft.chart.PointShape;
 import com.jidesoft.chart.annotation.AutoPositionedLabel;
+import com.jidesoft.chart.axis.Axis;
 import com.jidesoft.chart.axis.CategoryAxis;
 import com.jidesoft.chart.axis.NumericAxis;
+import com.jidesoft.chart.event.ChartSelectionEvent;
 import com.jidesoft.chart.event.MouseWheelZoomer;
 import com.jidesoft.chart.event.PointDescriptor;
+import com.jidesoft.chart.event.PointSelectionEvent;
+import com.jidesoft.chart.event.RectangleSelectionEvent;
+import com.jidesoft.chart.event.RubberBandZoomer;
+import com.jidesoft.chart.event.ZoomFrame;
+import com.jidesoft.chart.event.ZoomListener;
 import com.jidesoft.chart.event.ZoomLocation;
+import com.jidesoft.chart.event.ZoomOrientation;
 import com.jidesoft.chart.model.ChartCategory;
 import com.jidesoft.chart.model.ChartModel;
 import com.jidesoft.chart.model.ChartPoint;
@@ -24,8 +32,11 @@ import com.jidesoft.chart.style.LabelStyle;
 import com.jidesoft.chart.util.ColorFactory;
 import com.jidesoft.range.Category;
 import com.jidesoft.range.CategoryRange;
+import com.jidesoft.range.NumericRange;
 import com.jidesoft.range.Positionable;
+import com.jidesoft.range.Range;
 import eventsPanel.StatKeyFactory;
+import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -33,10 +44,12 @@ import java.awt.GradientPaint;
 import java.awt.HeadlessException;
 import java.awt.MouseInfo;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.geom.Point2D;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.sql.PreparedStatement;
@@ -49,6 +62,7 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Stack;
 import java.util.TreeSet;
 import javax.swing.ImageIcon;
 import javax.swing.JDialog;
@@ -87,11 +101,15 @@ public class BarChart extends Chart implements CumulativeSubractedValues {
     }
 
     public DefaultChartModel getModelPoints() {
+//        return (DefaultChartModel) getChart().getModel();
         return modelPoints;
     }
 
     public List getDateWithShiftsList() {
-        return Collections.unmodifiableList(dateWithShiftsList);
+        if (dateWithShiftsList != null) {
+            return Collections.unmodifiableList(dateWithShiftsList);
+        }
+        return null;
     }
 
     public void setDateWithShiftsList(List dateWithShiftsList) {
@@ -109,20 +127,14 @@ public class BarChart extends Chart implements CumulativeSubractedValues {
         this.machineTitle = myMachineTitle;
         this._startD = myStartDate;
         this._endD = myEndDate;
-        if (chart == null) {
-            chart = new Chart("Total");
-        }
-        chart.removeAll();
+        clearChart(); // wax old chart data first.
+        chart = new Chart("Total");
         range = new CategoryRange<>();
         maxValue.clear();
         alDateHour.clear();
         alValues.clear();
         flagLogTime.clear();
-//        modelPoints = new DefaultChartModel(ConnectDB.SDATE_FORMAT_HOUR.format(Production.dt_startP)
-//                + " - " + ConnectDB.SDATE_FORMAT_HOUR.format(Production.dt_endP));
-        if (modelPoints != null) {
-            modelPoints.clearPoints();
-        }
+
         //SQL query
         PreparedStatement ps = ConnectDB.con.prepareStatement(myQuery);
         ps.setInt(1, myConfigNo);
@@ -145,7 +157,7 @@ public class BarChart extends Chart implements CumulativeSubractedValues {
                 Category cShifts = new ChartCategory(dateWithShiftsList.get(q), range);
                 range.add(cShifts);
             }
-            StringBuilder queryShiftBuilder = new StringBuilder();
+            StringBuilder queryShiftBuilder;
 //            String queryShift;
             //case with shifts
             sumHourValues = new String[ProductionPane.getTableOfTime().getRowCount()][dateWithShiftsList.size()];
@@ -171,8 +183,7 @@ public class BarChart extends Chart implements CumulativeSubractedValues {
                                             + ProductionPane.getTableOfTime().getValueAt(j, 2).toString() + ":00";
                                 }
                             }
-                            queryShiftBuilder.setLength(0);
-                            queryShiftBuilder.append(myQuery.substring(0, myQuery.indexOf("ORDER")).trim()).
+                            queryShiftBuilder = new StringBuilder().append(myQuery.substring(0, myQuery.indexOf("ORDER")).trim()).
                                     append(" AND (d.LogTime BETWEEN '").append(fVal).append("' AND '").
                                     append(sVal).append("') \n ORDER BY 'Time' ASC");
                             alValues.clear();
@@ -190,8 +201,7 @@ public class BarChart extends Chart implements CumulativeSubractedValues {
                                 + ProductionPane.getTableOfTime().getValueAt(j, 1).toString() + ":00";
                         sVal = dateWithShiftsList.get(k).toString() + " "
                                 + ProductionPane.getTableOfTime().getValueAt(j, 2).toString() + ":00";
-                        queryShiftBuilder.setLength(0);
-                        queryShiftBuilder.append(myQuery.substring(0, myQuery.indexOf("ORDER")).trim()).
+                        queryShiftBuilder = new StringBuilder().append(myQuery.substring(0, myQuery.indexOf("ORDER")).trim()).
                                 append("\nAND (d.LogTime BETWEEN '").append(fVal).append("' AND '").
                                 append(sVal).append("')\n ORDER BY 'Time' ASC");
                         runQueryShift((byte) -1, queryShiftBuilder.toString(), myConfigNo, myStartDate, myEndDate);
@@ -347,7 +357,7 @@ public class BarChart extends Chart implements CumulativeSubractedValues {
                 yAxis.setLabel(new AutoPositionedLabel("Total/hrs", Color.BLACK));
                 ChartStyle style;
                 if (countBar > 25) {//lines
-                    JOptionPane.showMessageDialog(chart, "Too much bars of hours. Switching to a line chart.",
+                    JOptionPane.showMessageDialog(chart, "Too much data points for a bar plot. Switching to a line chart.",
                             "Chart", JOptionPane.INFORMATION_MESSAGE);
                     DefaultPointRenderer pointRenderer = new DefaultPointRenderer();
                     pointRenderer.setAlwaysShowOutlines(true);
@@ -362,7 +372,7 @@ public class BarChart extends Chart implements CumulativeSubractedValues {
                     style = new ChartStyle(new Color(0, 75, 190), true, true);
                     style.setLineFill(new Color(0, 75, 190, 75));
                     style.setLineWidth(3);
-                    style.setPointSize(7);
+                    style.setPointSize(13);
                     style.setPointShape(PointShape.BOX);
                     ChartStyle selectionStyle = new ChartStyle(style);
                     selectionStyle.setPointSize(15);
@@ -439,6 +449,7 @@ public class BarChart extends Chart implements CumulativeSubractedValues {
                 chart.setVerticalGridLinesVisible(false);
                 chart.setStyle(modelPoints, style);
             }
+            setupRubberBandZoomer(this.chart, this.chart.getXAxis(), this.chart.getYAxis());
             chart.getYAxis().setTicksVisible(true);
             chart.getYAxis().setVisible(true);
             chart.setYAxis(yAxis);
@@ -474,7 +485,7 @@ public class BarChart extends Chart implements CumulativeSubractedValues {
                                                 chartable.getY().position());
                                     }
                                     chart.setToolTipText(toolTipText);
-                                } catch (HeadlessException e1) {
+                                } catch (NullPointerException | HeadlessException e1) {
                                 }
                             } else {
                                 int xPos = (int) chartable.getX().position() - 1;
@@ -496,6 +507,64 @@ public class BarChart extends Chart implements CumulativeSubractedValues {
         }
     }
 
+    private void clearChart() {
+        if (chart == null) {
+            return;
+        }
+        getModelPoints().clearPoints();
+    }
+
+    private void setupRubberBandZoomer(final Chart chartToZoom, final Axis xAxis, final Axis yAxis) {
+        zoomStack = new Stack<>();
+        RubberBandZoomer rubberBand = new RubberBandZoomer(chartToZoom);
+        rubberBand.setZoomOrientation(ZoomOrientation.BOTH);
+        rubberBand.setOutlineColor(Color.green);
+        rubberBand.setOutlineStroke(new BasicStroke(2f));
+        rubberBand.setFill(new Color(100, 128, 100, 50));
+        rubberBand.setKeepWidthHeightRatio(true);
+
+        chartToZoom.addDrawable(rubberBand);
+        chartToZoom.addMouseListener(rubberBand);
+        chartToZoom.addMouseMotionListener(rubberBand);
+
+        rubberBand.addZoomListener(new ZoomListener() {
+            @Override
+            public void zoomChanged(ChartSelectionEvent event) {
+                if (event instanceof RectangleSelectionEvent) {
+                    Range<?> currentXRange = chartToZoom.getXAxis().getOutputRange();
+                    Range<?> currentYRange = chartToZoom.getYAxis().getOutputRange();
+                    ZoomFrame frame = new ZoomFrame(currentXRange, currentYRange);
+                    zoomStack.push(frame);
+                    Rectangle selection = (Rectangle) event.getLocation();
+                    Point topLeft = selection.getLocation();
+                    //Point bottomRight = new Point(topLeft.x + selection.width, topLeft.y + selection.height);
+                    // Always select down to the x axis
+                    Point bottomRight = new Point(topLeft.x + selection.width, chartToZoom.getYStart());
+                    assert bottomRight.x >= topLeft.x;
+                    Point2D rp1 = chartToZoom.calculateUserPoint(topLeft);
+                    Point2D rp2 = chartToZoom.calculateUserPoint(bottomRight);
+                    if (rp1 != null && rp2 != null) {
+                        assert rp2.getX() >= rp1.getX() : rp2.getX() + " must be greater than or equal to " + rp1.getX();
+                        CategoryRange xRange = new CategoryRange((CategoryRange) currentXRange);
+                        xRange.setMinimum(rp1.getX());
+                        xRange.setMaximum(rp2.getX());
+                        assert rp1.getY() >= rp2.getY() : rp1.getY() + " must be greater than or equal to " + rp2.getY();
+                        Range<?> yRange = new NumericRange(rp2.getY(), rp1.getY());
+                        xAxis.setRange(xRange);
+                        yAxis.setRange(yRange);
+                    }
+                } else if (event instanceof PointSelectionEvent) {
+                    if (zoomStack.size() > 0) {
+                        ZoomFrame frame = zoomStack.pop();
+                        Range<?> xRange = frame.getXRange();
+                        Range<?> yRange = frame.getYRange();
+                        xAxis.setRange(xRange);
+                        yAxis.setRange(yRange);
+                    }
+                }
+            }
+        });
+    }
     @Override
     public void getSubtractedValues(byte x, ArrayList<String> alValues) throws SQLException {
         ArrayList<String> prodRateArrayList = getProductionRate();
@@ -514,24 +583,43 @@ public class BarChart extends Chart implements CumulativeSubractedValues {
                 }
                 continue;
             }
+            int sum = 0;
             xDiff = Integer.parseInt(alValues.get(i)) - Integer.parseInt(alValues.get(i - 1));
-            if (xDiff < 0) {//Case where the value is negative
+            if (xDiff < 0) {//Case where the value is negative (rollover)
                 xDiff = 1000000 - Integer.parseInt(alValues.get(i - 1)) + Integer.parseInt(alValues.get(i));
-            }
-
-            try {
-                int totVal = Integer.parseInt(alValues.get(i)),
-                        totValNext = Integer.parseInt(alValues.get(i + 1)),
-                        rateVal = (int) Double.parseDouble(prodRateArrayList.get(i));
-                //Case where the cumulative values are not consecutive by the addition of the production rate number
-                if ((totVal + rateVal != totValNext) || (totVal + rateVal + 1 != totValNext)) {
-                    // Not sequential
-                    xDiff = rateVal;
+            } else if (xDiff > 500) {
+                byte rollback = 5;
+                int yr = i;
+                while (rollback > 5) {
+                    System.out.println("jump over value recorded");
+                    try {
+                        sum += (int) Double.parseDouble(prodRateArrayList.get(yr));
+                        yr--;
+                        rollback--;
+                    } catch (IndexOutOfBoundsException e) {
+                        break;
+                    }
                 }
-            } catch (IndexOutOfBoundsException e) {
-                xDiff = (int) Double.parseDouble(prodRateArrayList.get(i - 1));
+                xDiff = sum / rollback;
             }
-
+//            try {
+//                int cumulVal = Integer.parseInt(alValues.get(i - 1)),
+//                        nextCumulVal = Integer.parseInt(alValues.get(i)),
+//                        rateVal = (int) Double.parseDouble(prodRateArrayList.get(i + 1));
+//                //Case where the cumulative values are not sequential by adding the production rate number
+//                if ((cumulVal + rateVal + 1 == nextCumulVal) || (cumulVal + rateVal == nextCumulVal)
+//                        || (cumulVal + rateVal + 2 == nextCumulVal)) {
+//                    xDiff = Integer.parseInt(alValues.get(i)) - Integer.parseInt(alValues.get(i - 1));
+//                    if (xDiff < 0) {//Case where the value is negative
+//                        xDiff = 1000000 - Integer.parseInt(alValues.get(i - 1)) + Integer.parseInt(alValues.get(i));
+//                    }
+//                } else {// Not sequential
+//                    xDiff = rateVal;
+//                }
+////                System.out.println(cumulVal + " -- " + nextCumulVal + " -- " + rateVal + " --- " + xDiff);
+//            } catch (IndexOutOfBoundsException e) {
+//                xDiff = (int) Double.parseDouble(prodRateArrayList.get(i - 1));
+//            }
             if (x == 1) {//Third shift and next day
                 subtractValues.add(new StringBuilder().append(alDateHour.get(++countAlValues)).append(";").append(xDiff).toString());
             } else {//Same day
@@ -648,8 +736,8 @@ public class BarChart extends Chart implements CumulativeSubractedValues {
                                     new ImageIcon(getClass().getResource("/images/icons/light_on.png")));
                             ProductionPane.btnMessage.setToolTipText(countFlag + " flag(s) raised.");
                         }
-                    } catch (ParseException ex) {
-                        ex.printStackTrace();
+                    } catch (ParseException | NumberFormatException ex) {
+//                        ex.printStackTrace();
                     }
                 }
                 if (showFlagUI) {
@@ -706,4 +794,5 @@ public class BarChart extends Chart implements CumulativeSubractedValues {
     private Chart chart;
     public Timer makeItBlink;
     private JDialog hourlyRecordsDialog;
+    private Stack<ZoomFrame> zoomStack = null;
 }

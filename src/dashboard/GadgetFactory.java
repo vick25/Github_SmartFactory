@@ -23,7 +23,7 @@ public class GadgetFactory {
     private GadgetFactory() {
     }
 
-    public static JComponent createChart(int[] myConfigNo, String myMachineTitle, Date myDashBoardStartDate)
+    synchronized public static JComponent createChart(int[] myConfigNo, String myMachineTitle, Date myDashBoardStartDate)
             throws SQLException, ParseException {
         if (DashBoard.isShowTotalProd()) {
             //create the cumulative bar chart

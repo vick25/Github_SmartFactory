@@ -241,7 +241,7 @@ public class CollapsiblePaneDashboard extends TimerTask {
                             final short cumulativeConfigNo = (short) getMachineConfigNo(getKey())[0];
                             if (cumulativeConfigNo > 0) {
                                 /** setGadgetComponentPane method for the content pane of the gadget */
-                                DashBoard.bslTime.setText(removeHtmlTag(getKey()) + " chart loaded.");
+                                DashBoard.bslTime.setText(removeHtmlTag(getKey()) + "'s chart loading.");
                                 //Create gadget -- important
                                 setGadgetComponentPane(getMachineConfigNo(getKey()), removeHtmlTag(getKey()), gadget);
                                 /**/
@@ -328,8 +328,9 @@ public class CollapsiblePaneDashboard extends TimerTask {
 
     /* Main method setGadgetComponenPane to create gadget corresponding chart by calling the static method
      createChart of the GadgetFactory class */
-    public void setGadgetComponentPane(int[] configNo, String keyMachineName, CollapsiblePaneGadget gadget)
+    synchronized public void setGadgetComponentPane(int[] configNo, String keyMachineName, CollapsiblePaneGadget gadget)
             throws SQLException, ParseException {
+        machineLoaded = false;
         JComponent gadgetComponentPane = gadget.getContentPane();
         gadgetComponentPane.removeAll();
         gadgetComponentPane.setPreferredSize(new Dimension(200, 300));
@@ -346,11 +347,15 @@ public class CollapsiblePaneDashboard extends TimerTask {
             gadget.repaint();
             mapMach.put(removeHtmlTag(keyMachineName), gadget);
         }
+        DashBoard.bslTime.setText(new StringBuilder().append("Scheduler of ").append(Constants.timetoquery).
+                append(" is running to refresh the chart(s) if any is shown...").toString());
+        machineLoaded = true;
     }
 
     @Override
     public void run() {
-        if (mapMach.size() > 0) {
+        if (mapMach.size() > 0 && machineLoaded) {
+            machineLoaded = false;
             Set<String> keySet = mapMach.keySet();
             Iterator<String> keySetIterator = keySet.iterator();
             while (keySetIterator.hasNext()) {
@@ -361,26 +366,25 @@ public class CollapsiblePaneDashboard extends TimerTask {
                     int[] configNo = getMachineConfigNo(key);
                     CollapsiblePaneGadget value = mapMach.get(key);
                     DashBoard.bslTime.setText("Updating " + key + " in a while.");
-                    try {
-                        Thread.sleep(500);
-                    } catch (InterruptedException ex) {
-                    }
+//                    try {
+//                        Thread.sleep(500);
+//                    } catch (InterruptedException ex) {
+//                    }
                     setGadgetComponentPane(configNo, key, value);//set the gadget component pane with a chart
-                    _tabbedPane.revalidate();
-                    _tabbedPane.repaint();
+//                    _tabbedPane.revalidate();
+//                    _tabbedPane.repaint();
                 } catch (SQLException ex) {
                     ConnectDB.catchSQLException(ex);
                 } catch (ParseException ex) {
                     ex.printStackTrace();
                 }
-                DashBoard.bslTime.setText(new StringBuilder().append("Scheduler of ").append(Constants.timetoquery).
-                        append(" is running to refresh the chart(s) if any is shown...").toString());
             }
+            machineLoaded = true;
         }
     }
 
     private DashboardTabbedPane _tabbedPane;
-    private boolean _vertical = false;
+    private boolean _vertical = false, machineLoaded = false;
     private final ArrayList<Machine> _machines;
     private GadgetManager manager;
     private List<AbstractGadget> gadgetList;

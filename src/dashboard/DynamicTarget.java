@@ -75,7 +75,7 @@ public class DynamicTarget {
         }
     }
 
-    private double calculateProdTargetFraction(double fraction, String targetTimeUnit) throws SQLException {
+    synchronized private double calculateProdTargetFraction(double fraction, String targetTimeUnit) throws SQLException {
         double prodTargetFraction = 0;
         targetValue = ConnectDB.getMachineTarget(_machineName, "Cumulative");
         if (null != targetTimeUnit) {
