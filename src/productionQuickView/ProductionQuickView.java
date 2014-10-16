@@ -17,6 +17,7 @@ import com.jidesoft.swing.SearchableUtils;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.Desktop;
 import java.awt.Font;
 import java.awt.Graphics;
@@ -60,9 +61,8 @@ import javax.swing.Timer;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.text.Position;
 import setting.SettingKeyFactory;
 import smartfactoryV2.ConnectDB;
 import smartfactoryV2.Queries;
@@ -89,6 +89,7 @@ public class ProductionQuickView extends javax.swing.JPanel {
         ball = new Ball(this);
         initComponents();
         this.autoFill("cumulative");//Fill the checkboxlist with machines
+        this.changeTargetLabel();
         this.setDateComponent();
         bslQuickView.setHorizontalAlignment(javax.swing.SwingConstants.LEADING);
         bslQuickView.setForeground(Color.GRAY);
@@ -153,53 +154,79 @@ public class ProductionQuickView extends javax.swing.JPanel {
                 }
             }
         });
-        cblMachine.getCheckBoxListSelectionModel().addListSelectionListener(new ListSelectionListener() {
-
-            @Override
-            public void valueChanged(final ListSelectionEvent e) {
-                if (!e.getValueIsAdjusting()) {
-                    Thread worker = new Thread() {
-                        @Override
-                        public void run() {
-                            if (catCreateTab) {
-                                SwingUtilities.invokeLater(new Runnable() {
-
-                                    @Override
-                                    public void run() {
-                                        try {
-                                            runListSelection();
-                                        } catch (SQLException ex) {
-                                            ConnectDB.catchSQLException(ex);
-                                        }
-                                    }
-                                });
-                            }
-                        }
-                    };
-                    worker.start();
-                }
-            }
-        });
+//        cblMachine.getCheckBoxListSelectionModel().addListSelectionListener(new ListSelectionListener() {
+//
+//            @Override
+//            public void valueChanged(final ListSelectionEvent e) {
+//                if (!e.getValueIsAdjusting()) {
+//                    Thread.currentThread().setPriority(Thread.NORM_PRIORITY + 3);
+////                    System.out.println(Thread.currentThread().getPriority());
+//                    Thread worker = new Thread() {
+//                        @Override
+//                        public void run() {
+//                            if (catCreateTab) {
+//                                SwingUtilities.invokeLater(new Runnable() {
+//
+//                                    @Override
+//                                    public void run() {
+////                                        boolean nextLevel = true;
+//                                        try {
+////                                            if (fillTableThread != null) {
+////                                                while (fillTableThread.isAlive()) {
+//////                                                    nextLevel = false;
+//////                                                    fillTableThread = null;
+//////                                                    try {
+//////                                                        fillTableThread.interrupt();
+//////                                                        fillTableThread.join(100);
+//                                            bslQuickView.setVisible(true);
+//                                            bslQuickView.setBusy(true);
+//                                            bslQuickView.setText("Waiting for the current thread to finish");
+//////                                                    } catch (InterruptedException ex) {
+//////                                                        Logger.getLogger(ProductionQuickView.class.getName()).log(Level.SEVERE, null, ex);
+//////                                                    }
+////                                                }
+//////                                                nextLevel = true;
+////                                            }
+////                                            System.out.println(nextLevel);
+////                                            if (nextLevel) {
+//                                            runListSelection();
+////                                            }
+//                                        } catch (SQLException ex) {
+//                                            ConnectDB.catchSQLException(ex);
+//                                        }
+//                                    }
+//                                });
+//                            }
+//                        }
+//                    };
+////                    worker.start();
+////                    System.out.println("worker started");
+//                }
+//            }
+//        });
         Timer time = new Timer(100, new ActionListener() {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                int[] selected = cblMachine.getCheckBoxListSelectedIndices();
-                SortableTable _sortableTable = null;
-                if (selected.length <= 0) {
-                    btnExportExcelCsv.setEnabled(false);
-                    bslQuickView.setVisible(false);
-                    try {
-                        if (!btnProductionRate.isEnabled()) {
-                            _sortableTable = ProductionQuickView.tableRate;
-                        } else if (!btnTotalProduction.isEnabled()) {
-                            _sortableTable = ProductionQuickView.tableTotal;
+                try {
+                    int[] selected = cblMachine.getCheckBoxListSelectedIndices();
+                    SortableTable _sortableTable = null;
+                    if (selected.length <= 0) {
+                        btnExportExcelCsv.setEnabled(false);
+                        bslQuickView.setVisible(false);
+                        try {
+                            if (!btnProductionRate.isEnabled()) {
+                                _sortableTable = ProductionQuickView.tableRate;
+                            } else if (!btnTotalProduction.isEnabled()) {
+                                _sortableTable = ProductionQuickView.tableTotal;
+                            }
+                            cleanTable(_sortableTable);
+                        } catch (Exception ex) {
                         }
-                        cleanTable(_sortableTable);
-                    } catch (Exception ex) {
+                    } else {
+                        btnExportExcelCsv.setEnabled(true);
                     }
-                } else {
-                    btnExportExcelCsv.setEnabled(true);
+                } catch (IndexOutOfBoundsException ex) {
                 }
             }
         });
@@ -213,7 +240,7 @@ public class ProductionQuickView extends javax.swing.JPanel {
 
         buttonGroup1 = new javax.swing.ButtonGroup();
         jToolBar1 = new javax.swing.JToolBar();
-        btnLoadMachines = new javax.swing.JButton();
+        btnLoadTargetMachines = new javax.swing.JButton();
         btnTarget = new javax.swing.JButton();
         jSeparator1 = new javax.swing.JToolBar.Separator();
         btnProductionRate = new javax.swing.JButton();
@@ -223,363 +250,373 @@ public class ProductionQuickView extends javax.swing.JPanel {
         btnRefreshTable = new javax.swing.JButton();
         jPanel1 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        cblMachine = new com.jidesoft.swing.CheckBoxList();
-        lblMachine = new javax.swing.JLabel();
-        btnRefreshMachine = new com.jidesoft.swing.JideButton();
-        panProductionsOptions = new javax.swing.JPanel();
-        cmbDay = new com.jidesoft.combobox.DateSpinnerComboBox();
-        lblProduction = new javax.swing.JLabel();
-        chkDay = new javax.swing.JCheckBox();
-        lblMessage = new javax.swing.JLabel();
-        bslQuickView = new org.jdesktop.swingx.JXBusyLabel();
-        btnPerMin = new javax.swing.JToggleButton();
-        btnPerHour = new javax.swing.JToggleButton();
-        tbpPanDetails = new com.jidesoft.swing.JideTabbedPane();
-        panColor = new javax.swing.JPanel(){
-            @Override
-            protected void paintComponent(Graphics g) {
-                super.paintComponent(g);
-                Graphics2D gd = (Graphics2D) g;
-                gd.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                ball.paint(gd);
-            }
-        };
-        panTarget = new javax.swing.JPanel();
-        jScrollPane2 = new javax.swing.JScrollPane();
-        _listTarget = new com.jidesoft.navigation.NavigationList(listModelTarget);
-        lblTargetTime = new javax.swing.JLabel();
+        cblMachine = new com.jidesoft.swing.CheckBoxList(){ @Override
+            public int getNextMatch(String prefix, int startIndex, Position.Bias bias) {
+                return -1;
+            }};
+            lblMachine = new javax.swing.JLabel();
+            btnRefreshMachine = new com.jidesoft.swing.JideButton();
+            panProductionsOptions = new javax.swing.JPanel();
+            cmbQuickViewDay = new com.jidesoft.combobox.DateSpinnerComboBox();
+            lblProduction = new javax.swing.JLabel();
+            chkDay = new javax.swing.JCheckBox();
+            lblMessage = new javax.swing.JLabel();
+            bslQuickView = new org.jdesktop.swingx.JXBusyLabel();
+            btnPerMin = new javax.swing.JToggleButton();
+            btnPerHour = new javax.swing.JToggleButton();
+            tbpPanDetails = new com.jidesoft.swing.JideTabbedPane();
+            panColor = new javax.swing.JPanel(){
+                @Override
+                protected void paintComponent(Graphics g) {
+                    super.paintComponent(g);
+                    Graphics2D gd = (Graphics2D) g;
+                    gd.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                    ball.paint(gd);
+                }
+            };
+            panTarget = new javax.swing.JPanel();
+            jScrollPane2 = new javax.swing.JScrollPane();
+            _listTarget = new com.jidesoft.navigation.NavigationList(listModelTarget);
+            lblTargetTime = new javax.swing.JLabel();
 
-        setBackground(new java.awt.Color(255, 255, 255));
+            setBackground(new java.awt.Color(255, 255, 255));
 
-        jToolBar1.setBackground(new java.awt.Color(255, 255, 255));
-        jToolBar1.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Options", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.TOP, new java.awt.Font("Tahoma", 0, 9), new java.awt.Color(0, 0, 204))); // NOI18N
-        jToolBar1.setFloatable(false);
-        jToolBar1.setRollover(true);
+            jToolBar1.setBackground(new java.awt.Color(255, 255, 255));
+            jToolBar1.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Options", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.TOP, new java.awt.Font("Tahoma", 0, 9), new java.awt.Color(0, 0, 204))); // NOI18N
+            jToolBar1.setFloatable(false);
+            jToolBar1.setRollover(true);
 
-        btnLoadMachines.setBackground(new java.awt.Color(255, 255, 255));
-        btnLoadMachines.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
-        btnLoadMachines.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/icons/machine16x16_1.png"))); // NOI18N
-        btnLoadMachines.setText("Load Machine & Target");
-        btnLoadMachines.setToolTipText("Show list of machine and their targets");
-        btnLoadMachines.setFocusable(false);
-        btnLoadMachines.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        btnLoadMachines.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        btnLoadMachines.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnLoadMachinesActionPerformed(evt);
-            }
-        });
-        jToolBar1.add(btnLoadMachines);
+            btnLoadTargetMachines.setBackground(new java.awt.Color(255, 255, 255));
+            btnLoadTargetMachines.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+            btnLoadTargetMachines.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/icons/machine16x16_1.png"))); // NOI18N
+            btnLoadTargetMachines.setText("Load Machine & Target");
+            btnLoadTargetMachines.setToolTipText("Show list of machine and their targets");
+            btnLoadTargetMachines.setFocusable(false);
+            btnLoadTargetMachines.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+            btnLoadTargetMachines.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+            btnLoadTargetMachines.addActionListener(new java.awt.event.ActionListener() {
+                public void actionPerformed(java.awt.event.ActionEvent evt) {
+                    btnLoadTargetMachinesActionPerformed(evt);
+                }
+            });
+            jToolBar1.add(btnLoadTargetMachines);
 
-        btnTarget.setBackground(new java.awt.Color(255, 255, 255));
-        btnTarget.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
-        btnTarget.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/icons/target_3.png"))); // NOI18N
-        btnTarget.setText("Add Target");
-        btnTarget.setToolTipText("Modify/Add target to a particular machine ");
-        btnTarget.setEnabled(false);
-        btnTarget.setFocusable(false);
-        btnTarget.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        btnTarget.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        btnTarget.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnTargetActionPerformed(evt);
-            }
-        });
-        jToolBar1.add(btnTarget);
-        jToolBar1.add(jSeparator1);
+            btnTarget.setBackground(new java.awt.Color(255, 255, 255));
+            btnTarget.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+            btnTarget.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/icons/target_3.png"))); // NOI18N
+            btnTarget.setText("Add Target");
+            btnTarget.setToolTipText("Modify/Add target to a particular machine ");
+            btnTarget.setEnabled(false);
+            btnTarget.setFocusable(false);
+            btnTarget.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+            btnTarget.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+            btnTarget.addActionListener(new java.awt.event.ActionListener() {
+                public void actionPerformed(java.awt.event.ActionEvent evt) {
+                    btnTargetActionPerformed(evt);
+                }
+            });
+            jToolBar1.add(btnTarget);
+            jToolBar1.add(jSeparator1);
 
-        btnProductionRate.setBackground(new java.awt.Color(255, 255, 255));
-        btnProductionRate.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
-        btnProductionRate.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/icons/rate_4.png"))); // NOI18N
-        btnProductionRate.setText("Production Rate");
-        btnProductionRate.setToolTipText("Show production rate data");
-        btnProductionRate.setFocusable(false);
-        btnProductionRate.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        btnProductionRate.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        btnProductionRate.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnProductionRateActionPerformed(evt);
-            }
-        });
-        jToolBar1.add(btnProductionRate);
+            btnProductionRate.setBackground(new java.awt.Color(255, 255, 255));
+            btnProductionRate.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+            btnProductionRate.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/icons/rate_4.png"))); // NOI18N
+            btnProductionRate.setText("Production Rate");
+            btnProductionRate.setToolTipText("Show production rate data");
+            btnProductionRate.setFocusable(false);
+            btnProductionRate.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+            btnProductionRate.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+            btnProductionRate.addActionListener(new java.awt.event.ActionListener() {
+                public void actionPerformed(java.awt.event.ActionEvent evt) {
+                    btnProductionRateActionPerformed(evt);
+                }
+            });
+            jToolBar1.add(btnProductionRate);
 
-        btnTotalProduction.setBackground(new java.awt.Color(255, 255, 255));
-        btnTotalProduction.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
-        btnTotalProduction.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/icons/rate_1.png"))); // NOI18N
-        btnTotalProduction.setText("Total Production");
-        btnTotalProduction.setToolTipText("Show cumulative production data");
-        btnTotalProduction.setFocusable(false);
-        btnTotalProduction.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        btnTotalProduction.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        btnTotalProduction.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnTotalProductionActionPerformed(evt);
-            }
-        });
-        jToolBar1.add(btnTotalProduction);
-        jToolBar1.add(jSeparator2);
+            btnTotalProduction.setBackground(new java.awt.Color(255, 255, 255));
+            btnTotalProduction.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+            btnTotalProduction.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/icons/rate_1.png"))); // NOI18N
+            btnTotalProduction.setText("Total Production");
+            btnTotalProduction.setToolTipText("Show cumulative production data");
+            btnTotalProduction.setFocusable(false);
+            btnTotalProduction.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+            btnTotalProduction.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+            btnTotalProduction.addActionListener(new java.awt.event.ActionListener() {
+                public void actionPerformed(java.awt.event.ActionEvent evt) {
+                    btnTotalProductionActionPerformed(evt);
+                }
+            });
+            jToolBar1.add(btnTotalProduction);
+            jToolBar1.add(jSeparator2);
 
-        btnExportExcelCsv.setBackground(new java.awt.Color(255, 255, 255));
-        btnExportExcelCsv.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
-        btnExportExcelCsv.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/icons/excel_csv_1.png"))); // NOI18N
-        btnExportExcelCsv.setText("Excel / CSV");
-        btnExportExcelCsv.setToolTipText("Export to excel/csv file");
-        btnExportExcelCsv.setFocusable(false);
-        btnExportExcelCsv.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        btnExportExcelCsv.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        btnExportExcelCsv.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnExportExcelCsvActionPerformed(evt);
-            }
-        });
-        jToolBar1.add(btnExportExcelCsv);
+            btnExportExcelCsv.setBackground(new java.awt.Color(255, 255, 255));
+            btnExportExcelCsv.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+            btnExportExcelCsv.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/icons/excel_csv_1.png"))); // NOI18N
+            btnExportExcelCsv.setText("Excel / CSV");
+            btnExportExcelCsv.setToolTipText("Export to excel/csv file");
+            btnExportExcelCsv.setFocusable(false);
+            btnExportExcelCsv.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+            btnExportExcelCsv.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+            btnExportExcelCsv.addActionListener(new java.awt.event.ActionListener() {
+                public void actionPerformed(java.awt.event.ActionEvent evt) {
+                    btnExportExcelCsvActionPerformed(evt);
+                }
+            });
+            jToolBar1.add(btnExportExcelCsv);
 
-        btnRefreshTable.setBackground(new java.awt.Color(255, 255, 255));
-        btnRefreshTable.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
-        btnRefreshTable.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/icons/gnome_view_refresh16.png"))); // NOI18N
-        btnRefreshTable.setText("Refresh");
-        btnRefreshTable.setToolTipText("Refresh the table");
-        btnRefreshTable.setFocusable(false);
-        btnRefreshTable.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        btnRefreshTable.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        btnRefreshTable.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnRefreshTableActionPerformed(evt);
-            }
-        });
-        jToolBar1.add(btnRefreshTable);
+            btnRefreshTable.setBackground(new java.awt.Color(255, 255, 255));
+            btnRefreshTable.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+            btnRefreshTable.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/icons/gnome_view_refresh16.png"))); // NOI18N
+            btnRefreshTable.setText("Refresh");
+            btnRefreshTable.setToolTipText("Refresh the table");
+            btnRefreshTable.setFocusable(false);
+            btnRefreshTable.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+            btnRefreshTable.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+            btnRefreshTable.addActionListener(new java.awt.event.ActionListener() {
+                public void actionPerformed(java.awt.event.ActionEvent evt) {
+                    btnRefreshTableActionPerformed(evt);
+                }
+            });
+            jToolBar1.add(btnRefreshTable);
 
-        cblMachine.setFocusable(false);
-        cblMachine.setFont(new java.awt.Font("Tahoma", 0, 13)); // NOI18N
-        cblMachine.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
-            public void valueChanged(javax.swing.event.ListSelectionEvent evt) {
-                cblMachineValueChanged(evt);
-            }
-        });
-        jScrollPane1.setViewportView(cblMachine);
+            cblMachine.setFocusable(false);
+            cblMachine.setFont(new java.awt.Font("Tahoma", 0, 13)); // NOI18N
+            cblMachine.addMouseListener(new java.awt.event.MouseAdapter() {
+                public void mouseClicked(java.awt.event.MouseEvent evt) {
+                    cblMachineMouseClicked(evt);
+                }
+            });
+            cblMachine.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
+                public void valueChanged(javax.swing.event.ListSelectionEvent evt) {
+                    cblMachineValueChanged(evt);
+                }
+            });
+            jScrollPane1.setViewportView(cblMachine);
 
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE)
-        );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING)
-        );
+            javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+            jPanel1.setLayout(jPanel1Layout);
+            jPanel1Layout.setHorizontalGroup(
+                jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE)
+            );
+            jPanel1Layout.setVerticalGroup(
+                jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING)
+            );
 
-        lblMachine.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
-        lblMachine.setForeground(new java.awt.Color(0, 204, 0));
-        lblMachine.setText("List of machines (0)");
+            lblMachine.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+            lblMachine.setForeground(new java.awt.Color(0, 204, 0));
+            lblMachine.setText("List of machines (0)");
 
-        btnRefreshMachine.setButtonStyle(com.jidesoft.swing.JideButton.TOOLBOX_STYLE);
-        btnRefreshMachine.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/icons/refresh16.png"))); // NOI18N
-        btnRefreshMachine.setToolTipText("Refresh the machine list and target");
-        btnRefreshMachine.setFocusable(false);
-        btnRefreshMachine.setOpaque(true);
-        btnRefreshMachine.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnRefreshMachineActionPerformed(evt);
-            }
-        });
+            btnRefreshMachine.setButtonStyle(com.jidesoft.swing.JideButton.TOOLBOX_STYLE);
+            btnRefreshMachine.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/icons/refresh16.png"))); // NOI18N
+            btnRefreshMachine.setToolTipText("Refresh the machine list and target");
+            btnRefreshMachine.setFocusable(false);
+            btnRefreshMachine.setOpaque(true);
+            btnRefreshMachine.addActionListener(new java.awt.event.ActionListener() {
+                public void actionPerformed(java.awt.event.ActionEvent evt) {
+                    btnRefreshMachineActionPerformed(evt);
+                }
+            });
 
-        panProductionsOptions.setBackground(new java.awt.Color(255, 255, 255));
-        panProductionsOptions.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Production Options", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 15), new java.awt.Color(0, 0, 204))); // NOI18N
+            panProductionsOptions.setBackground(new java.awt.Color(255, 255, 255));
+            panProductionsOptions.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Production Options", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 15), new java.awt.Color(0, 0, 204))); // NOI18N
 
-        cmbDay.setShowNoneButton(false);
-        cmbDay.setShowOKButton(true);
-        cmbDay.setDate(Calendar.getInstance().getTime());
-        cmbDay.setFocusable(false);
-        cmbDay.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
-        cmbDay.setRequestFocusEnabled(false);
-        cmbDay.setTimeDisplayed(true);
-        cmbDay.setTimeFormat("HH:mm:ss");
-        cmbDay.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                cmbDayActionPerformed(evt);
-            }
-        });
+            cmbQuickViewDay.setShowNoneButton(false);
+            cmbQuickViewDay.setShowOKButton(true);
+            cmbQuickViewDay.setDate(Calendar.getInstance().getTime());
+            cmbQuickViewDay.setFocusable(false);
+            cmbQuickViewDay.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+            cmbQuickViewDay.setRequestFocusEnabled(false);
+            cmbQuickViewDay.setTimeDisplayed(true);
+            cmbQuickViewDay.setTimeFormat("HH:mm:ss");
+            cmbQuickViewDay.addActionListener(new java.awt.event.ActionListener() {
+                public void actionPerformed(java.awt.event.ActionEvent evt) {
+                    cmbQuickViewDayActionPerformed(evt);
+                }
+            });
 
-        lblProduction.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
-        lblProduction.setText("Production Rate:");
+            lblProduction.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+            lblProduction.setText("Production Rate:");
 
-        chkDay.setBackground(new java.awt.Color(255, 255, 255));
-        chkDay.setSelected(true);
-        chkDay.setText("End Time:");
-        chkDay.setFocusable(false);
-        chkDay.addItemListener(new java.awt.event.ItemListener() {
-            public void itemStateChanged(java.awt.event.ItemEvent evt) {
-                chkDayItemStateChanged(evt);
-            }
-        });
+            chkDay.setBackground(new java.awt.Color(255, 255, 255));
+            chkDay.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+            chkDay.setSelected(true);
+            chkDay.setText("End Time:");
+            chkDay.setFocusable(false);
+            chkDay.addItemListener(new java.awt.event.ItemListener() {
+                public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                    chkDayItemStateChanged(evt);
+                }
+            });
 
-        lblMessage.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        lblMessage.setForeground(new java.awt.Color(204, 0, 0));
-        lblMessage.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+            lblMessage.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+            lblMessage.setForeground(new java.awt.Color(204, 0, 0));
+            lblMessage.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
 
-        bslQuickView.setBusy(true);
-        bslQuickView.setDirection(org.jdesktop.swingx.painter.BusyPainter.Direction.RIGHT);
-        bslQuickView.setFocusable(false);
-        bslQuickView.setFont(new java.awt.Font("Tahoma", 0, 10)); // NOI18N
+            bslQuickView.setBusy(true);
+            bslQuickView.setDirection(org.jdesktop.swingx.painter.BusyPainter.Direction.RIGHT);
+            bslQuickView.setFocusable(false);
+            bslQuickView.setFont(new java.awt.Font("Tahoma", 0, 10)); // NOI18N
 
-        btnPerMin.setBackground(new java.awt.Color(255, 255, 255));
-        buttonGroup1.add(btnPerMin);
-        btnPerMin.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
-        btnPerMin.setSelected(true);
-        btnPerMin.setText("p/min");
-        btnPerMin.setFocusable(false);
-        btnPerMin.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnPerMinActionPerformed(evt);
-            }
-        });
+            btnPerMin.setBackground(new java.awt.Color(255, 255, 255));
+            buttonGroup1.add(btnPerMin);
+            btnPerMin.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+            btnPerMin.setSelected(true);
+            btnPerMin.setText("p/min");
+            btnPerMin.setFocusable(false);
+            btnPerMin.addActionListener(new java.awt.event.ActionListener() {
+                public void actionPerformed(java.awt.event.ActionEvent evt) {
+                    btnPerMinActionPerformed(evt);
+                }
+            });
 
-        btnPerHour.setBackground(new java.awt.Color(255, 255, 255));
-        buttonGroup1.add(btnPerHour);
-        btnPerHour.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
-        btnPerHour.setText("p/hr");
-        btnPerHour.setFocusable(false);
-        btnPerHour.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnPerHourActionPerformed(evt);
-            }
-        });
+            btnPerHour.setBackground(new java.awt.Color(255, 255, 255));
+            buttonGroup1.add(btnPerHour);
+            btnPerHour.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+            btnPerHour.setText("p/hr");
+            btnPerHour.setFocusable(false);
+            btnPerHour.addActionListener(new java.awt.event.ActionListener() {
+                public void actionPerformed(java.awt.event.ActionEvent evt) {
+                    btnPerHourActionPerformed(evt);
+                }
+            });
 
-        javax.swing.GroupLayout panProductionsOptionsLayout = new javax.swing.GroupLayout(panProductionsOptions);
-        panProductionsOptions.setLayout(panProductionsOptionsLayout);
-        panProductionsOptionsLayout.setHorizontalGroup(
-            panProductionsOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panProductionsOptionsLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(panProductionsOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(panProductionsOptionsLayout.createSequentialGroup()
-                        .addComponent(chkDay)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(cmbDay, javax.swing.GroupLayout.PREFERRED_SIZE, 172, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(panProductionsOptionsLayout.createSequentialGroup()
+            javax.swing.GroupLayout panProductionsOptionsLayout = new javax.swing.GroupLayout(panProductionsOptions);
+            panProductionsOptions.setLayout(panProductionsOptionsLayout);
+            panProductionsOptionsLayout.setHorizontalGroup(
+                panProductionsOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(panProductionsOptionsLayout.createSequentialGroup()
+                    .addContainerGap()
+                    .addGroup(panProductionsOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(panProductionsOptionsLayout.createSequentialGroup()
+                            .addComponent(chkDay)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(cmbQuickViewDay, javax.swing.GroupLayout.PREFERRED_SIZE, 172, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGroup(panProductionsOptionsLayout.createSequentialGroup()
+                            .addComponent(lblProduction)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(btnPerMin)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(btnPerHour)))
+                    .addGroup(panProductionsOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(panProductionsOptionsLayout.createSequentialGroup()
+                            .addGap(14, 14, 14)
+                            .addComponent(lblMessage, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panProductionsOptionsLayout.createSequentialGroup()
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(bslQuickView, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addContainerGap())
+            );
+
+            panProductionsOptionsLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {btnPerHour, btnPerMin});
+
+            panProductionsOptionsLayout.setVerticalGroup(
+                panProductionsOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(panProductionsOptionsLayout.createSequentialGroup()
+                    .addGap(2, 2, 2)
+                    .addGroup(panProductionsOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
                         .addComponent(lblProduction)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(btnPerMin)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btnPerHour)))
-                .addGroup(panProductionsOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(panProductionsOptionsLayout.createSequentialGroup()
-                        .addGap(14, 14, 14)
-                        .addComponent(lblMessage, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panProductionsOptionsLayout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(bslQuickView, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap())
-        );
+                        .addComponent(btnPerHour)
+                        .addComponent(bslQuickView, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                    .addGroup(panProductionsOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
+                        .addComponent(lblMessage)
+                        .addComponent(cmbQuickViewDay, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(chkDay))
+                    .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            );
 
-        panProductionsOptionsLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {btnPerHour, btnPerMin});
+            panProductionsOptionsLayout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {cmbQuickViewDay, lblMessage});
 
-        panProductionsOptionsLayout.setVerticalGroup(
-            panProductionsOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panProductionsOptionsLayout.createSequentialGroup()
-                .addGap(2, 2, 2)
-                .addGroup(panProductionsOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
-                    .addComponent(lblProduction)
-                    .addComponent(btnPerMin)
-                    .addComponent(btnPerHour)
-                    .addComponent(bslQuickView, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(panProductionsOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
-                    .addComponent(lblMessage)
-                    .addComponent(cmbDay, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(chkDay))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
+            tbpPanDetails.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+            tbpPanDetails.setBoldActiveTab(true);
+            tbpPanDetails.setFocusable(false);
+            tbpPanDetails.setShowCloseButtonOnMouseOver(true);
+            tbpPanDetails.setShowCloseButtonOnSelectedTab(true);
+            tbpPanDetails.setShowCloseButtonOnTab(true);
 
-        panProductionsOptionsLayout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {cmbDay, lblMessage});
+            panColor.setBackground(new java.awt.Color(255, 255, 255));
 
-        tbpPanDetails.setBoldActiveTab(true);
-        tbpPanDetails.setFocusable(false);
-        tbpPanDetails.setShowCloseButtonOnMouseOver(true);
-        tbpPanDetails.setShowCloseButtonOnSelectedTab(true);
-        tbpPanDetails.setShowCloseButtonOnTab(true);
+            javax.swing.GroupLayout panColorLayout = new javax.swing.GroupLayout(panColor);
+            panColor.setLayout(panColorLayout);
+            panColorLayout.setHorizontalGroup(
+                panColorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGap(0, 14, Short.MAX_VALUE)
+            );
+            panColorLayout.setVerticalGroup(
+                panColorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGap(0, 426, Short.MAX_VALUE)
+            );
 
-        panColor.setBackground(new java.awt.Color(255, 255, 255));
+            panTarget.setBackground(new java.awt.Color(255, 255, 255));
 
-        javax.swing.GroupLayout panColorLayout = new javax.swing.GroupLayout(panColor);
-        panColor.setLayout(panColorLayout);
-        panColorLayout.setHorizontalGroup(
-            panColorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 14, Short.MAX_VALUE)
-        );
-        panColorLayout.setVerticalGroup(
-            panColorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 426, Short.MAX_VALUE)
-        );
+            jScrollPane2.setViewportView(_listTarget);
 
-        panTarget.setBackground(new java.awt.Color(255, 255, 255));
+            javax.swing.GroupLayout panTargetLayout = new javax.swing.GroupLayout(panTarget);
+            panTarget.setLayout(panTargetLayout);
+            panTargetLayout.setHorizontalGroup(
+                panTargetLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+            );
+            panTargetLayout.setVerticalGroup(
+                panTargetLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addComponent(jScrollPane2)
+            );
 
-        jScrollPane2.setViewportView(_listTarget);
+            lblTargetTime.setFont(new java.awt.Font("Tahoma", 0, 9)); // NOI18N
+            lblTargetTime.setText("<html>Production<br> Target (/hr)");
 
-        javax.swing.GroupLayout panTargetLayout = new javax.swing.GroupLayout(panTarget);
-        panTarget.setLayout(panTargetLayout);
-        panTargetLayout.setHorizontalGroup(
-            panTargetLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-        );
-        panTargetLayout.setVerticalGroup(
-            panTargetLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane2)
-        );
-
-        lblTargetTime.setFont(new java.awt.Font("Tahoma", 0, 9)); // NOI18N
-        lblTargetTime.setText("<html>Production<br> Target (/hr)");
-
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
-        this.setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGap(8, 8, 8)
-                .addComponent(panColor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(2, 2, 2)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(lblMachine, javax.swing.GroupLayout.DEFAULT_SIZE, 117, Short.MAX_VALUE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btnRefreshMachine, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(lblTargetTime, javax.swing.GroupLayout.PREFERRED_SIZE, 56, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(5, 5, 5)
-                        .addComponent(panTarget, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(tbpPanDetails, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(panProductionsOptions, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addGap(10, 10, 10))
-            .addComponent(jToolBar1, javax.swing.GroupLayout.DEFAULT_SIZE, 791, Short.MAX_VALUE)
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addComponent(jToolBar1, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(tbpPanDetails, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(panProductionsOptions, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
-                            .addComponent(lblMachine, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
+            javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
+            this.setLayout(layout);
+            layout.setHorizontalGroup(
+                layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(layout.createSequentialGroup()
+                    .addGap(8, 8, 8)
+                    .addComponent(panColor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGap(2, 2, 2)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addGroup(layout.createSequentialGroup()
+                            .addComponent(lblMachine, javax.swing.GroupLayout.DEFAULT_SIZE, 117, Short.MAX_VALUE)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                             .addComponent(btnRefreshMachine, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(lblTargetTime, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(panTarget, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(panColor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addContainerGap())
-        );
-    }// </editor-fold>//GEN-END:initComponents
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(lblTargetTime, javax.swing.GroupLayout.PREFERRED_SIZE, 56, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGroup(layout.createSequentialGroup()
+                            .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGap(5, 5, 5)
+                            .addComponent(panTarget, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addComponent(tbpPanDetails, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(panProductionsOptions, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGap(10, 10, 10))
+                .addComponent(jToolBar1, javax.swing.GroupLayout.DEFAULT_SIZE, 791, Short.MAX_VALUE)
+            );
+            layout.setVerticalGroup(
+                layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(layout.createSequentialGroup()
+                    .addComponent(jToolBar1, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(layout.createSequentialGroup()
+                            .addComponent(panProductionsOptions, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(tbpPanDetails, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGroup(layout.createSequentialGroup()
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
+                                .addComponent(lblMachine, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(btnRefreshMachine, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(lblTargetTime, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addComponent(panTarget, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(panColor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                    .addContainerGap())
+            );
+        }// </editor-fold>//GEN-END:initComponents
 
     private void btnRefreshMachineActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRefreshMachineActionPerformed
         try {
@@ -592,12 +629,25 @@ public class ProductionQuickView extends javax.swing.JPanel {
     }//GEN-LAST:event_btnRefreshMachineActionPerformed
 
     private void chkDayItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_chkDayItemStateChanged
+//        new Thread() {
+//
+//            @Override
+//            public void run() {
+        catDate = false;
         if (chkDay.isSelected()) {
-            cmbDay.setEnabled(true);
-            cmbDay.setDate(Calendar.getInstance().getTime());
+            cmbQuickViewDay.setEnabled(true);
+            cmbQuickViewDay.setDate(Calendar.getInstance().getTime());
+            try {
+                showLastRecordedData();
+            } catch (SQLException ex) {
+                ConnectDB.catchSQLException(ex);
+            }
         } else {
-            cmbDay.setEnabled(false);
+            cmbQuickViewDay.setEnabled(false);
         }
+        catDate = true;
+//            }
+//        }.start();
     }//GEN-LAST:event_chkDayItemStateChanged
 
     private void btnProductionRateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnProductionRateActionPerformed
@@ -649,63 +699,51 @@ public class ProductionQuickView extends javax.swing.JPanel {
     }//GEN-LAST:event_btnTargetActionPerformed
 
     private void btnRefreshTableActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRefreshTableActionPerformed
-        if (cblMachine.getCheckBoxListSelectedValues().length > 0) {
-            try {
+        try {
+            if (cblMachine.getCheckBoxListSelectedValues().length > 0) {
                 if (!skipRunListSelection) {
                     runListSelection();
                 }
                 skipRunListSelection = true;
-            } catch (SQLException ex) {
-                ConnectDB.catchSQLException(ex);
             }
-        } else {
-            try {
-                refreshMachine_Targets();
-            } catch (SQLException ex) {
-                ConnectDB.catchSQLException(ex);
-            }
+            refreshMachine_Targets();
+        } catch (SQLException ex) {
+            ConnectDB.catchSQLException(ex);
         }
     }//GEN-LAST:event_btnRefreshTableActionPerformed
 
-    private void btnLoadMachinesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLoadMachinesActionPerformed
+    private void btnLoadTargetMachinesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLoadTargetMachinesActionPerformed
         Thread threadLoadMachine = new Thread() {
 
             @Override
-            public void run() {
-                try {
-                    new TargetInsert(_parent, true).setVisible(true);
-                    String targetTime = ConnectDB.pref.get(SettingKeyFactory.DefaultProperties.TARGET_TIME_UNIT, "hour");
-                    switch (targetTime) {
-                        case "second":
-                            lblTargetTime.setText("<html>Production<br> Target (/sec)");
-                            break;
-                        case "minute":
-                            lblTargetTime.setText("<html>Production<br> Target (/min)");
-                            break;
-                        default:
-                            lblTargetTime.setText("<html>Production<br> Target (/hr)");
-                            break;
+            public void run() {//isLoadTableFinished variable check if the filling of the table is finished and if
+                //done, safely open the Machine Target interface
+                if (isLoadTableFinished) {
+                    try {
+                        new TargetInsert(_parent, true).setVisible(true);
+                        changeTargetLabel();
+                    } catch (SQLException ex) {
+                        ConnectDB.catchSQLException(ex);
+                        return;
                     }
-                } catch (SQLException ex) {
-                    ConnectDB.catchSQLException(ex);
-                }
-                if (TargetInsert.isAnyChangeOccured()) {
-                    SwingUtilities.invokeLater(new Runnable() {
+                    if (TargetInsert.isAnyChangeOccured()) {
+                        SwingUtilities.invokeLater(new Runnable() {
 
-                        @Override
-                        public void run() {
-                            try {
-                                refreshMachine_Targets();
-                            } catch (SQLException ex) {
-                                ConnectDB.catchSQLException(ex);
+                            @Override
+                            public void run() {
+                                try {
+                                    refreshMachine_Targets();
+                                } catch (SQLException ex) {
+                                    ConnectDB.catchSQLException(ex);
+                                }
                             }
-                        }
-                    });
+                        });
+                    }
                 }
             }
         };
         threadLoadMachine.start();
-    }//GEN-LAST:event_btnLoadMachinesActionPerformed
+    }//GEN-LAST:event_btnLoadTargetMachinesActionPerformed
 
     private void cblMachineValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_cblMachineValueChanged
         String s = String.valueOf(cblMachine.getSelectedValue());
@@ -714,27 +752,35 @@ public class ProductionQuickView extends javax.swing.JPanel {
         } else {
             btnTarget.setEnabled(true);
         }
+        isListSelection = true;
     }//GEN-LAST:event_cblMachineValueChanged
 
     private void btnExportExcelCsvActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnExportExcelCsvActionPerformed
-        try {
-            SortableTable _sortableTable = null;
-            if (!btnProductionRate.isEnabled()) {
-                _sortableTable = ProductionQuickView.tableRate;
-            } else if (!btnTotalProduction.isEnabled()) {
-                _sortableTable = ProductionQuickView.tableTotal;
+        final java.awt.event.ActionEvent _evt = evt;
+        new Thread() {
+
+            @Override
+            public void run() {
+                try {
+                    SortableTable _sortableTable = null;
+                    if (!btnProductionRate.isEnabled()) {
+                        _sortableTable = ProductionQuickView.tableRate;
+                    } else if (!btnTotalProduction.isEnabled()) {
+                        _sortableTable = ProductionQuickView.tableTotal;
+                    }
+                    _sortableTable.putClientProperty(HssfTableUtils.CLIENT_PROPERTY_EXCEL_OUTPUT_FORMAT,
+                            HssfTableUtils.EXCEL_OUTPUT_FORMAT_2003);
+                    if (!HssfTableUtils.isHssfInstalled()) {
+                        JOptionPane.showMessageDialog((Component) _evt.getSource(), "Export to Excel feature is disabled "
+                                + "because POI-HSSF jar is missing in the classpath.");
+                        return;
+                    }
+                    //Method to write in excel file
+                    outputToExcel(_evt, _sortableTable);
+                } catch (HeadlessException e) {
+                }
             }
-            _sortableTable.putClientProperty(HssfTableUtils.CLIENT_PROPERTY_EXCEL_OUTPUT_FORMAT,
-                    HssfTableUtils.EXCEL_OUTPUT_FORMAT_2003);
-            if (!HssfTableUtils.isHssfInstalled()) {
-                JOptionPane.showMessageDialog((Component) evt.getSource(), "Export to Excel feature is disabled "
-                        + "because POI-HSSF jar is missing in the classpath.");
-                return;
-            }
-            //Method to write in excel file
-            this.outputToExcel(evt, _sortableTable);
-        } catch (HeadlessException e) {
-        }
+        }.start();
     }//GEN-LAST:event_btnExportExcelCsvActionPerformed
 
     private void btnPerMinActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPerMinActionPerformed
@@ -775,55 +821,64 @@ public class ProductionQuickView extends javax.swing.JPanel {
         }
     }//GEN-LAST:event_btnPerHourActionPerformed
 
-    private void cmbDayActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmbDayActionPerformed
+    private void cmbQuickViewDayActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmbQuickViewDayActionPerformed
         if (catDate) {
             skipRunListSelection = false;
-            cmbDay.setPopupVisible(false);
+            cmbQuickViewDay.setPopupVisible(false);
             btnRefreshTableActionPerformed(evt);
         }
-    }//GEN-LAST:event_cmbDayActionPerformed
+    }//GEN-LAST:event_cmbQuickViewDayActionPerformed
 
-    synchronized private void refreshMachine_Targets() throws SQLException {
+    private void cblMachineMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_cblMachineMouseClicked
+        try {
+            if (isListSelection) {
+                isListSelection = false;
+                return;
+            }
+            if (catCreateTab) {
+                runListSelection();
+            }
+        } catch (SQLException ex) {
+            ConnectDB.catchSQLException(ex);
+        }
+    }//GEN-LAST:event_cblMachineMouseClicked
+
+    private void refreshMachine_Targets() throws SQLException {
         catProdTab = false;
         int[] selected = cblMachine.getCheckBoxListSelectedIndices();
-        if (!btnProductionRate.isEnabled()) {
-            autoFill("Rate");
-        } else if (!btnTotalProduction.isEnabled()) {
-            autoFill("Cumulative");
+        synchronized (this) {
+            if (!btnProductionRate.isEnabled()) {
+                autoFill("Rate");
+            } else if (!btnTotalProduction.isEnabled()) {
+                autoFill("Cumulative");
+            }
         }
         cblMachine.setCheckBoxListSelectedIndices(selected);
         catProdTab = true;
+        try {
+            Thread.sleep(200);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(ProductionQuickView.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     private void runListSelection() throws SQLException {
-        if (fillTableThread != null) {
-            while (fillTableThread.isAlive()) {
-                try {
-                    bslQuickView.setVisible(true);
-                    bslQuickView.setBusy(true);
-                    bslQuickView.setText("Waiting for the current thread to finish");
-                    fillTableThread.interrupt();
-                    fillTableThread.join(500);
-                } catch (InterruptedException ex) {
-                    Logger.getLogger(ProductionQuickView.class.getName()).log(Level.SEVERE, null, ex);
+        try {
+            panProductionsOptions.requestFocus();
+            SortableTable _sortableTable = null;
+            if (!btnProductionRate.isEnabled()) {
+                showActualTotalValues = false;
+                _sortableTable = ProductionQuickView.tableRate;
+            } else if (!btnTotalProduction.isEnabled()) {
+                if (showActualTotalValues) {
+                    showActualTotalValues = true;
                 }
+                _sortableTable = ProductionQuickView.tableTotal;
             }
-        }
-        panProductionsOptions.requestFocus();
-        SortableTable _sortableTable = null;
-        if (!btnProductionRate.isEnabled()) {
-            showActualTotalValues = false;
-            _sortableTable = ProductionQuickView.tableRate;
-        } else if (!btnTotalProduction.isEnabled()) {
-            if (showActualTotalValues) {
-                showActualTotalValues = true;
-            }
-            _sortableTable = ProductionQuickView.tableTotal;
-        }
-        if (cblMachine.getCheckBoxListSelectedValues().length <= 0) {
-            cleanTable(_sortableTable);
-        } else {
-            if (cblMachine.getCheckBoxListSelectedValues().length > 0) {
+            if (cblMachine.getCheckBoxListSelectedValues().length <= 0) {
+                cleanTable(_sortableTable);
+            } else {
+//                if (cblMachine.getCheckBoxListSelectedValues().length > 0) {
                 if (!btnProductionRate.isEnabled()) {
                     prodType = "rate";
                 } else if (!btnTotalProduction.isEnabled()) {
@@ -834,7 +889,7 @@ public class ProductionQuickView extends javax.swing.JPanel {
                         + "h.Machine, c.ConfigNo \n").append("FROM configuration c, hardware h \n"
                                 + "WHERE h.HwNo = c.HwNo \n"
                                 + "AND c.AvMinMax =? \n").append(criteriaSearch()).
-                        append(" AND c.Active =1 ORDER BY h.HwNo ASC").toString())) {
+                        append(" AND c.Active =1 ORDER BY h.Machine ASC").toString())) {
                     ps.setString(1, prodType);
                     ResultSet result_Set = ps.executeQuery();
                     while (result_Set.next()) {
@@ -847,14 +902,19 @@ public class ProductionQuickView extends javax.swing.JPanel {
                     @Override
                     public void run() {
                         try {
-                            fillTable(listMachine_ConfigNo, prodType);
+                            runMachineSelection(listMachine_ConfigNo, prodType);
                         } catch (SQLException ex) {
                             ConnectDB.catchSQLException(ex);
+                        } catch (InterruptedException ex) {
+                            Logger.getLogger(ProductionQuickView.class.getName()).log(Level.SEVERE, null, ex);
                         }
                     }
                 };
                 fillTableThread.start();
+//                }
             }
+        } catch (IndexOutOfBoundsException e) {
+            ConnectDB.appendToFileException(e);
         }
     }
 
@@ -867,11 +927,28 @@ public class ProductionQuickView extends javax.swing.JPanel {
         return machines.toString();
     }
 
-    synchronized private void fillTable(final ArrayList<String> listMachines, String configurationType)
-            throws SQLException {
+    private void changeTargetLabel() {
+        String targetTime = ConnectDB.pref.get(SettingKeyFactory.DefaultProperties.TARGET_TIME_UNIT, "hour");
+        switch (targetTime) {
+            case "second":
+                lblTargetTime.setText("<html>Production<br> Target (/sec)");
+                break;
+            case "minute":
+                lblTargetTime.setText("<html>Production<br> Target (/min)");
+                break;
+            default:
+                lblTargetTime.setText("<html>Production<br> Target (/hr)");
+                break;
+        }
+    }
+
+    synchronized private void runMachineSelection(final ArrayList<String> listMachines, String configurationType)
+            throws SQLException, InterruptedException {
+        setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+        isLoadTableFinished = false;
         this.requestFocus();
         log_TimeData_List = new ArrayList<>();
-        today = cmbDay.getDate();
+        today = cmbQuickViewDay.getDate();
         nbRow = 1;
         if (!btnProductionRate.isEnabled()) {
             cleanTable(ProductionQuickView.tableRate);
@@ -902,19 +979,23 @@ public class ProductionQuickView extends javax.swing.JPanel {
                                 + "ORDER BY 'Time' ASC";
                     }
                     //Rate query (0)
-                    runQuery(query, tableRate, machineTitle, configNo, 0);
+                    runQueryFillTable(query, tableRate, machineTitle, configNo, 0);
                 } else {
                     //Cumulative query (1)
-                    runQuery(query, tableTotal, machineTitle, configNo, 1);
+                    runQueryFillTable(query, tableTotal, machineTitle, configNo, 1);
                 }
 //                Thread.sleep(500);
             }
+//            terminate = true;
+            isLoadTableFinished = true;
+            setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
             bslQuickView.setVisible(false);
         } catch (NumberFormatException e) {
+            ConnectDB.appendToFileException(e);
         }
     }
 
-    synchronized private void runQuery(String query, SortableTable table, String machineName, int configNo, int pan)
+    synchronized private void runQueryFillTable(String query, SortableTable table, String machineName, int configNo, int pan)
             throws SQLException {
         logTimeList = new ArrayList<>();
         logDataList = new ArrayList<>();
@@ -958,40 +1039,38 @@ public class ProductionQuickView extends javax.swing.JPanel {
                 table.setValueAt(calculateLogData(log_TimeData_List, "ytd"), nbRow - 1, 6);
                 nbRow++;
             }
-        } catch (NumberFormatException | ParseException ex) {
-            ex.printStackTrace();
+        } catch (NumberFormatException | ParseException | IndexOutOfBoundsException ex) {
+            ConnectDB.appendToFileException(ex);
         }
     }
 
-    synchronized private double calculateLogData(ArrayList<String> list, String type) throws ParseException {
-        Calendar now = Calendar.getInstance(), working;
-        now.setTime(today);//set the calendar to the chosen date and time
-        Double averageSum = 0d;
+    synchronized private double calculateLogData(ArrayList<String> dataList, String type) throws ParseException {
+        Calendar currentTime = Calendar.getInstance(), working;
+        currentTime.setTime(today);//set the calendar to the chosen date and time
+        Double averageSum;
         switch (type) {
             case "current":
-                int listSize = list.size();
-//                System.out.println(listSize);
+                int listSize = dataList.size();
                 String[] data = log_TimeData_List.get(listSize - 1).split(";");
-                working = (Calendar) now.clone();
+//                working = (Calendar) now.clone();
                 double currentData = Double.parseDouble(data[1]);
-                if (ConnectDB.SDATE_FORMAT_HOUR.parse(ConnectDB.correctToBarreDate(lastDayDBData)).compareTo(working.getTime()) > 0
-                        || ConnectDB.SDATE_FORMAT_HOUR.parse(ConnectDB.correctToBarreDate(lastDayDBData)).compareTo(working.getTime()) == 0) {
-                    averageSum = currentData;
-                }
+//                if (ConnectDB.SDATE_FORMAT_HOUR.parse(ConnectDB.correctToBarreDate(lastDayDBData)).compareTo(working.getTime()) > 0
+//                        || ConnectDB.SDATE_FORMAT_HOUR.parse(ConnectDB.correctToBarreDate(lastDayDBData)).compareTo(working.getTime()) == 0) {
+                averageSum = currentData;
+//                }
                 break;
             case "lasthour":
-                working = (Calendar) now.clone();
+                working = (Calendar) currentTime.clone();
                 working.add(Calendar.HOUR_OF_DAY, -1);
-                averageSum = calculateAverage(list, working);
+                averageSum = calculateAverage(dataList, working);
 //                System.out.println(ConnectDB.SDATE_FORMAT_HOUR.format(working.getTime()));
                 break;
             case "daily":
-                working = (Calendar) now.clone();
-                working.add(Calendar.DAY_OF_YEAR, -1);
-                averageSum = calculateAverage(list, working);
+                working = (Calendar) currentTime.clone();
+                averageSum = calculateAverage(dataList, getDailyTime(working));
                 break;
             case "weekly":
-                working = (Calendar) now.clone();
+                working = (Calendar) currentTime.clone();
                 if (working.get(Calendar.DAY_OF_WEEK) > Calendar.MONDAY) {
                     working.add(Calendar.DAY_OF_WEEK, -working.get(Calendar.DAY_OF_WEEK) + 2);
                 } else if (working.get(Calendar.DAY_OF_WEEK) == Calendar.MONDAY) {
@@ -1002,16 +1081,21 @@ public class ProductionQuickView extends javax.swing.JPanel {
 //                working.add(Calendar.DAY_OF_YEAR, -working.get(Calendar.MONDAY));
 //                System.out.println(new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(working.getTime()));
 //                working.add(Calendar.DAY_OF_YEAR, -7);
-                averageSum = calculateAverage(list, working);
+                averageSum = calculateAverage(dataList, working);
                 break;
             case "mtd":
-                working = (Calendar) now.clone();
-                working.add(Calendar.DAY_OF_YEAR, -working.get(Calendar.DAY_OF_MONTH) + 1);
+                working = (Calendar) currentTime.clone();
+                int checkMonthDay = -working.get(Calendar.DAY_OF_MONTH) + 1;
+                if (checkMonthDay < 0) {
+                    working.add(Calendar.DAY_OF_YEAR, checkMonthDay);
+                    averageSum = calculateAverage(dataList, working);
+                } else {//same day of the first month (daily)
+                    averageSum = calculateAverage(dataList, getDailyTime(working));
+                }
 //                working.add(Calendar.DAY_OF_YEAR, -getMonthTypeValue((byte) working.get(Calendar.MONTH)));
-                averageSum = calculateAverage(list, working);
                 break;
             default:
-                working = (Calendar) now.clone();
+                working = (Calendar) currentTime.clone();
                 if (working.get(Calendar.MONTH) > Calendar.JULY) {
                     working.add(Calendar.MONTH, -working.get(Calendar.MONTH) + 6);
                 } else if (working.get(Calendar.MONTH) == Calendar.JULY) {
@@ -1024,12 +1108,24 @@ public class ProductionQuickView extends javax.swing.JPanel {
                 working.add(Calendar.DAY_OF_YEAR, -working.get(Calendar.DAY_OF_MONTH) + 1);
 //                working.add(Calendar.DAY_OF_YEAR, -365);
 //                System.out.println(working.get(Calendar.DAY_OF_MONTH));
-                averageSum = calculateAverage(list, working);
+                averageSum = calculateAverage(dataList, working);
                 break;
         }
 //        System.out.println(type + ": " + Calendar.DAY_OF_YEAR + "; " + ConnectDB.SDATE_FORMAT_HOUR.format(working.getTime()));
 //        System.out.println(ConnectDB.isLeapYear(Calendar.YEAR));
         return Double.isNaN(averageSum) ? 0d : ConnectDB.DECIMALFORMAT.parse(ConnectDB.DECIMALFORMAT.format(averageSum)).doubleValue();
+    }
+
+    private Calendar getDailyTime(Calendar daily) {
+        final Calendar CALENDAR = Calendar.getInstance();
+        int hour = CALENDAR.get(Calendar.HOUR_OF_DAY),
+                minute = CALENDAR.get(Calendar.MINUTE),
+                second = CALENDAR.get(Calendar.SECOND);
+        daily.add(Calendar.HOUR_OF_DAY, -hour);
+        daily.add(Calendar.MINUTE, -minute);
+        daily.add(Calendar.SECOND, -second);
+        daily.add(Calendar.DAY_OF_YEAR, 0);
+        return daily;
     }
 
     synchronized private byte getMonthTypeValue(byte month) {
@@ -1078,23 +1174,42 @@ public class ProductionQuickView extends javax.swing.JPanel {
                 subtractValues.add(new StringBuilder(logTimeList.get(i)).append(";").append(xDiff).toString());
                 continue;
             }
+            int sum = 0;
             xDiff = alValues.get(i) - alValues.get(i - 1);
-            if (xDiff < 0) {
+            if (xDiff < 0) {//Case where the value is negative (rollover)
                 xDiff = 1000000 - alValues.get(i - 1) + alValues.get(i);
-            }
-
-            try {
-                int totVal = alValues.get(i),
-                        totValNext = alValues.get(i + 1),
-                        rateVal = (int) Double.parseDouble(prodRateArrayList.get(i));
-                //Case where the cumulative values are not consecutive by the addition of the production rate number
-                if ((totVal + rateVal != totValNext) || (totVal + rateVal + 1 != totValNext)) {
-                    // Not sequential
-                    xDiff = rateVal;
+            } else if (xDiff > 500) {
+                byte rollback = 5;
+                int yr = i;
+                while (rollback > 5) {
+                    System.out.println("jump over value recorded");
+                    try {
+                        sum += (int) Double.parseDouble(prodRateArrayList.get(yr));
+                        yr--;
+                        rollback--;
+                    } catch (IndexOutOfBoundsException e) {
+                        break;
+                    }
                 }
-            } catch (IndexOutOfBoundsException e) {
-                xDiff = (int) Double.parseDouble(prodRateArrayList.get(i - 1));
+                xDiff = sum / rollback;
             }
+//            xDiff = alValues.get(i) - alValues.get(i - 1);
+//            if (xDiff < 0) {
+//                xDiff = 1000000 - alValues.get(i - 1) + alValues.get(i);
+//            }
+//
+//            try {
+//                int totVal = alValues.get(i),
+//                        totValNext = alValues.get(i + 1),
+//                        rateVal = (int) Double.parseDouble(prodRateArrayList.get(i));
+//                //Case where the cumulative values are not consecutive by the addition of the production rate number
+//                if ((totVal + rateVal != totValNext) || (totVal + rateVal + 1 != totValNext)) {
+//                    // Not sequential
+//                    xDiff = rateVal;
+//                }
+//            } catch (IndexOutOfBoundsException e) {
+//                xDiff = (int) Double.parseDouble(prodRateArrayList.get(i - 1));
+//            }
             subtractValues.add(new StringBuilder(logTimeList.get(i)).append(";").append(xDiff).toString());
         }
         return subtractValues;
@@ -1166,12 +1281,12 @@ public class ProductionQuickView extends javax.swing.JPanel {
                     }
                     pane.setViewportView(createTable(tabName));//create and set the table in the viewport
                     icon = new ImageIcon(getClass().getResource("/images/icons/rate_4.png"));
-                    titlePane = "Machine(s) average for the production rate";
+                    titlePane = "Machine(s) Production Rate";
                     break;
                 default://Total Production
                     pane.setViewportView(createTable(tabName));//create and set the table in the viewport
                     icon = new ImageIcon(getClass().getResource("/images/icons/rate_1.png"));
-                    titlePane = "Machine(s) quick view for the total of production";
+                    titlePane = "Machine(s) Total Production Quick View";
                     break;
             }
             tbpPanDetails.insertTab(tabName, icon, jpanel, tabName, i);
@@ -1317,9 +1432,10 @@ public class ProductionQuickView extends javax.swing.JPanel {
                     }
                 }
             } catch (IOException e1) {
-                JOptionPane.showMessageDialog(_parent, "Not very well implemented. Sorry !!!",
-                        "Production Quick View", JOptionPane.ERROR_MESSAGE);
-                e1.printStackTrace();
+                ConnectDB.appendToFileException(e1);
+//                JOptionPane.showMessageDialog(_parent, "Not very well implemented. Sorry !!!",
+//                        "Production Quick View", JOptionPane.ERROR_MESSAGE);
+//                e1.printStackTrace();
             }
         }
     }
@@ -1334,16 +1450,16 @@ public class ProductionQuickView extends javax.swing.JPanel {
                 + "AND h.Machine = t.Machine \n"
                 + "AND c.ConfigNo = t.ConfigNo \n"
                 + "AND c.AvMinMax =? \n"
-                + "AND c.Active = 1 ORDER BY h.HwNo ASC")) {
+                + "AND c.Active = 1 ORDER BY h.Machine ASC")) {
             ps.setString(1, type);
-            ConnectDB.res = ps.executeQuery();
+            ResultSet res = ps.executeQuery();
             boolean find = false;
             listModelTarget.clear();
             listModelTarget.addElement(" ");
-            while (ConnectDB.res.next()) {
+            while (res.next()) {
                 find = true;
-                listModelMachine.addElement(ConnectDB.res.getString(2));
-                listModelTarget.addElement(new StringBuilder("[").append(ConnectDB.res.getInt(1)).append("]").toString());
+                listModelMachine.addElement(res.getString(2));
+                listModelTarget.addElement(new StringBuilder("[").append(res.getInt(1)).append("]").toString());
                 countMachine++;
             }
             if (!find) {
@@ -1365,6 +1481,10 @@ public class ProductionQuickView extends javax.swing.JPanel {
                 _listTarget.setModel(listModelTarget);
             }
         }
+        showLastRecordedData();
+    }
+
+    private void showLastRecordedData() throws SQLException {
         try (PreparedStatement ps = ConnectDB.con.prepareStatement(Queries.GET_LAST_DATA_TIME)) {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
@@ -1376,9 +1496,9 @@ public class ProductionQuickView extends javax.swing.JPanel {
 
     private void setDateComponent() {
         catDate = false;
-        cmbDay.setFormat(ConnectDB.SDATE_FORMAT_HOUR);
-        cmbDay.setDate(Calendar.getInstance().getTime());
-        cmbDay.getEditor().getEditorComponent().setFocusable(false);
+        cmbQuickViewDay.setFormat(ConnectDB.SDATE_FORMAT_HOUR);
+        cmbQuickViewDay.setDate(Calendar.getInstance().getTime());
+        cmbQuickViewDay.getEditor().getEditorComponent().setFocusable(false);
         catDate = true;
     }
 
@@ -1396,7 +1516,7 @@ public class ProductionQuickView extends javax.swing.JPanel {
     private com.jidesoft.navigation.NavigationList _listTarget;
     private org.jdesktop.swingx.JXBusyLabel bslQuickView;
     private javax.swing.JButton btnExportExcelCsv;
-    private javax.swing.JButton btnLoadMachines;
+    private javax.swing.JButton btnLoadTargetMachines;
     private javax.swing.JToggleButton btnPerHour;
     private javax.swing.JToggleButton btnPerMin;
     private javax.swing.JButton btnProductionRate;
@@ -1407,7 +1527,7 @@ public class ProductionQuickView extends javax.swing.JPanel {
     private javax.swing.ButtonGroup buttonGroup1;
     private com.jidesoft.swing.CheckBoxList cblMachine;
     private javax.swing.JCheckBox chkDay;
-    private com.jidesoft.combobox.DateSpinnerComboBox cmbDay;
+    private com.jidesoft.combobox.DateSpinnerComboBox cmbQuickViewDay;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
@@ -1424,8 +1544,9 @@ public class ProductionQuickView extends javax.swing.JPanel {
     private com.jidesoft.swing.JideTabbedPane tbpPanDetails;
     // End of variables declaration//GEN-END:variables
     private boolean catProdTab = true, showActualTotalValues = true, skipRefresh, skipRunListSelection = false,
-            catDate;
+            catDate, isLoadTableFinished = true, isListSelection = false;
     private volatile boolean catCreateTab = false;
+//    private volatile boolean terminate = false;
     private int nbRow = 1;
     private static SortableTable tableRate, tableTotal;
     private static boolean totProdSelected = false;

@@ -59,10 +59,10 @@
               <Component id="jToolBar1" min="-2" pref="59" max="-2" attributes="0"/>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" attributes="0">
-                      <Component id="tbpPanDetails" max="32767" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
+                  <Group type="102" alignment="0" attributes="0">
                       <Component id="panProductionsOptions" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="tbpPanDetails" max="32767" attributes="0"/>
                   </Group>
                   <Group type="102" attributes="0">
                       <Group type="103" groupAlignment="2" attributes="0">
@@ -103,7 +103,7 @@
 
       <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBoxLayout"/>
       <SubComponents>
-        <Component class="javax.swing.JButton" name="btnLoadMachines">
+        <Component class="javax.swing.JButton" name="btnLoadTargetMachines">
           <Properties>
             <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
               <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -121,7 +121,7 @@
             <Property name="verticalTextPosition" type="int" value="3"/>
           </Properties>
           <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnLoadMachinesActionPerformed"/>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnLoadTargetMachinesActionPerformed"/>
           </Events>
         </Component>
         <Component class="javax.swing.JButton" name="btnTarget">
@@ -269,8 +269,12 @@
                 </Property>
               </Properties>
               <Events>
+                <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="cblMachineMouseClicked"/>
                 <EventHandler event="valueChanged" listener="javax.swing.event.ListSelectionListener" parameters="javax.swing.event.ListSelectionEvent" handler="cblMachineValueChanged"/>
               </Events>
+              <AuxValues>
+                <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new com.jidesoft.swing.CheckBoxList(){ @Override&#xa;    public int getNextMatch(String prefix, int startIndex, Position.Bias bias) {&#xa;        return -1;&#xa;    }}"/>
+              </AuxValues>
             </Component>
           </SubComponents>
         </Container>
@@ -325,7 +329,7 @@
                       <Group type="102" alignment="0" attributes="0">
                           <Component id="chkDay" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="cmbDay" min="-2" pref="172" max="-2" attributes="0"/>
+                          <Component id="cmbQuickViewDay" min="-2" pref="172" max="-2" attributes="0"/>
                       </Group>
                       <Group type="102" alignment="0" attributes="0">
                           <Component id="lblProduction" min="-2" max="-2" attributes="0"/>
@@ -362,7 +366,7 @@
                   <EmptySpace type="unrelated" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="2" attributes="0">
                       <Component id="lblMessage" linkSize="1" alignment="2" min="-2" max="-2" attributes="0"/>
-                      <Component id="cmbDay" linkSize="1" alignment="2" min="-2" max="-2" attributes="0"/>
+                      <Component id="cmbQuickViewDay" linkSize="1" alignment="2" min="-2" max="-2" attributes="0"/>
                       <Component id="chkDay" alignment="2" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace max="32767" attributes="0"/>
@@ -371,7 +375,7 @@
         </DimensionLayout>
       </Layout>
       <SubComponents>
-        <Component class="com.jidesoft.combobox.DateSpinnerComboBox" name="cmbDay">
+        <Component class="com.jidesoft.combobox.DateSpinnerComboBox" name="cmbQuickViewDay">
           <Properties>
             <Property name="showNoneButton" type="boolean" value="false"/>
             <Property name="showOKButton" type="boolean" value="true"/>
@@ -389,7 +393,7 @@
             </Property>
           </Properties>
           <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="cmbDayActionPerformed"/>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="cmbQuickViewDayActionPerformed"/>
           </Events>
         </Component>
         <Component class="javax.swing.JLabel" name="lblProduction">
@@ -404,6 +408,9 @@
           <Properties>
             <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
               <Color blue="ff" green="ff" red="ff" type="rgb"/>
+            </Property>
+            <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+              <Font name="Tahoma" size="12" style="1"/>
             </Property>
             <Property name="selected" type="boolean" value="true"/>
             <Property name="text" type="java.lang.String" value="End Time:"/>
@@ -477,6 +484,11 @@
     </Container>
     <Container class="com.jidesoft.swing.JideTabbedPane" name="tbpPanDetails">
       <Properties>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="org.netbeans.modules.form.compat2.border.EtchedBorderInfo">
+            <EtchetBorder/>
+          </Border>
+        </Property>
         <Property name="boldActiveTab" type="boolean" value="true"/>
         <Property name="focusable" type="boolean" value="false"/>
         <Property name="showCloseButtonOnMouseOver" type="boolean" value="true"/>

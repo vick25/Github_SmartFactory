@@ -17,6 +17,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.TreeSet;
+import javax.swing.JOptionPane;
+import mainFrame.MainMenuPanel;
 import smartfactoryV2.ConnectDB;
 import smartfactoryV2.Queries;
 
@@ -49,6 +51,7 @@ public class BarChartModel extends DefaultChartModel implements CumulativeSubrac
     public BarChartModel(final int myConfigNo, final String myQuery, final boolean withShifts,
             final String myMachineTitle, Date start, Date end, SortableTable tableTime) throws SQLException {
         super();
+        modelPoints = new DefaultChartModel();
         this._withShifts = withShifts;
         this._startD = start;
         this._endD = end;
@@ -182,6 +185,7 @@ public class BarChartModel extends DefaultChartModel implements CumulativeSubrac
                 }
                 this.setModelPoints(modelShift);
                 list.clear();
+            } else {
             }
         } else {
             /**
@@ -231,6 +235,14 @@ public class BarChartModel extends DefaultChartModel implements CumulativeSubrac
                     modelShift.addPoint(dateCategoryChart.get(j), sum);
                 }
                 this.setModelPoints(modelShift);
+                //change dashboard message
+            } else {
+                DashBoard.bslTime.setText("Chart's loading failed.");
+                JOptionPane.showMessageDialog(MainMenuPanel.getDashBoardFrame(), new StringBuilder("<html>Please, "
+                        + "adjust the Dashbaord starting time to this date: <font color=red><b>").
+                        append(DashBoard.getLastDBDate().substring(0, 10)).append("</b></font>,<br>and retry.").toString(),
+                        "Dashboard", JOptionPane.ERROR_MESSAGE);
+                modelPoints = null;
             }
         }
         subtractedDatalogValues.clear();
@@ -371,7 +383,8 @@ public class BarChartModel extends DefaultChartModel implements CumulativeSubrac
 //            return String.format("[%.1f, %.1f]", min, max);
 //        }
 //    }
-    private String lastHourValue, machineTitle;
+    private String lastHourValue;
+    private final String machineTitle;
     private volatile boolean _loopQueryFound = false, _withShifts;
     private final ArrayList logDateHourList = new ArrayList(),
             datalogValuesList = new ArrayList();
@@ -379,7 +392,7 @@ public class BarChartModel extends DefaultChartModel implements CumulativeSubrac
     private int countAlValues, lastValue, maxSumValue = 0;
     private final Date _startD, _endD;
     private final SortableTable _tableTime;
-    private DefaultChartModel modelPoints = new DefaultChartModel();
+    private DefaultChartModel modelPoints;
     private static String[][] sumHourValues;
     private static List<String> eachDateHour;
     private ArrayList<String> subtractedDatalogValues = null;

@@ -38,12 +38,17 @@ import com.jidesoft.range.Category;
 import com.jidesoft.range.CategoryRange;
 import com.jidesoft.range.NumericRange;
 import com.jidesoft.range.Positionable;
+import com.jidesoft.swing.DefaultOverlayable;
+import com.jidesoft.swing.InfiniteProgressPanel;
+import com.jidesoft.swing.Overlayable;
+import com.jidesoft.swing.OverlayableUtils;
 import com.jidesoft.swing.SearchableUtils;
 import com.jidesoft.swing.TreeSearchable;
 import com.jidesoft.tree.TreeUtils;
 import irepport.view.Print;
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GradientPaint;
@@ -74,6 +79,7 @@ import java.util.TreeSet;
 import java.util.Vector;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -129,6 +135,7 @@ public class EventsStatistic extends javax.swing.JPanel {
     public EventsStatistic(JFrame parent) throws SQLException {
         initComponents();
         this._parent = parent;//MainFrame
+        randomColor = new RandomColor();
         ConnectDB.getConnectionInstance();
         loadComboBox();//load the combobox with data from the database
         AutoCompleteDecorator.decorate(cmbMachineTitle);
@@ -141,12 +148,12 @@ public class EventsStatistic extends javax.swing.JPanel {
                 enableResetButton();
                 if (btnTimeEvent.isSelected()) {
                     lblTo.setEnabled(true);
-                    jLabel5.setEnabled(true);
+//                    lblEventTo.setEnabled(true);
                     lblFrom.setEnabled(true);
-                    lblProductionRate.setEnabled(true);
-                    jLabel4.setEnabled(true);
-                    cmbProductionType.setEnabled(true);
-                    spProductionRate.setEnabled(true);
+//                    lblProductionRate.setEnabled(true);
+//                    jLabel4.setEnabled(true);
+//                    cmbProductionType.setEnabled(true);
+//                    spProductionRate.setEnabled(true);
                     if (panChart.getComponentCount() > 0) {
                         btnClipboard.setEnabled(true);
                         btnPrintChart.setEnabled(true);
@@ -176,7 +183,7 @@ public class EventsStatistic extends javax.swing.JPanel {
                         }
                     }
                 } else {
-                    jLabel5.setEnabled(false);
+                    lblEventTo.setEnabled(false);
                     lblFrom.setEnabled(false);
                     lblTo.setEnabled(false);
                     lblProductionRate.setEnabled(false);
@@ -222,7 +229,7 @@ public class EventsStatistic extends javax.swing.JPanel {
         jLabel3 = new javax.swing.JLabel();
         jPanel6 = new javax.swing.JPanel();
         lblFrom = new javax.swing.JLabel();
-        jLabel5 = new javax.swing.JLabel();
+        lblEventTo = new javax.swing.JLabel();
         lblTo = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
         jPanel4 = new javax.swing.JPanel();
@@ -273,7 +280,7 @@ public class EventsStatistic extends javax.swing.JPanel {
         jPanel5.setBackground(new java.awt.Color(255, 255, 255));
 
         jSplitPane1.setDividerLocation(185);
-        jSplitPane1.setDividerSize(7);
+        jSplitPane1.setDividerSize(9);
         jSplitPane1.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
         jSplitPane1.setOneTouchExpandable(true);
 
@@ -336,11 +343,14 @@ public class EventsStatistic extends javax.swing.JPanel {
         lblProductionRate.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
         lblProductionRate.setForeground(new java.awt.Color(204, 0, 51));
         lblProductionRate.setText("Production Rate");
+        lblProductionRate.setEnabled(false);
 
         cmbProductionType.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "<", ">", "=", "<=", ">=" }));
         cmbProductionType.setSelectedIndex(2);
+        cmbProductionType.setEnabled(false);
 
         spProductionRate.setModel(new javax.swing.SpinnerNumberModel(Integer.valueOf(0), Integer.valueOf(0), null, Integer.valueOf(1)));
+        spProductionRate.setEnabled(false);
         spProductionRate.setFocusable(false);
 
         jLabel3.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
@@ -349,9 +359,9 @@ public class EventsStatistic extends javax.swing.JPanel {
 
         jPanel6.setBackground(new java.awt.Color(255, 255, 255));
 
-        jLabel5.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
-        jLabel5.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel5.setText("To");
+        lblEventTo.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        lblEventTo.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lblEventTo.setText("To");
 
         lblTo.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
 
@@ -363,7 +373,7 @@ public class EventsStatistic extends javax.swing.JPanel {
                 .addContainerGap()
                 .addComponent(lblFrom, javax.swing.GroupLayout.DEFAULT_SIZE, 114, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                .addComponent(lblEventTo, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(lblTo, javax.swing.GroupLayout.DEFAULT_SIZE, 115, Short.MAX_VALUE))
         );
@@ -371,7 +381,7 @@ public class EventsStatistic extends javax.swing.JPanel {
             jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
                 .addComponent(lblFrom, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addComponent(jLabel5)
+                .addComponent(lblEventTo)
                 .addComponent(lblTo))
         );
 
@@ -379,6 +389,7 @@ public class EventsStatistic extends javax.swing.JPanel {
 
         jLabel4.setFont(new java.awt.Font("Tahoma", 1, 10)); // NOI18N
         jLabel4.setText("(Prod)");
+        jLabel4.setEnabled(false);
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
@@ -429,7 +440,7 @@ public class EventsStatistic extends javax.swing.JPanel {
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
                     .addComponent(jLabel3)
                     .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(49, Short.MAX_VALUE))
         );
 
         jPanel3Layout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {cmbProductionType, lblProductionRate, spProductionRate});
@@ -602,7 +613,8 @@ public class EventsStatistic extends javax.swing.JPanel {
                     .addComponent(jLabel14)
                     .addComponent(cmbValue, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addComponent(jPanel7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
@@ -620,13 +632,13 @@ public class EventsStatistic extends javax.swing.JPanel {
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 187, Short.MAX_VALUE)
+            .addGap(0, 184, Short.MAX_VALUE)
             .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
                     .addGap(6, 6, 6)
-                    .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                         .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, 177, Short.MAX_VALUE))
                     .addGap(1, 1, 1)))
         );
 
@@ -878,6 +890,7 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
         max = 0;
         chart = null;
         model = null;
+        _thread1 = null;
         descriptionSet.clear();
 //        setDescOrValue.clear();
         runThread = null;
@@ -937,6 +950,7 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
 
     private void btnRefreshActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRefreshActionPerformed
         catMachine = true;
+        _thread1 = null;
         try {
             int[] rows = _tree.getSelectionRows();
             TreePath path = _tree.getSelectionPath();
@@ -965,8 +979,8 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
         reportOptions.chkPrintChart.setSelected(true);
         reportOptions.chkPrintTable.setSelected(false);
         reportOptions.chkPrintTable.setEnabled(false);
-        reportOptions.setReportTitle(cmbMachineTitle.getSelectedItem().toString() + " event for "
-                + chartTitle);
+        reportOptions.setReportTitle("Events plot for \"" + cmbMachineTitle.getSelectedItem().toString()
+                + "\" (" + timeFormat + ")");
         ReportOptions.txtReportTitle.setText(reportOptions.getReportTitle());
         ReportOptions.txtReportTitle.setForeground(Color.BLACK);
         ReportOptions.txtReportTitle.setHorizontalAlignment(javax.swing.JTextField.LEADING);
@@ -985,9 +999,11 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
                     }
                     String dirIcon = new StringBuilder(ConnectDB.getMainDir().getAbsolutePath()).
                             append(File.separator).append("chart.png").toString();
-                    ChartUtils.writePngToFile(panChart, new File(dirIcon));
+                    ChartUtils.writePngToFile(chart, new File(dirIcon));
                     hashMap.put("logo", reportOptions.getPhoto());
                     hashMap.put("logo2", getClass().getResourceAsStream("/jasper/smartfactory.png"));
+                    hashMap.put("date1", ConnectDB.SDATE_FORMAT_HOUR.format(eventFrom));
+                    hashMap.put("date2", ConnectDB.SDATE_FORMAT_HOUR.format(eventTo));
                     if (reportOptions.isAddChart()) {
                         hashMap.put("photo", new FileInputStream(new File(dirIcon)));
                     }
@@ -1055,7 +1071,7 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
                         + "list component.").toggleToolTip();
                 return;
             }
-            if (!cmbMachineTitle.getSelectedItem().equals("") && cmbMachineTitle.getSelectedIndex() > 0) {
+            if (!"".equals(cmbMachineTitle.getSelectedItem()) && cmbMachineTitle.getSelectedIndex() > 0) {
                 machineTitle = cmbMachineTitle.getSelectedItem().toString();
                 try {
                     machineID = ConnectDB.getIDMachine(machineTitle);
@@ -1147,9 +1163,9 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
     }//GEN-LAST:event_cmbDescriptionItemStateChanged
 
     private void btnDataEventActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDataEventActionPerformed
+//        panChart.removeAll();
+//        panChart.repaint();
         btnRefreshActionPerformed(evt);
-        panChart.removeAll();
-        panChart.repaint();
     }//GEN-LAST:event_btnDataEventActionPerformed
 
     private void btnTimeEventActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnTimeEventActionPerformed
@@ -1170,24 +1186,24 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
 
     private void getComponentDates() throws SQLException {
         if (cmbEFrom.getDate() != null && cmbEFrom.isEnabled()) {
-            dt_startE = cmbEFrom.getDate();
+            eventFrom = cmbEFrom.getDate();
         } else {
             try (Statement stmt = ConnectDB.con.createStatement()) {
                 ConnectDB.res = stmt.executeQuery("SELECT LogTime FROM datalog "
                         + "ORDER BY LogTime LIMIT 1");
                 while (ConnectDB.res.next()) {
-                    dt_startE = ConnectDB.res.getDate("LogTime");
+                    eventFrom = ConnectDB.res.getDate("LogTime");
                 }
             }
         }
         if (cmbETo.getDate() != null && cmbETo.isEnabled()) {
-            dt_stopE = cmbETo.getDate();
+            eventTo = cmbETo.getDate();
         } else {
             try (Statement stmt = ConnectDB.con.createStatement()) {
                 ConnectDB.res = stmt.executeQuery("SELECT LogTime FROM datalog "
                         + "ORDER BY LogTime LIMIT 1");
                 while (ConnectDB.res.next()) {
-                    dt_stopE = ConnectDB.res.getDate("LogTime");
+                    eventTo = ConnectDB.res.getDate("LogTime");
                 }
             }
         }
@@ -1200,47 +1216,48 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
         Set<String> setDescriptionValue = new TreeSet<>();
         PreparedStatement ps;
         descriptionSet.clear();
-        String time = null, query;
+        String time = "", query;
         boolean loopQueryFound = false;
 
-        if (btnDataEvent.isSelected()) {
-            time = "";
-        } else {
-            //Get the minimum and maximum logtime of a specified production rate value (ie. 0)
-            query = new StringBuilder("SELECT LogData, \n").append("CONCAT(MIN(LogTime), ', ', MAX(LogTime)) AS Time \n"
-                    + "FROM datalog d, configuration co, hardware h \nWHERE co.HwNo = h.HwNo \n"
-                    + "AND co.ConfigNo = d.ConfigNo \nAND ((d.LogData * 60) ").
-                    append(cmbProductionType.getSelectedItem()).append(" ?) \n"
-                            + "AND d.ConfigNo =? \nAND co.HwNo =? \n"
-                            + "AND (d.LogTime BETWEEN ? AND ?) \n"
-                            + "GROUP BY LogData").toString();
-            ps = ConnectDB.con.prepareStatement(query);
-            ps.setInt(1, (int) spProductionRate.getValue());
-            ps.setInt(2, getConfigNo());
-            ps.setInt(3, machineID);
-            ps.setString(4, ConnectDB.SDATE_FORMAT_HOUR.format(dt_startE));
-            ps.setString(5, ConnectDB.SDATE_FORMAT_HOUR.format(dt_stopE));
-            ConnectDB.res = ps.executeQuery();
-            while (ConnectDB.res.next()) {
-                loopQueryFound = true;
-                time = ConnectDB.res.getString(2);
-            }
-            ps.close();
-        }
+//        if (btnDataEvent.isSelected()) {
+//            time = "";
+//        } else {
+//            //Get the minimum and maximum logtime of a specified production rate value (ie. 0)
+//            query = new StringBuilder("SELECT LogData, \n").append("CONCAT(MIN(LogTime), ', ', MAX(LogTime)) AS Time \n"
+//                    + "FROM datalog d, configuration co, hardware h \nWHERE co.HwNo = h.HwNo \n"
+//                    + "AND co.ConfigNo = d.ConfigNo \nAND ((d.LogData * 60) ").
+//                    append(cmbProductionType.getSelectedItem()).append(" ?) \n"
+//                            + "AND d.ConfigNo =? \nAND co.HwNo =? \n"
+//                            + "AND (d.LogTime BETWEEN ? AND ?) \n"
+//                            + "GROUP BY LogData").toString();
+//            ps = ConnectDB.con.prepareStatement(query);
+//            ps.setInt(1, (int) spProductionRate.getValue());
+//            ps.setInt(2, getConfigNo());
+//            ps.setInt(3, machineID);
+//            ps.setString(4, ConnectDB.SDATE_FORMAT_HOUR.format(dt_startE));
+//            ps.setString(5, ConnectDB.SDATE_FORMAT_HOUR.format(dt_stopE));
+//            System.out.println(ps.toString());
+//            ConnectDB.res = ps.executeQuery();
+//            while (ConnectDB.res.next()) {
+//                loopQueryFound = true;
+//                time = ConnectDB.res.getString(2);
+//            }
+//            ps.close();
+//        }
         //case there is no events dates found where the production rate is specified
         if (time != null) {
-            if (!"".equals(time)) {//case for the time event
-                StringTokenizer st = new StringTokenizer(time, ",");
-                minLogTime = st.nextToken();//the eventtime minimum value
-                maxLogTime = st.nextToken();//the eventtime maximum value
-                lblFrom.setText(minLogTime);
-                lblTo.setText(maxLogTime);
-            } else {//case for the data event
-                minLogTime = ConnectDB.SDATE_FORMAT_HOUR.format(dt_startE);//the eventtime minimum value
-                maxLogTime = ConnectDB.SDATE_FORMAT_HOUR.format(dt_stopE);//the eventtime maximum value
-                lblFrom.setText("");
-                lblTo.setText("");
-            }
+//            if (!"".equals(time)) {//case for the time event
+////                StringTokenizer st = new StringTokenizer(time, ",");
+////                minLogTime = st.nextToken();//the eventtime minimum value
+////                maxLogTime = st.nextToken();//the eventtime maximum value
+//                lblFrom.setText("");
+//                lblTo.setText("");
+//            } else {//case for the data event
+//            }
+            minLogTime = ConnectDB.SDATE_FORMAT_HOUR.format(eventFrom);//the eventtime minimum value
+            maxLogTime = ConnectDB.SDATE_FORMAT_HOUR.format(eventTo);//the eventtime maximum value  
+            lblFrom.setText("");
+            lblTo.setText("");
             query = "SELECT e.EventNo, CONCAT(e.EventTime, ',', e.UntilTime) AS 'Time', e.Value, c.Description \n"
                     + "FROM eventlog e, customlist c \n"
                     + "WHERE e.CustomCode = c.Code \n"
@@ -1338,7 +1355,7 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
 
                         @Override
                         public void run() {
-                            drawChart();//draw the chart when clicking on a tree leaf
+                            drawPanel();//draw the chart when clicking on a tree leaf
                         }
                     });
                     runThread.start();
@@ -1352,16 +1369,33 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
         }
     }
 
-    private void drawChart() {
+    private void drawPanel() {
         try {
             TreePath path = _tree.getSelectionPath();
             if (path != null) {
-                String valTitle = chartTitle();//method to get the title for the chart
+                String valTitle = getChartTitleFromTree();//method to get the title for the chart
                 if (!_tree.getModel().isLeaf(path.getLastPathComponent())) {
                     drawChart(clickTreeSQLQuery(valTitle));//Query method
                 } else {//Case is a leaf
-//                    panChart.removeAll();
-//                    panChart.repaint();
+                    DefaultMutableTreeNode parent = (DefaultMutableTreeNode) path.getLastPathComponent();
+                    String pathParent = String.valueOf(parent.getParent()),
+                            pathChild = String.valueOf(path.getLastPathComponent());
+                    panChart.removeAll();
+                    if (btnTimeEvent.isSelected()) {
+                        panChart.add(new EventsLeafTime(pathChild, pathParent));
+                        panChart.revalidate();
+                        lblTimeSum.setText("");
+                    } else {
+                        customCodeValue = pathParent;
+                        drawChart(new StringBuilder("SELECT e.`EventTime`, e.`Value`, e.`UntilTime` \n").
+                                append("FROM eventlog e, customlist c \nWHERE e.HwNo = '").append(machineID).
+                                append("' AND e.CustomCode = c.Code \nAND e.Value <> '(null)' \n"
+                                        + "AND (e.EventTime BETWEEN '").append(minLogTime).append("' AND '").
+                                append(maxLogTime).append("') \n" + "AND c.`Description` = '").
+                                append(ConnectDB.firstLetterCapital(pathParent.toLowerCase())).
+                                append("' AND e.Value = '").append(pathChild).
+                                append("' \nORDER BY e.CustomCode ASC, e.`EventTime` ASC, e.`Value` ASC").toString());//Query method
+                    }
                 }
             }
         } catch (SQLException ex) {
@@ -1369,12 +1403,12 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
         }
     }
 
-    private static String chartTitle() {
+    private static String getChartTitleFromTree() {
         StringBuilder title = new StringBuilder();
         TreePath treePath = _tree.getSelectionPath();
         if (treePath != null) {
             if (!_tree.getModel().isLeaf(treePath.getLastPathComponent())) {
-                title.append(treePath.getPath()[0]);//Root Node title
+                title.append(treePath.getPath()[0]);//Root node title
                 if (!_tree.getModel().isLeaf(treePath.getLastPathComponent())
                         && (!treePath.getLastPathComponent().toString().equals(treePath.getPath()[0].toString()))) {
                     for (Object path : treePath.getPath()) {
@@ -1385,8 +1419,6 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
                     }
                     return title.substring(0, title.length() - 1).toLowerCase();
                 }
-            } else {//case is a leaf
-//                System.out.println("leaf");
             }
         }
         return title.toString();
@@ -1467,17 +1499,50 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
         colorsCategoryRange = new CategoryRange<>();
         HL = new ArrayList();
         if (!query.isEmpty()) {
+            panChart.removeAll();
             if (btnDataEvent.isSelected()) {
-                panChart.removeAll();
-                panChart.add(new EventsDataPanel(customCodeValue, query, machineTitle));
+                _thread1 = null;
+                JPanel panelShow = new JPanel(new BorderLayout());
+                panelShow.setBackground(new Color(255, 255, 255));
+                panelShow.setOpaque(true);
+                final DefaultOverlayable overlayPanelArea = new DefaultOverlayable(panelShow);
+
+                final InfiniteProgressPanel progressPanel = new InfiniteProgressPanel() {
+                    @Override
+                    public Dimension getPreferredSize() {
+                        return new Dimension(90, 90);
+                    }
+                };
+                overlayPanelArea.addOverlayComponent(progressPanel);
+                progressPanel.stop();
+                overlayPanelArea.setOverlayVisible(false);
+
+                if (_thread1 == null || !_thread1.isAlive()) {
+                    _thread1 = createThread(progressPanel, panelShow, query);
+                    _thread1.start();
+                    progressPanel.start();
+                }
+                if (EventsDataPanel.isLoadDataFinish()) {
+                    if (_thread1 != null) {
+                        _thread1.interrupt();
+                        _thread1 = null;
+                        progressPanel.stop();
+                    }
+                }
+
+                JPanel panel = new JPanel(new BorderLayout());
+                panel.add(overlayPanelArea);
+
+                panChart.add(panel);
                 panChart.revalidate();
+                EventsDataPanel.setLoadDataFinish(false);
             } else {
-                ArrayList<String> allDatas = new ArrayList<>();//listarray to get only the date from the database
+                ArrayList<String> allDatas = new ArrayList<>();//listarray to get only the date from the database                
+                Set<String> setDescOrValue = new TreeSet<>();
                 Statement stat = ConnectDB.con.createStatement();
                 ConnectDB.res = stat.executeQuery(query);
                 double sum;
                 max = 0;
-                Set<String> setDescOrValue = new TreeSet<>();
                 timeFormat = "fictitious value";
                 while (ConnectDB.res.next()) {
                     String eventTime = ConnectDB.res.getString(1),//EventTime
@@ -1507,9 +1572,9 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
                     }
                 }
                 Set<String> setData = null;//define the set depending on the tree path selected
-                if (chartTitle().equalsIgnoreCase(machineTitle)) {
+                if (getChartTitleFromTree().equalsIgnoreCase(machineTitle)) {
                     setData = descriptionSet; //set for only the description
-                } else if (descriptionSet.contains(chartTitle())) {
+                } else if (descriptionSet.contains(getChartTitleFromTree())) {
                     setData = setDescOrValue; //set for only the value
                 }
                 totalSum = 0d;
@@ -1518,8 +1583,8 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
                     sum = 0d;
                     for (int j = 0; j < allDatas.size(); j++) {
                         StringTokenizer st = new StringTokenizer(allDatas.get(j), ";");
-                        String time = st.nextToken();//0==
-                        String val = st.nextToken();//1==
+                        final String time = st.nextToken();//0==
+                        final String val = st.nextToken();//1==
 //                            String[] ses = allDatas.get(j).split(",");
                         if (setLine.equalsIgnoreCase(val)) {
                             sum += Double.parseDouble(time);//get the sum of time
@@ -1557,6 +1622,31 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
         }
     }
 
+    private Thread createThread(final InfiniteProgressPanel progressPanel, final JComponent panelShow, final String query) {
+        return new Thread() {
+            @Override
+            public void run() {
+                Overlayable overlayable = OverlayableUtils.getOverlayable(panelShow);
+                if (overlayable != null) {
+                    overlayable.setOverlayVisible(true);
+                }
+                try {
+                    EventsDataPanel edp = new EventsDataPanel(customCodeValue, query, machineTitle);
+                    panelShow.add(edp);
+                } catch (SQLException ex) {
+                    ConnectDB.catchSQLException(ex);
+                }
+//                try {
+//                    Thread.sleep(100);
+//                } catch (InterruptedException e) {
+//                }
+                if (overlayable != null) {
+                    overlayable.setOverlayVisible(false);
+                }
+            }
+        };
+    }
+
     private static Axis chartTitleAxis() {
         Axis yAxis;
         switch (timeFormat) {
@@ -1580,8 +1670,8 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
         Axis yAxis;
         yAxis = new Axis(new NumericRange(0, max + num));
         yAxis.setLabel(new AutoPositionedLabel(new StringBuilder(smallName).append("(s)").toString(), Color.BLACK));
-        String title = chartTitle().toUpperCase();
-        chartTitle = new StringBuilder(title).append(" (").append(bigName).append(")").toString();
+        String title = getChartTitleFromTree().toUpperCase();
+//        chartTitle = new StringBuilder(title).append(" (").append(bigName).append(")").toString();
         reportTitle = new StringBuilder("<html>").append(title).append(" <font color=Red><strong>(").
                 append(bigName).append(")</strong></font><html>").toString();
         chart.setTitle(new AutoPositionedLabel(reportTitle, Color.BLACK, ConnectDB.TITLEFONT));
@@ -1819,11 +1909,7 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
 
     private void enableResetButton() {
         if (cmbMachineTitle.getSelectedIndex() > 0 || cmbValue.getSelectedObjects().length != 0
-                //                CBCategory.getSelectedObjects().length != 0
                 || cmbDescription.getSelectedObjects().length != 0
-                //                || CBLocation.getSelectedObjects().length != 0
-                //                || CBMonth.getSelectedObjects().length != 0 || CBYear.getSelectedObjects().length != 0
-                //                || CBSemester.getSelectedObjects().length != 0 || CBTrimester.getSelectedObjects().length != 0
                 || panChart.getComponentCount() > 0) {
             btnReset.setEnabled(true);
         } else {
@@ -1852,19 +1938,18 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
         catMachine = true;
     }
 
-    private int getConfigNo() throws SQLException {
-        int configNo = -1;
-        try (PreparedStatement ps = ConnectDB.con.prepareStatement(Queries.GET_CONFIGNO)) {
-            ps.setString(1, "Rate");
-            ps.setString(2, machineTitle);
-            ConnectDB.res = ps.executeQuery();
-            while (ConnectDB.res.next()) {
-                configNo = ConnectDB.res.getInt(1);
-            }
-        }
-        return configNo;
-    }
-
+//    private int getConfigNo() throws SQLException {
+//        int configNo = -1;
+//        try (PreparedStatement ps = ConnectDB.con.prepareStatement(Queries.GET_CONFIGNO)) {
+//            ps.setString(1, "Rate");
+//            ps.setString(2, machineTitle);
+//            ConnectDB.res = ps.executeQuery();
+//            while (ConnectDB.res.next()) {
+//                configNo = ConnectDB.res.getInt(1);
+//            }
+//        }
+//        return configNo;
+//    }
     public static class Machine {
 
         private String m_machName;
@@ -1895,19 +1980,6 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
             final JFrame frame = new JFrame("Smartfactory Events & Downtime Statistics Report 1.0");
             frame.setSize(1000, 700);
             frame.setContentPane(new EventsStatistic(null));
-//            frame.addWindowListener(new WindowAdapter() {
-//
-//                @Override
-//                public void windowClosing(WindowEvent e) {
-//                    if (JOptionPane.showConfirmDialog(frame, "Please make sure to save any data before closing.\n"
-//                            + "Do you want to close ?",
-//                            "Exit", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE) == 0) {
-//                        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-//                    } else {
-//                        frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-//                    }
-//                }
-//            });
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             frame.setLocationRelativeTo(null);
             frame.setVisible(true);
@@ -1945,7 +2017,6 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
@@ -1963,6 +2034,7 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
     private javax.swing.JToolBar jToolBar7;
     private javax.swing.JToolBar jToolBar8;
     private javax.swing.JToolBar jToolBar9;
+    private javax.swing.JLabel lblEventTo;
     private javax.swing.JLabel lblFrom;
     private javax.swing.JLabel lblProductionRate;
     private javax.swing.JLabel lblTimeSum;
@@ -1976,23 +2048,23 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
     // End of variables declaration//GEN-END:variables
     private static int machineID = -1;
     private static double totalSum = 0d;
-    private Date dt_startE, dt_stopE;
+    private Date eventFrom, eventTo;
     private boolean skipFirstMessage = true,//variables for the dates;
             catMachine, catDescription;//check if all the machineTitle title are loaded
     private static int max = 0;
-    private static final RandomColor randomColor = new RandomColor();
+    private static RandomColor randomColor = null;
     private static ChartStyle stylePieChart = null;
     private static ArrayList HL = null;
     private static DefaultChartModel model = null;
     private static Chart chart;
     private static CategoryRange<ChartCategory> colorsCategoryRange = null;
     private static String minLogTime = null, maxLogTime = null,//also used in the EventsHierarchicalTable
-            timeFormat = null, reportTitle = "", chartTitle = "", machineTitle = null, customCodeValue = "";
+            timeFormat = null, reportTitle = "", machineTitle = null, customCodeValue = "";
     private static MouseDragPanner panner;
     private static JTree _tree;
     private static final Set<String> descriptionSet = new TreeSet<>();
     private EventsHierarchicalTable eht = null;
     private final JFrame _parent;
-    private Thread runThread;
+    private Thread runThread, _thread1;
     private final String EMPTYEVENTS = "***NO EVENT RETRIEVED***";
 }

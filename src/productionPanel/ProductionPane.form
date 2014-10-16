@@ -49,7 +49,7 @@
         <DimensionLayout dim="0">
           <Group type="103" groupAlignment="0" attributes="0">
               <Component id="jToolBar1" alignment="0" pref="0" max="32767" attributes="0"/>
-              <Component id="jSplitPane1" alignment="0" pref="1106" max="32767" attributes="0"/>
+              <Component id="jSplitPane1" alignment="0" max="32767" attributes="0"/>
           </Group>
         </DimensionLayout>
         <DimensionLayout dim="1">
@@ -93,7 +93,7 @@
 
               <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBoxLayout"/>
               <SubComponents>
-                <Component class="javax.swing.JButton" name="btnReset">
+                <Component class="javax.swing.JButton" name="btnCleanUI">
                   <Properties>
                     <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
                       <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -109,23 +109,8 @@
                     <Property name="verticalTextPosition" type="int" value="3"/>
                   </Properties>
                   <Events>
-                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnResetActionPerformed"/>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnCleanUIActionPerformed"/>
                   </Events>
-                </Component>
-                <Component class="javax.swing.JButton" name="btnEmail">
-                  <Properties>
-                    <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-                      <Color blue="ff" green="ff" red="ff" type="rgb"/>
-                    </Property>
-                    <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-                      <Image iconType="3" name="/images/icons/mail_1.png"/>
-                    </Property>
-                    <Property name="text" type="java.lang.String" value="Email"/>
-                    <Property name="enabled" type="boolean" value="false"/>
-                    <Property name="focusable" type="boolean" value="false"/>
-                    <Property name="horizontalTextPosition" type="int" value="0"/>
-                    <Property name="verticalTextPosition" type="int" value="3"/>
-                  </Properties>
                 </Component>
                 <Component class="javax.swing.JButton" name="btnStop">
                   <Properties>
@@ -155,7 +140,7 @@
                     <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
                       <Image iconType="3" name="/images/icons/event_time_2.png"/>
                     </Property>
-                    <Property name="text" type="java.lang.String" value="View Events"/>
+                    <Property name="text" type="java.lang.String" value="Events"/>
                     <Property name="toolTipText" type="java.lang.String" value="Show the events interface of the current machine with the periods"/>
                     <Property name="focusable" type="boolean" value="false"/>
                     <Property name="horizontalTextPosition" type="int" value="0"/>
@@ -240,6 +225,23 @@
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnCopyToClipboardActionPerformed"/>
                   </Events>
                 </Component>
+                <Component class="javax.swing.JButton" name="btnShowTargets">
+                  <Properties>
+                    <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+                      <Color blue="ff" green="ff" red="ff" type="rgb"/>
+                    </Property>
+                    <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
+                      <Image iconType="3" name="/images/icons/target_1.png"/>
+                    </Property>
+                    <Property name="text" type="java.lang.String" value="Targets"/>
+                    <Property name="focusable" type="boolean" value="false"/>
+                    <Property name="horizontalTextPosition" type="int" value="0"/>
+                    <Property name="verticalTextPosition" type="int" value="3"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnShowTargetsActionPerformed"/>
+                  </Events>
+                </Component>
                 <Component class="javax.swing.JButton" name="btnViewData">
                   <Properties>
                     <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
@@ -248,7 +250,7 @@
                     <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
                       <Image iconType="3" name="/images/icons/view_icon.png"/>
                     </Property>
-                    <Property name="text" type="java.lang.String" value="Show chart data"/>
+                    <Property name="text" type="java.lang.String" value="Chart data table"/>
                     <Property name="toolTipText" type="java.lang.String" value="View the current chart values in a table"/>
                     <Property name="focusable" type="boolean" value="false"/>
                     <Property name="horizontalTextPosition" type="int" value="0"/>
@@ -268,7 +270,7 @@
                     <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
                       <Image iconType="3" name="/images/icons/time.png"/>
                     </Property>
-                    <Property name="text" type="java.lang.String" value="Database History"/>
+                    <Property name="text" type="java.lang.String" value="Database history"/>
                     <Property name="toolTipText" type="java.lang.String" value="Show raw database records"/>
                     <Property name="focusable" type="boolean" value="false"/>
                     <Property name="horizontalTextPosition" type="int" value="0"/>
@@ -384,7 +386,7 @@
             <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
               <Color blue="ff" green="ff" red="ff" type="rgb"/>
             </Property>
-            <Property name="dividerLocation" type="int" value="345"/>
+            <Property name="dividerLocation" type="int" value="340"/>
             <Property name="dividerSize" type="int" value="8"/>
             <Property name="oneTouchExpandable" type="boolean" value="true"/>
           </Properties>
@@ -406,22 +408,24 @@
               <Layout>
                 <DimensionLayout dim="0">
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <Group type="102" alignment="0" attributes="0">
+                      <Group type="102" attributes="0">
                           <EmptySpace max="-2" attributes="0"/>
-                          <Group type="103" groupAlignment="1" max="-2" attributes="0">
+                          <Group type="103" groupAlignment="0" attributes="0">
+                              <Group type="103" alignment="0" groupAlignment="2" attributes="0">
+                                  <Component id="jPanel4" linkSize="10" alignment="2" max="32767" attributes="0"/>
+                                  <Component id="lblSpace" linkSize="10" alignment="2" max="32767" attributes="0"/>
+                                  <Component id="jPanel6" linkSize="10" alignment="2" max="32767" attributes="0"/>
+                                  <Component id="jSeparator1" linkSize="10" alignment="2" max="32767" attributes="0"/>
+                              </Group>
                               <Group type="102" alignment="0" attributes="0">
-                                  <Component id="jLabel1" min="-2" pref="69" max="-2" attributes="0"/>
+                                  <Component id="jLabel1" min="-2" pref="63" max="-2" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
-                                  <Component id="cmbMachineTitle" min="-2" pref="146" max="-2" attributes="0"/>
+                                  <Component id="cmbMachineTitle" min="-2" pref="148" max="-2" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
                                   <Component id="chkActiveChannel" min="-2" max="-2" attributes="0"/>
                               </Group>
-                              <Component id="jSeparator1" alignment="0" max="32767" attributes="0"/>
-                              <Component id="jPanel4" linkSize="7" alignment="0" max="32767" attributes="0"/>
-                              <Component id="jPanel6" linkSize="7" alignment="0" min="-2" max="-2" attributes="0"/>
-                              <Component id="lblSpace" alignment="0" max="32767" attributes="0"/>
                           </Group>
-                          <EmptySpace min="-2" pref="18" max="-2" attributes="0"/>
+                          <EmptySpace pref="19" max="32767" attributes="0"/>
                       </Group>
                   </Group>
                 </DimensionLayout>
@@ -489,31 +493,33 @@
                     <DimensionLayout dim="0">
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Group type="102" alignment="0" attributes="0">
-                              <EmptySpace min="16" pref="16" max="-2" attributes="0"/>
-                              <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                                  <Component id="jSeparator4" max="32767" attributes="0"/>
-                                  <Component id="jSeparator2" max="32767" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Group type="103" groupAlignment="0" attributes="0">
+                                  <Component id="jSeparator4" min="-2" pref="278" max="-2" attributes="0"/>
                                   <Group type="102" alignment="0" attributes="0">
                                       <Group type="103" groupAlignment="0" attributes="0">
                                           <Component id="jLabel3" alignment="0" min="-2" max="-2" attributes="0"/>
                                           <Component id="jLabel15" alignment="0" min="-2" max="-2" attributes="0"/>
                                       </Group>
                                       <EmptySpace max="-2" attributes="0"/>
-                                      <Group type="103" groupAlignment="0" attributes="0">
-                                          <Group type="102" alignment="0" attributes="0">
+                                      <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                                          <Group type="102" attributes="0">
                                               <Component id="cmbChannel" min="-2" pref="152" max="-2" attributes="0"/>
                                               <EmptySpace max="-2" attributes="0"/>
                                               <Component id="lblActive" min="-2" pref="69" max="-2" attributes="0"/>
                                           </Group>
-                                          <Group type="102" alignment="0" attributes="0">
-                                              <Component id="cmbOptions" min="-2" pref="179" max="-2" attributes="0"/>
+                                          <Group type="102" attributes="0">
+                                              <Component id="cmbOptions" min="-2" pref="176" max="-2" attributes="0"/>
                                               <EmptySpace max="-2" attributes="0"/>
-                                              <Component id="btnAddMode" min="-2" max="-2" attributes="0"/>
+                                              <Component id="btnAddMode" max="32767" attributes="0"/>
                                           </Group>
                                       </Group>
                                   </Group>
-                                  <Component id="panProductionRate" alignment="0" max="32767" attributes="0"/>
-                                  <Component id="btnPlotChart" alignment="0" max="32767" attributes="0"/>
+                                  <Component id="btnPlotChart" min="-2" pref="278" max="-2" attributes="0"/>
+                                  <Group type="103" alignment="0" groupAlignment="1" max="-2" attributes="0">
+                                      <Component id="panProductionRate" alignment="0" max="32767" attributes="0"/>
+                                      <Component id="jSeparator2" alignment="0" max="32767" attributes="0"/>
+                                  </Group>
                               </Group>
                               <EmptySpace max="32767" attributes="0"/>
                           </Group>
@@ -637,7 +643,7 @@
                                   <Component id="radPerHour" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
                                   <Component id="radPerMin" min="-2" max="-2" attributes="0"/>
-                                  <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
+                                  <EmptySpace min="0" pref="148" max="32767" attributes="0"/>
                               </Group>
                           </Group>
                         </DimensionLayout>
@@ -740,6 +746,8 @@
                                           <Group type="102" alignment="0" attributes="0">
                                               <Component id="chkPerShift" min="-2" max="-2" attributes="0"/>
                                               <EmptySpace max="32767" attributes="0"/>
+                                              <Component id="spShiftTableRow" min="-2" max="-2" attributes="0"/>
+                                              <EmptySpace max="-2" attributes="0"/>
                                               <Component id="btnShiftTable" min="-2" max="-2" attributes="0"/>
                                           </Group>
                                       </Group>
@@ -747,7 +755,7 @@
                                   </Group>
                                   <Group type="102" alignment="0" attributes="0">
                                       <Component id="panShiftTime" min="-2" max="-2" attributes="0"/>
-                                      <EmptySpace pref="21" max="32767" attributes="0"/>
+                                      <EmptySpace max="32767" attributes="0"/>
                                   </Group>
                               </Group>
                           </Group>
@@ -768,10 +776,11 @@
                               </Group>
                               <EmptySpace type="unrelated" max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="2" attributes="0">
-                                  <Component id="chkPerShift" alignment="2" min="-2" max="-2" attributes="0"/>
-                                  <Component id="btnShiftTable" alignment="2" min="-2" max="-2" attributes="0"/>
+                                  <Component id="spShiftTableRow" linkSize="8" alignment="2" min="-2" max="-2" attributes="0"/>
+                                  <Component id="btnShiftTable" linkSize="8" alignment="2" min="-2" max="-2" attributes="0"/>
+                                  <Component id="chkPerShift" linkSize="8" alignment="2" min="-2" max="-2" attributes="0"/>
                               </Group>
-                              <EmptySpace min="-2" pref="7" max="-2" attributes="0"/>
+                              <EmptySpace min="-2" pref="6" max="-2" attributes="0"/>
                               <Component id="panShiftTime" min="-2" max="-2" attributes="0"/>
                           </Group>
                       </Group>
@@ -944,6 +953,16 @@
                         <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="btnShiftTableMouseClicked"/>
                       </Events>
                     </Component>
+                    <Component class="com.alee.laf.spinner.WebSpinner" name="spShiftTableRow">
+                      <Properties>
+                        <Property name="model" type="javax.swing.SpinnerModel" editor="org.netbeans.modules.form.editors2.SpinnerModelEditor">
+                          <SpinnerModel initial="1" minimum="1" numberType="java.lang.Integer" stepSize="1" type="number"/>
+                        </Property>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="stateChanged" listener="javax.swing.event.ChangeListener" parameters="javax.swing.event.ChangeEvent" handler="spShiftTableRowStateChanged"/>
+                      </Events>
+                    </Component>
                   </SubComponents>
                 </Container>
                 <Component class="javax.swing.JCheckBox" name="chkActiveChannel">
@@ -1038,7 +1057,7 @@
                       <Layout>
                         <DimensionLayout dim="0">
                           <Group type="103" groupAlignment="0" attributes="0">
-                              <Component id="tbpPanDetails" alignment="0" pref="750" max="32767" attributes="0"/>
+                              <Component id="tbpPanDetails" alignment="0" pref="755" max="32767" attributes="0"/>
                           </Group>
                         </DimensionLayout>
                         <DimensionLayout dim="1">
@@ -1056,7 +1075,6 @@
                             <Property name="colorTheme" type="int" value="4"/>
                             <Property name="boldActiveTab" type="boolean" value="true"/>
                             <Property name="focusable" type="boolean" value="false"/>
-                            <Property name="scrollSelectedTabOnWheel" type="boolean" value="true"/>
                             <Property name="showCloseButton" type="boolean" value="true"/>
                             <Property name="showCloseButtonOnMouseOver" type="boolean" value="true"/>
                             <Property name="showCloseButtonOnSelectedTab" type="boolean" value="true"/>
@@ -1091,7 +1109,7 @@
                                           <Component id="btnCleanTable" min="-2" max="-2" attributes="0"/>
                                           <EmptySpace max="-2" attributes="0"/>
                                           <Component id="btnShowEvents" min="-2" max="-2" attributes="0"/>
-                                          <EmptySpace pref="131" max="32767" attributes="0"/>
+                                          <EmptySpace pref="133" max="32767" attributes="0"/>
                                           <Component id="btnExportExcelCsv" min="-2" max="-2" attributes="0"/>
                                       </Group>
                                   </Group>
@@ -1252,7 +1270,7 @@
                                               <Component id="lblShiftSum2" linkSize="5" alignment="0" min="-2" max="-2" attributes="0"/>
                                               <Component id="lblShiftSum3" linkSize="5" alignment="0" min="-2" pref="121" max="-2" attributes="0"/>
                                           </Group>
-                                          <EmptySpace min="28" pref="97" max="32767" attributes="0"/>
+                                          <EmptySpace min="28" pref="100" max="32767" attributes="0"/>
                                       </Group>
                                   </Group>
                                 </DimensionLayout>

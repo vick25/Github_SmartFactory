@@ -20,9 +20,17 @@ import java.util.Date;
 import java.util.Timer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.AbstractAction;
+import javax.swing.ActionMap;
+import javax.swing.ComponentInputMap;
+import javax.swing.InputMap;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
+import javax.swing.plaf.ActionMapUIResource;
 import mainFrame.MainMenuPanel;
 import resources.Constants;
 import resources.ReadPropertiesFile;
@@ -59,6 +67,18 @@ public class DashBoard extends javax.swing.JPanel {
         return _colDashBoard;
     }
 
+    public static InputMap getKeyMap() {
+        return keyMap;
+    }
+
+    public static ActionMap getAction_Map() {
+        return action_Map;
+    }
+
+    public static String getLastDBDate() {
+        return lastDBDate;
+    }
+
     public DashBoard(JFrame parent, Date dt) throws Exception {
         ConnectDB.getConnectionInstance();
         initComponents();
@@ -85,10 +105,10 @@ public class DashBoard extends javax.swing.JPanel {
 
         dtSpinner.setFormat(ConnectDB.SDATE_FORMAT_HOUR);
         if (dt == null) {
-            Calendar working = ((Calendar) ConnectDB.CALENDAR.clone());
-            int hour = ConnectDB.CALENDAR.get(Calendar.HOUR_OF_DAY),
-                    minute = ConnectDB.CALENDAR.get(Calendar.MINUTE),
-                    second = ConnectDB.CALENDAR.get(Calendar.SECOND);
+            Calendar working = Calendar.getInstance();
+            int hour = working.get(Calendar.HOUR_OF_DAY),
+                    minute = working.get(Calendar.MINUTE),
+                    second = working.get(Calendar.SECOND);
             working.add(Calendar.HOUR_OF_DAY, -hour);
             working.add(Calendar.MINUTE, -minute);
             working.add(Calendar.SECOND, -second);
@@ -96,6 +116,18 @@ public class DashBoard extends javax.swing.JPanel {
         } else {
             dtSpinner.setDate(dt);
         }
+        // setting the button to receive action when F3 is pressed
+        keyMap = new ComponentInputMap(this);
+        keyMap.put(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_N, java.awt.Event.CTRL_MASK), "action");
+
+        action_Map = new ActionMapUIResource();
+        action_Map.put("action", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                btnCollapseRibbonActionPerformed(e);
+            }
+        });
+        // setting done
         dtSpinner.getEditor().getEditorComponent().setFocusable(false);
 
         bslTime.setHorizontalAlignment(SwingConstants.LEADING);
@@ -117,8 +149,9 @@ public class DashBoard extends javax.swing.JPanel {
         dtSpinner = new com.jidesoft.combobox.DateSpinnerComboBox();
         bslTime = new org.jdesktop.swingx.JXBusyLabel();
         panSettings = new javax.swing.JPanel();
-        jPanel1 = new javax.swing.JPanel();
+        panRibbon = new javax.swing.JPanel();
         jLabel2 = new javax.swing.JLabel();
+        btnCollapseRibbon = new com.jidesoft.swing.JideButton();
 
         setBackground(new java.awt.Color(255, 255, 255));
 
@@ -153,15 +186,29 @@ public class DashBoard extends javax.swing.JPanel {
         jLabel2.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel2.setText("<html><font size=5><center></strong>This Dashboard only displays<br/> today's information. <br/>Use the production toolkit for historical data.</strong></center></font>");
 
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jLabel2)
+        btnCollapseRibbon.setButtonStyle(com.jidesoft.swing.JideButton.FLAT_STYLE);
+        btnCollapseRibbon.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/icons/arrow_up_1.png"))); // NOI18N
+        btnCollapseRibbon.setToolTipText("<html><strong>Collpase the ribbon (Ctrl+N)</strong>");
+        btnCollapseRibbon.setFocusable(false);
+        btnCollapseRibbon.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnCollapseRibbonActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout panRibbonLayout = new javax.swing.GroupLayout(panRibbon);
+        panRibbon.setLayout(panRibbonLayout);
+        panRibbonLayout.setHorizontalGroup(
+            panRibbonLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panRibbonLayout.createSequentialGroup()
+                .addComponent(jLabel2)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(btnCollapseRibbon, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+        panRibbonLayout.setVerticalGroup(
+            panRibbonLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
             .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addComponent(btnCollapseRibbon, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
@@ -173,12 +220,12 @@ public class DashBoard extends javax.swing.JPanel {
                 .addComponent(panSettings, javax.swing.GroupLayout.PREFERRED_SIZE, 147, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(panStatus, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(panRibbon, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(panRibbon, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(panDashBoard, javax.swing.GroupLayout.DEFAULT_SIZE, 450, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -188,6 +235,25 @@ public class DashBoard extends javax.swing.JPanel {
         );
     }// </editor-fold>//GEN-END:initComponents
 
+    private void btnCollapseRibbonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCollapseRibbonActionPerformed
+        if (panRibbon.isVisible()) {
+            panRibbon.setVisible(false);
+        } else {
+            panRibbon.setVisible(true);
+        }
+    }//GEN-LAST:event_btnCollapseRibbonActionPerformed
+
+//    public static DashBoard replaceUIActionMap() {
+//        DashBoard instance = null;
+//        try {
+//            instance = new DashBoard();
+//            SwingUtilities.replaceUIActionMap(instance, action_Map);
+//            SwingUtilities.replaceUIInputMap(instance, JComponent.WHEN_IN_FOCUSED_WINDOW, keyMap);
+//        } catch (Exception ex) {
+//            Logger.getLogger(DashBoard.class.getName()).log(Level.SEVERE, null, ex);
+//        }
+//        return instance;
+//    }
     private void callScheduler() throws Exception {
         ReadPropertiesFile.readConfig();//read the property file to get the time and delay for the schedule
         _colDashBoard = new CollapsiblePaneDashboard(getMachineDummy());
@@ -215,7 +281,7 @@ public class DashBoard extends javax.swing.JPanel {
      */
     public void checkAndLoadDataOnCurrentDay() {
         try {
-            String lastDBDate = compareDates();
+            lastDBDate = compareDates();
             if (lastDBDate != null) {
                 Date logTimeParsed = ConnectDB.SDATE_FORMAT_HOUR.parse(ConnectDB.correctToBarreDate(lastDBDate));
                 if (logTimeParsed.compareTo(getDate()) > 0 || logTimeParsed.compareTo(getDate()) == 0) {
@@ -232,9 +298,9 @@ public class DashBoard extends javax.swing.JPanel {
                         }
                     }
                 } else {
-                    JOptionPane.showMessageDialog(panDashBoard, new StringBuilder("The last recorded data in the database is on the  ").
-                            append(lastDBDate.substring(0, 19)).append(". \nPlease, adjust the Dashbaord starting time to the "
-                                    + "day and wait for the refresh time.").toString(), "Dashboard", JOptionPane.WARNING_MESSAGE);
+                    JOptionPane.showMessageDialog(panDashBoard, new StringBuilder("<html>The last recorded data in the database is on the <strong> ").
+                            append(lastDBDate.substring(0, 19)).append("</strong>.<br>Please, adjust the <font color=red><b>Dashbaord starting time</b></font>"
+                                    + " to the day and wait for the refresh time.").toString(), "Dashboard", JOptionPane.WARNING_MESSAGE);
                 }
             }
         } catch (SQLException ex) {
@@ -288,6 +354,8 @@ public class DashBoard extends javax.swing.JPanel {
             _dashBoardFrame.setSize(1025, 700);
             DashBoard dashBoard = new DashBoard(null, null);
             _dashBoardFrame.getContentPane().add(dashBoard);
+            SwingUtilities.replaceUIActionMap(dashBoard, DashBoard.getAction_Map());
+            SwingUtilities.replaceUIInputMap(dashBoard, JComponent.WHEN_IN_FOCUSED_WINDOW, DashBoard.getKeyMap());
             _dashBoardFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             _dashBoardFrame.setLocationRelativeTo(null);
             _dashBoardFrame.setVisible(true);
@@ -299,14 +367,18 @@ public class DashBoard extends javax.swing.JPanel {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     public static org.jdesktop.swingx.JXBusyLabel bslTime;
+    private com.jidesoft.swing.JideButton btnCollapseRibbon;
     public static com.jidesoft.combobox.DateSpinnerComboBox dtSpinner;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
-    private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel panDashBoard;
+    private javax.swing.JPanel panRibbon;
     private javax.swing.JPanel panSettings;
     private javax.swing.JPanel panStatus;
     // End of variables declaration//GEN-END:variables
     private static boolean _showTotalProd = true, _showRateProd = false;
     private static CollapsiblePaneDashboard _colDashBoard;
+    private static InputMap keyMap = null;
+    private static ActionMap action_Map = null;
+    private static String lastDBDate;
 }

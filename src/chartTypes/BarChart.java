@@ -2,6 +2,9 @@ package chartTypes;
 
 import com.jidesoft.chart.BarResizePolicy;
 import com.jidesoft.chart.Chart;
+import com.jidesoft.chart.LabelPlacement;
+import com.jidesoft.chart.LineMarker;
+import com.jidesoft.chart.Orientation;
 import com.jidesoft.chart.PointShape;
 import com.jidesoft.chart.annotation.AutoPositionedLabel;
 import com.jidesoft.chart.axis.Axis;
@@ -75,6 +78,7 @@ import productionPanel.Flag;
 import productionPanel.ProdStatKeyFactory;
 import productionPanel.ProductionPane;
 import productionPanel.ReadSmartServerIni;
+import setting.SettingKeyFactory;
 import smartfactoryV2.ConnectDB;
 import smartfactoryV2.Queries;
 
@@ -83,6 +87,10 @@ import smartfactoryV2.Queries;
  * @author Victor Kadiata
  */
 public class BarChart extends Chart implements CumulativeSubractedValues {
+
+    public static ArrayList<String> getMessageFlag() {
+        return messageFlag;
+    }
 
     public static Flag getFlagDialog() {
         return flagDialog;
@@ -334,13 +342,24 @@ public class BarChart extends Chart implements CumulativeSubractedValues {
         }
         //
         if (loopQueryFound) {
-//            subtractValues.clear();
+            double target = ConnectDB.getMachineTarget(machineTitle, "Cumulative");
+            switch (ConnectDB.pref.get(SettingKeyFactory.DefaultProperties.TARGET_TIME_UNIT, "hour")) {
+                case "second":
+                    target *= 3600;
+                    break;
+                case "minute":
+                    target *= 60;
+                    break;
+            }
             chart.setPreferredSize(new Dimension(600, 300));
             CategoryAxis xAxis = new CategoryAxis<>(range);
             chart.setXAxis(xAxis);
 //            xAxis.setTickLabelRotation(Math.PI / 4);
             chart.getXAxis().setTicksVisible(true);
             int maxNumber = ConnectDB.maxNumber(maxValue);
+            if (maxNumber < target) {
+                maxNumber = (int) target;
+            }
             NumericAxis yAxis = new NumericAxis(0, maxNumber + (int) ((maxNumber < 100 ? 0.35 : 0.08) * maxNumber));
 
             chart.setLayout(new BorderLayout());
@@ -357,7 +376,7 @@ public class BarChart extends Chart implements CumulativeSubractedValues {
                 yAxis.setLabel(new AutoPositionedLabel("Total/hrs", Color.BLACK));
                 ChartStyle style;
                 if (countBar > 25) {//lines
-                    JOptionPane.showMessageDialog(chart, "Too much data points for a bar plot. Switching to a line chart.",
+                    JOptionPane.showMessageDialog(chart, "Too many data points for a bar plot. Switching to a line chart.",
                             "Chart", JOptionPane.INFORMATION_MESSAGE);
                     DefaultPointRenderer pointRenderer = new DefaultPointRenderer();
                     pointRenderer.setAlwaysShowOutlines(true);
@@ -453,6 +472,14 @@ public class BarChart extends Chart implements CumulativeSubractedValues {
             chart.getYAxis().setTicksVisible(true);
             chart.getYAxis().setVisible(true);
             chart.setYAxis(yAxis);
+
+            /*Get and apply the machine target to the chart */
+            if (target > 0d) {
+                LineMarker marker = new LineMarker(chart, Orientation.horizontal, target, Color.RED);
+                marker.setLabel("Target");
+                marker.setLabelPlacement(LabelPlacement.NORTH_WEST);
+                chart.addDrawable(marker);
+            }
             chart.addPropertyChangeListener(new PropertyChangeListener() {
                 @Override
                 public void propertyChange(PropertyChangeEvent evt) {
@@ -501,6 +528,7 @@ public class BarChart extends Chart implements CumulativeSubractedValues {
                     }
                 }
             });
+            chart.update();
         } else {
             chart = null;
             ConnectDB.showChartMessageDialog(MainFrame.getFrame());
@@ -518,7 +546,7 @@ public class BarChart extends Chart implements CumulativeSubractedValues {
         zoomStack = new Stack<>();
         RubberBandZoomer rubberBand = new RubberBandZoomer(chartToZoom);
         rubberBand.setZoomOrientation(ZoomOrientation.BOTH);
-        rubberBand.setOutlineColor(Color.green);
+        rubberBand.setOutlineColor(Color.GREEN);
         rubberBand.setOutlineStroke(new BasicStroke(2f));
         rubberBand.setFill(new Color(100, 128, 100, 50));
         rubberBand.setKeepWidthHeightRatio(true);
@@ -565,6 +593,7 @@ public class BarChart extends Chart implements CumulativeSubractedValues {
             }
         });
     }
+
     @Override
     public void getSubtractedValues(byte x, ArrayList<String> alValues) throws SQLException {
         ArrayList<String> prodRateArrayList = getProductionRate();
@@ -690,7 +719,7 @@ public class BarChart extends Chart implements CumulativeSubractedValues {
 
             @Override
             public void run() {
-                messageFlag.clear();
+                messageFlag = new ArrayList<>();
                 showFlagUI = false;
                 int flagTime = ConnectDB.pref.getInt(ProdStatKeyFactory.ProdFeatures.SPFLAGTIMEFRAME, 10);
                 for (int i = 0; i < flagLogTime.size() - 1; i++) {
@@ -787,8 +816,8 @@ public class BarChart extends Chart implements CumulativeSubractedValues {
     private DefaultChartModel modelPoints;
     public static String[][] sumHourValues;
     public static List<String> eachDateH;
-    public static ArrayList<String> subtractValues = new ArrayList<>(), flagLogTime = new ArrayList<>(),
-            messageFlag = new ArrayList<>();
+    private ArrayList<String> subtractValues = new ArrayList<>(), flagLogTime = new ArrayList<>();
+    private static ArrayList<String> messageFlag = new ArrayList<>();
     private static final ArrayList<Integer> maxValue = new ArrayList<>();
     private static Flag flagDialog;
     private Chart chart;

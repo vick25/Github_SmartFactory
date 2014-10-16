@@ -40,6 +40,8 @@ public class ProdFeature extends javax.swing.JPanel {
         jLabel2 = new javax.swing.JLabel();
         radPerMin = new javax.swing.JRadioButton();
         radPerHour = new javax.swing.JRadioButton();
+        jLabel3 = new javax.swing.JLabel();
+        txtMaxValue = new javax.swing.JTextField();
 
         collapsiblePane1.setStyle(CollapsiblePane.PLAIN_STYLE);
         collapsiblePane1.setTitle("Flag Time");
@@ -135,6 +137,11 @@ public class ProdFeature extends javax.swing.JPanel {
             }
         });
 
+        jLabel3.setText("Max Value:");
+
+        txtMaxValue.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
+        txtMaxValue.setText("5");
+
         javax.swing.GroupLayout collapsiblePane2Layout = new javax.swing.GroupLayout(collapsiblePane2.getContentPane());
         collapsiblePane2.getContentPane().setLayout(collapsiblePane2Layout);
         collapsiblePane2Layout.setHorizontalGroup(
@@ -149,21 +156,27 @@ public class ProdFeature extends javax.swing.JPanel {
                     .addGroup(collapsiblePane2Layout.createSequentialGroup()
                         .addComponent(radShiftOn)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(radShiftOFF))
+                        .addComponent(radShiftOFF)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jLabel3)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(txtMaxValue, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(collapsiblePane2Layout.createSequentialGroup()
                         .addComponent(radPerMin)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(radPerHour)))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(43, Short.MAX_VALUE))
         );
         collapsiblePane2Layout.setVerticalGroup(
             collapsiblePane2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(collapsiblePane2Layout.createSequentialGroup()
-                .addContainerGap()
+                .addGap(0, 0, Short.MAX_VALUE)
                 .addGroup(collapsiblePane2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
                     .addComponent(jLabel1)
                     .addComponent(radShiftOn)
-                    .addComponent(radShiftOFF))
+                    .addComponent(radShiftOFF)
+                    .addComponent(jLabel3)
+                    .addComponent(txtMaxValue, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(collapsiblePane2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
                     .addComponent(radPerHour)
@@ -267,6 +280,7 @@ public class ProdFeature extends javax.swing.JPanel {
     private com.jidesoft.pane.CollapsiblePane collapsiblePane2;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JPanel jPanel1;
@@ -276,6 +290,7 @@ public class ProdFeature extends javax.swing.JPanel {
     public static javax.swing.JRadioButton radShiftOFF;
     public static javax.swing.JRadioButton radShiftOn;
     public static javax.swing.JSpinner spFlagTime;
+    private javax.swing.JTextField txtMaxValue;
     // End of variables declaration//GEN-END:variables
     private final AbstractDialogPage _page;
     private final JDialog _parent;

@@ -65,6 +65,14 @@ public class Identification extends javax.swing.JDialog {
         return userID;
     }
 
+    public static JFrame getQuickViewFrame() {
+        return quickViewFrame;
+    }
+
+    public static void setQuickViewFrame(JFrame quickViewFrame) {
+        Identification.quickViewFrame = quickViewFrame;
+    }
+
     public Identification(JFrame parent, boolean modal) {
         super(null, java.awt.Dialog.ModalityType.TOOLKIT_MODAL);
         _showMainFrame = parent;
@@ -111,6 +119,7 @@ public class Identification extends javax.swing.JDialog {
 //        time.setRepeats(true);
 //        time.setInitialDelay(0);
         time.start();
+        setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         this.getRootPane().setDefaultButton(btnConnexion);
         this.setIconImage(new ImageIcon(getClass().getResource("/images/icons/contact-new.png")).getImage());
         this.setLocationRelativeTo(null);
@@ -395,7 +404,7 @@ public class Identification extends javax.swing.JDialog {
     private void btnEffacerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEffacerActionPerformed
         txtLogin.setText("");
         txtPassword.setText("");
-        hlIPServer.setText(ConnectDB.pref.get(SettingKeyFactory.Connection.SERVERIPADDRESS, ConnectDB.serverIP));
+        hlIPServer.setText(ConnectDB.pref.get(SettingKeyFactory.Connection.SERVERIPADDRESS, ConnectDB.getServerIP()));
         txtLogin.requestFocus();
         chkSaveLoginDetails.setSelected(false);
     }//GEN-LAST:event_btnEffacerActionPerformed
@@ -404,6 +413,7 @@ public class Identification extends javax.swing.JDialog {
         Thread worker = new Thread() {
             @Override
             public void run() {
+                setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
                 ConnectDB.getConnectionInstance();
                 try {
                     //Add the userlist table
@@ -422,7 +432,7 @@ public class Identification extends javax.swing.JDialog {
                                         && (password.equalsIgnoreCase(ConnectDB.decrypter(resultSet.getString(i + 1))))) {
                                     userFound = true;
                                     if (!okID) {
-                                        ConnectDB.serverIP = hlIPServer.getText();
+                                        ConnectDB.setServerIP(hlIPServer.getText());
                                         String status = resultSet.getString("status");
                                         userID = resultSet.getInt("IDuser");
                                         if (chkSaveLoginDetails.isSelected()) {
@@ -436,7 +446,7 @@ public class Identification extends javax.swing.JDialog {
                                                 }
                                             }
                                         }
-                                        dispose();
+                                        dispose();//close the login interface
                                         createTablesInDatabase();//Creating the TargetInsert table in the database
 //                                ConnectDB.saveIP(ConnectDB.serverIP);
                                         if ("root".equals(login)) {
@@ -450,26 +460,29 @@ public class Identification extends javax.swing.JDialog {
                                                 }
                                                 _showMainFrame.revalidate();
                                             } else {
-                                                _mainFrame = new MainFrame(userID);
-                                                _mainFrame.showFrame();
-                                                if (ConnectDB.pref.getBoolean(SettingKeyFactory.DefaultProperties.SHOWPRODUCTIONQVIEW, false)) {
-                                                    quickViewFrame = new JFrame("Production Quick View");
-                                                    quickViewFrame.setSize(950, 570);
-                                                    productionQuickView = new ProductionQuickView(quickViewFrame);
-                                                    quickViewFrame.setContentPane(productionQuickView);
-                                                    quickViewFrame.setIconImage(new ImageIcon(getClass().
-                                                            getClassLoader().getResource("images/smart_factory_logo_icon.png")).getImage());
-                                                    quickViewFrame.setLocationRelativeTo(_mainFrame);
-                                                    quickViewFrame.setVisible(true);
-                                                    quickViewFrame.addWindowListener(new WindowAdapter() {
+                                                if (_mainFrame == null) {
+                                                    _mainFrame = new MainFrame(userID);
+                                                    _mainFrame.showFrame();
+                                                    if (ConnectDB.pref.getBoolean(SettingKeyFactory.DefaultProperties.SHOWPRODUCTIONQVIEW, false)) {
+                                                        quickViewFrame = new JFrame("Production Quick View");
+                                                        quickViewFrame.setSize(950, 570);
+                                                        productionQuickView = new ProductionQuickView(quickViewFrame);
+                                                        quickViewFrame.setContentPane(productionQuickView);
+                                                        quickViewFrame.setIconImage(new ImageIcon(getClass().
+                                                                getClassLoader().getResource("images/smart_factory_logo_icon.png")).getImage());
+                                                        quickViewFrame.setLocationRelativeTo(_mainFrame);
+                                                        quickViewFrame.setVisible(true);
+                                                        quickViewFrame.addWindowListener(new WindowAdapter() {
 
-                                                        @Override
-                                                        public void windowClosing(WindowEvent e) {
-                                                            quickViewFrame = null;
+                                                            @Override
+                                                            public void windowClosing(WindowEvent e) {
+                                                                quickViewFrame = null;
+                                                                System.gc();
+                                                            }
+                                                        });
+                                                        if (!TargetInsert.isTargetFound()) {
+                                                            new TargetInsert(quickViewFrame, true).setVisible(true);
                                                         }
-                                                    });
-                                                    if (!TargetInsert.isTargetFound()) {
-                                                        new TargetInsert(quickViewFrame, true).setVisible(true);
                                                     }
                                                 }
                                             }
@@ -483,6 +496,7 @@ public class Identification extends javax.swing.JDialog {
                             JOptionPane.showMessageDialog(Identification.this, "Please check your connection settings :\n"
                                     + "Login and/or Password... ", "Login & Server Connection", JOptionPane.ERROR_MESSAGE);
                         }
+                        setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
                     } catch (SQLException ex) {
                         ConnectDB.catchSQLException(ex);
                     }
@@ -520,7 +534,7 @@ public class Identification extends javax.swing.JDialog {
     }
 
     private void saveLoginCredentials() {
-        ConnectDB.pref.put(SettingKeyFactory.Connection.SERVERIPADDRESS, ConnectDB.serverIP);
+        ConnectDB.pref.put(SettingKeyFactory.Connection.SERVERIPADDRESS, ConnectDB.getServerIP());
         this.pref.put("login", txtLogin.getText());
         this.pref.put("password", String.copyValueOf(txtPassword.getPassword()));
         ConnectDB.pref.putBoolean(SettingKeyFactory.Privacy.SAVELOGININFO, chkSaveLoginDetails.isSelected());
@@ -567,6 +581,7 @@ public class Identification extends javax.swing.JDialog {
 
             @Override
             public void run() {
+                com.jidesoft.utils.Lm.verifyLicense("OSFAC", "OSFAC-DMT", "vx1xhNgC4CtD2SQc.kC5mp99mO0Bs1d2");
 //                System.out.println(System.getProperty("jdbc.drivers"));
                 Identification dialog = new Identification(new javax.swing.JFrame(), true);
                 dialog.setVisible(true);
@@ -594,8 +609,8 @@ public class Identification extends javax.swing.JDialog {
     private int userID = -1;
     private static boolean frameSaved = false;
     private static MainFrame _mainFrame;
-    public static JFrame quickViewFrame;
+    private static JFrame quickViewFrame;
     private static JFrame _showMainFrame = null;
-    public static ProductionQuickView productionQuickView = null;
+    private static ProductionQuickView productionQuickView = null;
     private final Preferences pref = Preferences.userNodeForPackage(Identification.class);
 }

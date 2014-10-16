@@ -51,6 +51,7 @@ public class Queries {
             + " `Machine` varchar(50) NOT NULL, \n"
             + " `ConfigNo` smallint(6) NOT NULL, \n"
             + " `TargetValue` double NOT NULL, \n"
+            + " `TargetUnit` varchar(10) NOT NULL, \n"
             + " PRIMARY KEY (`TargetNo`) \n"
             + ") ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1;";
 
@@ -79,9 +80,10 @@ public class Queries {
             + "AND h.Machine =? \n"
             + "AND c.Active = 1 ORDER BY h.HwNo ASC";
 
-    public static final String GET_HARDWARE = "SELECT HwNo, Machine FROM hardware\n"
-            + "WHERE HwNo > ?";
+    public static final String GET_HARDWARE = "SELECT HwNo, Machine FROM hardware \n"
+            + "WHERE HwNo > ? "
+            + "ORDER BY Machine ASC";
     
-    public static final String GET_LAST_DATA_TIME = "SELECT LogTime FROM datalog\n"
+    public static final String GET_LAST_DATA_TIME = "SELECT LogTime FROM datalog \n"
                 + "ORDER BY LogTime DESC LIMIT 1;";
 }

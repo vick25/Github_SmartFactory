@@ -27,13 +27,13 @@
               <EmptySpace max="-2" attributes="0"/>
               <Component id="panStatus" max="32767" attributes="0"/>
           </Group>
-          <Component id="jPanel1" alignment="0" max="32767" attributes="0"/>
+          <Component id="panRibbon" alignment="0" max="32767" attributes="0"/>
       </Group>
     </DimensionLayout>
     <DimensionLayout dim="1">
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" alignment="0" attributes="0">
-              <Component id="jPanel1" min="-2" max="-2" attributes="0"/>
+              <Component id="panRibbon" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
               <Component id="panDashBoard" pref="450" max="32767" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
@@ -120,17 +120,22 @@
 
       <Layout class="org.netbeans.modules.form.compat2.layouts.DesignFlowLayout"/>
     </Container>
-    <Container class="javax.swing.JPanel" name="jPanel1">
+    <Container class="javax.swing.JPanel" name="panRibbon">
 
       <Layout>
         <DimensionLayout dim="0">
           <Group type="103" groupAlignment="0" attributes="0">
-              <Component id="jLabel2" alignment="0" max="32767" attributes="0"/>
+              <Group type="102" alignment="0" attributes="0">
+                  <Component id="jLabel2" max="32767" attributes="0"/>
+                  <EmptySpace max="-2" attributes="0"/>
+                  <Component id="btnCollapseRibbon" min="-2" max="-2" attributes="0"/>
+              </Group>
           </Group>
         </DimensionLayout>
         <DimensionLayout dim="1">
-          <Group type="103" groupAlignment="0" attributes="0">
+          <Group type="103" groupAlignment="1" attributes="0">
               <Component id="jLabel2" min="-2" max="-2" attributes="0"/>
+              <Component id="btnCollapseRibbon" min="-2" max="-2" attributes="0"/>
           </Group>
         </DimensionLayout>
       </Layout>
@@ -140,6 +145,19 @@
             <Property name="horizontalAlignment" type="int" value="0"/>
             <Property name="text" type="java.lang.String" value="&lt;html&gt;&lt;font size=5&gt;&lt;center&gt;&lt;/strong&gt;This Dashboard only displays&lt;br/&gt; today&apos;s information. &lt;br/&gt;Use the production toolkit for historical data.&lt;/strong&gt;&lt;/center&gt;&lt;/font&gt;"/>
           </Properties>
+        </Component>
+        <Component class="com.jidesoft.swing.JideButton" name="btnCollapseRibbon">
+          <Properties>
+            <Property name="buttonStyle" type="int" value="2"/>
+            <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
+              <Image iconType="3" name="/images/icons/arrow_up_1.png"/>
+            </Property>
+            <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;&lt;strong&gt;Collpase the ribbon (Ctrl+N)&lt;/strong&gt;"/>
+            <Property name="focusable" type="boolean" value="false"/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnCollapseRibbonActionPerformed"/>
+          </Events>
         </Component>
       </SubComponents>
     </Container>

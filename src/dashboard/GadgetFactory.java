@@ -39,9 +39,10 @@ public class GadgetFactory {
             //create an empty chart
             chartRateProd = new Chart();
         }
-
-        return new VerticalMultiChartPanel(chartTotalProd, chartRateProd);//panel returned with the chart
+        multiChartPanel = new VerticalMultiChartPanel(chartTotalProd, chartRateProd, myMachineTitle);//panel returned with the chart
+        return multiChartPanel;
     }
 
-    private static Chart chartTotalProd, chartRateProd;
+    private static VerticalMultiChartPanel multiChartPanel = null;
+    private static Chart chartTotalProd = null, chartRateProd = null;
 }

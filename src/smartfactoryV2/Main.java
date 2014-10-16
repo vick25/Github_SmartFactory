@@ -40,7 +40,7 @@ public class Main {
 //
     private static void doit() {
         try {
-            Socket clientSocket = new Socket(ConnectDB.serverIP, ConnectDB.PORTMAINSERVER);
+            Socket clientSocket = new Socket(ConnectDB.getServerIP(), ConnectDB.PORTMAINSERVER);
             JOptionPane.showMessageDialog(null, "An instance of this application is already running.",
                     "SmartFactory Report Tool", JOptionPane.ERROR_MESSAGE);
 //            System.out.println("*** Already running! ***");

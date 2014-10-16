@@ -17,18 +17,22 @@ import javax.swing.table.AbstractTableModel;
  */
 public class TableModelEventData extends AbstractTableModel implements ContextSensitiveTableModel, HeaderStyleModel {
 
+    public static void setCustomCodeValue(String customCodeValue) {
+        TableModelEventData.customCodeValue = customCodeValue;
+    }
+
     private static final CellStyle CENTER_STYLE = new CellStyle();
     private static final CellStyle TIME_STYLE = new CellStyle();
     private static final CellStyle PERIOD_STYLE = new CellStyle();
-    public static String customCodeValue = "";
+    private static String customCodeValue;
 
-    String[] columnNames = {"#", "Start Time", "Until Time", customCodeValue, "Total parts"};
-    ArrayList[] Data;
+    private final String[] COLUMN_NAMES = {"#", "Start Time", "Until Time", customCodeValue, "Total parts"};
+    private final ArrayList[] DATA;
 
     public TableModelEventData() {
-        Data = new ArrayList[columnNames.length];
-        for (int i = 0; i < columnNames.length; i++) {
-            Data[i] = new ArrayList();
+        DATA = new ArrayList[COLUMN_NAMES.length];
+        for (int i = 0; i < COLUMN_NAMES.length; i++) {
+            DATA[i] = new ArrayList();
         }
     }
 
@@ -43,12 +47,12 @@ public class TableModelEventData extends AbstractTableModel implements ContextSe
 
     @Override
     public int getColumnCount() {
-        return columnNames.length;
+        return COLUMN_NAMES.length;
     }
 
     @Override
     public int getRowCount() {
-        return Data[0].size();
+        return DATA[0].size();
     }
 
     @Override
@@ -83,17 +87,17 @@ public class TableModelEventData extends AbstractTableModel implements ContextSe
 
     @Override
     public String getColumnName(int column) {
-        return columnNames[column];
+        return COLUMN_NAMES[column];
     }
 
     @Override
     public Object getValueAt(int row, int column) {
-        return Data[column].get(row);
+        return DATA[column].get(row);
     }
 
     @Override
     public void setValueAt(Object value, int row, int col) {
-        Data[col].set(row, value);
+        DATA[col].set(row, value);
         fireTableCellUpdated(row, col);
     }
 
@@ -117,23 +121,23 @@ public class TableModelEventData extends AbstractTableModel implements ContextSe
     }
 
     public void addNewRow() {
-        for (int i = 0; i < columnNames.length; i++) {
-            Data[i].add("");
+        for (int i = 0; i < COLUMN_NAMES.length; i++) {
+            DATA[i].add("");
         }
-        this.fireTableRowsInserted(0, Data[0].size() - 1);
+        this.fireTableRowsInserted(0, DATA[0].size() - 1);
     }
 
     public void removeNewRow() {
-        for (int i = 0; i < columnNames.length; i++) {
-            Data[i].remove(Data[i].size() - 1);
+        for (int i = 0; i < COLUMN_NAMES.length; i++) {
+            DATA[i].remove(DATA[i].size() - 1);
         }
-        this.fireTableRowsDeleted(0, Data[0].size() - 1);
+        this.fireTableRowsDeleted(0, DATA[0].size() - 1);
     }
 
     public void removeNewRow(int index) {
-        for (int i = 0; i < columnNames.length; i++) {
-            Data[i].remove(index);
+        for (int i = 0; i < COLUMN_NAMES.length; i++) {
+            DATA[i].remove(index);
         }
-        this.fireTableRowsDeleted(0, Data[0].size() - 1);
+        this.fireTableRowsDeleted(0, DATA[0].size() - 1);
     }
 }

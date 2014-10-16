@@ -11,7 +11,7 @@ public class TableModelTarget extends AbstractTableModel {
 
     String[] columnNames = {"No", "Machine(s)", "Production Start Time", "Production End Time", 
         "<html><font color=red>Target Production Rate</font>",
-        "<html><font color=blue>Target Daily Production</font>"};
+        "<html><font color=blue>Target Total Production</font>"};
     ArrayList[] Data;
 
     public TableModelTarget() {

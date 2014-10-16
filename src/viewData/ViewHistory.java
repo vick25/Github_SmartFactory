@@ -444,7 +444,7 @@ public class ViewHistory extends javax.swing.JPanel {
                     public void run() {
                         super.run();
                         try {
-                            Thread.sleep(500); // you could use this thread to calculate your table model.
+                            sleep(500); // you could use this thread to calculate your table model.
                         } catch (InterruptedException e) {
                         }
                         SwingUtilities.invokeLater(new Runnable() {

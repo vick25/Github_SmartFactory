@@ -375,8 +375,8 @@ public class CollapsiblePaneDashboard extends TimerTask {
 //                    _tabbedPane.repaint();
                 } catch (SQLException ex) {
                     ConnectDB.catchSQLException(ex);
-                } catch (ParseException ex) {
-                    ex.printStackTrace();
+                } catch (ParseException | NullPointerException ex) {
+                    ConnectDB.appendToFileException(ex);
                 }
             }
             machineLoaded = true;

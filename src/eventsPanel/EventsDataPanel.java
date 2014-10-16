@@ -48,15 +48,26 @@ import tableModel.TableModelEventData;
  */
 public class EventsDataPanel extends javax.swing.JPanel {
 
+//    public Thread getRunThread() {
+//        return runThread;
+//    }
+
+    public static boolean isLoadDataFinish() {
+        return loadDataFinish;
+    }
+
+    public static void setLoadDataFinish(boolean loadDataFinish) {
+        EventsDataPanel.loadDataFinish = loadDataFinish;
+    }
+
     public static boolean isDataGrouped() {
         return dataGrouped;
     }
 
     public EventsDataPanel(String customCodeValue, String query, String machineTitle) throws SQLException {
-//        System.out.println(query);
         this._query = query;
         this._machineTitle = machineTitle;
-        TableModelEventData.customCodeValue = customCodeValue;
+        TableModelEventData.setCustomCodeValue(customCodeValue);
 
         model = new TableModelEventData();
         table = new SortableTable(model);
@@ -93,18 +104,17 @@ public class EventsDataPanel extends javax.swing.JPanel {
         setScrollPaneBorder();
         scrlPanTable.setHorizontalScrollBarPolicy(SimpleScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         scrlPanTable.setVerticalScrollBarPolicy(SimpleScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-        if (runThread != null) {
-            while (runThread.isAlive()) {
-                try {
-                    runThread.interrupt();
-                    runThread.join();
-                } catch (InterruptedException ex) {
-                    ex.printStackTrace();
-                }
-            }
-        }
-        runThread = new Thread(runnable);
-        runThread.start();
+//        if (runThread != null) {
+//            while (runThread.isAlive()) {
+//                try {
+//                    runThread.interrupt();
+//                    runThread.join();
+//                } catch (InterruptedException ex) {
+//                    ex.printStackTrace();
+//                }
+//            }
+//        }
+//        runThread = new Thread(runnable);
         ExpandedTipUtils.install(table);
         if (dataGrouped) {
             chkGroupData.setSelected(true);
@@ -123,7 +133,14 @@ public class EventsDataPanel extends javax.swing.JPanel {
             }
         });
         time.start();
-//        this.add(this.createLoadingTextArea());
+        try {
+            fillTable();
+            tableRow = table.getModel().getRowCount();
+            setScrollPaneBorder();
+        } catch (SQLException ex) {
+            ConnectDB.catchSQLException(ex);
+        } catch (IndexOutOfBoundsException ex) {
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -255,7 +272,7 @@ public class EventsDataPanel extends javax.swing.JPanel {
                         typeCsv = new ExtensionFilter("CSV files", ".csv");
                 jfc.addChoosableFileFilter(typeExcel);
                 jfc.addChoosableFileFilter(typeCsv);
-                jfc.setFileFilter(typeExcel); //Initial filter setting                
+                jfc.setFileFilter(typeExcel); //Initial filter setting
                 File fichier;
                 try {
                     fichier = new File(ConnectDB.getDefaultDirectory() + new StringBuilder(File.separator).append("data_").
@@ -328,64 +345,84 @@ public class EventsDataPanel extends javax.swing.JPanel {
         EventsStatistic.btnRefresh.doClick();
     }//GEN-LAST:event_chkGroupDataActionPerformed
 
+//    @Override
+//    public void run() {
+//        try {
+//            fillTable();
+//            tableRow = table.getModel().getRowCount();
+//            setScrollPaneBorder();
+//        } catch (SQLException ex) {
+//            ConnectDB.catchSQLException(ex);
+//        } catch (IndexOutOfBoundsException ex) {
+//        }
+//    }
+
     private void setScrollPaneBorder() {
-        TableUtils.autoResizeAllColumns(table);
-        table.getColumnModel().getColumn(0).setMaxWidth(360);
-        table.getColumnModel().getColumn(0).setResizable(false);
-        scrlPanTable.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder(
-                new PartialGradientLineBorder(new Color[]{new Color(0, 0, 128),
-                    UIDefaultsLookup.getColor("control")}, 2, PartialSide.NORTH),
-                new StringBuilder("Events of data table [").append(tableRow).append(" row(s)]").toString(),
-                TitledBorder.CENTER, TitledBorder.ABOVE_TOP), BorderFactory.createEmptyBorder(6, 4, 4, 4)));
+        if (loadDataFinish) {
+            try {
+                TableUtils.autoResizeAllColumns(table);
+                table.getColumnModel().getColumn(0).setMaxWidth(360);
+                table.getColumnModel().getColumn(0).setResizable(false);
+                scrlPanTable.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder(
+                        new PartialGradientLineBorder(new Color[]{new Color(0, 0, 128),
+                            UIDefaultsLookup.getColor("control")}, 2, PartialSide.NORTH),
+                        new StringBuilder("Events of data table [").append(tableRow).append(" row(s)]").toString(),
+                        TitledBorder.CENTER, TitledBorder.ABOVE_TOP), BorderFactory.createEmptyBorder(6, 4, 4, 4)));
+            } catch (NullPointerException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
-    Runnable runnable = new Runnable() {
-
-        @Override
-        public void run() {
-//            SwingUtilities.invokeLater(new Runnable() {
+//    private final Runnable runnable = new Runnable() {
 //
-//                @Override
-//                public void run() {
-                    try {
-                        fillTable();
-                        tableRow = table.getModel().getRowCount();
-                        setScrollPaneBorder();
-                    } catch (SQLException ex) {
-                        ConnectDB.catchSQLException(ex);
-                    }
-//                }
-//            });
-        }
-    };
-
+//        @Override
+//        public void run() {
+//            try {
+//                fillTable();
+//                tableRow = table.getModel().getRowCount();
+//                setScrollPaneBorder();
+//            } catch (SQLException ex) {
+//                ConnectDB.catchSQLException(ex);
+//            } catch (IndexOutOfBoundsException ex) {
+//            }
+//        }
+//    };
     synchronized private void fillTable() throws SQLException {
         int nbRow = 1;
         if (_query.isEmpty()) {
             return;
         }
+        loadDataFinish = false;
         try (Statement stat = ConnectDB.con.createStatement()) {
             ResultSet resultSet = stat.executeQuery(_query);
             while (resultSet.next()) {
-//                try {
                 /** Get the data from the runDataLogQuery method for the total production from the datalog
                  table with the parameters as starttime and endtime
                  */
-                runDataLogQuery(resultSet.getString(1), resultSet.getString(3));
-//                runOverlayable = false;
+                String startTime = resultSet.getString(1), untilTime = resultSet.getString(3);
+                boolean timeEquals = false;
+                if (startTime.equals(untilTime)) {
+                    timeEquals = true;
+                    Calendar now = Calendar.getInstance();
+                    untilTime = ConnectDB.SDATE_FORMAT_HOUR.format(now.getTime());
+                }
+                runDataLogQuery(startTime, untilTime);
                 if (nbRow > table.getModel().getRowCount()) {
                     model.addNewRow();
                 }
                 table.setValueAt(nbRow, nbRow - 1, 0);
-                table.setValueAt(resultSet.getString(1), nbRow - 1, 1);
-                table.setValueAt(resultSet.getString(3), nbRow - 1, 2);
+                table.setValueAt(startTime, nbRow - 1, 1);//Event start time
+                if (timeEquals) {
+                    untilTime = new StringBuilder("<html><b><font color=red>").append(untilTime).append("</font></b>").toString();
+                }
+                table.setValueAt(untilTime, nbRow - 1, 2);//Event end time
                 table.setValueAt(resultSet.getString(2), nbRow - 1, 3);
                 table.setValueAt(totalSum.intValue(), nbRow - 1, 4);
                 nbRow++;
-//                } catch (IndexOutOfBoundsException e) {
-//                }
             }
         }
+        loadDataFinish = true;
     }
 
     /**This method run the query in the datalog table with the given time frame as parameters and
@@ -426,21 +463,24 @@ public class EventsDataPanel extends javax.swing.JPanel {
                 addTotalSum += xDiff;
                 continue;
             }
+            int sum = 0;
             xDiff = alValue.get(i) - alValue.get(i - 1);
-            if (xDiff < 0) {
+            if (xDiff < 0) {//Case where the value is negative (rollover)
                 xDiff = 1000000 - alValue.get(i - 1) + alValue.get(i);
-            }
-            try {
-                double totVal = alValue.get(i),
-                        totValNext = alValue.get(i + 1),
-                        rateVal = Double.parseDouble(prodRateArrayList.get(i));
-                //Case where the cumulative values are not consecutive by the addition of the production rate number
-                if ((totVal + rateVal != totValNext) || (totVal + rateVal + 1 != totValNext)) {
-                    // Not sequential
-                    xDiff = rateVal;
+            } else if (xDiff > 500) {
+                byte rollback = 5;
+                int yr = i;
+                while (rollback > 5) {
+                    System.out.println("jump over value recorded");
+                    try {
+                        sum += (int) Double.parseDouble(prodRateArrayList.get(yr));
+                        yr--;
+                        rollback--;
+                    } catch (IndexOutOfBoundsException e) {
+                        break;
+                    }
                 }
-            } catch (IndexOutOfBoundsException e) {
-                xDiff = Double.parseDouble(prodRateArrayList.get(i - 1));
+                xDiff = sum / rollback;
             }
             addTotalSum += xDiff;
         }
@@ -471,7 +511,7 @@ public class EventsDataPanel extends javax.swing.JPanel {
     }
 
     public static void cleanTable() {
-        TableModelEventData.customCodeValue = "Event Description";
+        TableModelEventData.setCustomCodeValue("Event Description");
         model = new TableModelEventData();
         table.setModel(model);
     }
@@ -560,10 +600,11 @@ public class EventsDataPanel extends javax.swing.JPanel {
     private javax.swing.JScrollPane scrlPanTable;
     // End of variables declaration//GEN-END:variables
     private static int tableRow = 0;
+    private static boolean loadDataFinish = false;
     private String _query = null, _machineTitle = null;
     private ResultSet res = null;
     private Double totalSum = 0d;
-    private Thread runThread = null;
+//    private Thread runThread = null;
     private static SortableTable table = null;
     private static TableModelEventData model = null;
     private static boolean dataGrouped = false;

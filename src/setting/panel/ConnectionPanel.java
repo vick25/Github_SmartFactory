@@ -88,7 +88,7 @@ public class ConnectionPanel extends javax.swing.JPanel {
 
     private void initValues() {
         initValues = false;
-        serverIPAddress.setText(ConnectDB.pref.get(SettingKeyFactory.Connection.SERVERIPADDRESS, ConnectDB.serverIP));
+        serverIPAddress.setText(ConnectDB.pref.get(SettingKeyFactory.Connection.SERVERIPADDRESS, ConnectDB.getServerIP()));
         initValues = true;
     }
 

@@ -48,6 +48,9 @@ public class CreateUser extends javax.swing.JDialog {
                         btnCreateUser.setEnabled(false);
                     }
                 }
+//                if (!String.valueOf(txtPassword.getPassword()).isEmpty() && txtPassword.getPassword().length < 6) {
+//                    System.out.println("password not under 6");
+//                }
             }
         });
         time.start();
@@ -387,7 +390,7 @@ public class CreateUser extends javax.swing.JDialog {
                                 + "identical.", "Error", JOptionPane.ERROR_MESSAGE);
                         txtPassword.requestFocus();
                     } else {
-                        if (String.valueOf(txtPassword.getPassword()).length() < 6) {
+                        if (txtPassword.getPassword().length < 6) {
                             JOptionPane.showMessageDialog(this, "The password can not be less than 6 characters ...",
                                     "Warning", JOptionPane.WARNING_MESSAGE);
                         } else {

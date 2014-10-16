@@ -78,12 +78,14 @@ public class CalendarExample {
         String dateInString = "2011/02/04 14:34:00";
         // Get today's date
         Calendar now = Calendar.getInstance();
-        SimpleDateFormat formatter = new SimpleDateFormat("E yyyy.MMMM.dd 'at' hh:mm:ss a zzz");
+        SimpleDateFormat formatter = new SimpleDateFormat("EEEE yyyy.MMMM.dd 'at' hh:mm:ss a zzz");
         SimpleDateFormat vick = new SimpleDateFormat("MM/dd/yyyy hh:mm:ss");
         SimpleDateFormat vick1 = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+        SimpleDateFormat onlyDay = new SimpleDateFormat("EEEE");
         try {
             Date date = vick1.parse(dateInString);
-
+            
+            prt("  Day is : " + onlyDay.format(vick.parse("2014/09/30 14:00:00")));
             prt("  It is now : " + formatter.format(now.getTime()));
             prt("  It is now : " + vick.format(now.getTime()));
             prt("  It is now : " + vick1.format(now.getTime()));

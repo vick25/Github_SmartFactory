@@ -13,7 +13,7 @@ public class ServerIPDialog extends javax.swing.JDialog {
     public ServerIPDialog(java.awt.Dialog parent, boolean modal) {
         super(parent, modal);
         initComponents();
-        txtServerIP.setText(ConnectDB.pref.get(SettingKeyFactory.Connection.SERVERIPADDRESS, ConnectDB.serverIP));
+        txtServerIP.setText(ConnectDB.pref.get(SettingKeyFactory.Connection.SERVERIPADDRESS, ConnectDB.getServerIP()));
         this.getRootPane().setDefaultButton(btnOK);
         this.setLocationRelativeTo(parent);
     }
@@ -26,6 +26,7 @@ public class ServerIPDialog extends javax.swing.JDialog {
         txtServerIP = new com.jidesoft.field.IPTextField();
         btnOK = new com.jidesoft.swing.JideButton();
         jideLabel1 = new com.jidesoft.swing.JideLabel();
+        btnResetIP = new com.jidesoft.swing.JideButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Server IP");
@@ -36,6 +37,8 @@ public class ServerIPDialog extends javax.swing.JDialog {
         setResizable(false);
 
         jPanel1.setBackground(new java.awt.Color(204, 255, 255));
+
+        txtServerIP.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
 
         btnOK.setText("OK");
         btnOK.setFocusable(false);
@@ -49,6 +52,17 @@ public class ServerIPDialog extends javax.swing.JDialog {
         jideLabel1.setText("Server IP");
         jideLabel1.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
 
+        btnResetIP.setButtonStyle(com.jidesoft.swing.JideButton.HYPERLINK_STYLE);
+        btnResetIP.setText("Reset IP");
+        btnResetIP.setToolTipText("Reset the local machine IP address");
+        btnResetIP.setFocusable(false);
+        btnResetIP.setFont(new java.awt.Font("SketchFlow Print", 0, 12)); // NOI18N
+        btnResetIP.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnResetIPActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -56,7 +70,10 @@ public class ServerIPDialog extends javax.swing.JDialog {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGap(6, 6, 6)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(btnOK, javax.swing.GroupLayout.PREFERRED_SIZE, 78, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(btnResetIP, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(btnOK, javax.swing.GroupLayout.PREFERRED_SIZE, 78, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(jideLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
@@ -71,7 +88,9 @@ public class ServerIPDialog extends javax.swing.JDialog {
                     .addComponent(jideLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(txtServerIP, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(btnOK, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(btnOK, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnResetIP, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap())
         );
 
@@ -95,9 +114,14 @@ public class ServerIPDialog extends javax.swing.JDialog {
         this.dispose();
     }//GEN-LAST:event_btnOKActionPerformed
 
+    private void btnResetIPActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnResetIPActionPerformed
+        txtServerIP.setText("127.0.0.1");
+    }//GEN-LAST:event_btnResetIPActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private com.jidesoft.swing.JideButton btnOK;
+    private com.jidesoft.swing.JideButton btnResetIP;
     private javax.swing.JPanel jPanel1;
     private com.jidesoft.swing.JideLabel jideLabel1;
     private static com.jidesoft.field.IPTextField txtServerIP;

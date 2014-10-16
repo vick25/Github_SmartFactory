@@ -331,6 +331,7 @@ public class EventsHierarchicalTable extends JFrame {
     }
 
     private static String[][] getDetails(String rowNameDesc) throws SQLException {
+        System.out.println(rowNameDesc);
         String[][] tab = null;
         int row = 0;
         if (!rowNameDesc.isEmpty()) {

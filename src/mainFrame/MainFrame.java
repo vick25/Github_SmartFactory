@@ -223,7 +223,7 @@ public class MainFrame extends DefaultDockableBarDockableHolder {
         final LabelStatusBarItem labelServer = new LabelStatusBarItem("Line");
         labelServer.setFont(new Font("Tahoma", 0, 11));
         labelServer.setText("<html><font color=black><strong>Connected @ "
-                + ConnectDB.pref.get("IPServerAddress", ConnectDB.serverIP) + "</strong></font>");
+                + ConnectDB.pref.get("IPServerAddress", ConnectDB.getServerIP()) + "</strong></font>");
         labelServer.setAlignment(JLabel.CENTER);
         statusBar.add(labelServer, JideBoxLayout.FLEXIBLE);
 
@@ -390,12 +390,12 @@ public class MainFrame extends DefaultDockableBarDockableHolder {
         setting.SettingsOptionsDialog.showOptionsDialog();
     }
 
-    public static void actionNewReport() throws SQLException {
+    public static void actionNewMainInterface() throws SQLException {
         _frame.dispose();
         LookAndFeelFactory.installDefaultLookAndFeelAndExtension();
-        if (Identification.quickViewFrame != null) {
-            Identification.quickViewFrame.dispose();
-            Identification.quickViewFrame = null;
+        if (Identification.getQuickViewFrame() != null) {
+            Identification.getQuickViewFrame().dispose();
+            Identification.setQuickViewFrame(null);
         }
         Identification.setMainFrame(new MainFrame(SplashScreen.getIdentification().getUserID()));
         _frame = Identification.getMainFrame();
@@ -417,7 +417,7 @@ public class MainFrame extends DefaultDockableBarDockableHolder {
 //        if (result == JFileChooser.APPROVE_OPTION) {
 //            String choose = fc.getSelectedFile().getAbsolutePath();
 //            if (choose.endsWith(".tmt")) {
-//                actionNewReport();
+//                actionNewMainInterface();
 //                openFileProperties(choose);
 //            } else {
 //                JOptionPane.showMessageDialog(_frame, "This file format is not acceptable..."
@@ -427,8 +427,8 @@ public class MainFrame extends DefaultDockableBarDockableHolder {
     }
 
     public static void actionLogOut() {
-        if (Identification.quickViewFrame != null) {
-            Identification.quickViewFrame.setVisible(false);
+        if (Identification.getQuickViewFrame() != null) {
+            Identification.getQuickViewFrame().setVisible(false);
         }
         clearUp("logout");
         SplashScreen.getIdentification().okID = false;

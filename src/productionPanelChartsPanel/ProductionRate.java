@@ -25,7 +25,6 @@ import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
@@ -120,16 +119,12 @@ public class ProductionRate extends javax.swing.JPanel {
         setLayout(new java.awt.BorderLayout());
     }// </editor-fold>//GEN-END:initComponents
 
-    private boolean mouseIsOverDisplayPanel() {
-        if (MouseInfo.getPointerInfo().getLocation().x >= this.getLocationOnScreen().x
-                && MouseInfo.getPointerInfo().getLocation().x <= this.getLocationOnScreen().x + this.getWidth()
-                && MouseInfo.getPointerInfo().getLocation().y >= this.getLocationOnScreen().y
-                && MouseInfo.getPointerInfo().getLocation().y <= this.getLocationOnScreen().y + this.getHeight()) {
-            return true;
-        } else {
-            return false;
-        }
-    }
+//    private boolean mouseIsOverDisplayPanel() {
+//        return MouseInfo.getPointerInfo().getLocation().x >= this.getLocationOnScreen().x
+//                && MouseInfo.getPointerInfo().getLocation().x <= this.getLocationOnScreen().x + this.getWidth()
+//                && MouseInfo.getPointerInfo().getLocation().y >= this.getLocationOnScreen().y
+//                && MouseInfo.getPointerInfo().getLocation().y <= this.getLocationOnScreen().y + this.getHeight();
+//    }
 
     private void setupRubberBandZoomer(final Chart chartToZoom, final Axis xAxis, final Axis yAxis) {
         zoomStack = new Stack<>();

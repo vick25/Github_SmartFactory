@@ -10,7 +10,6 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -131,8 +130,9 @@ public class TargetInsert extends javax.swing.JDialog {
 //                }
             }
         });
-        if (null != ConnectDB.pref.get(SettingKeyFactory.DefaultProperties.TARGET_TIME_UNIT, lastTargetUnit)) {
-            switch (ConnectDB.pref.get(SettingKeyFactory.DefaultProperties.TARGET_TIME_UNIT, lastTargetUnit)) {
+        String targetUnit = getDBTargetUnit();
+        if (null != targetUnit) {
+            switch (targetUnit) {
                 case "second":
                     radSecond.setSelected(true);
                     break;
@@ -143,9 +143,12 @@ public class TargetInsert extends javax.swing.JDialog {
                     radHour.setSelected(true);
                     break;
             }
+            ConnectDB.pref.put(SettingKeyFactory.DefaultProperties.TARGET_TIME_UNIT, targetUnit);
         }
         this.setLocationRelativeTo(parent);
-        this.setTitle(new StringBuilder("Machines Target Value (").append(ConnectDB.pref.get(SettingKeyFactory.DefaultProperties.TARGET_TIME_UNIT, lastTargetUnit)).append(")").toString());
+        this.setTitle(new StringBuilder("Machines Target Value (").
+                append(ConnectDB.pref.get(SettingKeyFactory.DefaultProperties.TARGET_TIME_UNIT, lastTargetUnit))
+                .append(")").toString());
     }
 
     @SuppressWarnings("unchecked")
@@ -367,7 +370,7 @@ public class TargetInsert extends javax.swing.JDialog {
                 }
             }
         } catch (NullPointerException e) {
-            return;
+            ConnectDB.appendToFileException(e);
         } catch (SQLException ex) {
             ConnectDB.catchSQLException(ex);
         } catch (ParseException ex) {
@@ -385,10 +388,10 @@ public class TargetInsert extends javax.swing.JDialog {
             for (int row = 0; row < tableRow; row++) {
                 String machine = tableTarget.getValueAt(row, 1).toString();
                 try (PreparedStatement ps = ConnectDB.con.prepareStatement("INSERT INTO target \n"
-                        + "VALUES (?,?,?,?)")) {
-                    byte col = 4;//column start at 4 for the production values
+                        + "VALUES (?,?,?,?,?)")) {
+                    byte col = 4;//column start reading at index 4 for the production values on the UI
                     double targetValue = 0d;
-                    for (ProductionTypeEnum type : ProductionTypeEnum.values()) {
+                    for (ProductionTypeEnum type : ProductionTypeEnum.values()) {//Total or Rate
                         int configNo = -1;
                         try (PreparedStatement ps1 = ConnectDB.con.prepareStatement(new StringBuilder("SELECT "
                                 + "DISTINCT c.ConfigNo \n").append("FROM configuration c, hardware h \n"
@@ -402,6 +405,7 @@ public class TargetInsert extends javax.swing.JDialog {
                                 configNo = ConnectDB.res.getInt(1);
                             }
                         }
+                        //Inserting into the target table
                         if (!checkTargetExist(machine, configNo)) {
                             ps.setObject(1, null);
                             ps.setString(2, machine);
@@ -410,17 +414,20 @@ public class TargetInsert extends javax.swing.JDialog {
                                 targetValue = Double.valueOf(tableTarget.getValueAt(row, col).toString());
                             }
                             ps.setDouble(4, targetValue);
+                            ps.setString(5, lastTargetUnit);
                             res = (byte) ps.executeUpdate();
                             col++;
                         } else {//update
                             try (PreparedStatement psUpdate = ConnectDB.con.prepareStatement("UPDATE target \n"
-                                    + "SET TargetValue =? \n"
+                                    + "SET TargetValue =?, \n"
+                                    + "TargetUnit =? \n"
                                     + "WHERE TargetNo =?")) {
                                 if (!tableTarget.getValueAt(row, col).toString().isEmpty()) {
                                     targetValue = Double.valueOf(tableTarget.getValueAt(row, col).toString());
                                 }
                                 psUpdate.setDouble(1, targetValue);
-                                psUpdate.setInt(2, targetNo);
+                                psUpdate.setString(2, lastTargetUnit);
+                                psUpdate.setInt(3, targetNo);
                                 res = (byte) psUpdate.executeUpdate();
                                 col++;
                             }
@@ -525,6 +532,17 @@ public class TargetInsert extends javax.swing.JDialog {
                 }
             }
         }
+    }
+
+    private String getDBTargetUnit() throws SQLException {
+        try (PreparedStatement ps = ConnectDB.con.prepareStatement("SELECT TargetUnit \n"
+                + "FROM `target` LIMIT 1")) {
+            ConnectDB.res = ps.executeQuery();
+            while (ConnectDB.res.next()) {
+                return ConnectDB.res.getString(1);
+            }
+        }
+        return "hour";
     }
 
     private void fillArrayTarget() {
@@ -744,7 +762,6 @@ public class TargetInsert extends javax.swing.JDialog {
     private TargetOptions targetOptions;
     private String _machine;
     private String lastTargetUnit = "hour";
-    private ResultSet resultSet = null;
     private double[] cumulTargetValues, rateTargetValues;
     private final SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
     private static boolean anyChangeOccured, targetFound = true;

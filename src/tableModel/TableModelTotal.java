@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import javax.swing.SwingConstants;
 import javax.swing.table.AbstractTableModel;
 import productionQuickView.ProductionQuickView;
+import setting.SettingKeyFactory;
 import smartfactoryV2.ConnectDB;
 
 /**
@@ -61,6 +62,16 @@ public class TableModelTotal extends AbstractTableModel implements ContextSensit
                     if (column == 0) {
                         try {
                             machineTarget = ConnectDB.getMachineTarget(value.toString(), "Cumulative");
+                            if (null != ConnectDB.pref.get(SettingKeyFactory.DefaultProperties.TARGET_TIME_UNIT, "hour")) {
+                                switch (ConnectDB.pref.get(SettingKeyFactory.DefaultProperties.TARGET_TIME_UNIT, "hour")) {
+                                    case "second":
+                                        machineTarget *= 3600;
+                                        break;
+                                    case "minute":
+                                        machineTarget *= 60;
+                                        break;
+                                }
+                            }
                         } catch (SQLException ex) {
                             ConnectDB.catchSQLException(ex);
                         }

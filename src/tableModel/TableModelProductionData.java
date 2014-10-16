@@ -16,7 +16,7 @@ public class TableModelProductionData extends AbstractTableModel implements Head
 
     private static final CellStyle CENTER_STYLE = new CellStyle();
     private static final CellStyle PERIOD_STYLE = new CellStyle();
-    String[] columnNames = {"#", "Time", "Value"};
+    String[] columnNames = {"#", "Day", "Time", "Value"};
     ArrayList[] Data;
 
     static {
@@ -73,9 +73,9 @@ public class TableModelProductionData extends AbstractTableModel implements Head
     public CellStyle getHeaderStyleAt(int rowIndex, int columnIndex) {
         if (rowIndex == 0) {
             return PERIOD_STYLE;
-        } else if (columnIndex <=3) {
+        } else if (columnIndex <= 3) {
             return PERIOD_STYLE;
-        } 
+        }
         return CENTER_STYLE;
     }
 

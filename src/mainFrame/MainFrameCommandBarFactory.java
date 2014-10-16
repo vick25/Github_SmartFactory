@@ -152,7 +152,7 @@ public class MainFrameCommandBarFactory extends CommandBarFactory {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    MainFrame.actionNewReport();
+                    MainFrame.actionNewMainInterface();
                 } catch (SQLException ex) {
                     ConnectDB.catchSQLException(ex);
                 }
@@ -864,6 +864,7 @@ public class MainFrameCommandBarFactory extends CommandBarFactory {
         }
     }
 
+    /* Main Interface toolbar*/
     public static CommandBar createStandardCommandToolBar() {
         CommandBar commandBar = new CommandBar("Standard");
         commandBar.setInitSide(DockableBarContext.DOCK_SIDE_NORTH);
@@ -871,22 +872,23 @@ public class MainFrameCommandBarFactory extends CommandBarFactory {
         commandBar.setInitIndex(1);
         commandBar.setInitSubindex(0);
 
-        AbstractButton training = createButton(MainFrameIconsFactory.getImageIcon(MainFrameIconsFactory.Standard.NEW));
-        training.setToolTipText("New Report Interface");
-        training.addActionListener(new ActionListener() {
+        AbstractButton mainInterface = createButton(MainFrameIconsFactory.getImageIcon(MainFrameIconsFactory.Standard.NEW));
+        mainInterface.setToolTipText("New Report Interface");
+        mainInterface.addActionListener(new ActionListener() {
 
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    MainFrame.actionNewReport();
+                    System.gc();
+                    MainFrame.actionNewMainInterface();
                 } catch (SQLException ex) {
                     ConnectDB.catchSQLException(ex);
                 }
             }
         });
-        AbstractButton open = createButton(MainFrameIconsFactory.getImageIcon(MainFrameIconsFactory.Standard.OPEN));
-        open.setToolTipText("Open Working Folder");
-        open.addActionListener(new ActionListener() {
+        AbstractButton openWorkingFolder = createButton(MainFrameIconsFactory.getImageIcon(MainFrameIconsFactory.Standard.OPEN));
+        openWorkingFolder.setToolTipText("Open Working Folder");
+        openWorkingFolder.addActionListener(new ActionListener() {
 
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -931,8 +933,8 @@ public class MainFrameCommandBarFactory extends CommandBarFactory {
                 MainFrame.actionHelp();
             }
         });
-        commandBar.add(training);
-        commandBar.add(open);
+        commandBar.add(mainInterface);
+        commandBar.add(openWorkingFolder);
         commandBar.add(save);
         commandBar.addSeparator();
         commandBar.add(undo);

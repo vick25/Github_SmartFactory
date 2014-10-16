@@ -24,7 +24,7 @@ public class WritePropertiesFile {
     public WritePropertiesFile(String running, String IPAddress, String timeToQuery) {
         Properties props = new Properties();
         OutputStream out = null;
-        if (!"open".equalsIgnoreCase(running) && !"127.0.0.1".equals(ConnectDB.serverIP)) {
+        if (!"open".equalsIgnoreCase(running) && !"127.0.0.1".equals(ConnectDB.getServerIP())) {
             try {
                 URL resource = this.getClass().getClassLoader().getResource("resources/smfProperties.properties");
                 File f = new File(resource.toURI());
@@ -35,7 +35,7 @@ public class WritePropertiesFile {
                     //Change the values here
                     props.setProperty("running", running);
                     props.setProperty("timetoquery", timeToQuery);
-                    props.setProperty("ipAddress", ConnectDB.serverIP);
+                    props.setProperty("ipAddress", ConnectDB.getServerIP());
                 } else {
                     //Set default values?
                     props.setProperty("running", "open");

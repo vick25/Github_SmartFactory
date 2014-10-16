@@ -140,6 +140,7 @@
                 <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
                   <Color blue="ff" green="ff" red="ff" type="rgb"/>
                 </Property>
+                <Property name="selected" type="boolean" value="true"/>
                 <Property name="text" type="java.lang.String" value="Show history from:"/>
                 <Property name="focusable" type="boolean" value="false"/>
               </Properties>
@@ -156,7 +157,6 @@
                 <Property name="date" type="java.util.Date" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
                   <Connection code="Calendar.getInstance().getTime()" type="code"/>
                 </Property>
-                <Property name="enabled" type="boolean" value="false"/>
                 <Property name="focusable" type="boolean" value="false"/>
                 <Property name="format" type="java.text.DateFormat" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
                   <Connection code="ConnectDB.SDATE_FORMAT_HOUR" type="code"/>
@@ -183,7 +183,6 @@
                   <Image iconType="3" name="/images/icons/repeat.png"/>
                 </Property>
                 <Property name="toolTipText" type="java.lang.String" value="Reset date to current"/>
-                <Property name="enabled" type="boolean" value="false"/>
                 <Property name="focusable" type="boolean" value="false"/>
               </Properties>
               <Events>

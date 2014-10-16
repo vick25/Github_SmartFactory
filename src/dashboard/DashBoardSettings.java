@@ -67,6 +67,7 @@ public class DashBoardSettings extends javax.swing.JDialog {
         initComponents();
         _parent = parent;
         _tabbedPane = tabbedPane;
+//        this.setResizable(false);
         this.setTitle("DashBoard Settings");
         this.setLayout(new BorderLayout());
         this.getContentPane().add(this.getOptionsPanel());
@@ -102,7 +103,7 @@ public class DashBoardSettings extends javax.swing.JDialog {
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addGap(0, 255, Short.MAX_VALUE)
+                .addContainerGap(270, Short.MAX_VALUE)
                 .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
@@ -299,19 +300,44 @@ public class DashBoardSettings extends javax.swing.JDialog {
         spinnerSlidePanel.add(new JLabel("min"), BorderLayout.AFTER_LINE_ENDS);
         buttonPanel.add(spinnerSlidePanel);
 
-        JPanel paletteTarget = new JPanel(new BorderLayout(6, 6));
+        JPanel panelMarquee = new JPanel(new GridLayout(0, 1, 5, 5));
+        panelMarquee.setBackground(Color.WHITE);
+        JCheckBox freezeCheckBox = new JCheckBox("Freeze Auto Scrolling");
+        freezeCheckBox.setFocusable(false);
+        freezeCheckBox.setBackground(Color.WHITE);
+        freezeCheckBox.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                try {
+                    if (e.getStateChange() == ItemEvent.SELECTED) {
+                        VerticalMultiChartPanel.getHorizonMarqueeLeft().stopAutoScrolling();
+                    } else {
+                        VerticalMultiChartPanel.getHorizonMarqueeLeft().startAutoScrolling();
+                    }
+                } catch (NullPointerException ex) {
+                }
+            }
+        });
+        panelMarquee.add(freezeCheckBox);
+        buttonPanel.add(panelMarquee);
+
+        final JPanel paletteTarget = new JPanel(new BorderLayout(6, 6));
         JideButton btnTarget = new JideButton("Show/Edit Target(s)");
         btnTarget.setFocusable(false);
         btnTarget.setFont(ConnectDB.TITLEFONT);
         btnTarget.setForeground(Color.BLUE);
         btnTarget.setOpaque(true);
         btnTarget.setButtonStyle(ButtonStyle.TOOLBOX_STYLE);
+        final JLabel currentUnit = new JLabel("current unit: " + ConnectDB.pref.get(
+                SettingKeyFactory.DefaultProperties.TARGET_TIME_UNIT, "hour"));
         btnTarget.addActionListener(new ActionListener() {
 
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
                     new TargetInsert(_parent, true).setVisible(true);
+                    currentUnit.setText("current unit: " + ConnectDB.pref.get(
+                            SettingKeyFactory.DefaultProperties.TARGET_TIME_UNIT, "hour"));
                 } catch (SQLException ex) {
                     ConnectDB.catchSQLException(ex);
                 }
@@ -319,8 +345,7 @@ public class DashBoardSettings extends javax.swing.JDialog {
         });
         paletteTarget.setBackground(Color.WHITE);
         paletteTarget.add(btnTarget, BorderLayout.WEST);
-        paletteTarget.add(new JLabel("current unit: " + ConnectDB.pref.get(
-                SettingKeyFactory.DefaultProperties.TARGET_TIME_UNIT, "hour")));
+        paletteTarget.add(currentUnit);
         buttonPanel.add(paletteTarget);
 
         buttonPanel.add(new JPanel(new BorderLayout(6, 6)));
@@ -427,7 +452,7 @@ public class DashBoardSettings extends javax.swing.JDialog {
                             DashboardPersistenceUtils.save(_tabbedPane, temp.getAbsolutePath());
                             _parent.dispose();
                             try {
-                                Thread.sleep(500);
+                                Thread.sleep(200);
                             } catch (InterruptedException ex) {
                             }
                             MainMenuPanel.showDashBoard();
@@ -453,7 +478,7 @@ public class DashBoardSettings extends javax.swing.JDialog {
         FileOutputStream fos = null;
         PrintStream ps = null;
         try {
-            fos = new FileOutputStream(new File("ApplicationExceptions.txt"), true);
+            fos = new FileOutputStream(new File("SmartFactoryException.txt"), true);
             ps = new PrintStream(fos);
             ps.print(ConnectDB.SDATE_FORMAT_HOUR.format(System.currentTimeMillis()));
             ex.printStackTrace(ps);

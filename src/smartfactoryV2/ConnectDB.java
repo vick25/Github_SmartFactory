@@ -14,8 +14,12 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Font;
 import java.awt.Rectangle;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -29,6 +33,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.StringTokenizer;
 import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.prefs.Preferences;
@@ -90,6 +95,14 @@ public class ConnectDB {
         return con;
     }
 
+    public static String getServerIP() {
+        return serverIP;
+    }
+
+    public static void setServerIP(String serverIP) {
+        ConnectDB.serverIP = serverIP;
+    }
+
     public static File getMainDir() {
         return mainDir;
     }
@@ -117,8 +130,22 @@ public class ConnectDB {
             } catch (Exception e) {
             }
         } else {
+            appendToFileException(ex);
             ex.printStackTrace();
         }
+    }
+
+    public static void appendToFileException(Exception ex) {
+        try {
+            FileWriter fstream = new FileWriter("SmartFactoryException.txt", true);
+            BufferedWriter out = new BufferedWriter(fstream);
+            PrintWriter pWriter = new PrintWriter(out, true);
+            pWriter.print(ConnectDB.SDATE_FORMAT_HOUR.format(System.currentTimeMillis()));
+            ex.printStackTrace(pWriter);
+            pWriter.println();
+        } catch (IOException ie) {
+            throw new RuntimeException("Could not write Exception to file", ie);
+        } 
     }
 
     public static String correctApostrophe(String text) {
@@ -289,10 +316,10 @@ public class ConnectDB {
         int machineID = -1;
         try (PreparedStatement ps = ConnectDB.con.prepareStatement(Queries.GET_HARDWARE)) {
             ps.setString(1, ConnectDB.firstLetterCapital(machine));
-            ConnectDB.res = ps.executeQuery();
-            while (ConnectDB.res.next()) {
-                if (ConnectDB.res.getString(2).equalsIgnoreCase(machine)) {
-                    machineID = ConnectDB.res.getInt(1);
+            ResultSet result = ps.executeQuery();
+            while (result.next()) {
+                if (result.getString(2).equalsIgnoreCase(machine)) {
+                    machineID = result.getInt(1);
                 }
             }
         }
@@ -483,11 +510,34 @@ public class ConnectDB {
         JideSwingUtilities.setOpaqueRecursively(actualComponent, false);
     }
 
+    public static File findFileOnClassPath(final String fileName) throws FileNotFoundException {
+        final String classpath = System.getProperty("java.class.path"),
+                pathSeparator = System.getProperty("path.separator");
+        final StringTokenizer tokenizer = new StringTokenizer(classpath, pathSeparator);
+        while (tokenizer.hasMoreTokens()) {
+            final String pathElement = tokenizer.nextToken();
+            final File directoryOrJar = new File(pathElement),
+                    absoluteDirectoryOrJar = directoryOrJar.getAbsoluteFile();
+            if (absoluteDirectoryOrJar.isFile()) {
+                final File target = new File(new File(absoluteDirectoryOrJar.getParent()).getParent(), fileName);
+                if (target.exists()) {
+                    return target;
+                }
+            } else {
+                final File target = new File(directoryOrJar, fileName);
+                if (target.exists()) {
+                    return target;
+                }
+            }
+        }
+        return null;
+    }
+
     private static final String KEYCODE = "crypter";
     private static final String DBNAME = "smartfactory";
     private static final String DBUSERNAME = "root";
     private static final String DBPASSWORD = "wnnr123";
-    public static String serverIP = "127.0.0.1";
+    private static String serverIP = "127.0.0.1";
     private static int count = 0;
     public static final int PORTDDOC = 6300;
     public static final int PORTMAINSERVER = 4763;

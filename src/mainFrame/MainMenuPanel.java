@@ -19,11 +19,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import login.Identification;
-import static login.Identification.quickViewFrame;
 import productionPanel.ProductionPane;
 import productionQuickView.ProductionQuickView;
 import smartfactoryV2.ConnectDB;
@@ -255,78 +256,88 @@ public class MainMenuPanel extends JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnProductionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnProductionActionPerformed
-        if (!_documentPane.isDocumentOpened("Production")) {
-            try {
-                this.productionPane = new ProductionPane(_parent);
-                final DocumentComponent document = new DocumentComponent(this.productionPane, "Production",
-                        "Production", new ImageIcon(this.getClass().getResource("/images/icons/kchart12.png")));
-                _documentPane.openDocument(document);
-                MainFrame.confirmCloseTab(document);
-                ProductionPane.setMachineTitle("");
-            } catch (SQLException ex) {
-                ConnectDB.catchSQLException(ex);
+        try {
+            if (!_documentPane.isDocumentOpened("Production")) {
+                try {
+//                this.productionPane = new ProductionPane(_parent);
+                    final DocumentComponent document = new DocumentComponent(new ProductionPane(_parent), "Production",
+                            "Production", new ImageIcon(this.getClass().getResource("/images/icons/kchart12.png")));
+                    _documentPane.openDocument(document);
+                    MainFrame.confirmCloseTab(document);
+                    ProductionPane.setMachineTitle("");
+                } catch (SQLException ex) {
+                    ConnectDB.catchSQLException(ex);
+                }
             }
+            _documentPane.setActiveDocument("Production");
+            this.repaint();
+        } catch (IllegalArgumentException e) {
         }
-        _documentPane.setActiveDocument("Production");
-        this.repaint();
     }//GEN-LAST:event_btnProductionActionPerformed
 
     private void btnEventsStattisticActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEventsStattisticActionPerformed
-        if (!_documentPane.isDocumentOpened("Events")) {
-            try {
-                final DocumentComponent document = new DocumentComponent(new EventsStatistic(_parent), "Events",
-                        "Events", new ImageIcon(this.getClass().getResource("/images/icons/kchart12.png")));
-                _documentPane.openDocument(document);
-                MainFrame.confirmCloseTab(document);
-            } catch (SQLException ex) {
-                ConnectDB.catchSQLException(ex);
+        try {
+            if (!_documentPane.isDocumentOpened("Events")) {
+                try {
+                    final DocumentComponent document = new DocumentComponent(new EventsStatistic(_parent), "Events",
+                            "Events", new ImageIcon(this.getClass().getResource("/images/icons/kchart12.png")));
+                    _documentPane.openDocument(document);
+                    MainFrame.confirmCloseTab(document);
+                } catch (SQLException ex) {
+                    ConnectDB.catchSQLException(ex);
+                }
             }
+            _documentPane.setActiveDocument("Events");
+            this.repaint();
+        } catch (IllegalArgumentException e) {
         }
-        _documentPane.setActiveDocument("Events");
-        this.repaint();
     }//GEN-LAST:event_btnEventsStattisticActionPerformed
 
     private void btnProductionQuickViewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnProductionQuickViewActionPerformed
-        if (quickViewFrame == null) {
+        if (Identification.getQuickViewFrame() == null) {
             try {
-                quickViewFrame = new JFrame("Production Quick View");
-                quickViewFrame.setSize(950, 570);
-                quickViewFrame.setContentPane(new ProductionQuickView(quickViewFrame));
-                quickViewFrame.setLocationRelativeTo(_parent);
-                quickViewFrame.setIconImage(new ImageIcon(_parent.getClass().getResource("/images/smart_factory_logo_icon.png")).getImage());
-                quickViewFrame.setVisible(true);
-                System.gc();
+                Identification.setQuickViewFrame(new JFrame("Production Quick View"));
+                Identification.getQuickViewFrame().setSize(950, 570);
+                Identification.getQuickViewFrame().setContentPane(new ProductionQuickView(Identification.getQuickViewFrame()));
+                Identification.getQuickViewFrame().setLocationRelativeTo(_parent);
+                Identification.getQuickViewFrame().setIconImage(new ImageIcon(_parent.getClass().
+                        getResource("/images/smart_factory_logo_icon.png")).getImage());
+                Identification.getQuickViewFrame().setVisible(true);
             } catch (SQLException ex) {
                 ConnectDB.catchSQLException(ex);
             }
         } else {
-            quickViewFrame.setVisible(true);
+            Identification.getQuickViewFrame().setVisible(true);
         }
-        quickViewFrame.addWindowListener(new WindowAdapter() {
+        Identification.getQuickViewFrame().addWindowListener(new WindowAdapter() {
 
             @Override
             public void windowClosing(WindowEvent e) {
-                quickViewFrame = null;
+                Identification.setQuickViewFrame(null);
+                System.gc();
             }
         });
     }//GEN-LAST:event_btnProductionQuickViewActionPerformed
 
     private void btnViewHistoryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnViewHistoryActionPerformed
-        if (_documentPane.isDocumentOpened("Production")) {
-            date = ProductionPane.cmbPFrom.getDate();
-        }
-        if (!_documentPane.isDocumentOpened("History")) {
-            try {
-                final DocumentComponent document = new DocumentComponent(new ViewHistory(ProductionPane.getMachineTitle(), date), "History",
-                        "History", new ImageIcon(this.getClass().getResource("/images/icons/kchart12.png")));
-                _documentPane.openDocument(document);
-                MainFrame.confirmCloseTab(document);
-            } catch (SQLException ex) {
-                ConnectDB.catchSQLException(ex);
+        try {
+            if (!_documentPane.isDocumentOpened("History")) {
+                try {
+                    final DocumentComponent document = new DocumentComponent(new ViewHistory(ProductionPane.getMachineTitle(), date), "History",
+                            "History", new ImageIcon(this.getClass().getResource("/images/icons/kchart12.png")));
+                    _documentPane.openDocument(document);
+                    MainFrame.confirmCloseTab(document);
+                } catch (SQLException ex) {
+                    ConnectDB.catchSQLException(ex);
+                }
             }
+            _documentPane.setActiveDocument("History");
+            this.repaint();
+            if (_documentPane.isDocumentOpened("Production")) {
+                date = ProductionPane.cmbPFrom.getDate();
+            }
+        } catch (IllegalArgumentException e) {
         }
-        _documentPane.setActiveDocument("History");
-        this.repaint();
     }//GEN-LAST:event_btnViewHistoryActionPerformed
 
     private void btnLogOutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLogOutActionPerformed
@@ -345,45 +356,54 @@ public class MainMenuPanel extends JPanel {
     }//GEN-LAST:event_btnDashBoardActionPerformed
 
     public static void showDashBoard() {
-        try {
-//            MainFrame.actionLogOut();
-            _dashBoardFrame = new JFrame("Smartfactory Machines Dashboard");
-            _dashBoardFrame.setSize(1125, 700);
-            _dashBoardFrame.setIconImage(_parent.getIconImage());
-            DashBoard _dashBoard = new DashBoard(_parent, MainFrame.getDashBoardDate());
-            _dashBoardFrame.getContentPane().add(_dashBoard);
-            _dashBoardFrame.addWindowListener(new WindowAdapter() {
+        new Thread() {
 
-                @Override
-                public void windowClosing(WindowEvent e) {
-                    _parent.setVisible(true);
-//                    Identification.getShowMainFrame().setVisible(true);
-//                    Identification.getShowMainFrame().revalidate();
-//                    ((DockableBarHolder) Identification.getShowMainFrame()).getDockableBarManager().updateComponentTreeUI();
-//                    ((DockableHolder) Identification.getShowMainFrame()).getDockingManager().updateComponentTreeUI();
-//                    SwingUtilities.updateComponentTreeUI(Identification.getShowMainFrame());
-                }
-            });
-            _dashBoardFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-            _dashBoardFrame.setLocationRelativeTo(_parent);
-            _dashBoardFrame.setVisible(true);
-            _dashBoard.checkAndLoadDataOnCurrentDay();
-        } catch (Exception ex) {
-            FileOutputStream fos = null;
-            try {
-                fos = new FileOutputStream(new File("ApplicationExceptions.txt"), true);
-                PrintStream ps = new PrintStream(fos);
-                ex.printStackTrace(ps);
-            } catch (FileNotFoundException ex1) {
-                Logger.getLogger(MainMenuPanel.class.getName()).log(Level.SEVERE, null, ex1);
-            } finally {
+            @Override
+            public void run() {
                 try {
-                    fos.close();
-                } catch (IOException ex1) {
-                    Logger.getLogger(MainMenuPanel.class.getName()).log(Level.SEVERE, null, ex1);
+//            MainFrame.actionLogOut();
+                    _dashBoardFrame = new JFrame("Smartfactory Machines Dashboard");
+                    _dashBoardFrame.setSize(1125, 700);
+                    _dashBoardFrame.setIconImage(_parent.getIconImage());
+                    final DashBoard _dashBoard = new DashBoard(_parent, MainFrame.getDashBoardDate());
+                    _dashBoardFrame.getContentPane().add(_dashBoard);
+                    SwingUtilities.replaceUIActionMap(_dashBoard, DashBoard.getAction_Map());
+                    SwingUtilities.replaceUIInputMap(_dashBoard, JComponent.WHEN_IN_FOCUSED_WINDOW, DashBoard.getKeyMap());
+                    _dashBoardFrame.addWindowListener(new WindowAdapter() {
+
+                        @Override
+                        public void windowClosing(WindowEvent e) {
+                            System.gc();
+//                            _parent.setVisible(true);
+////                    Identification.getShowMainFrame().setVisible(true);
+////                    Identification.getShowMainFrame().revalidate();
+////                    ((DockableBarHolder) Identification.getShowMainFrame()).getDockableBarManager().updateComponentTreeUI();
+////                    ((DockableHolder) Identification.getShowMainFrame()).getDockingManager().updateComponentTreeUI();
+////                    SwingUtilities.updateComponentTreeUI(Identification.getShowMainFrame());
+                        }
+                    });
+                    _dashBoardFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                    _dashBoardFrame.setLocationRelativeTo(_parent);
+                    _dashBoardFrame.setVisible(true);
+                    _dashBoard.checkAndLoadDataOnCurrentDay();
+                } catch (Exception ex) {
+                    FileOutputStream fos = null;
+                    try {
+                        fos = new FileOutputStream(new File("ApplicationExceptions.txt"), true);
+                        PrintStream ps = new PrintStream(fos);
+                        ex.printStackTrace(ps);
+                    } catch (FileNotFoundException ex1) {
+                        Logger.getLogger(MainMenuPanel.class.getName()).log(Level.SEVERE, null, ex1);
+                    } finally {
+                        try {
+                            fos.close();
+                        } catch (IOException ex1) {
+                            Logger.getLogger(MainMenuPanel.class.getName()).log(Level.SEVERE, null, ex1);
+                        }
+                    }
                 }
             }
-        }
+        }.start();
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -404,5 +424,4 @@ public class MainMenuPanel extends JPanel {
     private final DocumentPane _documentPane;
     private static MainFrame _parent = null;
     private static JFrame _dashBoardFrame = null;
-    private ProductionPane productionPane = null;
 }

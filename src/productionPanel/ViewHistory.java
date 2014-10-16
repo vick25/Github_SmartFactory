@@ -102,6 +102,7 @@ public class ViewHistory extends javax.swing.JDialog {
         jideLabel1.setText("Machine:");
 
         chkFrom.setBackground(new java.awt.Color(255, 255, 255));
+        chkFrom.setSelected(true);
         chkFrom.setText("Show history from:");
         chkFrom.setFocusable(false);
         chkFrom.addItemListener(new java.awt.event.ItemListener() {
@@ -112,7 +113,6 @@ public class ViewHistory extends javax.swing.JDialog {
 
         cmbHFrom.setShowWeekNumbers(false);
         cmbHFrom.setDate(Calendar.getInstance().getTime());
-        cmbHFrom.setEnabled(false);
         cmbHFrom.setFocusable(false);
         cmbHFrom.setFormat(ConnectDB.SDATE_FORMAT_HOUR);
         cmbHFrom.setRequestFocusEnabled(false);
@@ -127,7 +127,6 @@ public class ViewHistory extends javax.swing.JDialog {
         btnRefresh.setBackground(new java.awt.Color(255, 255, 255));
         btnRefresh.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/icons/repeat.png"))); // NOI18N
         btnRefresh.setToolTipText("Reset date to current");
-        btnRefresh.setEnabled(false);
         btnRefresh.setFocusable(false);
         btnRefresh.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -367,6 +366,7 @@ public class ViewHistory extends javax.swing.JDialog {
                     _subTablesList.add(sortableTable);//add the subtables to a list
                 }
                 sortableTable.setBackground(ConnectDB.BG2);
+//                sortableTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
                 _group.add(sortableTable.getSelectionModel());
                 TreeLikeHierarchicalPanel treeLikeHierarchicalPanel = new TreeLikeHierarchicalPanel(new FitScrollPane(sortableTable));
                 treeLikeHierarchicalPanel.setBackground(sortableTable.getMarginBackground());
