@@ -13,6 +13,7 @@ import com.jidesoft.dashboard.GadgetPalette;
 import com.jidesoft.icons.IconsFactory;
 import com.jidesoft.pane.CollapsiblePaneTitleButton;
 import com.jidesoft.swing.JideButton;
+import com.jidesoft.swing.MarqueePane;
 import com.jidesoft.swing.SimpleScrollPane;
 import dashboard.DashBoard;
 import dashboard.GadgetFactory;
@@ -33,11 +34,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.TimerTask;
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
@@ -51,7 +49,11 @@ import smartfactoryV2.Queries;
  *
  * @author Victor Kadiata
  */
-public class CollapsiblePaneDashboard extends TimerTask {
+public class CollapsiblePaneDashboard {
+
+    public static boolean isMachineTimeReset() {
+        return machineTimeReset;
+    }
 
     public boolean isVertical() {
         return _vertical;
@@ -65,12 +67,23 @@ public class CollapsiblePaneDashboard extends TimerTask {
         return Collections.unmodifiableMap(mapMach);
     }
 
-    public void setMapMach(Map<String, CollapsiblePaneGadget> mapMach) {
-        this.mapMach = mapMach;
+    @SuppressWarnings("ReturnOfCollectionOrArrayField")
+    public Map<String, MarqueePane> getMapHorizonMarqueeLeft() {
+        return mapHorizonMarqueeLeft;
     }
+
+//    @SuppressWarnings("AssignmentToCollectionOrArrayFieldFromParameter")
+//    public void setMapMach(Map<String, CollapsiblePaneGadget> mapMach) {
+//        this.mapMach = mapMach;
+//    }
 
     public List<AbstractGadget> getGadgetList() {
         return Collections.unmodifiableList(gadgetList);
+    }
+
+    @SuppressWarnings("ReturnOfCollectionOrArrayField")
+    public ArrayList<Machine> getMachines() {
+        return _machines;
     }
 
     public DashboardTabbedPane getTabbedPane() {
@@ -81,6 +94,7 @@ public class CollapsiblePaneDashboard extends TimerTask {
         this._machines = machines;
     }
 
+    //Returns the tabbedPane component of the dashboard
     public Component getDemoPanel() {
         manager = new GadgetManager() {
             @Override
@@ -190,8 +204,8 @@ public class CollapsiblePaneDashboard extends TimerTask {
             }
         });
 
-        final Dashboard dashBoard = _tabbedPane.createDashboard("<html><font size=3><strong>Machines DashBoard</strong> "
-                + "(click show palette)</font>");
+        final Dashboard dashBoard = _tabbedPane.createDashboard("<html><font size=3 color=black>"
+                + "<strong>Machines Dashboard</strong> (click show palette)</font>");
         dashBoard.setColumnCount(3);
         dashBoard.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
@@ -241,7 +255,7 @@ public class CollapsiblePaneDashboard extends TimerTask {
                             final short cumulativeConfigNo = (short) getMachineConfigNo(getKey())[0];
                             if (cumulativeConfigNo > 0) {
                                 /** setGadgetComponentPane method for the content pane of the gadget */
-                                DashBoard.bslTime.setText(removeHtmlTag(getKey()) + "'s chart loading.");
+                                DashBoard.getBslTime().setText(removeHtmlTag(getKey()) + "'s chart loading.");
                                 //Create gadget -- important
                                 setGadgetComponentPane(getMachineConfigNo(getKey()), removeHtmlTag(getKey()), gadget);
                                 /**/
@@ -293,6 +307,7 @@ public class CollapsiblePaneDashboard extends TimerTask {
                     @Override
                     public void disposeGadgetComponent(GadgetComponent component) {
                         mapMach.remove(getName());
+                        mapHorizonMarqueeLeft.remove(getName());
 //                        System.out.println(component.getGadget().getName());
                     }
                 };
@@ -300,7 +315,7 @@ public class CollapsiblePaneDashboard extends TimerTask {
         return dashboardElement;
     }
 
-    private int[] getMachineConfigNo(String machineName) throws SQLException {
+    public int[] getMachineConfigNo(String machineName) throws SQLException {
         ResultSet resultSet;
         int[] configNum = new int[2];
         try (PreparedStatement ps = ConnectDB.con.prepareStatement(Queries.GET_CONFIGNO)) {
@@ -330,7 +345,7 @@ public class CollapsiblePaneDashboard extends TimerTask {
      createChart of the GadgetFactory class */
     synchronized public void setGadgetComponentPane(int[] configNo, String keyMachineName, CollapsiblePaneGadget gadget)
             throws SQLException, ParseException {
-        machineLoaded = false;
+        machineTimeReset = false;
         JComponent gadgetComponentPane = gadget.getContentPane();
         gadgetComponentPane.removeAll();
         gadgetComponentPane.setPreferredSize(new Dimension(200, 300));
@@ -345,48 +360,57 @@ public class CollapsiblePaneDashboard extends TimerTask {
             gadgetComponentPane.add(chart);
             gadget.revalidate();
             gadget.repaint();
-            mapMach.put(removeHtmlTag(keyMachineName), gadget);
-        }
-        DashBoard.bslTime.setText(new StringBuilder().append("Scheduler of ").append(Constants.timetoquery).
-                append(" is running to refresh the chart(s) if any is shown...").toString());
-        machineLoaded = true;
-    }
-
-    @Override
-    public void run() {
-        if (mapMach.size() > 0 && machineLoaded) {
-            machineLoaded = false;
-            Set<String> keySet = mapMach.keySet();
-            Iterator<String> keySetIterator = keySet.iterator();
-            while (keySetIterator.hasNext()) {
-                String key = keySetIterator.next();
-//            }
-//            for (String key : mapMach.keySet()) {// "for each key in the map's key set"
-                try {
-                    int[] configNo = getMachineConfigNo(key);
-                    CollapsiblePaneGadget value = mapMach.get(key);
-                    DashBoard.bslTime.setText("Updating " + key + " in a while.");
-//                    try {
-//                        Thread.sleep(500);
-//                    } catch (InterruptedException ex) {
-//                    }
-                    setGadgetComponentPane(configNo, key, value);//set the gadget component pane with a chart
-//                    _tabbedPane.revalidate();
-//                    _tabbedPane.repaint();
-                } catch (SQLException ex) {
-                    ConnectDB.catchSQLException(ex);
-                } catch (ParseException | NullPointerException ex) {
-                    ConnectDB.appendToFileException(ex);
-                }
+            try {
+                mapMach.put(removeHtmlTag(keyMachineName), gadget);
+//                mapHorizonMarqueeLeft.put(removeHtmlTag(keyMachineName),
+//                        VerticalMultiChartPanel.getHorizonMarqueeLeft());
+            } catch (UnsupportedOperationException ex) {
             }
-            machineLoaded = true;
         }
+        DashBoard.getBslTime().setText(new StringBuilder().append("Scheduler of ").append(Constants.timetoquery).
+                append(" is running to refresh the chart(s) if any is shown...").toString());
+        machineTimeReset = true;
     }
 
-    private DashboardTabbedPane _tabbedPane;
-    private boolean _vertical = false, machineLoaded = false;
-    private final ArrayList<Machine> _machines;
-    private GadgetManager manager;
-    private List<AbstractGadget> gadgetList;
-    private Map<String, CollapsiblePaneGadget> mapMach = new HashMap<>();
+//    @Override
+//    public void run() {
+////        if (mapMach.size() > 0 && machineTimeReset) {
+////            machineTimeReset = false;
+////            Set<String> keySet = mapMach.keySet();
+////            Iterator<String> keySetIterator = keySet.iterator();
+////            showChartDataMessage = false;
+////            while (keySetIterator.hasNext()) {
+////                String key = keySetIterator.next();
+//////            }
+//////            for (String key : mapMach.keySet()) {// "for each key in the map's key set"
+////                try {
+////                    int[] configNo = getMachineConfigNo(key);
+////                    CollapsiblePaneGadget value = mapMach.get(key);
+////                    DashBoard.getBslTime().setText(new StringBuilder("Updating ").append(key).
+////                            append(" in a while.").toString());
+//////                    try {
+//////                        Thread.sleep(500);
+//////                    } catch (InterruptedException ex) {
+//////                    }
+////                    setGadgetComponentPane(configNo, key, value);//set the gadget component pane with a chart
+//////                    _tabbedPane.revalidate();
+//////                    _tabbedPane.repaint();
+////                } catch (SQLException ex) {
+////                    ConnectDB.catchSQLException(ex);
+////                } catch (ParseException | NullPointerException ex) {
+////                    ConnectDB.appendToFileException(ex);
+////                }
+////            }
+////            showChartDataMessage = true;
+////        }
+////        machineTimeReset = true;
+//    }
+    private static boolean machineTimeReset = false;
+    private boolean _vertical = false;
+    private DashboardTabbedPane _tabbedPane = null;
+    private ArrayList<Machine> _machines = null;
+    private GadgetManager manager = null;
+    private List<AbstractGadget> gadgetList = null;
+    private final Map<String, CollapsiblePaneGadget> mapMach = new HashMap<>();
+    private final Map<String, MarqueePane> mapHorizonMarqueeLeft = new HashMap<>();
 }

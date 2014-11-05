@@ -45,7 +45,7 @@ import com.jidesoft.swing.OverlayableUtils;
 import com.jidesoft.swing.SearchableUtils;
 import com.jidesoft.swing.TreeSearchable;
 import com.jidesoft.tree.TreeUtils;
-import irepport.view.Print;
+import ireport_5_6_0.view.Print;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -64,6 +64,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.ParseException;
@@ -157,9 +158,6 @@ public class EventsStatistic extends javax.swing.JPanel {
                     if (panChart.getComponentCount() > 0) {
                         btnClipboard.setEnabled(true);
                         btnPrintChart.setEnabled(true);
-                    } else {
-                        btnClipboard.setEnabled(false);
-                        btnPrintChart.setEnabled(false);
                     }
                     if (_tree != null) {
                         if (panChart.getComponentCount() > 0 || !_tree.isSelectionEmpty()
@@ -171,18 +169,20 @@ public class EventsStatistic extends javax.swing.JPanel {
                             btnViewData.setEnabled(false);
                         }
                     }
-                    if (catMachine) {
-                        if (cmbMachineTitle.getSelectedItem() != null && cmbMachineTitle.getSelectedIndex() > 0) {
-                            radHour.setEnabled(true);
-                            radMinute.setEnabled(true);
-                            radSecond.setEnabled(true);
-                        } else {
-                            radHour.setEnabled(false);
-                            radMinute.setEnabled(false);
-                            radSecond.setEnabled(false);
-                        }
-                    }
+                    radHour.setEnabled(true);
+                    radMinute.setEnabled(true);
+                    radSecond.setEnabled(true);
+//                    if (catMachine) {
+//                        if (cmbMachineTitle.getSelectedItem() != null && cmbMachineTitle.getSelectedIndex() > 0) {//
+//                        } else {
+//                        }
+//                    }
                 } else {
+                    btnClipboard.setEnabled(false);
+                    btnPrintChart.setEnabled(false);
+                    radHour.setEnabled(false);
+                    radMinute.setEnabled(false);
+                    radSecond.setEnabled(false);
                     lblEventTo.setEnabled(false);
                     lblFrom.setEnabled(false);
                     lblTo.setEnabled(false);
@@ -279,7 +279,7 @@ public class EventsStatistic extends javax.swing.JPanel {
 
         jPanel5.setBackground(new java.awt.Color(255, 255, 255));
 
-        jSplitPane1.setDividerLocation(185);
+        jSplitPane1.setDividerLocation(205);
         jSplitPane1.setDividerSize(9);
         jSplitPane1.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
         jSplitPane1.setOneTouchExpandable(true);
@@ -371,11 +371,11 @@ public class EventsStatistic extends javax.swing.JPanel {
             jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel6Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(lblFrom, javax.swing.GroupLayout.DEFAULT_SIZE, 114, Short.MAX_VALUE)
+                .addComponent(lblFrom, javax.swing.GroupLayout.DEFAULT_SIZE, 115, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(lblEventTo, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(lblTo, javax.swing.GroupLayout.DEFAULT_SIZE, 115, Short.MAX_VALUE))
+                .addComponent(lblTo, javax.swing.GroupLayout.DEFAULT_SIZE, 116, Short.MAX_VALUE))
         );
         jPanel6Layout.setVerticalGroup(
             jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -415,7 +415,7 @@ public class EventsStatistic extends javax.swing.JPanel {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(cmbProductionType, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(spProductionRate, javax.swing.GroupLayout.DEFAULT_SIZE, 142, Short.MAX_VALUE)
+                        .addComponent(spProductionRate, javax.swing.GroupLayout.DEFAULT_SIZE, 144, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jLabel4)))
                 .addContainerGap())
@@ -439,8 +439,7 @@ public class EventsStatistic extends javax.swing.JPanel {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
                     .addComponent(jLabel3)
-                    .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(49, Short.MAX_VALUE))
+                    .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
         );
 
         jPanel3Layout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {cmbProductionType, lblProductionRate, spProductionRate});
@@ -472,6 +471,40 @@ public class EventsStatistic extends javax.swing.JPanel {
                 cmbMachineTitleItemStateChanged(evt);
             }
         });
+
+        javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
+        jPanel4.setLayout(jPanel4Layout);
+        jPanel4Layout.setHorizontalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel4Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel13)
+                    .addComponent(jLabel2)
+                    .addComponent(jLabel14))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(cmbValue, javax.swing.GroupLayout.DEFAULT_SIZE, 286, Short.MAX_VALUE)
+                    .addComponent(cmbDescription, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(cmbMachineTitle, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(6, 6, 6))
+        );
+        jPanel4Layout.setVerticalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel4Layout.createSequentialGroup()
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel13)
+                    .addComponent(cmbMachineTitle, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
+                    .addComponent(jLabel2)
+                    .addComponent(cmbDescription, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
+                    .addComponent(jLabel14)
+                    .addComponent(cmbValue, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(26, Short.MAX_VALUE))
+        );
 
         jPanel7.setBackground(new java.awt.Color(255, 255, 255));
         jPanel7.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Events of", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 12), new java.awt.Color(204, 0, 0))); // NOI18N
@@ -508,9 +541,9 @@ public class EventsStatistic extends javax.swing.JPanel {
         radHour.setSelected(true);
         radHour.setText("Hour");
         radHour.setFocusable(false);
-        radHour.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                radHourActionPerformed(evt);
+        radHour.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                radHourItemStateChanged(evt);
             }
         });
 
@@ -518,9 +551,9 @@ public class EventsStatistic extends javax.swing.JPanel {
         buttonGroup1.add(radMinute);
         radMinute.setText("Minutes");
         radMinute.setFocusable(false);
-        radMinute.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                radMinuteActionPerformed(evt);
+        radMinute.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                radMinuteItemStateChanged(evt);
             }
         });
 
@@ -528,9 +561,9 @@ public class EventsStatistic extends javax.swing.JPanel {
         buttonGroup1.add(radSecond);
         radSecond.setText("Seconds");
         radSecond.setFocusable(false);
-        radSecond.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                radSecondActionPerformed(evt);
+        radSecond.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                radSecondItemStateChanged(evt);
             }
         });
 
@@ -540,11 +573,11 @@ public class EventsStatistic extends javax.swing.JPanel {
             jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel8Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(radHour, javax.swing.GroupLayout.DEFAULT_SIZE, 53, Short.MAX_VALUE)
+                .addComponent(radHour, javax.swing.GroupLayout.DEFAULT_SIZE, 71, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(radMinute, javax.swing.GroupLayout.PREFERRED_SIZE, 61, Short.MAX_VALUE)
+                .addComponent(radMinute, javax.swing.GroupLayout.DEFAULT_SIZE, 75, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(radSecond, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(radSecond, javax.swing.GroupLayout.DEFAULT_SIZE, 79, Short.MAX_VALUE)
                 .addContainerGap())
         );
         jPanel8Layout.setVerticalGroup(
@@ -564,10 +597,10 @@ public class EventsStatistic extends javax.swing.JPanel {
             jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel7Layout.createSequentialGroup()
                 .addGap(0, 0, 0)
-                .addComponent(btnDataEvent, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(btnTimeEvent, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(btnDataEvent, javax.swing.GroupLayout.DEFAULT_SIZE, 239, Short.MAX_VALUE)
+                .addGap(2, 2, 2)
+                .addComponent(btnTimeEvent, javax.swing.GroupLayout.DEFAULT_SIZE, 240, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jPanel8, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel7Layout.setVerticalGroup(
@@ -578,50 +611,14 @@ public class EventsStatistic extends javax.swing.JPanel {
                 .addComponent(jPanel8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
-        javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
-        jPanel4.setLayout(jPanel4Layout);
-        jPanel4Layout.setHorizontalGroup(
-            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel4Layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jPanel7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(jPanel4Layout.createSequentialGroup()
-                        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel13)
-                            .addComponent(jLabel2)
-                            .addComponent(jLabel14))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(cmbValue, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(cmbDescription, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(cmbMachineTitle, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
-                .addGap(6, 6, 6))
-        );
-        jPanel4Layout.setVerticalGroup(
-            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel4Layout.createSequentialGroup()
-                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel13)
-                    .addComponent(cmbMachineTitle, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
-                    .addComponent(jLabel2)
-                    .addComponent(cmbDescription, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
-                    .addComponent(jLabel14)
-                    .addComponent(cmbValue, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 758, Short.MAX_VALUE)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jPanel7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
             .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(jPanel2Layout.createSequentialGroup()
                     .addContainerGap()
@@ -632,15 +629,19 @@ public class EventsStatistic extends javax.swing.JPanel {
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 184, Short.MAX_VALUE)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addComponent(jPanel7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, Short.MAX_VALUE))
             .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                    .addGap(6, 6, 6)
+                    .addGap(70, 70, 70)
                     .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                         .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, 177, Short.MAX_VALUE))
-                    .addGap(1, 1, 1)))
+                        .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
         );
+
+        jPanel2Layout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {jPanel3, jPanel4});
 
         jSplitPane1.setLeftComponent(jPanel2);
 
@@ -782,7 +783,7 @@ public class EventsStatistic extends javax.swing.JPanel {
 
         btnViewData.setBackground(new java.awt.Color(255, 255, 255));
         btnViewData.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/icons/view_icon.png"))); // NOI18N
-        btnViewData.setText("View Data");
+        btnViewData.setText("Chart data table");
         btnViewData.setEnabled(false);
         btnViewData.setFocusable(false);
         btnViewData.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
@@ -954,7 +955,8 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
         try {
             int[] rows = _tree.getSelectionRows();
             TreePath path = _tree.getSelectionPath();
-            cmbMachineTitleItemStateChanged(null);
+            initFieldTree();
+//            cmbMachineTitleItemStateChanged(null);
             _tree.setSelectionPath(path);
             _tree.setSelectionRow(rows[0]);
             _tree.repaint();
@@ -1082,7 +1084,7 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
                 panChart.repaint();
                 scrlPaneTree.setViewportView(null);//clearing the scrollpanel of the jtree
                 boolean find = false;
-                ArrayList<String> data = new ArrayList<>();
+                ArrayList<String> dataCategory = new ArrayList<>();
                 try (PreparedStatement ps = ConnectDB.con.prepareStatement("SELECT DISTINCT(c.Description) "
                         + "FROM eventlog e, customlist c \n"
                         + "WHERE e.Customcode = c.Code AND e.HwNo =? \n"
@@ -1091,10 +1093,10 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
                     ConnectDB.res = ps.executeQuery();
                     while (ConnectDB.res.next()) {
                         find = true;
-                        data.add(ConnectDB.res.getString(1));//adding the description
+                        dataCategory.add(ConnectDB.res.getString(1));//adding the description
                     }
-                    cmbDescription.setModel(new DefaultComboBoxModel(data.toArray()));
-                    data.clear();
+                    cmbDescription.setModel(new DefaultComboBoxModel(dataCategory.toArray()));
+                    dataCategory.clear();
                     cmbDescription.setSelectedIndex(-1);
                 } catch (SQLException ex) {
                     ConnectDB.catchSQLException(ex);
@@ -1108,7 +1110,6 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
                     } catch (SQLException ex) {
                         ConnectDB.catchSQLException(ex);
                     }
-//                    catMachine = false;
                 } else {
                     catMachine = false;
                     JOptionPane.showMessageDialog(this, new StringBuilder("No description/category exists for the \"").
@@ -1172,17 +1173,20 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
         btnDataEventActionPerformed(evt);
     }//GEN-LAST:event_btnTimeEventActionPerformed
 
-    private void radHourActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_radHourActionPerformed
-        btnRefreshActionPerformed(evt);
-    }//GEN-LAST:event_radHourActionPerformed
+    private void radHourItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_radHourItemStateChanged
+        ConnectDB.pref.putInt(StatKeyFactory.ChartFeatures.CMBTIME, 0);
+        btnRefreshActionPerformed(null);
+    }//GEN-LAST:event_radHourItemStateChanged
 
-    private void radMinuteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_radMinuteActionPerformed
-        btnRefreshActionPerformed(evt);
-    }//GEN-LAST:event_radMinuteActionPerformed
+    private void radMinuteItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_radMinuteItemStateChanged
+        ConnectDB.pref.putInt(StatKeyFactory.ChartFeatures.CMBTIME, 1);
+        btnRefreshActionPerformed(null);
+    }//GEN-LAST:event_radMinuteItemStateChanged
 
-    private void radSecondActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_radSecondActionPerformed
-        btnRefreshActionPerformed(evt);
-    }//GEN-LAST:event_radSecondActionPerformed
+    private void radSecondItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_radSecondItemStateChanged
+        ConnectDB.pref.putInt(StatKeyFactory.ChartFeatures.CMBTIME, 2);
+        btnRefreshActionPerformed(null);
+    }//GEN-LAST:event_radSecondItemStateChanged
 
     private void getComponentDates() throws SQLException {
         if (cmbEFrom.getDate() != null && cmbEFrom.isEnabled()) {
@@ -1214,7 +1218,7 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
         this.getComponentDates();
         //
         Set<String> setDescriptionValue = new TreeSet<>();
-        PreparedStatement ps;
+//        PreparedStatement ps;
         descriptionSet.clear();
         String time = "", query;
         boolean loopQueryFound = false;
@@ -1255,7 +1259,7 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
 //            } else {//case for the data event
 //            }
             minLogTime = ConnectDB.SDATE_FORMAT_HOUR.format(eventFrom);//the eventtime minimum value
-            maxLogTime = ConnectDB.SDATE_FORMAT_HOUR.format(eventTo);//the eventtime maximum value  
+            maxLogTime = ConnectDB.SDATE_FORMAT_HOUR.format(eventTo);//the eventtime maximum value
             lblFrom.setText("");
             lblTo.setText("");
             query = "SELECT e.EventNo, CONCAT(e.EventTime, ',', e.UntilTime) AS 'Time', e.Value, c.Description \n"
@@ -1265,18 +1269,18 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
                     + "AND e.Value <> '(null)' \n"
                     + "AND (e.EventTime BETWEEN ? AND ?) \n"
                     + "ORDER BY c.Description ASC, e.Value ASC";
-            ps = ConnectDB.con.prepareStatement(query);
-            ps.setInt(1, machineID);
-            ps.setString(2, minLogTime);
-            ps.setString(3, maxLogTime);
-            ConnectDB.res = ps.executeQuery();
-            while (ConnectDB.res.next()) {
-                loopQueryFound = true;
-                descriptionSet.add(ConnectDB.res.getString(4).toLowerCase());//get only the description
-                setDescriptionValue.add(new StringBuilder(ConnectDB.res.getString(4)).append(";").
-                        append(ConnectDB.res.getString(3)).toString().toLowerCase());//get the description and Value
+            try (PreparedStatement ps = ConnectDB.con.prepareStatement(query)) {
+                ps.setInt(1, machineID);
+                ps.setString(2, minLogTime);
+                ps.setString(3, maxLogTime);
+                ConnectDB.res = ps.executeQuery();
+                while (ConnectDB.res.next()) {
+                    loopQueryFound = true;
+                    descriptionSet.add(ConnectDB.res.getString(4).toLowerCase());//get only the description
+                    setDescriptionValue.add(new StringBuilder(ConnectDB.res.getString(4)).append(";").
+                            append(ConnectDB.res.getString(3)).toString().toLowerCase());//get the description and Value
+                }
             }
-            ps.close();
             if (loopQueryFound) {//boolean value for description and value
                 DefaultMutableTreeNode m_rootNode = new DefaultMutableTreeNode(machineTitle);
                 Vector data = getDummyData(setDescriptionValue);//method to create the tree of description and value
@@ -1337,6 +1341,11 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
             _field.setTree(_tree);
             TreeSearchable searchable = SearchableUtils.installSearchable(_tree);
             searchable.setFromStart(false);
+            TreeUtils.expandAll(_tree, true);
+            _tree.setRootVisible(true);
+            _tree.setShowsRootHandles(true);
+            scrlPaneTree.setViewportView(_tree);//adding the tree to the scrollpanel
+
             _tree.addTreeSelectionListener(new TreeSelectionListener() {
 
                 @Override
@@ -1361,10 +1370,6 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
                     runThread.start();
                 }
             });
-            TreeUtils.expandAll(_tree, true);
-            _tree.setRootVisible(true);
-            _tree.setShowsRootHandles(true);
-            scrlPaneTree.setViewportView(_tree);//adding the tree to the scrollpanel
         } catch (java.lang.NullPointerException e) {
         }
     }
@@ -1494,6 +1499,7 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
     }
 
     private void drawChart(String query) throws SQLException {
+        catMachine = false;
         lblTimeSum.setText("");
         model = new DefaultChartModel();
         colorsCategoryRange = new CategoryRange<>();
@@ -1537,38 +1543,38 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
                 panChart.revalidate();
                 EventsDataPanel.setLoadDataFinish(false);
             } else {
-                ArrayList<String> allDatas = new ArrayList<>();//listarray to get only the date from the database                
+                ArrayList<String> allDatas = new ArrayList<>();//listarray to get only the date from the database
                 Set<String> setDescOrValue = new TreeSet<>();
                 Statement stat = ConnectDB.con.createStatement();
-                ConnectDB.res = stat.executeQuery(query);
+                ResultSet res = stat.executeQuery(query);
                 double sum;
                 max = 0;
                 timeFormat = "fictitious value";
-                while (ConnectDB.res.next()) {
-                    String eventTime = ConnectDB.res.getString(1),//EventTime
-                            untilTime = ConnectDB.res.getString(2);//UntilTime
-                    setDescOrValue.add(ConnectDB.res.getString(3).toLowerCase());//Description or Value
+                while (res.next()) {
+                    String eventTime = res.getString(1),//EventTime
+                            untilTime = res.getString(2);//UntilTime
+                    setDescOrValue.add(res.getString(3).toLowerCase());//Description or Value
                     try {
                         double[] diffs = ConnectDB.getTimeDifference(
                                 ConnectDB.SDATE_FORMAT_HOUR.parse(ConnectDB.correctToBarreDate(eventTime)),
                                 ConnectDB.SDATE_FORMAT_HOUR.parse(ConnectDB.correctToBarreDate(untilTime)));
                         //for each row in the result set, get the difference in hours
                         //and the Description or Value
-                        if (radHour.isSelected()) {
+                        if (ConnectDB.pref.getInt(StatKeyFactory.ChartFeatures.CMBTIME, 0) == 0) {
                             timeFormat = "hour";//Time + The Description or Value
                             allDatas.add(new StringBuilder().append(diffs[1]).append(";").
-                                    append(ConnectDB.res.getString(3)).toString().toLowerCase());
-                        } else if (radMinute.isSelected()) {
+                                    append(res.getString(3)).toString().toLowerCase());
+                        } else if (ConnectDB.pref.getInt(StatKeyFactory.ChartFeatures.CMBTIME, 0) == 1) {
                             timeFormat = "min";
                             allDatas.add(new StringBuilder().append(diffs[2]).append(";").
-                                    append(ConnectDB.res.getString(3)).toString().toLowerCase());
+                                    append(res.getString(3)).toString().toLowerCase());
                         } else {
                             timeFormat = "sec";
                             allDatas.add(new StringBuilder().append(diffs[3]).append(";").
-                                    append(ConnectDB.res.getString(3)).toString().toLowerCase());
+                                    append(res.getString(3)).toString().toLowerCase());
                         }
-                    } catch (ParseException ex) {
-                        ex.printStackTrace();
+                    } catch (java.lang.NumberFormatException | ParseException ex) {
+//                        ex.printStackTrace();
                     }
                 }
                 Set<String> setData = null;//define the set depending on the tree path selected
@@ -1579,37 +1585,39 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
                 }
                 totalSum = 0d;
                 short i = 0;
-                for (String setLine : setData) {
-                    sum = 0d;
-                    for (int j = 0; j < allDatas.size(); j++) {
-                        StringTokenizer st = new StringTokenizer(allDatas.get(j), ";");
-                        final String time = st.nextToken();//0==
-                        final String val = st.nextToken();//1==
+                if (setData != null) {
+                    for (String setLine : setData) {
+                        sum = 0d;
+                        for (int j = 0; j < allDatas.size(); j++) {
+                            StringTokenizer st = new StringTokenizer(allDatas.get(j), ";");
+                            final String time = st.nextToken();//0==
+                            final String val = st.nextToken();//1==
 //                            String[] ses = allDatas.get(j).split(",");
-                        if (setLine.equalsIgnoreCase(val)) {
-                            sum += Double.parseDouble(time);//get the sum of time
+                            if (setLine.equalsIgnoreCase(val)) {
+                                sum += Double.parseDouble(time);//get the sum of time
+                            }
                         }
+                        HL.add(new ChartCategory((Object) ConnectDB.firstLetterCapital(setLine),
+                                new Highlight(new StringBuilder("hl").append(i).toString())));
+                        colorsCategoryRange.add((Category<ChartCategory>) HL.get(i));
+                        model.addPoint(new ChartPoint((Positionable) HL.get(i), sum));
+                        i++;
+                        if (max < sum) {
+                            max = (int) sum;
+                        }
+                        totalSum += sum;
                     }
-                    HL.add(new ChartCategory((Object) ConnectDB.firstLetterCapital(setLine),
-                            new Highlight(new StringBuilder("hl").append(i).toString())));
-                    colorsCategoryRange.add((Category<ChartCategory>) HL.get(i));
-                    model.addPoint(new ChartPoint((Positionable) HL.get(i), sum));
-                    i++;
-                    if (max < sum) {
-                        max = (int) sum;
+                    //Create the charts
+                    lblTimeSum.setText(new StringBuilder("<html>Total parts ").append(timeFormat).
+                            append(": <font color=red>").append(ConnectDB.DECIMALFORMAT.format(totalSum)).
+                            append("</font>").toString());
+                    if (!btnBarChart.isEnabled()) {
+                        createBarChart();
+                    } else if (!btnPieChart.isEnabled()) {
+                        createPieChart();
+                    } else if (!btnLineChart.isEnabled()) {
+                        createLineChart();
                     }
-                    totalSum += sum;
-                }
-                //Create the charts
-                lblTimeSum.setText(new StringBuilder("<html>Total parts ").append(timeFormat).
-                        append(": <font color=red>").append(ConnectDB.DECIMALFORMAT.format(totalSum)).
-                        append("</font>").toString());
-                if (!btnBarChart.isEnabled()) {
-                    createBarChart();
-                } else if (!btnPieChart.isEnabled()) {
-                    createPieChart();
-                } else if (!btnLineChart.isEnabled()) {
-                    createLineChart();
                 }
             }
             panChart.repaint();
@@ -1620,6 +1628,7 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
                 panChart.revalidate();
             }
         }
+        catMachine = true;
     }
 
     private Thread createThread(final InfiniteProgressPanel progressPanel, final JComponent panelShow, final String query) {
@@ -2040,9 +2049,9 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
     private javax.swing.JLabel lblTimeSum;
     private javax.swing.JLabel lblTo;
     private static javax.swing.JPanel panChart;
-    private javax.swing.JRadioButton radHour;
-    private javax.swing.JRadioButton radMinute;
-    private javax.swing.JRadioButton radSecond;
+    public static javax.swing.JRadioButton radHour;
+    public static javax.swing.JRadioButton radMinute;
+    public static javax.swing.JRadioButton radSecond;
     private javax.swing.JScrollPane scrlPaneTree;
     private javax.swing.JSpinner spProductionRate;
     // End of variables declaration//GEN-END:variables
@@ -2050,7 +2059,7 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
     private static double totalSum = 0d;
     private Date eventFrom, eventTo;
     private boolean skipFirstMessage = true,//variables for the dates;
-            catMachine, catDescription;//check if all the machineTitle title are loaded
+            catMachine, catDescription, plotChart;//check if all the machineTitle title are loaded
     private static int max = 0;
     private static RandomColor randomColor = null;
     private static ChartStyle stylePieChart = null;

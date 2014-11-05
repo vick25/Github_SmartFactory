@@ -52,11 +52,12 @@ public class ServerIPDialog extends javax.swing.JDialog {
         jideLabel1.setText("Server IP");
         jideLabel1.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
 
-        btnResetIP.setButtonStyle(com.jidesoft.swing.JideButton.HYPERLINK_STYLE);
+        btnResetIP.setButtonStyle(com.jidesoft.swing.JideButton.FLAT_STYLE);
         btnResetIP.setText("Reset IP");
         btnResetIP.setToolTipText("Reset the local machine IP address");
         btnResetIP.setFocusable(false);
         btnResetIP.setFont(new java.awt.Font("SketchFlow Print", 0, 12)); // NOI18N
+        btnResetIP.setOpaque(true);
         btnResetIP.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnResetIPActionPerformed(evt);

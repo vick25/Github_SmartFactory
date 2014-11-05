@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import javax.swing.ImageIcon;
 import javax.swing.JDialog;
@@ -42,7 +43,7 @@ public class PasswordForgot extends javax.swing.JFrame {
             }
         });
         time.start();
-        txtLoginID.requestFocus();
+//        txtLoginID.requestFocus();
         this.setIconImage(new ImageIcon(getClass().getResource("/images/icons/gpgsm(9).png")).getImage());
         this.setLocationRelativeTo(null);
     }
@@ -210,11 +211,11 @@ public class PasswordForgot extends javax.swing.JFrame {
         try (PreparedStatement ps = ConnectDB.con.prepareStatement("SELECT password, answer \n"
                 + "FROM userlist WHERE login =?")) {
             ps.setString(1, txtLoginID.getText());
-            ConnectDB.res = ps.executeQuery();
-            while (ConnectDB.res.next()) {
-                if (ConnectDB.decrypter(ConnectDB.res.getString("answer")).equalsIgnoreCase(txtAnswer.getText())) {
+            ResultSet res = ps.executeQuery();
+            while (res.next()) {
+                if (ConnectDB.decrypter(res.getString("answer")).equalsIgnoreCase(txtAnswer.getText())) {
                     answer = true;
-                    pwd = ConnectDB.decrypter(ConnectDB.res.getString("password"));
+                    pwd = ConnectDB.decrypter(res.getString("password"));
                 }
             }
         } catch (SQLException ex) {
@@ -244,14 +245,14 @@ public class PasswordForgot extends javax.swing.JFrame {
     private boolean checkLoginValidity() throws SQLException {
         boolean find = false;
         try (PreparedStatement ps = ConnectDB.con.prepareStatement("SELECT login, question FROM userlist")) {
-            ConnectDB.res = ps.executeQuery();
-            while (ConnectDB.res.next()) {
-                if (ConnectDB.res.getString("login").equalsIgnoreCase(txtLoginID.getText())) {
+            ResultSet res = ps.executeQuery();
+            while (res.next()) {
+                if (res.getString("login").equalsIgnoreCase(txtLoginID.getText())) {
                     find = true;
                     lblMessage.setForeground(new Color(0, 153, 51));
                     lblMessage.setText("Answer this question :");
-                    txtQuestion.setText(ConnectDB.decrypter(ConnectDB.res.getString("question")));
-                    txtAnswer.requestFocus();
+                    txtQuestion.setText(ConnectDB.decrypter(res.getString("question")));
+//            txtAnswer.requestFocus();
                     break;
                 }
             }
@@ -260,7 +261,7 @@ public class PasswordForgot extends javax.swing.JFrame {
             txtQuestion.setText("");
             lblMessage.setForeground(Color.BLACK);
             lblMessage.setText(new StringBuilder("<html>The user <FONT color=#FF0000>").
-                    append(txtLoginID.getText()).append("</FONT> does not exist in the database ...</html>").toString());
+                    append(txtLoginID.getText()).append("</FONT> does not exists in the database ...</html>").toString());
         }
         return find;
     }

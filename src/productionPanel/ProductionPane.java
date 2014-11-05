@@ -14,7 +14,7 @@ import com.jidesoft.swing.PartialGradientLineBorder;
 import com.jidesoft.swing.PartialSide;
 import com.jidesoft.tree.TreeUtils;
 import eventsPanel.EventsStatistic;
-import irepport.view.Print;
+import ireport_5_6_0.view.Print;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Cursor;
@@ -88,7 +88,7 @@ import smartfactoryV2.ExtensionFilter;
 import smartfactoryV2.Queries;
 import tableModel.TableModelProductionData;
 import tableModel.TableModelShiftTime;
-import target.TargetInsert;
+import target.MachinesProductionTarget;
 import viewData.ViewData;
 
 /**
@@ -121,12 +121,13 @@ public class ProductionPane extends javax.swing.JPanel {
         //        sclient = new Socket(ConnectDB.serverIP, ConnectDB.PORTMAINSERVER);
         ConnectDB.getConnectionInstance();
         initComponents();
+
         _parent = parent;
         addModule = new AddModule(_parent, true);
         panProductionRate.setVisible(false);
         panShiftTime.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder(
                 new PartialGradientLineBorder(new Color[]{new Color(0, 0, 128),
-                    UIDefaultsLookup.getColor("control")}, 2, PartialSide.NORTH), "Hours", TitledBorder.CENTER,
+                    UIDefaultsLookup.getColor("control")}, 2, PartialSide.NORTH), "Shifts Hours", TitledBorder.CENTER,
                 TitledBorder.ABOVE_TOP), BorderFactory.createEmptyBorder(6, 4, 4, 4)));
         this.createTableValues();//table for the chartPanel datas
         this.setTableNameOfValues(viewDateTableName);
@@ -541,15 +542,15 @@ public class ProductionPane extends javax.swing.JPanel {
         jToolBar1.add(jToolBar4);
 
         jSplitPane1.setBackground(new java.awt.Color(255, 255, 255));
-        jSplitPane1.setDividerLocation(340);
+        jSplitPane1.setDividerLocation(337);
         jSplitPane1.setDividerSize(8);
         jSplitPane1.setOneTouchExpandable(true);
 
-        jPanel2.setBackground(new java.awt.Color(153, 153, 153));
+        jPanel2.setBackground(new java.awt.Color(70, 130, 180));
 
         jLabel1.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         jLabel1.setForeground(new java.awt.Color(255, 255, 0));
-        jLabel1.setText("<html>Machine:<font color=red>*</font></html>");
+        jLabel1.setText("<html><font color=red>*</font>MACHINE:</html>");
 
         cmbMachineTitle.setFocusable(false);
         cmbMachineTitle.addItemListener(new java.awt.event.ItemListener() {
@@ -796,7 +797,7 @@ public class ProductionPane extends javax.swing.JPanel {
             }
         });
 
-        spShiftTableRow.setModel(new javax.swing.SpinnerNumberModel(Integer.valueOf(1), Integer.valueOf(1), null, Integer.valueOf(1)));
+        spShiftTableRow.setModel(new javax.swing.SpinnerNumberModel(1, 1, 5, 1));
         spShiftTableRow.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
                 spShiftTableRowStateChanged(evt);
@@ -888,12 +889,12 @@ public class ProductionPane extends javax.swing.JPanel {
                         .addComponent(jPanel6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jSeparator1))
                     .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 63, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(cmbMachineTitle, javax.swing.GroupLayout.PREFERRED_SIZE, 148, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(chkActiveChannel)))
-                .addContainerGap(19, Short.MAX_VALUE))
+                .addContainerGap(10, Short.MAX_VALUE))
         );
 
         jPanel2Layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {jPanel4, jPanel6, jSeparator1, lblSpace});
@@ -942,7 +943,7 @@ public class ProductionPane extends javax.swing.JPanel {
         jPanel7.setLayout(jPanel7Layout);
         jPanel7Layout.setHorizontalGroup(
             jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(tbpPanDetails, javax.swing.GroupLayout.DEFAULT_SIZE, 755, Short.MAX_VALUE)
+            .addComponent(tbpPanDetails, javax.swing.GroupLayout.DEFAULT_SIZE, 758, Short.MAX_VALUE)
         );
         jPanel7Layout.setVerticalGroup(
             jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -987,7 +988,7 @@ public class ProductionPane extends javax.swing.JPanel {
         lblTotalProductionSum.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
 
         panPerShiftTotals.setBackground(new java.awt.Color(255, 255, 255));
-        panPerShiftTotals.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Shift Totals", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 11), new java.awt.Color(0, 0, 204))); // NOI18N
+        panPerShiftTotals.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Shift Totals", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.DEFAULT_POSITION, null, new java.awt.Color(0, 0, 204)));
 
         jLabel8.setText("Shift1:");
 
@@ -1010,7 +1011,7 @@ public class ProductionPane extends javax.swing.JPanel {
                     .addComponent(lblShiftSum1, javax.swing.GroupLayout.PREFERRED_SIZE, 117, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(lblShiftSum2)
                     .addComponent(lblShiftSum3, javax.swing.GroupLayout.PREFERRED_SIZE, 121, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(28, 100, Short.MAX_VALUE))
+                .addGap(28, 102, Short.MAX_VALUE))
         );
 
         panPerShiftTotalsLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {lblShiftSum1, lblShiftSum2, lblShiftSum3});
@@ -1091,7 +1092,7 @@ public class ProductionPane extends javax.swing.JPanel {
                         .addComponent(btnCleanTable, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(btnShowEvents, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 133, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 134, Short.MAX_VALUE)
                         .addComponent(btnExportExcelCsv, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jSeparator7, javax.swing.GroupLayout.PREFERRED_SIZE, 2, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -1210,7 +1211,7 @@ public class ProductionPane extends javax.swing.JPanel {
             public void run() {
                 try {
                     Map<String, Object> hm = new HashMap<>();
-                    JasperPrint jpMaster;
+                    JasperPrint jasperPrintMaster;
                     ConnectDB.setMainDir(new File(ConnectDB.DEFAULT_DIRECTORY + File.separator + "SmartFactory Data"));
                     if (!ConnectDB.getMainDir().exists()) {
                         ConnectDB.getMainDir().mkdirs();
@@ -1243,9 +1244,10 @@ public class ProductionPane extends javax.swing.JPanel {
                             hm.put("tableName", "");
                         }
                     }
-                    jpMaster = JasperFillManager.fillReport(getClass().getResourceAsStream(""
+                    jasperPrintMaster = JasperFillManager.fillReport(getClass().getResourceAsStream(""
                             + "/jasper/chartModified.jasper"), hm, ConnectDB.con);
-                    Print.viewReport(_parent, jpMaster, false, ConnectDB.LOCALE);
+                    jasperPrintMaster.setName("SmartFactory");//set the file print name
+                    Print.viewReport(_parent, jasperPrintMaster, false, ConnectDB.LOCALE);
                 } catch (FileNotFoundException | JRException ex) {
                     ex.printStackTrace();
                 }
@@ -1676,6 +1678,7 @@ public class ProductionPane extends javax.swing.JPanel {
 
     private void chkPerShiftItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_chkPerShiftItemStateChanged
         if (chkPerShift.isSelected()) {
+            btnShiftTable.setEnabled(true);
             ConnectDB.pref.putBoolean(ProdStatKeyFactory.ProdFeatures.CHKSHIFTON, chkPerShift.isSelected());
             spShiftTableRow.setEnabled(true);
             shiftPane.getHorizontalScrollBar().setEnabled(true);
@@ -1683,6 +1686,7 @@ public class ProductionPane extends javax.swing.JPanel {
             shiftPane.getViewport().getView().setEnabled(true);
             saveChanges();
         } else {
+            btnShiftTable.setEnabled(false);
             ConnectDB.pref.putBoolean(ProdStatKeyFactory.ProdFeatures.CHKSHIFTON, chkPerShift.isSelected());
             spShiftTableRow.setEnabled(false);
             shiftPane.getHorizontalScrollBar().setEnabled(false);
@@ -1953,7 +1957,7 @@ public class ProductionPane extends javax.swing.JPanel {
 
     private void btnShowTargetsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnShowTargetsActionPerformed
         try {
-            new TargetInsert(_parent, true).setVisible(true);
+            new MachinesProductionTarget(_parent, true).setVisible(true);
         } catch (SQLException ex) {
             ConnectDB.catchSQLException(ex);
         }

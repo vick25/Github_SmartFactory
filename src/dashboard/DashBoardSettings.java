@@ -7,6 +7,7 @@ import com.jidesoft.dialog.ButtonPanel;
 import com.jidesoft.swing.ButtonStyle;
 import com.jidesoft.swing.JideBoxLayout;
 import com.jidesoft.swing.JideButton;
+import com.jidesoft.swing.MarqueePane;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -26,7 +27,10 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.sql.SQLException;
+import java.util.Iterator;
 import java.util.Properties;
+import java.util.Set;
+import java.util.Timer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.AbstractAction;
@@ -54,7 +58,7 @@ import resources.Constants;
 import resources.ReadPropertiesFile;
 import setting.SettingKeyFactory;
 import smartfactoryV2.ConnectDB;
-import target.TargetInsert;
+import target.MachinesProductionTarget;
 
 /**
  *
@@ -72,6 +76,7 @@ public class DashBoardSettings extends javax.swing.JDialog {
         this.setLayout(new BorderLayout());
         this.getContentPane().add(this.getOptionsPanel());
         this.setLocationRelativeTo(parent);
+        this.setFocusable(true);
         this.addWindowListener(new WindowAdapter() {
 
             @Override
@@ -79,32 +84,23 @@ public class DashBoardSettings extends javax.swing.JDialog {
                 close();//method when closing this dialog
             }
         });
-        this.setFocusable(true);
-//        System.out.println(DashBoardSettings.class.getResourceAsStream("/resources/smfProperties.properties").toString());
     }
 
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jLabel1 = new javax.swing.JLabel();
-
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-
-        jLabel1.setFont(new java.awt.Font("Tahoma", 0, 10)); // NOI18N
-        jLabel1.setText("<html><font color=red>*</font>Dashboard will reload after any changes");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, 265, Short.MAX_VALUE)
+            .addGap(0, 265, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(270, Short.MAX_VALUE)
-                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addGap(0, 275, Short.MAX_VALUE)
         );
 
         pack();
@@ -285,10 +281,10 @@ public class DashBoardSettings extends javax.swing.JDialog {
                     setSettingsInPropertieFile(value + "m");
                     //Read the file
                     ReadPropertiesFile.readConfig();
-                    DashBoard.bslTime.setText(new StringBuilder().append("Scheduler of ").
+                    DashBoard.getBslTime().setText(new StringBuilder().append("Scheduler of ").
                             append(Constants.timetoquery).append(" is running to refresh the chart(s) if any "
                                     + "is shown...").toString());
-                    MainFrame.setDashBoardDate(DashBoard.dtSpinner.getDate());
+                    MainFrame.setDashBoardDate(DashBoard.getDate());
                 } catch (Exception ex) {
                     writeException(ex, null);
                 }
@@ -296,25 +292,39 @@ public class DashBoardSettings extends javax.swing.JDialog {
         });
         spinnerSlidePanel.setBackground(Color.WHITE);
         spinnerSlidePanel.add(spinner, BorderLayout.CENTER);
-        spinnerSlidePanel.add(new JLabel("<html><font color=red>*</font>Refresh every"), BorderLayout.BEFORE_LINE_BEGINS);
-        spinnerSlidePanel.add(new JLabel("min"), BorderLayout.AFTER_LINE_ENDS);
+        spinnerSlidePanel.add(new JLabel("<html><font color=red>Refresh every</font>"), BorderLayout.BEFORE_LINE_BEGINS);
+        spinnerSlidePanel.add(new JLabel("min(s)"), BorderLayout.AFTER_LINE_ENDS);
         buttonPanel.add(spinnerSlidePanel);
 
         JPanel panelMarquee = new JPanel(new GridLayout(0, 1, 5, 5));
         panelMarquee.setBackground(Color.WHITE);
-        JCheckBox freezeCheckBox = new JCheckBox("Freeze Auto Scrolling");
+        final JCheckBox freezeCheckBox = new JCheckBox("Freeze Auto Scrolling");
+        freezeCheckBox.setSelected(ConnectDB.pref.getBoolean(SettingKeyFactory.DefaultProperties.FREEZE_SCROLL, false));
         freezeCheckBox.setFocusable(false);
         freezeCheckBox.setBackground(Color.WHITE);
         freezeCheckBox.addItemListener(new ItemListener() {
             @Override
             public void itemStateChanged(ItemEvent e) {
                 try {
+                    Set<String> keySet = DashBoard.getColDashBoard().getMapHorizonMarqueeLeft().keySet();
+                    Iterator<String> keySetIterator = keySet.iterator();
                     if (e.getStateChange() == ItemEvent.SELECTED) {
-                        VerticalMultiChartPanel.getHorizonMarqueeLeft().stopAutoScrolling();
+                        while (keySetIterator.hasNext()) {
+                            String key = keySetIterator.next();
+                            MarqueePane value = DashBoard.getColDashBoard().getMapHorizonMarqueeLeft().get(key);
+                            value.stopAutoScrolling();
+                        }
                     } else {
-                        VerticalMultiChartPanel.getHorizonMarqueeLeft().startAutoScrolling();
+                        while (keySetIterator.hasNext()) {
+                            String key = keySetIterator.next();
+                            MarqueePane value = DashBoard.getColDashBoard().getMapHorizonMarqueeLeft().get(key);
+                            value.startAutoScrolling();
+                        }
                     }
-                } catch (NullPointerException ex) {
+                    ConnectDB.pref.putBoolean(SettingKeyFactory.DefaultProperties.FREEZE_SCROLL, 
+                            freezeCheckBox.isSelected());
+                } catch (Exception ex) {
+                    ConnectDB.appendToFileException(ex);
                 }
             }
         });
@@ -335,7 +345,7 @@ public class DashBoardSettings extends javax.swing.JDialog {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    new TargetInsert(_parent, true).setVisible(true);
+                    new MachinesProductionTarget(_parent, true).setVisible(true);
                     currentUnit.setText("current unit: " + ConnectDB.pref.get(
                             SettingKeyFactory.DefaultProperties.TARGET_TIME_UNIT, "hour"));
                 } catch (SQLException ex) {
@@ -444,30 +454,45 @@ public class DashBoardSettings extends javax.swing.JDialog {
 
             @Override
             public void run() {
-                File temp = null;
+//                File temp = null;
                 try {
                     if (timeUpdated) {
-                        try {
-                            temp = File.createTempFile("dashBoard", ".xml");
-                            DashboardPersistenceUtils.save(_tabbedPane, temp.getAbsolutePath());
-                            _parent.dispose();
-                            try {
-                                Thread.sleep(200);
-                            } catch (InterruptedException ex) {
-                            }
-                            MainMenuPanel.showDashBoard();
-                            timeUpdated = false;
-                            DashboardPersistenceUtils.load(DashBoard.getColDashBoard().getTabbedPane(), temp.getAbsolutePath());
-                            DashBoard.getColDashBoard().getTabbedPane().revalidate();
-                            temp.deleteOnExit();
-                        } catch (ParserConfigurationException | IOException | SAXException ex) {
-                            Logger.getLogger(DashBoardSettings.class.getName()).log(Level.SEVERE, null, ex);
-                        }
+                        ReadPropertiesFile.readConfig();
+//                        ArrayList<Machine> _machines = DashBoard.getColDashBoard().getMachines();
+//                        mapMach = DashBoard.getColDashBoard().getMapMach();
+//                        try {
+//                            temp = File.createTempFile("dashBoard", ".xml");
+//                            DashboardPersistenceUtils.save(_tabbedPane, temp.getAbsolutePath());
+//                            DashBoard.setColDashBoard(new CollapsiblePaneDashboard(_machines));
+                        //set the _tabbedPane variable
+//                            DashBoard.getColDashBoard().getDemoPanel();
+                        DashBoard.setDashBoardTimer(new DashBoardTimer(DashBoard.getColDashBoard(),
+                                DashBoard.getColDashBoard().getMapMach(), false));
+                        DashBoard.getTimer().cancel();//Cancel the previous timer
+//                            _parent.dispose();
+//                            try {
+//                                Thread.sleep(200);
+//                            } catch (InterruptedException ex) {
+//                            }
+//                            MainMenuPanel.showDashBoard();
+                        DashBoard.setTimer(new Timer());
+                        DashBoard.getTimer().scheduleAtFixedRate(DashBoard.getDashBoardTimer(),
+                                ConnectDB.getTimePrecision(Constants.delay),
+                                ConnectDB.getTimePrecision(Constants.timetoquery));
+//                        DashBoard.getColDashBoard().setMapMach(mapMach);
+//                            _parent.setVisible(true);
+                        timeUpdated = false;
+//                            DashboardPersistenceUtils.load(DashBoard.getColDashBoard().getTabbedPane(), temp.getAbsolutePath());
+//                            DashBoard.getColDashBoard().getTabbedPane().revalidate();
+//                            temp.deleteOnExit();
+//                        } catch (ParserConfigurationException | IOException | SAXException ex) {
+//                            Logger.getLogger(DashBoardSettings.class.getName()).log(Level.SEVERE, null, ex);
+//                        }
                     }
                     dispose();
-                } catch (NullPointerException e) {
+                } catch (Exception e) {
                     timeUpdated = false;
-                    temp.deleteOnExit();
+//                    temp.deleteOnExit();
                     dispose();
                 }
             }
@@ -500,7 +525,6 @@ public class DashBoardSettings extends javax.swing.JDialog {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel jLabel1;
     // End of variables declaration//GEN-END:variables
     private final DashboardTabbedPane _tabbedPane;
     private static boolean timeUpdated = false;

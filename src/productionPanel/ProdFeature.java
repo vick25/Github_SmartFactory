@@ -5,11 +5,16 @@ import com.jidesoft.dialog.ButtonEvent;
 import com.jidesoft.dialog.ButtonNames;
 import com.jidesoft.pane.CollapsiblePane;
 import javax.swing.JDialog;
+import javax.swing.JFormattedTextField;
 import javax.swing.JOptionPane;
 import mainFrame.MainFrame;
 import smartfactoryV2.ConnectDB;
 
 public class ProdFeature extends javax.swing.JPanel {
+
+    public static JFormattedTextField getTxtShiftsMaxValue() {
+        return txtShiftsMaxValue;
+    }
 
     public ProdFeature(AbstractDialogPage page, JDialog parent) {
         this._page = page;
@@ -18,6 +23,25 @@ public class ProdFeature extends javax.swing.JPanel {
         ConnectDB.collapsiblePaneProperties(collapsiblePane1);
         ConnectDB.collapsiblePaneProperties(collapsiblePane2);
         initValues();
+//        txtShiftsMaxValue.getDocument().addDocumentListener(new DocumentListener() {
+//
+//            @Override
+//            public void insertUpdate(DocumentEvent e) {
+//                _page.fireButtonEvent(ButtonEvent.ENABLE_BUTTON, ButtonNames.APPLY);
+//            }
+//
+//            @Override
+//            public void removeUpdate(DocumentEvent e) {
+//                _page.fireButtonEvent(ButtonEvent.ENABLE_BUTTON, ButtonNames.APPLY);
+//            }
+//
+//            @Override
+//            public void changedUpdate(DocumentEvent e) {
+//                _page.fireButtonEvent(ButtonEvent.ENABLE_BUTTON, ButtonNames.APPLY);
+//            }
+//        });
+//        this.jScrollPane1.requestFocus();
+//        spFlagTime.getEditor().get
     }
 
     @SuppressWarnings("unchecked")
@@ -41,7 +65,7 @@ public class ProdFeature extends javax.swing.JPanel {
         radPerMin = new javax.swing.JRadioButton();
         radPerHour = new javax.swing.JRadioButton();
         jLabel3 = new javax.swing.JLabel();
-        txtMaxValue = new javax.swing.JTextField();
+        txtShiftsMaxValue = new javax.swing.JFormattedTextField();
 
         collapsiblePane1.setStyle(CollapsiblePane.PLAIN_STYLE);
         collapsiblePane1.setTitle("Flag Time");
@@ -70,7 +94,7 @@ public class ProdFeature extends javax.swing.JPanel {
                 .addComponent(spFlagTime, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel6)
-                .addContainerGap(80, Short.MAX_VALUE))
+                .addContainerGap(96, Short.MAX_VALUE))
         );
         collapsiblePane1Layout.setVerticalGroup(
             collapsiblePane1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -137,10 +161,15 @@ public class ProdFeature extends javax.swing.JPanel {
             }
         });
 
-        jLabel3.setText("Max Value:");
+        jLabel3.setText("Maximum row:");
+        jLabel3.setEnabled(false);
 
-        txtMaxValue.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
-        txtMaxValue.setText("5");
+        txtShiftsMaxValue.setColumns(1);
+        txtShiftsMaxValue.setForeground(new java.awt.Color(204, 0, 0));
+        txtShiftsMaxValue.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter(new java.text.DecimalFormat("#"))));
+        txtShiftsMaxValue.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
+        txtShiftsMaxValue.setText("5");
+        txtShiftsMaxValue.setEnabled(false);
 
         javax.swing.GroupLayout collapsiblePane2Layout = new javax.swing.GroupLayout(collapsiblePane2.getContentPane());
         collapsiblePane2.getContentPane().setLayout(collapsiblePane2Layout);
@@ -160,12 +189,12 @@ public class ProdFeature extends javax.swing.JPanel {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(jLabel3)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(txtMaxValue, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(txtShiftsMaxValue, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(collapsiblePane2Layout.createSequentialGroup()
                         .addComponent(radPerMin)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(radPerHour)))
-                .addContainerGap(43, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         collapsiblePane2Layout.setVerticalGroup(
             collapsiblePane2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -176,13 +205,13 @@ public class ProdFeature extends javax.swing.JPanel {
                     .addComponent(radShiftOn)
                     .addComponent(radShiftOFF)
                     .addComponent(jLabel3)
-                    .addComponent(txtMaxValue, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(txtShiftsMaxValue, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(collapsiblePane2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
                     .addComponent(radPerHour)
                     .addComponent(radPerMin)
                     .addComponent(jLabel2))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(11, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
@@ -232,6 +261,7 @@ public class ProdFeature extends javax.swing.JPanel {
             radShiftOFF.setSelected(true);
             radPerMin.setSelected(true);
             radPerHour.setSelected(false);
+//            txtShiftsMaxValue.setText("5");
             ConnectDB.pref.putInt(ProdStatKeyFactory.ProdFeatures.SPFLAGTIMEFRAME,
                     Integer.parseInt(ProdFeature.spFlagTime.getValue().toString()));
             if (radShiftOn.isSelected()) {
@@ -241,7 +271,7 @@ public class ProdFeature extends javax.swing.JPanel {
             }
             ConnectDB.pref.putBoolean(ProdStatKeyFactory.ProdFeatures.RADPERMIN, radPerMin.isSelected());
             ConnectDB.pref.putBoolean(ProdStatKeyFactory.ProdFeatures.RADPERHOUR, radPerHour.isSelected());
-
+//            ConnectDB.pref.put(ProdStatKeyFactory.ProdFeatures.TIME_SHIFT_MAX_TABLEROW, txtShiftsMaxValue.getText());
             _parent.dispose();
             if (MainFrame.getDocumentPane().isDocumentOpened("Production")) {
                 ProductionPane.setSettings();
@@ -270,6 +300,7 @@ public class ProdFeature extends javax.swing.JPanel {
         radShiftOn.setSelected(ConnectDB.pref.getBoolean(ProdStatKeyFactory.ProdFeatures.CHKSHIFTON, false));
         radPerMin.setSelected(ConnectDB.pref.getBoolean(ProdStatKeyFactory.ProdFeatures.RADPERMIN, true));
         radPerHour.setSelected(ConnectDB.pref.getBoolean(ProdStatKeyFactory.ProdFeatures.RADPERHOUR, false));
+//        txtShiftsMaxValue.setText(ConnectDB.pref.get(ProdStatKeyFactory.ProdFeatures.TIME_SHIFT_MAX_TABLEROW, "5"));
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -290,7 +321,7 @@ public class ProdFeature extends javax.swing.JPanel {
     public static javax.swing.JRadioButton radShiftOFF;
     public static javax.swing.JRadioButton radShiftOn;
     public static javax.swing.JSpinner spFlagTime;
-    private javax.swing.JTextField txtMaxValue;
+    private static javax.swing.JFormattedTextField txtShiftsMaxValue;
     // End of variables declaration//GEN-END:variables
     private final AbstractDialogPage _page;
     private final JDialog _parent;

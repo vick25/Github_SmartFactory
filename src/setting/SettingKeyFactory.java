@@ -59,7 +59,7 @@ public class SettingKeyFactory {
         public static final String SERVERIPADDRESS = "SMF.SettingKeyFactory.Connection.SERVERIPADDRESS";
     }
 
-    public static class DefaultProperties {        
+    public static class DefaultProperties {
 
         public static final String REFRESHTIME = "SMF.SettingKeyFactory.AllClass.REFRESHTIME";
         public static final String SHOWPRODUCTIONQVIEW = "SMF.SettingKeyFactory.AllClass.SHOWPRODUCTIONQVIEW";
@@ -68,5 +68,6 @@ public class SettingKeyFactory {
         public static final String PRODPANESET = "SMF.SettingKeyFactory.DefaultProperties.PRODPANESET";
         public static final String MODULES = "SMF.SettingKeyFactory.DefaultProperties.MODULES";
         public static final String TARGET_TIME_UNIT = "SMF.SettingKeyFactory.DefaultProperties.TARGETTIMEUNIT";
+        public static final String FREEZE_SCROLL = "SMF.SettingKeyFactory.DefaultProperties.FREEZESCROLL";
     }
 }

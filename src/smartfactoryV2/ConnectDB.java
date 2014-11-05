@@ -12,6 +12,7 @@ import com.mysql.jdbc.exceptions.jdbc4.MySQLNonTransientConnectionException;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Cursor;
 import java.awt.Font;
 import java.awt.Rectangle;
 import java.io.BufferedWriter;
@@ -88,6 +89,7 @@ public class ConnectDB {
      *Method to create an instance of the ConnectDB class when the Connection object is null
      *@return con
      */
+    @SuppressWarnings("ResultOfObjectAllocationIgnored")
     public static Connection getConnectionInstance() {
         if (con == null) {
             new ConnectDB();
@@ -119,15 +121,16 @@ public class ConnectDB {
                 con = null;
                 if (SplashScreen.getIdentification() != null) {
                     SplashScreen.getIdentification().setVisible(false);
-                } else {
-                    SplashScreen.getIdentification().setVisible(false);
                 }
                 JXErrorPane.showDialog(null, new ErrorInfo("Fatal Error", "Database connection "
                         + "is impossible: Please verify that MySQL server is started,"
                         + " and retry connecting ..." + ex.getMessage(),
                         ex.getMessage(), "Error", ex, Level.SEVERE, null));
+                SplashScreen.getIdentification().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
                 SplashScreen.getIdentification().setVisible(true);
             } catch (Exception e) {
+            } finally {
+                appendToFileException(ex);
             }
         } else {
             appendToFileException(ex);
@@ -145,7 +148,7 @@ public class ConnectDB {
             pWriter.println();
         } catch (IOException ie) {
             throw new RuntimeException("Could not write Exception to file", ie);
-        } 
+        }
     }
 
     public static String correctApostrophe(String text) {
@@ -295,6 +298,31 @@ public class ConnectDB {
         }
     }
 
+    public static long getTimePrecision(String value) {
+        long l = 0;
+        String val;
+        try {
+            if (value.endsWith("d") || value.endsWith("D")) {
+                val = value.substring(0, value.length() - 1);
+                l = Long.parseLong(val) * 24 * 60 * 60 * 1000;
+            } else if (value.endsWith("h") || value.endsWith("H")) {
+                val = value.substring(0, value.length() - 1);
+                l = Long.parseLong(val) * 60 * 60 * 1000;
+            } else if (value.endsWith("m") || value.endsWith("M")) {
+                val = value.substring(0, value.length() - 1);
+                l = Long.parseLong(val) * 60 * 1000;
+            } else if (value.endsWith("s") || value.endsWith("S")) {
+                val = value.substring(0, value.length() - 1);
+                l = Long.parseLong(val) * 1000;
+            } else {
+                l = Long.parseLong(value);
+            }
+        } catch (NumberFormatException ex) {
+            ex.printStackTrace();
+        }
+        return l;
+    }
+
     public static String retrieveCateria(Object[] machineList) {
         StringBuilder values = new StringBuilder();
         for (Object list : machineList) {
@@ -370,6 +398,17 @@ public class ConnectDB {
             }
         }
         return targetValue;
+    }
+
+    public static String getDBTargetUnit() throws SQLException {
+        try (PreparedStatement ps = ConnectDB.con.prepareStatement("SELECT TargetUnit \n"
+                + "FROM `target` LIMIT 1")) {
+            ResultSet resultSet = ps.executeQuery();
+            while (resultSet.next()) {
+                return resultSet.getString(1);
+            }
+        }
+        return "hour";
     }
 
     public static boolean isLeapYear(int year) {

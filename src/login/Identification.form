@@ -244,9 +244,12 @@
               <Color blue="ff" green="ff" red="ff" type="rgb"/>
             </Property>
             <Property name="text" type="java.lang.String" value="127.0.0.1"/>
+            <Property name="clickedColor" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+              <Color blue="33" green="ff" red="0" type="rgb"/>
+            </Property>
             <Property name="focusable" type="boolean" value="false"/>
             <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-              <Font name="Tahoma" size="10" style="1"/>
+              <Font name="Tahoma" size="11" style="1"/>
             </Property>
             <Property name="horizontalAlignment" type="int" value="4"/>
           </Properties>
@@ -263,6 +266,9 @@
               <Color blue="0" green="0" red="f0" type="rgb"/>
             </Property>
             <Property name="text" type="java.lang.String" value="Change password"/>
+            <Property name="clickedColor" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+              <Color blue="33" green="ff" red="0" type="rgb"/>
+            </Property>
             <Property name="focusable" type="boolean" value="false"/>
             <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
               <Font name="Tahoma" size="10" style="0"/>
@@ -281,6 +287,9 @@
               <Color blue="0" green="0" red="f0" type="rgb"/>
             </Property>
             <Property name="text" type="java.lang.String" value="Password forgotten?"/>
+            <Property name="clickedColor" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+              <Color blue="33" green="ff" red="0" type="rgb"/>
+            </Property>
             <Property name="focusable" type="boolean" value="false"/>
             <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
               <Font name="Tahoma" size="10" style="0"/>
@@ -299,6 +308,9 @@
               <Color blue="0" green="0" red="f0" type="rgb"/>
             </Property>
             <Property name="text" type="java.lang.String" value="Create user"/>
+            <Property name="clickedColor" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+              <Color blue="33" green="ff" red="0" type="rgb"/>
+            </Property>
             <Property name="focusable" type="boolean" value="false"/>
             <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
               <Font name="Tahoma" size="10" style="0"/>
@@ -316,7 +328,7 @@
           </Properties>
           <AuxValues>
             <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new javax.swing.JLabel(OverlayableUtils.getPredefinedOverlayIcon(OverlayableIconsFactory.INFO))"/>
-            <AuxValue name="JavaCodeGenerator_InitCodePre" type="java.lang.String" value="lblOverlaybleInfo.setToolTipText(&quot;Click for help ...&quot;);&#xa;        lblOverlaybleInfo.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));&#xa;        lblOverlaybleInfo.addMouseListener(new MouseAdapter() {&#xa;            @Override&#xa;            public void mousePressed(MouseEvent e) {&#xa;                JidePopup popup = new JidePopup();&#xa;                JLabel label = new JLabel(&quot;&lt;HTML&gt;Type in \&quot;root\&quot; &quot;&#xa;+ &quot;as Login and \&quot;root123\&quot;&lt;BR&gt;as password to create a user, then proceed&quot;&#xa;+ &quot;&lt;BR&gt;to log in with the new credentials.&lt;/HTML&gt;&quot;);&#xa;                label.setOpaque(true);&#xa;                label.setBackground(Color.WHITE);&#xa;                popup.add(label);&#xa;                popup.showPopup(new Insets(-5, 0, -5, 0), lblOverlaybleInfo);&#xa;            }&#xa;        });"/>
+            <AuxValue name="JavaCodeGenerator_InitCodePre" type="java.lang.String" value="lblOverlaybleInfo.setToolTipText(&quot;Click for help ...&quot;);&#xa;        lblOverlaybleInfo.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));&#xa;        lblOverlaybleInfo.addMouseListener(new MouseAdapter() {&#xa;            @Override&#xa;            public void mousePressed(MouseEvent e) {&#xa;                JidePopup popup = new JidePopup();&#xa;                JLabel label = new JLabel(&quot;&lt;HTML&gt;Type in &lt;b&gt;\&quot;root\&quot;&lt;/b&gt; &quot;&#xa;+ &quot;as Login and &lt;b&gt;\&quot;root123\&quot;&lt;/b&gt;&lt;BR&gt;as password to create a user, then proceed&quot;&#xa;+ &quot;&lt;BR&gt;to log in with the new credentials.&lt;/HTML&gt;&quot;);&#xa;                label.setOpaque(true);&#xa;                label.setBackground(Color.WHITE);&#xa;                popup.add(label);&#xa;                popup.showPopup(new Insets(-5, 0, -5, 0), lblOverlaybleInfo);&#xa;            }&#xa;        });"/>
           </AuxValues>
         </Component>
       </SubComponents>

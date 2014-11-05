@@ -32,8 +32,10 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.plaf.ActionMapUIResource;
 import mainFrame.MainMenuPanel;
+import org.jdesktop.swingx.JXBusyLabel;
 import resources.Constants;
 import resources.ReadPropertiesFile;
+import setting.SettingKeyFactory;
 import smartfactoryV2.ConnectDB;
 import smartfactoryV2.Queries;
 
@@ -42,6 +44,26 @@ import smartfactoryV2.Queries;
  * @author Victor Kadiata
  */
 public class DashBoard extends javax.swing.JPanel {
+
+    public static DashBoardTimer getDashBoardTimer() {
+        return dashBoardTimer;
+    }
+
+    public static void setDashBoardTimer(DashBoardTimer dashBoardTimer) {
+        DashBoard.dashBoardTimer = dashBoardTimer;
+    }
+
+    public static Timer getTimer() {
+        return timer;
+    }
+
+    public static void setTimer(Timer timer) {
+        DashBoard.timer = timer;
+    }
+
+    public static JXBusyLabel getBslTime() {
+        return bslTime;
+    }
 
     public static Date getDate() {
         return dtSpinner.getDate();
@@ -67,6 +89,10 @@ public class DashBoard extends javax.swing.JPanel {
         return _colDashBoard;
     }
 
+    public static void setColDashBoard(CollapsiblePaneDashboard _colDashBoard) {
+        DashBoard._colDashBoard = _colDashBoard;
+    }
+
     public static InputMap getKeyMap() {
         return keyMap;
     }
@@ -79,7 +105,7 @@ public class DashBoard extends javax.swing.JPanel {
         return lastDBDate;
     }
 
-    public DashBoard(JFrame parent, Date dt) throws Exception {
+    public DashBoard(JFrame parent, Date dashboardDate) throws Exception {
         ConnectDB.getConnectionInstance();
         initComponents();
         /* Method to call the scheduler to refresh the chart in the dashboard */
@@ -99,12 +125,13 @@ public class DashBoard extends javax.swing.JPanel {
                 DashBoardSettings dashBoardSettings = new DashBoardSettings(MainMenuPanel.getDashBoardFrame(),
                         true, _colDashBoard.isVertical(), _colDashBoard.getTabbedPane());
                 dashBoardSettings.setVisible(true);
+                panDashBoard.repaint();
             }
         });
         panSettings.add(btnSettings, FlowLayout.LEFT);
 
         dtSpinner.setFormat(ConnectDB.SDATE_FORMAT_HOUR);
-        if (dt == null) {
+        if (dashboardDate == null) {
             Calendar working = Calendar.getInstance();
             int hour = working.get(Calendar.HOUR_OF_DAY),
                     minute = working.get(Calendar.MINUTE),
@@ -114,8 +141,11 @@ public class DashBoard extends javax.swing.JPanel {
             working.add(Calendar.SECOND, -second);
             dtSpinner.setDate(working.getTime());
         } else {
-            dtSpinner.setDate(dt);
+            dtSpinner.setDate(dashboardDate);
         }
+
+        dtSpinner.getEditor().getEditorComponent().setFocusable(false);
+
         // setting the button to receive action when F3 is pressed
         keyMap = new ComponentInputMap(this);
         keyMap.put(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_N, java.awt.Event.CTRL_MASK), "action");
@@ -128,7 +158,6 @@ public class DashBoard extends javax.swing.JPanel {
             }
         });
         // setting done
-        dtSpinner.getEditor().getEditorComponent().setFocusable(false);
 
         bslTime.setHorizontalAlignment(SwingConstants.LEADING);
         bslTime.setForeground(Color.GRAY);
@@ -255,15 +284,24 @@ public class DashBoard extends javax.swing.JPanel {
 //        return instance;
 //    }
     private void callScheduler() throws Exception {
-        ReadPropertiesFile.readConfig();//read the property file to get the time and delay for the schedule
+        ReadPropertiesFile.readConfig();//read the property file to get the time and delay for the schedule 
+        byte timeQueryValue = (Byte.valueOf(Constants.timetoquery.replaceAll("\\D+", "")));
+        if (ConnectDB.pref.getInt(SettingKeyFactory.DefaultProperties.REFRESHTIME,
+                timeQueryValue) != timeQueryValue) {
+            Constants.timetoquery = new StringBuilder().append(ConnectDB.pref.getInt(
+                    SettingKeyFactory.DefaultProperties.REFRESHTIME, timeQueryValue)).append("m").toString();
+        }
+
         _colDashBoard = new CollapsiblePaneDashboard(getMachineDummy());
-        Timer timer = new Timer();
-        timer.scheduleAtFixedRate(_colDashBoard, getTimePrecision(Constants.delay),
-                getTimePrecision(Constants.timetoquery));
+        dashBoardTimer = new DashBoardTimer(_colDashBoard, _colDashBoard.getMapMach(),
+                CollapsiblePaneDashboard.isMachineTimeReset());
+        timer = new Timer();
+        timer.scheduleAtFixedRate(dashBoardTimer, ConnectDB.getTimePrecision(Constants.delay),
+                ConnectDB.getTimePrecision(Constants.timetoquery));
         bslTime.setText(new StringBuilder("Scheduler of ").append(Constants.timetoquery).
                 append(" is running to refresh the chart(s) if any is shown ...").toString());
         this.panDashBoard.removeAll();
-        this.panDashBoard.add(_colDashBoard.getDemoPanel());
+        this.panDashBoard.add(_colDashBoard.getDemoPanel());//return the collapsibletabbed pane
     }
 
     private String compareDates() throws SQLException {
@@ -322,31 +360,6 @@ public class DashBoard extends javax.swing.JPanel {
         return machines;
     }
 
-    private long getTimePrecision(String value) {
-        long l = 0;
-        String val;
-        try {
-            if (value.endsWith("d") || value.endsWith("D")) {
-                val = value.substring(0, value.length() - 1);
-                l = Long.parseLong(val) * 24 * 60 * 60 * 1000;
-            } else if (value.endsWith("h") || value.endsWith("H")) {
-                val = value.substring(0, value.length() - 1);
-                l = Long.parseLong(val) * 60 * 60 * 1000;
-            } else if (value.endsWith("m") || value.endsWith("M")) {
-                val = value.substring(0, value.length() - 1);
-                l = Long.parseLong(val) * 60 * 1000;
-            } else if (value.endsWith("s") || value.endsWith("S")) {
-                val = value.substring(0, value.length() - 1);
-                l = Long.parseLong(val) * 1000;
-            } else {
-                l = Long.parseLong(value);
-            }
-        } catch (NumberFormatException ex) {
-            ex.printStackTrace();
-        }
-        return l;
-    }
-
     public static void main(String[] agrs) throws Exception {
         try {
             LookAndFeelFactory.installDefaultLookAndFeelAndExtension();
@@ -366,9 +379,9 @@ public class DashBoard extends javax.swing.JPanel {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    public static org.jdesktop.swingx.JXBusyLabel bslTime;
+    private static org.jdesktop.swingx.JXBusyLabel bslTime;
     private com.jidesoft.swing.JideButton btnCollapseRibbon;
-    public static com.jidesoft.combobox.DateSpinnerComboBox dtSpinner;
+    private static com.jidesoft.combobox.DateSpinnerComboBox dtSpinner;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JPanel panDashBoard;
@@ -377,8 +390,10 @@ public class DashBoard extends javax.swing.JPanel {
     private javax.swing.JPanel panStatus;
     // End of variables declaration//GEN-END:variables
     private static boolean _showTotalProd = true, _showRateProd = false;
-    private static CollapsiblePaneDashboard _colDashBoard;
+    private static CollapsiblePaneDashboard _colDashBoard = null;
     private static InputMap keyMap = null;
     private static ActionMap action_Map = null;
     private static String lastDBDate;
+    private static Timer timer = null;
+    private static DashBoardTimer dashBoardTimer = null;
 }

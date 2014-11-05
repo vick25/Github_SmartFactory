@@ -390,7 +390,7 @@ public class GadgetSettings extends javax.swing.JPanel {
             dialog.dispose();
             this._gadget.getContentPane().removeAll();
             try {
-                DashBoard.bslTime.setText(new StringBuilder("Regenerating ").
+                DashBoard.getBslTime().setText(new StringBuilder("Regenerating ").
                         append(this._keyMachine).append(" in a while.").toString());
                 Thread.sleep(500);
             } catch (InterruptedException ex) {

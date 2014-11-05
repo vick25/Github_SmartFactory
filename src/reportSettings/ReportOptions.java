@@ -577,5 +577,5 @@ public class ReportOptions extends javax.swing.JDialog {
     private String companyTitle, reportTitle, email, website, address;
     private Image photo;
     private final SimpleAttributeSet attribs;
-    Preferences prefs = Preferences.userNodeForPackage(ReportOptions.class);
+    private Preferences prefs = Preferences.userNodeForPackage(ReportOptions.class);
 }

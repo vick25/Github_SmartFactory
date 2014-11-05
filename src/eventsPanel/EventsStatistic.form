@@ -81,7 +81,7 @@
       <SubComponents>
         <Container class="javax.swing.JSplitPane" name="jSplitPane1">
           <Properties>
-            <Property name="dividerLocation" type="int" value="185"/>
+            <Property name="dividerLocation" type="int" value="205"/>
             <Property name="dividerSize" type="int" value="9"/>
             <Property name="orientation" type="int" value="0"/>
             <Property name="oneTouchExpandable" type="boolean" value="true"/>
@@ -121,7 +121,11 @@
               <Layout>
                 <DimensionLayout dim="0">
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <EmptySpace min="0" pref="758" max="32767" attributes="0"/>
+                      <Group type="102" alignment="0" attributes="0">
+                          <EmptySpace max="-2" attributes="0"/>
+                          <Component id="jPanel7" max="32767" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
+                      </Group>
                       <Group type="103" rootIndex="1" groupAlignment="0" attributes="0">
                           <Group type="102" alignment="0" attributes="0">
                               <EmptySpace min="-2" max="-2" attributes="0"/>
@@ -135,15 +139,18 @@
                 </DimensionLayout>
                 <DimensionLayout dim="1">
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <EmptySpace min="0" pref="184" max="32767" attributes="0"/>
+                      <Group type="102" alignment="0" attributes="0">
+                          <Component id="jPanel7" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
+                      </Group>
                       <Group type="103" rootIndex="1" groupAlignment="0" attributes="0">
                           <Group type="102" alignment="1" attributes="0">
-                              <EmptySpace min="-2" pref="6" max="-2" attributes="0"/>
+                              <EmptySpace min="-2" pref="70" max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                                  <Component id="jPanel3" max="32767" attributes="0"/>
-                                  <Component id="jPanel4" pref="177" max="32767" attributes="0"/>
+                                  <Component id="jPanel3" linkSize="4" max="32767" attributes="0"/>
+                                  <Component id="jPanel4" linkSize="4" max="32767" attributes="0"/>
                               </Group>
-                              <EmptySpace min="1" pref="1" max="-2" attributes="0"/>
+                              <EmptySpace max="32767" attributes="0"/>
                           </Group>
                       </Group>
                   </Group>
@@ -192,7 +199,7 @@
                                       <EmptySpace max="-2" attributes="0"/>
                                       <Component id="cmbProductionType" min="-2" max="-2" attributes="0"/>
                                       <EmptySpace max="-2" attributes="0"/>
-                                      <Component id="spProductionRate" pref="142" max="32767" attributes="0"/>
+                                      <Component id="spProductionRate" pref="144" max="32767" attributes="0"/>
                                       <EmptySpace min="-2" max="-2" attributes="0"/>
                                       <Component id="jLabel4" min="-2" max="-2" attributes="0"/>
                                   </Group>
@@ -225,7 +232,6 @@
                                   <Component id="jLabel3" alignment="2" min="-2" max="-2" attributes="0"/>
                                   <Component id="jPanel6" alignment="2" min="-2" max="-2" attributes="0"/>
                               </Group>
-                              <EmptySpace pref="49" max="32767" attributes="0"/>
                           </Group>
                       </Group>
                     </DimensionLayout>
@@ -373,11 +379,11 @@
                           <Group type="103" groupAlignment="0" attributes="0">
                               <Group type="102" alignment="0" attributes="0">
                                   <EmptySpace min="-2" max="-2" attributes="0"/>
-                                  <Component id="lblFrom" pref="114" max="32767" attributes="0"/>
+                                  <Component id="lblFrom" pref="115" max="32767" attributes="0"/>
                                   <EmptySpace min="-2" max="-2" attributes="0"/>
                                   <Component id="lblEventTo" pref="0" max="32767" attributes="0"/>
                                   <EmptySpace min="-2" max="-2" attributes="0"/>
-                                  <Component id="lblTo" pref="115" max="32767" attributes="0"/>
+                                  <Component id="lblTo" pref="116" max="32767" attributes="0"/>
                               </Group>
                           </Group>
                         </DimensionLayout>
@@ -441,21 +447,16 @@
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Group type="102" alignment="1" attributes="0">
                               <EmptySpace max="-2" attributes="0"/>
-                              <Group type="103" groupAlignment="1" attributes="0">
-                                  <Component id="jPanel7" max="32767" attributes="0"/>
-                                  <Group type="102" attributes="0">
-                                      <Group type="103" groupAlignment="0" attributes="0">
-                                          <Component id="jLabel13" alignment="0" min="-2" max="-2" attributes="0"/>
-                                          <Component id="jLabel2" alignment="0" min="-2" max="-2" attributes="0"/>
-                                          <Component id="jLabel14" alignment="0" min="-2" max="-2" attributes="0"/>
-                                      </Group>
-                                      <EmptySpace max="-2" attributes="0"/>
-                                      <Group type="103" groupAlignment="0" attributes="0">
-                                          <Component id="cmbValue" max="32767" attributes="0"/>
-                                          <Component id="cmbDescription" max="32767" attributes="0"/>
-                                          <Component id="cmbMachineTitle" max="32767" attributes="0"/>
-                                      </Group>
-                                  </Group>
+                              <Group type="103" groupAlignment="0" attributes="0">
+                                  <Component id="jLabel13" alignment="0" min="-2" max="-2" attributes="0"/>
+                                  <Component id="jLabel2" alignment="0" min="-2" max="-2" attributes="0"/>
+                                  <Component id="jLabel14" alignment="0" min="-2" max="-2" attributes="0"/>
+                              </Group>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Group type="103" groupAlignment="0" attributes="0">
+                                  <Component id="cmbValue" pref="286" max="32767" attributes="0"/>
+                                  <Component id="cmbDescription" max="32767" attributes="0"/>
+                                  <Component id="cmbMachineTitle" max="32767" attributes="0"/>
                               </Group>
                               <EmptySpace min="-2" pref="6" max="-2" attributes="0"/>
                           </Group>
@@ -478,9 +479,7 @@
                                   <Component id="jLabel14" alignment="2" min="-2" max="-2" attributes="0"/>
                                   <Component id="cmbValue" alignment="2" min="-2" max="-2" attributes="0"/>
                               </Group>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="jPanel7" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace max="32767" attributes="0"/>
+                              <EmptySpace pref="26" max="32767" attributes="0"/>
                           </Group>
                       </Group>
                     </DimensionLayout>
@@ -534,169 +533,178 @@
                         <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="9"/>
                       </AuxValues>
                     </Component>
-                    <Container class="javax.swing.JPanel" name="jPanel7">
+                  </SubComponents>
+                </Container>
+                <Container class="javax.swing.JPanel" name="jPanel7">
+                  <Properties>
+                    <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+                      <Color blue="ff" green="ff" red="ff" type="rgb"/>
+                    </Property>
+                    <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+                      <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
+                        <TitledBorder title="Events of">
+                          <Font PropertyName="font" name="Tahoma" size="12" style="1"/>
+                          <Color PropertyName="color" blue="0" green="0" red="cc" type="rgb"/>
+                        </TitledBorder>
+                      </Border>
+                    </Property>
+                  </Properties>
+
+                  <Layout>
+                    <DimensionLayout dim="0">
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Group type="102" alignment="0" attributes="0">
+                              <EmptySpace min="-2" pref="0" max="-2" attributes="0"/>
+                              <Component id="btnDataEvent" pref="239" max="32767" attributes="0"/>
+                              <EmptySpace min="-2" pref="2" max="-2" attributes="0"/>
+                              <Component id="btnTimeEvent" pref="240" max="32767" attributes="0"/>
+                              <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                              <Component id="jPanel8" max="32767" attributes="0"/>
+                          </Group>
+                      </Group>
+                    </DimensionLayout>
+                    <DimensionLayout dim="1">
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Group type="103" groupAlignment="2" attributes="0">
+                              <Component id="btnDataEvent" alignment="2" min="-2" max="-2" attributes="0"/>
+                              <Component id="btnTimeEvent" alignment="2" min="-2" max="-2" attributes="0"/>
+                              <Component id="jPanel8" alignment="2" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                      </Group>
+                    </DimensionLayout>
+                  </Layout>
+                  <SubComponents>
+                    <Component class="javax.swing.JToggleButton" name="btnDataEvent">
                       <Properties>
                         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
                           <Color blue="ff" green="ff" red="ff" type="rgb"/>
                         </Property>
-                        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-                          <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
-                            <TitledBorder title="Events of">
-                              <Font PropertyName="font" name="Tahoma" size="12" style="1"/>
-                              <Color PropertyName="color" blue="0" green="0" red="cc" type="rgb"/>
-                            </TitledBorder>
-                          </Border>
+                        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+                          <ComponentRef name="buttonGroup2"/>
                         </Property>
+                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                          <Font name="Times New Roman" size="14" style="1"/>
+                        </Property>
+                        <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+                          <Color blue="0" green="0" red="cc" type="rgb"/>
+                        </Property>
+                        <Property name="selected" type="boolean" value="true"/>
+                        <Property name="text" type="java.lang.String" value="Data"/>
+                        <Property name="focusable" type="boolean" value="false"/>
+                        <Property name="opaque" type="boolean" value="true"/>
                       </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnDataEventActionPerformed"/>
+                      </Events>
+                    </Component>
+                    <Component class="javax.swing.JToggleButton" name="btnTimeEvent">
+                      <Properties>
+                        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+                          <Color blue="ff" green="ff" red="ff" type="rgb"/>
+                        </Property>
+                        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+                          <ComponentRef name="buttonGroup2"/>
+                        </Property>
+                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                          <Font name="Times New Roman" size="14" style="1"/>
+                        </Property>
+                        <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+                          <Color blue="0" green="0" red="cc" type="rgb"/>
+                        </Property>
+                        <Property name="text" type="java.lang.String" value="Time"/>
+                        <Property name="focusable" type="boolean" value="false"/>
+                        <Property name="opaque" type="boolean" value="true"/>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnTimeEventActionPerformed"/>
+                      </Events>
+                    </Component>
+                    <Container class="javax.swing.JPanel" name="jPanel8">
 
                       <Layout>
                         <DimensionLayout dim="0">
                           <Group type="103" groupAlignment="0" attributes="0">
                               <Group type="102" alignment="0" attributes="0">
-                                  <EmptySpace min="-2" pref="0" max="-2" attributes="0"/>
-                                  <Component id="btnDataEvent" max="32767" attributes="0"/>
                                   <EmptySpace min="-2" max="-2" attributes="0"/>
-                                  <Component id="btnTimeEvent" max="32767" attributes="0"/>
+                                  <Component id="radHour" pref="71" max="32767" attributes="0"/>
                                   <EmptySpace min="-2" max="-2" attributes="0"/>
-                                  <Component id="jPanel8" max="32767" attributes="0"/>
+                                  <Component id="radMinute" pref="75" max="32767" attributes="0"/>
+                                  <EmptySpace min="-2" max="-2" attributes="0"/>
+                                  <Component id="radSecond" pref="79" max="32767" attributes="0"/>
+                                  <EmptySpace min="-2" max="-2" attributes="0"/>
                               </Group>
                           </Group>
                         </DimensionLayout>
                         <DimensionLayout dim="1">
                           <Group type="103" groupAlignment="0" attributes="0">
-                              <Group type="103" alignment="0" groupAlignment="2" attributes="0">
-                                  <Component id="btnDataEvent" alignment="2" min="-2" max="-2" attributes="0"/>
-                                  <Component id="btnTimeEvent" alignment="2" min="-2" max="-2" attributes="0"/>
-                                  <Component id="jPanel8" alignment="2" min="-2" max="-2" attributes="0"/>
+                              <Group type="102" alignment="0" attributes="0">
+                                  <EmptySpace max="-2" attributes="0"/>
+                                  <Group type="103" groupAlignment="2" attributes="0">
+                                      <Component id="radHour" alignment="2" min="-2" max="-2" attributes="0"/>
+                                      <Component id="radMinute" alignment="2" min="-2" max="-2" attributes="0"/>
+                                      <Component id="radSecond" alignment="2" min="-2" max="-2" attributes="0"/>
+                                  </Group>
+                                  <EmptySpace max="-2" attributes="0"/>
                               </Group>
                           </Group>
                         </DimensionLayout>
                       </Layout>
                       <SubComponents>
-                        <Component class="javax.swing.JToggleButton" name="btnDataEvent">
+                        <Component class="javax.swing.JRadioButton" name="radHour">
                           <Properties>
                             <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
                               <Color blue="ff" green="ff" red="ff" type="rgb"/>
                             </Property>
                             <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
-                              <ComponentRef name="buttonGroup2"/>
-                            </Property>
-                            <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-                              <Font name="Times New Roman" size="14" style="1"/>
-                            </Property>
-                            <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-                              <Color blue="0" green="0" red="cc" type="rgb"/>
+                              <ComponentRef name="buttonGroup1"/>
                             </Property>
                             <Property name="selected" type="boolean" value="true"/>
-                            <Property name="text" type="java.lang.String" value="Data"/>
+                            <Property name="text" type="java.lang.String" value="Hour"/>
                             <Property name="focusable" type="boolean" value="false"/>
-                            <Property name="opaque" type="boolean" value="true"/>
                           </Properties>
                           <Events>
-                            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnDataEventActionPerformed"/>
+                            <EventHandler event="itemStateChanged" listener="java.awt.event.ItemListener" parameters="java.awt.event.ItemEvent" handler="radHourItemStateChanged"/>
                           </Events>
+                          <AuxValues>
+                            <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="9"/>
+                          </AuxValues>
                         </Component>
-                        <Component class="javax.swing.JToggleButton" name="btnTimeEvent">
+                        <Component class="javax.swing.JRadioButton" name="radMinute">
                           <Properties>
                             <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
                               <Color blue="ff" green="ff" red="ff" type="rgb"/>
                             </Property>
                             <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
-                              <ComponentRef name="buttonGroup2"/>
+                              <ComponentRef name="buttonGroup1"/>
                             </Property>
-                            <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-                              <Font name="Times New Roman" size="14" style="1"/>
-                            </Property>
-                            <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-                              <Color blue="0" green="0" red="cc" type="rgb"/>
-                            </Property>
-                            <Property name="text" type="java.lang.String" value="Time"/>
+                            <Property name="text" type="java.lang.String" value="Minutes"/>
                             <Property name="focusable" type="boolean" value="false"/>
-                            <Property name="opaque" type="boolean" value="true"/>
                           </Properties>
                           <Events>
-                            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnTimeEventActionPerformed"/>
+                            <EventHandler event="itemStateChanged" listener="java.awt.event.ItemListener" parameters="java.awt.event.ItemEvent" handler="radMinuteItemStateChanged"/>
                           </Events>
+                          <AuxValues>
+                            <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="9"/>
+                          </AuxValues>
                         </Component>
-                        <Container class="javax.swing.JPanel" name="jPanel8">
-
-                          <Layout>
-                            <DimensionLayout dim="0">
-                              <Group type="103" groupAlignment="0" attributes="0">
-                                  <Group type="102" alignment="0" attributes="0">
-                                      <EmptySpace min="-2" max="-2" attributes="0"/>
-                                      <Component id="radHour" pref="53" max="32767" attributes="0"/>
-                                      <EmptySpace min="-2" max="-2" attributes="0"/>
-                                      <Component id="radMinute" pref="61" max="32767" attributes="0"/>
-                                      <EmptySpace min="-2" max="-2" attributes="0"/>
-                                      <Component id="radSecond" max="32767" attributes="0"/>
-                                      <EmptySpace min="-2" max="-2" attributes="0"/>
-                                  </Group>
-                              </Group>
-                            </DimensionLayout>
-                            <DimensionLayout dim="1">
-                              <Group type="103" groupAlignment="0" attributes="0">
-                                  <Group type="102" alignment="0" attributes="0">
-                                      <EmptySpace max="-2" attributes="0"/>
-                                      <Group type="103" groupAlignment="2" attributes="0">
-                                          <Component id="radHour" alignment="2" min="-2" max="-2" attributes="0"/>
-                                          <Component id="radMinute" alignment="2" min="-2" max="-2" attributes="0"/>
-                                          <Component id="radSecond" alignment="2" min="-2" max="-2" attributes="0"/>
-                                      </Group>
-                                      <EmptySpace max="-2" attributes="0"/>
-                                  </Group>
-                              </Group>
-                            </DimensionLayout>
-                          </Layout>
-                          <SubComponents>
-                            <Component class="javax.swing.JRadioButton" name="radHour">
-                              <Properties>
-                                <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-                                  <Color blue="ff" green="ff" red="ff" type="rgb"/>
-                                </Property>
-                                <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
-                                  <ComponentRef name="buttonGroup1"/>
-                                </Property>
-                                <Property name="selected" type="boolean" value="true"/>
-                                <Property name="text" type="java.lang.String" value="Hour"/>
-                                <Property name="focusable" type="boolean" value="false"/>
-                              </Properties>
-                              <Events>
-                                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="radHourActionPerformed"/>
-                              </Events>
-                            </Component>
-                            <Component class="javax.swing.JRadioButton" name="radMinute">
-                              <Properties>
-                                <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-                                  <Color blue="ff" green="ff" red="ff" type="rgb"/>
-                                </Property>
-                                <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
-                                  <ComponentRef name="buttonGroup1"/>
-                                </Property>
-                                <Property name="text" type="java.lang.String" value="Minutes"/>
-                                <Property name="focusable" type="boolean" value="false"/>
-                              </Properties>
-                              <Events>
-                                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="radMinuteActionPerformed"/>
-                              </Events>
-                            </Component>
-                            <Component class="javax.swing.JRadioButton" name="radSecond">
-                              <Properties>
-                                <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-                                  <Color blue="ff" green="ff" red="ff" type="rgb"/>
-                                </Property>
-                                <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
-                                  <ComponentRef name="buttonGroup1"/>
-                                </Property>
-                                <Property name="text" type="java.lang.String" value="Seconds"/>
-                                <Property name="focusable" type="boolean" value="false"/>
-                              </Properties>
-                              <Events>
-                                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="radSecondActionPerformed"/>
-                              </Events>
-                            </Component>
-                          </SubComponents>
-                        </Container>
+                        <Component class="javax.swing.JRadioButton" name="radSecond">
+                          <Properties>
+                            <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+                              <Color blue="ff" green="ff" red="ff" type="rgb"/>
+                            </Property>
+                            <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+                              <ComponentRef name="buttonGroup1"/>
+                            </Property>
+                            <Property name="text" type="java.lang.String" value="Seconds"/>
+                            <Property name="focusable" type="boolean" value="false"/>
+                          </Properties>
+                          <Events>
+                            <EventHandler event="itemStateChanged" listener="java.awt.event.ItemListener" parameters="java.awt.event.ItemEvent" handler="radSecondItemStateChanged"/>
+                          </Events>
+                          <AuxValues>
+                            <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="9"/>
+                          </AuxValues>
+                        </Component>
                       </SubComponents>
                     </Container>
                   </SubComponents>
@@ -939,7 +947,7 @@
                     <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
                       <Image iconType="3" name="/images/icons/view_icon.png"/>
                     </Property>
-                    <Property name="text" type="java.lang.String" value="View Data"/>
+                    <Property name="text" type="java.lang.String" value="Chart data table"/>
                     <Property name="enabled" type="boolean" value="false"/>
                     <Property name="focusable" type="boolean" value="false"/>
                     <Property name="horizontalTextPosition" type="int" value="0"/>

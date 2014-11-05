@@ -463,7 +463,8 @@ public class MainFrame extends DefaultDockableBarDockableHolder {
     }
 
     public static void actionCreateUser() {
-        new CreateUser(_frame, true).setVisible(true);
+        Identification.setCreateUser(new CreateUser(_frame, true));
+        Identification.getCreateUser().setVisible(true);
     }
 //
 //    public static void actionChangePassword() {
@@ -481,9 +482,9 @@ public class MainFrame extends DefaultDockableBarDockableHolder {
                 if (!ConnectDB.getMainDir().exists()) {
                     ConnectDB.getMainDir().mkdirs();
                 }
-                dirIcon = ConnectDB.getMainDir().getAbsolutePath() + File.separator + "SmartFactory_Report_User_Guide.pdf";
+                dirIcon = ConnectDB.getMainDir().getAbsolutePath() + File.separator + "SmartFactory_Report_User_Guide_2.pdf";
                 if (!new File(dirIcon).exists()) {
-                    inputStream = MainFrame.class.getResourceAsStream("/userguide/SmartFactory_Report_User_Guide.pdf");
+                    inputStream = MainFrame.class.getResourceAsStream("/userguide/SmartFactory_Report_User_Guide_2.pdf");
                     outputStream = new FileOutputStream(new File(dirIcon));
                     int readFile;
                     byte[] bytes = new byte[4096];

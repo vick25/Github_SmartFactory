@@ -21,6 +21,10 @@ public class SplashScreen extends javax.swing.JFrame {
         return identification;
     }
 
+    public static void setIdentification(Identification identification) {
+        SplashScreen.identification = identification;
+    }
+
     public SplashScreen() {
 //        final String workingDir = System.getProperty("user.dir");
         initComponents();

@@ -308,7 +308,7 @@ public class CreateUser extends javax.swing.JDialog {
         });
 
         jLabel11.setFont(new java.awt.Font("Tahoma", 0, 9)); // NOI18N
-        jLabel11.setText("<html><font color=red>*</font>Required field</html>");
+        jLabel11.setText("<html><font color=red>*Required field</font></html>");
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);

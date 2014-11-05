@@ -386,7 +386,7 @@
             <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
               <Color blue="ff" green="ff" red="ff" type="rgb"/>
             </Property>
-            <Property name="dividerLocation" type="int" value="340"/>
+            <Property name="dividerLocation" type="int" value="337"/>
             <Property name="dividerSize" type="int" value="8"/>
             <Property name="oneTouchExpandable" type="boolean" value="true"/>
           </Properties>
@@ -396,7 +396,7 @@
             <Container class="javax.swing.JPanel" name="jPanel2">
               <Properties>
                 <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-                  <Color blue="99" green="99" red="99" type="rgb"/>
+                  <Color blue="b4" green="82" red="46" type="rgb"/>
                 </Property>
               </Properties>
               <Constraints>
@@ -418,14 +418,14 @@
                                   <Component id="jSeparator1" linkSize="10" alignment="2" max="32767" attributes="0"/>
                               </Group>
                               <Group type="102" alignment="0" attributes="0">
-                                  <Component id="jLabel1" min="-2" pref="63" max="-2" attributes="0"/>
+                                  <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
                                   <Component id="cmbMachineTitle" min="-2" pref="148" max="-2" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
                                   <Component id="chkActiveChannel" min="-2" max="-2" attributes="0"/>
                               </Group>
                           </Group>
-                          <EmptySpace pref="19" max="32767" attributes="0"/>
+                          <EmptySpace pref="10" max="32767" attributes="0"/>
                       </Group>
                   </Group>
                 </DimensionLayout>
@@ -460,7 +460,7 @@
                     <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
                       <Color blue="0" green="ff" red="ff" type="rgb"/>
                     </Property>
-                    <Property name="text" type="java.lang.String" value="&lt;html&gt;Machine:&lt;font color=red&gt;*&lt;/font&gt;&lt;/html&gt;"/>
+                    <Property name="text" type="java.lang.String" value="&lt;html&gt;&lt;font color=red&gt;*&lt;/font&gt;MACHINE:&lt;/html&gt;"/>
                   </Properties>
                 </Component>
                 <Component class="org.jdesktop.swingx.JXComboBox" name="cmbMachineTitle">
@@ -956,7 +956,7 @@
                     <Component class="com.alee.laf.spinner.WebSpinner" name="spShiftTableRow">
                       <Properties>
                         <Property name="model" type="javax.swing.SpinnerModel" editor="org.netbeans.modules.form.editors2.SpinnerModelEditor">
-                          <SpinnerModel initial="1" minimum="1" numberType="java.lang.Integer" stepSize="1" type="number"/>
+                          <SpinnerModel initial="1" maximum="5" minimum="1" numberType="java.lang.Integer" stepSize="1" type="number"/>
                         </Property>
                       </Properties>
                       <Events>
@@ -1057,7 +1057,7 @@
                       <Layout>
                         <DimensionLayout dim="0">
                           <Group type="103" groupAlignment="0" attributes="0">
-                              <Component id="tbpPanDetails" alignment="0" pref="755" max="32767" attributes="0"/>
+                              <Component id="tbpPanDetails" alignment="0" pref="758" max="32767" attributes="0"/>
                           </Group>
                         </DimensionLayout>
                         <DimensionLayout dim="1">
@@ -1109,7 +1109,7 @@
                                           <Component id="btnCleanTable" min="-2" max="-2" attributes="0"/>
                                           <EmptySpace max="-2" attributes="0"/>
                                           <Component id="btnShowEvents" min="-2" max="-2" attributes="0"/>
-                                          <EmptySpace pref="133" max="32767" attributes="0"/>
+                                          <EmptySpace pref="134" max="32767" attributes="0"/>
                                           <Component id="btnExportExcelCsv" min="-2" max="-2" attributes="0"/>
                                       </Group>
                                   </Group>
@@ -1270,7 +1270,7 @@
                                               <Component id="lblShiftSum2" linkSize="5" alignment="0" min="-2" max="-2" attributes="0"/>
                                               <Component id="lblShiftSum3" linkSize="5" alignment="0" min="-2" pref="121" max="-2" attributes="0"/>
                                           </Group>
-                                          <EmptySpace min="28" pref="100" max="32767" attributes="0"/>
+                                          <EmptySpace min="28" pref="102" max="32767" attributes="0"/>
                                       </Group>
                                   </Group>
                                 </DimensionLayout>

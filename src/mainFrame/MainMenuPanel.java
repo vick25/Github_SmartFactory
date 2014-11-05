@@ -26,7 +26,7 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import login.Identification;
 import productionPanel.ProductionPane;
-import productionQuickView.ProductionQuickView;
+import productionQuickView.ProductionQuickView1;
 import smartfactoryV2.ConnectDB;
 import smartfactoryV2.SplashScreen;
 import viewData.ViewHistory;
@@ -298,7 +298,8 @@ public class MainMenuPanel extends JPanel {
             try {
                 Identification.setQuickViewFrame(new JFrame("Production Quick View"));
                 Identification.getQuickViewFrame().setSize(950, 570);
-                Identification.getQuickViewFrame().setContentPane(new ProductionQuickView(Identification.getQuickViewFrame()));
+                Identification.setProductionQuickView(new ProductionQuickView1(Identification.getQuickViewFrame()));
+                Identification.getQuickViewFrame().setContentPane(Identification.getProductionQuickView());
                 Identification.getQuickViewFrame().setLocationRelativeTo(_parent);
                 Identification.getQuickViewFrame().setIconImage(new ImageIcon(_parent.getClass().
                         getResource("/images/smart_factory_logo_icon.png")).getImage());

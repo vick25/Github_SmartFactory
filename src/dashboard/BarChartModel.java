@@ -18,6 +18,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.TreeSet;
 import javax.swing.JOptionPane;
+import mainFrame.MainFrame;
 import mainFrame.MainMenuPanel;
 import smartfactoryV2.ConnectDB;
 import smartfactoryV2.Queries;
@@ -84,6 +85,7 @@ public class BarChartModel extends DefaultChartModel implements CumulativeSubrac
             }
             ps.close();
             if (_loopQueryFound) {
+                MainFrame.setDashBoardDate(DashBoard.getDate());
                 final List LOGTIMEWITHSHIFTS = new ArrayList(new TreeSet<>(dateData));//list to store each sorted date retrieved form the values arrays
                 for (short q = 0; q < LOGTIMEWITHSHIFTS.size(); ++q) {
                     Category cShifts = new ChartCategory(LOGTIMEWITHSHIFTS.get(q), categoryRange);
@@ -199,6 +201,7 @@ public class BarChartModel extends DefaultChartModel implements CumulativeSubrac
             }
             ps.close();
             if (_loopQueryFound) {
+                MainFrame.setDashBoardDate(DashBoard.getDate());
                 subtractedDatalogValues.clear();
                 //Method used to send the datalog values to get the difference in row for each hour
                 getSubtractedValues((byte) -1, datalogValuesList);
@@ -237,11 +240,13 @@ public class BarChartModel extends DefaultChartModel implements CumulativeSubrac
                 this.setModelPoints(modelShift);
                 //change dashboard message
             } else {
-                DashBoard.bslTime.setText("Chart's loading failed.");
-                JOptionPane.showMessageDialog(MainMenuPanel.getDashBoardFrame(), new StringBuilder("<html>Please, "
-                        + "adjust the Dashbaord starting time to this date: <font color=red><b>").
-                        append(DashBoard.getLastDBDate().substring(0, 10)).append("</b></font>,<br>and retry.").toString(),
-                        "Dashboard", JOptionPane.ERROR_MESSAGE);
+                DashBoard.getBslTime().setText("Chart's loading failed.");
+                if (DashBoardTimer.isShowChartDataMessage()) {
+                    JOptionPane.showMessageDialog(MainMenuPanel.getDashBoardFrame(), new StringBuilder("<html>Please, "
+                            + "adjust the Dashbaord starting time to this date: <font color=red><b>").
+                            append(DashBoard.getLastDBDate().substring(0, 10)).append("</b></font>,<br>and retry.").toString(),
+                            "Dashboard", JOptionPane.ERROR_MESSAGE);
+                }
                 modelPoints = null;
             }
         }

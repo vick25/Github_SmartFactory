@@ -6,7 +6,6 @@ import com.jidesoft.dialog.ButtonNames;
 import com.jidesoft.dialog.ButtonPanel;
 import com.jidesoft.dialog.MultiplePageDialog;
 import com.jidesoft.dialog.PageList;
-import com.jidesoft.plaf.LookAndFeelFactory;
 import com.jidesoft.plaf.UIDefaultsLookup;
 import com.jidesoft.swing.JideSwingUtilities;
 import java.awt.BorderLayout;
@@ -129,7 +128,7 @@ public class StatSetting extends MultiplePageDialog {
 
         OptionPageGeneral(String name, Icon icon) {
             super(name, icon);
-            chartFeaturePan = new ChartFeature(this, parent);
+            chartFeaturePan = new EventChartFeature(this, parent);
         }
 
         @Override
@@ -139,45 +138,47 @@ public class StatSetting extends MultiplePageDialog {
         }
     }
 
-    public static void main(String[] argv) {
-        LookAndFeelFactory.installDefaultLookAndFeel();
-        showOptionsDialog();
-    }
+//    public static void main(String[] argv) {
+//        LookAndFeelFactory.installDefaultLookAndFeel();
+//        showOptionsDialog();
+//    }
 
     private void applyChartFeature() {
-        ConnectDB.pref.putBoolean(StatKeyFactory.ChartFeatures.RBLineLabel, ChartFeature.RBLineLabel.isSelected());
-        ConnectDB.pref.putBoolean(StatKeyFactory.ChartFeatures.RBSimpleLabel, ChartFeature.RBSimpleLabel.isSelected());
-        ConnectDB.pref.putBoolean(StatKeyFactory.ChartFeatures.RBNoLabel, ChartFeature.RBNoLabel.isSelected());
-        ConnectDB.pref.putInt(StatKeyFactory.ChartFeatures.SLAngle, ChartFeature.SLAngle.getValue());
-        ConnectDB.pref.putBoolean(StatKeyFactory.ChartFeatures.ChBExplodedSegment, ChartFeature.ChBExplodedSegment.isSelected());
+        ConnectDB.pref.putBoolean(StatKeyFactory.ChartFeatures.RBLineLabel, EventChartFeature.RBLineLabel.isSelected());
+        ConnectDB.pref.putBoolean(StatKeyFactory.ChartFeatures.RBSimpleLabel, EventChartFeature.RBSimpleLabel.isSelected());
+        ConnectDB.pref.putBoolean(StatKeyFactory.ChartFeatures.RBNoLabel, EventChartFeature.RBNoLabel.isSelected());
+        ConnectDB.pref.putInt(StatKeyFactory.ChartFeatures.SLAngle, EventChartFeature.SLAngle.getValue());
+        ConnectDB.pref.putBoolean(StatKeyFactory.ChartFeatures.ChBExplodedSegment, EventChartFeature.ChBExplodedSegment.isSelected());
 
-        ConnectDB.pref.putBoolean(StatKeyFactory.ChartFeatures.BarChBVLine, ChartFeature.BarChBVLine.isSelected());
-        ConnectDB.pref.putBoolean(StatKeyFactory.ChartFeatures.BarChBHLine, ChartFeature.BarChBHLine.isSelected());
-        ConnectDB.pref.putBoolean(StatKeyFactory.ChartFeatures.LineChBVLine, ChartFeature.LineChBVLine.isSelected());
-        ConnectDB.pref.putBoolean(StatKeyFactory.ChartFeatures.LineChBHLine, ChartFeature.LineChBHLine.isSelected());
-        ConnectDB.setColorFromKey(ChartFeature.CBColor.getSelectedColor(), StatKeyFactory.ChartFeatures.CBColor);
-        ConnectDB.setColorFromKey(ChartFeature.CBColor2.getSelectedColor(), StatKeyFactory.ChartFeatures.CBColor2);
-        ConnectDB.pref.putBoolean(StatKeyFactory.ChartFeatures.RandomColor, ChartFeature.RandomColor.isSelected());
-        ConnectDB.pref.putBoolean(StatKeyFactory.ChartFeatures.OneColor, ChartFeature.OneColor.isSelected());
-        ConnectDB.pref.putInt(StatKeyFactory.ChartFeatures.SPLineWidth, Integer.parseInt(ChartFeature.SPLineWidth.getValue().toString()));
+        ConnectDB.pref.putBoolean(StatKeyFactory.ChartFeatures.BarChBVLine, EventChartFeature.BarChBVLine.isSelected());
+        ConnectDB.pref.putBoolean(StatKeyFactory.ChartFeatures.BarChBHLine, EventChartFeature.BarChBHLine.isSelected());
+        ConnectDB.pref.putBoolean(StatKeyFactory.ChartFeatures.LineChBVLine, EventChartFeature.LineChBVLine.isSelected());
+        ConnectDB.pref.putBoolean(StatKeyFactory.ChartFeatures.LineChBHLine, EventChartFeature.LineChBHLine.isSelected());
+        ConnectDB.setColorFromKey(EventChartFeature.CBColor.getSelectedColor(), StatKeyFactory.ChartFeatures.CBColor);
+        ConnectDB.setColorFromKey(EventChartFeature.CBColor2.getSelectedColor(), StatKeyFactory.ChartFeatures.CBColor2);
+        ConnectDB.pref.putBoolean(StatKeyFactory.ChartFeatures.RandomColor, EventChartFeature.RandomColor.isSelected());
+        ConnectDB.pref.putBoolean(StatKeyFactory.ChartFeatures.OneColor, EventChartFeature.OneColor.isSelected());
+        ConnectDB.pref.putInt(StatKeyFactory.ChartFeatures.SPLineWidth, Integer.parseInt(EventChartFeature.SPLineWidth.getValue().toString()));
 
-        ConnectDB.pref.putBoolean(StatKeyFactory.ChartFeatures.RBFlat, ChartFeature.RBFlat.isSelected());
-        ConnectDB.pref.putBoolean(StatKeyFactory.ChartFeatures.RBRaised, ChartFeature.RBRaised.isSelected());
-        ConnectDB.pref.putBoolean(StatKeyFactory.ChartFeatures.RB3D, ChartFeature.RB3D.isSelected());
-        ConnectDB.pref.putBoolean(StatKeyFactory.ChartFeatures.ChBShadow, ChartFeature.ChBShadow.isSelected());
-        ConnectDB.pref.putBoolean(StatKeyFactory.ChartFeatures.ChBRollover, ChartFeature.ChBRollover.isSelected());
-        ConnectDB.pref.putBoolean(StatKeyFactory.ChartFeatures.CHKOUTLINE, ChartFeature.ChBOutline.isSelected());
-        ConnectDB.pref.putBoolean(StatKeyFactory.ChartFeatures.ChBSelectionOutline, ChartFeature.ChBSelectionOutline.isSelected());
-        ConnectDB.pref.putInt(StatKeyFactory.ChartFeatures.CMBTIME, ChartFeature.cmbTime.getSelectedIndex());
-        if (!EventsStatistic.btnBarChart.isEnabled()) {
-            EventsStatistic.createBarChart();
-        } else if (!EventsStatistic.btnPieChart.isEnabled()) {
-            EventsStatistic.createPieChart();
-        } else if (!EventsStatistic.btnLineChart.isEnabled()) {
-            EventsStatistic.createLineChart();
+        ConnectDB.pref.putBoolean(StatKeyFactory.ChartFeatures.RBFlat, EventChartFeature.RBFlat.isSelected());
+        ConnectDB.pref.putBoolean(StatKeyFactory.ChartFeatures.RBRaised, EventChartFeature.RBRaised.isSelected());
+        ConnectDB.pref.putBoolean(StatKeyFactory.ChartFeatures.RB3D, EventChartFeature.RB3D.isSelected());
+        ConnectDB.pref.putBoolean(StatKeyFactory.ChartFeatures.ChBShadow, EventChartFeature.ChBShadow.isSelected());
+        ConnectDB.pref.putBoolean(StatKeyFactory.ChartFeatures.ChBRollover, EventChartFeature.ChBRollover.isSelected());
+        ConnectDB.pref.putBoolean(StatKeyFactory.ChartFeatures.CHKOUTLINE, EventChartFeature.ChBOutline.isSelected());
+        ConnectDB.pref.putBoolean(StatKeyFactory.ChartFeatures.ChBSelectionOutline, EventChartFeature.ChBSelectionOutline.isSelected());
+        ConnectDB.pref.putInt(StatKeyFactory.ChartFeatures.CMBTIME, EventChartFeature.cmbTime.getSelectedIndex());
+        try {
+            if (!EventsStatistic.btnBarChart.isEnabled()) {
+                EventsStatistic.createBarChart();
+            } else if (!EventsStatistic.btnPieChart.isEnabled()) {
+                EventsStatistic.createPieChart();
+            } else if (!EventsStatistic.btnLineChart.isEnabled()) {
+                EventsStatistic.createLineChart();
+            }
+        } catch (Exception e) {
         }
     }
-
-    static ChartFeature chartFeaturePan;
-    static JDialog parent;
+    private static EventChartFeature chartFeaturePan;
+    private static JDialog parent;
 }

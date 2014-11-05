@@ -27,10 +27,9 @@ import smartfactoryV2.ConnectDB;
  */
 public class VerticalMultiChartPanel extends JPanel {
 
-    public static MarqueePane getHorizonMarqueeLeft() {
-        return _horizonMarqueeLeft;
-    }
-
+//    public static MarqueePane getHorizonMarqueeLeft() {
+//        return _horizonMarqueeLeft;
+//    }
     public static void setCurrentTarget(double currentTarget) {
         VerticalMultiChartPanel.currentTarget = currentTarget;
     }
@@ -143,11 +142,17 @@ public class VerticalMultiChartPanel extends JPanel {
 
         JPanel demoPanel = new JPanel(new BorderLayout());
         demoPanel.add(horizonMarqueeLeft);
-        _horizonMarqueeLeft = horizonMarqueeLeft;
+        try {
+            DashBoard.getColDashBoard().getMapHorizonMarqueeLeft().put(machineName,
+                    horizonMarqueeLeft);
+        } catch (UnsupportedOperationException ex) {
+        }
+//        _horizonMarqueeLeft = horizonMarqueeLeft;
         legendPanel.add(demoPanel);
     }
 
-    private void customizeStyledLabel(StyledLabel styledLabel, double variance, double actualBar, double currentTarget) throws SQLException {
+    private void customizeStyledLabel(StyledLabel styledLabel, double variance, double actualBar, 
+            double currentTarget) throws SQLException {
         styledLabel.setText("     Current Target: " + currentTarget + "      Actual Value: " + actualBar
                 + "      Variance: " + ConnectDB.DECIMALFORMAT.format(variance) + getEventsInformation());
 //        System.out.println("00000Current0Target:0" + currentTarget + "00000000Actual0Value:0" + actualBar
@@ -235,6 +240,6 @@ public class VerticalMultiChartPanel extends JPanel {
     private final String machineName;
 //    private final Legend legend = new Legend();
     private static double currentTarget, actualBarValue, variance;
-    private static MarqueePane _horizonMarqueeLeft;
+//    private static MarqueePane _horizonMarqueeLeft;
     private final RandomColor randomColor = new RandomColor();
 }

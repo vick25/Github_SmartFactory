@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import javax.swing.SwingConstants;
 import javax.swing.table.AbstractTableModel;
 import productionQuickView.ProductionQuickView;
+import productionQuickView.QuickViewKeyFactory;
 import setting.SettingKeyFactory;
 import smartfactoryV2.ConnectDB;
 
@@ -82,14 +83,19 @@ public class TableModelTotal extends AbstractTableModel implements ContextSensit
                         Rectangle clip = new Rectangle(cellRect.x, cellRect.y, (int) (cellRect.width * 100.0 / 100.0),
                                 cellRect.height);
                         g2d.clip(clip);
-                        if (valueD >= machineTarget) {//Green new Color(147, 98, 184)
+                        if (valueD >= machineTarget * Double.valueOf(ConnectDB.pref.get(
+                                QuickViewKeyFactory.QuickViewKeys.GREEN, "75")) / 100) {//Green new Color(147, 98, 184)
                             JideSwingUtilities.fillGradient(g2d, cellRect,
-                                    Color.GREEN, new Color(229, 193, 255), false);
-                        } else if ((valueD * 0.05) <= machineTarget && machineTarget <= (valueD * 0.75)) {
+                                    new Color(102, 255, 0), new Color(172, 225, 175), false);
+                        } else if ((machineTarget * Double.valueOf(ConnectDB.pref.get(
+                                QuickViewKeyFactory.QuickViewKeys.AMBERLESS, "50")) / 100) <= valueD
+                                && valueD <= (machineTarget
+                                * Double.valueOf(ConnectDB.pref.get(QuickViewKeyFactory.QuickViewKeys.AMBERMORE, "75")) / 100)) {
                             //Amber or Orange new Color(173, 135, 24)
                             JideSwingUtilities.fillGradient(g2d, cellRect,
-                                    Color.ORANGE, new Color(246, 218, 135), false);
-                        } else if (valueD < machineTarget) {//Red new Color(75, 126, 176)
+                                    new Color(255, 191, 0), new Color(246, 218, 135), false);
+                        } else if (valueD < (machineTarget
+                                * Double.valueOf(ConnectDB.pref.get(QuickViewKeyFactory.QuickViewKeys.RED, "50")) / 100)) {//Red new Color(75, 126, 176)
                             JideSwingUtilities.fillGradient(g2d, cellRect,
                                     Color.RED, new Color(170, 208, 246), false);
                         } else {

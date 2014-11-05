@@ -94,9 +94,9 @@ public class ProdStatSetting extends MultiplePageDialog {
         PageList model = new PageList();
         dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         // setup model
-        OptionPageGeneral panel1 = new OptionPageGeneral("Production Features",
+        OptionPageGeneral panel = new OptionPageGeneral("Production Features",
                 SettingIconsFactory.getImageIcon(SettingIconsFactory.Options.GENERAL));
-        model.append(panel1);
+        model.append(panel);
         dialog.setPageList(model);
         dialog.pack();
         dialog.setLocationRelativeTo(MainFrame.getFrame());
@@ -152,6 +152,9 @@ public class ProdStatSetting extends MultiplePageDialog {
 //    }
 
     private void applyChartFeature() {
+        if (ProdFeature.getTxtShiftsMaxValue().getText().isEmpty()) {
+            return;
+        }
         ConnectDB.pref.putInt(ProdStatKeyFactory.ProdFeatures.SPFLAGTIMEFRAME,
                 Integer.parseInt(ProdFeature.spFlagTime.getValue().toString()));
         ConnectDB.pref.putBoolean(ProdStatKeyFactory.ProdFeatures.CHKSHIFTON, ProdFeature.radShiftOn.isSelected());
@@ -162,6 +165,7 @@ public class ProdStatSetting extends MultiplePageDialog {
         }
         ConnectDB.pref.putBoolean(ProdStatKeyFactory.ProdFeatures.RADPERMIN, ProdFeature.radPerMin.isSelected());
         ConnectDB.pref.putBoolean(ProdStatKeyFactory.ProdFeatures.RADPERHOUR, ProdFeature.radPerHour.isSelected());
+//        ConnectDB.pref.put(ProdStatKeyFactory.ProdFeatures.TIME_SHIFT_MAX_TABLEROW, ProdFeature.getTxtShiftsMaxValue().getText());
 
         if (MainFrame.getDocumentPane().isDocumentOpened("Production")) {
             ProductionPane.setSettings();
