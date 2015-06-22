@@ -1143,7 +1143,7 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
                 ArrayList<String> dataValue = new ArrayList<>();
                 try (PreparedStatement ps = ConnectDB.con.prepareStatement(new StringBuilder("SELECT DISTINCT(e.Value) ").
                         append("FROM eventlog e, customlist c \nWHERE e.HwNo =? AND e.Customcode = c.Code AND \n"
-                                + "c.Description IN (").append(ConnectDB.retrieveCateria(cmbDescription.getSelectedObjects())).
+                                + "c.Description IN (").append(ConnectDB.retrieveCriteria(cmbDescription.getSelectedObjects())).
                         append(") \nAND e.Value <> '(null)' \nORDER BY VALUE ASC").toString())) {
                     ps.setInt(1, machineID);
                     ConnectDB.res = ps.executeQuery();
@@ -1440,7 +1440,7 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
                             append(machineID).append("' AND e.CustomCode = c.Code \nAND e.Value <> '(null)' \n"
                                     + "AND (e.EventTime BETWEEN '").append(minLogTime).append("' AND '").
                             append(maxLogTime).append("')\n" + "AND c.`Description` IN (").
-                            append(ConnectDB.retrieveCateria(descriptionSet.toArray())).append(") \n"
+                            append(ConnectDB.retrieveCriteria(descriptionSet.toArray())).append(") \n"
                                     + "ORDER BY e.CustomCode ASC, e.`EventTime` ASC, e.`Value` ASC").toString();
                 } else {
                     return new StringBuilder("SELECT main.`EventTime`, main.`Value`, \n").
@@ -1449,7 +1449,7 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
                                     + "WHERE main.HwNo = '").append(machineID).append("' \nAND main.CustomCode = c.Code \n"
                                     + "AND main.Value <> '(null)' \nAND (main.EventTime BETWEEN '").append(minLogTime).
                             append("' AND '").append(maxLogTime).append("') \nAND c.`Description` IN (").
-                            append(ConnectDB.retrieveCateria(descriptionSet.toArray())).append(") \n"
+                            append(ConnectDB.retrieveCriteria(descriptionSet.toArray())).append(") \n"
                                     + "GROUP BY main.Value \nORDER BY c.Description ASC, main.Value ASC, main.`EventTime` ASC").toString();
                 }
             } else {//case for time events
@@ -1458,7 +1458,7 @@ private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
                         append("' AND e.CustomCode = c.Code \nAND e.Value <> '(null)'\n"
                                 + "AND (e.EventTime BETWEEN '").append(minLogTime).append("' AND '").
                         append(maxLogTime).append("') \n" + "AND c.`Description` IN (").
-                        append(ConnectDB.retrieveCateria(descriptionSet.toArray())).append(") \n"
+                        append(ConnectDB.retrieveCriteria(descriptionSet.toArray())).append(") \n"
                                 + "ORDER BY c.Description ASC, e.`EventTime` ASC").toString();
             }
         } else if (descriptionSet.contains(leafTitle.toLowerCase())) {//Node

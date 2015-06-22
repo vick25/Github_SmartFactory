@@ -237,7 +237,7 @@ public class ViewHistory extends javax.swing.JPanel {
                 ConnectDB.res = stat.executeQuery(new StringBuilder("SELECT h.Machine, c.ConfigNo, c.ChannelID \n").
                         append("FROM configuration c, hardware h \nWHERE h.HwNo = c.HwNo "
                                 + "\nAND c.HwNo IN (SELECT HwNo FROM hardware WHERE Machine IN (").
-                        append(ConnectDB.retrieveCateria(cmbMachine.getSelectedObjects())).
+                        append(ConnectDB.retrieveCriteria(cmbMachine.getSelectedObjects())).
                         append(")) \nORDER BY c.HwNo ASC, c.AvMinMax DESC").toString());
                 while (ConnectDB.res.next()) {
                     setMachine.add(ConnectDB.res.getString(1));

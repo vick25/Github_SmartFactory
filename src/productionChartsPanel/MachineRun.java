@@ -1,4 +1,4 @@
-package productionPanelChartsPanel;
+package productionChartsPanel;
 
 import com.jidesoft.chart.Chart;
 import com.jidesoft.chart.LabelPlacement;

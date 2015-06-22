@@ -238,7 +238,7 @@ public class ViewHistory extends javax.swing.JDialog {
             try (Statement stat = ConnectDB.con.createStatement()) {//for the channel
                 ConnectDB.res = stat.executeQuery(new StringBuilder("SELECT h.Machine FROM configuration c, hardware h \n").
                         append("WHERE h.HwNo = c.HwNo \nAND c.HwNo IN (SELECT HwNo FROM hardware \nWHERE h.Machine IN (").
-                        append(ConnectDB.retrieveCateria(cmbMachine.getSelectedObjects())).append(")) \n"
+                        append(ConnectDB.retrieveCriteria(cmbMachine.getSelectedObjects())).append(")) \n"
                                 + "ORDER BY c.HwNo ASC, c.AvMinMax DESC").toString());
                 while (ConnectDB.res.next()) {
                     setMachine.add(ConnectDB.res.getString(1));

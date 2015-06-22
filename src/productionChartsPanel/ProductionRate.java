@@ -1,4 +1,4 @@
-package productionPanelChartsPanel;
+package productionChartsPanel;
 
 import chartTypes.LineChart;
 import com.jidesoft.chart.Chart;

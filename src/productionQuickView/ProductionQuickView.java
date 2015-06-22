@@ -989,7 +989,7 @@ public class ProductionQuickView extends javax.swing.JPanel {
         StringBuilder machines = new StringBuilder("");
         if (cblMachine.getCheckBoxListSelectedValues().length != 0) {
             machines = new StringBuilder(" AND (h.Machine IN (").
-                    append(ConnectDB.retrieveCateria(cblMachine.getCheckBoxListSelectedValues())).append("))");
+                    append(ConnectDB.retrieveCriteria(cblMachine.getCheckBoxListSelectedValues())).append("))");
         }
         return machines.toString();
     }

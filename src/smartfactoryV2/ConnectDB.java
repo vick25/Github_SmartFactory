@@ -323,7 +323,7 @@ public class ConnectDB {
         return l;
     }
 
-    public static String retrieveCateria(Object[] machineList) {
+    public static String retrieveCriteria(Object[] machineList) {
         StringBuilder values = new StringBuilder();
         for (Object list : machineList) {
             values.append("\'").append(ConnectDB.firstLetterCapital(list.toString())).append("\',");
